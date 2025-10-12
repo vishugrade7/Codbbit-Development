@@ -21,6 +21,7 @@ export type IsUsernameUniqueInput = z.infer<
 
 const IsUsernameUniqueOutputSchema = z.object({
   isUnique: z.boolean(),
+  existingUserName: z.string().optional(),
 });
 export type IsUsernameUniqueOutput = z.infer<
   typeof IsUsernameUniqueOutputSchema
@@ -40,10 +41,16 @@ const isUsernameUniqueFlow = ai.defineFlow(
     try {
       const usersRef = firestore.collection('users');
       // Perform a case-insensitive check by querying a lowercase version of the username
-      const q = usersRef.where('username', '==', username).limit(1);
+      const q = usersRef.where('username_lowercase', '==', username.toLowerCase()).limit(1);
       const querySnapshot = await q.get();
 
-      return { isUnique: querySnapshot.empty };
+      if (querySnapshot.empty) {
+        return { isUnique: true };
+      }
+      
+      const existingUser = querySnapshot.docs[0].data();
+      return { isUnique: false, existingUserName: existingUser.name };
+
     } catch (error) {
       console.error('Error checking username uniqueness:', String(error));
       // In case of an error, assume it's not unique to be safe

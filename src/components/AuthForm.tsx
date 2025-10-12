@@ -93,6 +93,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('account');
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle');
+  const [existingUserName, setExistingUserName] = useState<string | null>(null);
   const [showVerifyEmailDialog, setShowVerifyEmailDialog] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<User | null>(null);
   const [isResending, setIsResending] = useState(false);
@@ -136,13 +137,15 @@ function AuthFormComponent({ type }: AuthFormProps) {
     }
     setUsernameStatus('checking');
     try {
-      const { isUnique } = await isUsernameUnique({ username });
+      const { isUnique, existingUserName } = await isUsernameUnique({ username });
       if (isUnique) {
         setUsernameStatus('unique');
+        setExistingUserName(null);
         clearErrors('username');
       } else {
         setUsernameStatus('taken');
-        setError('username', { type: 'manual', message: 'This username is already taken.' });
+        setExistingUserName(existingUserName || null);
+        setError('username', { type: 'manual', message: `This username is already taken by ${existingUserName}.` });
       }
     } catch (error) {
       setUsernameStatus('idle'); // Reset on error
@@ -214,7 +217,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
     } else {
       const signupValues = values as z.infer<typeof signupSchema>;
        if (usernameStatus !== 'unique') {
-        setError('username', { type: 'manual', message: 'Please choose a unique username.' });
+        setError('username', { type: 'manual', message: `This username is already taken by ${existingUserName}.` });
         return;
       }
       try {
