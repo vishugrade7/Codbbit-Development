@@ -52,6 +52,8 @@ interface CodingPanelProps {
   fontSize: number;
   editorTheme: string;
   onPrettify: () => Promise<void>;
+  output: { success: boolean; logs: string; error?: string } | null;
+  setOutput: (output: { success: boolean; logs: string; error?: string } | null) => void;
 }
 
 interface ChatMessage {
@@ -73,8 +75,8 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
     }
 
     const errorParts = output.error?.split('\n') || [];
-    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Unknown Test Failure';
-    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No assertion message.';
+    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'An error occurred';
+    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || output.error || 'No assertion message.';
     
     // Updated to handle both "Class.TriggerName: line X" and "Class.ClassName.MethodName: line X"
     const lineInfoMatch = output.error?.match(/Class\.([^:]+): line (\d+)/);
@@ -102,7 +104,7 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
 }
 
 
-export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme, onPrettify }: CodingPanelProps) {
+export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme, onPrettify, output, setOutput }: CodingPanelProps) {
   const [isPending, startTransition] = useTransition();
   
   const firestore = useFirestore();
@@ -110,7 +112,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   const panelGroupRef = useRef<PanelGroup>(null);
   const [resultsPanelSize, setResultsPanelSize] = useState(5);
   const [isDeleting, setIsDeleting] = useState(false);
-  const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
 
   const userDocRef = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
@@ -134,7 +135,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   useEffect(() => {
     // Reset output when question changes
     setOutput(null);
-  }, [question.id]);
+  }, [question.id, setOutput]);
 
   const handleSubmitCode = () => {
     startTransition(async () => {

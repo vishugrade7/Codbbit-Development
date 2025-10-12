@@ -76,6 +76,8 @@ export default function ProblemSolvingPage() {
   const [syncStatus, setSyncStatus] = useState<string[]>([]);
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
+  
+  const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
 
 
   const userDocRef = useMemoFirebase(() => {
@@ -214,19 +216,11 @@ export default function ProblemSolvingPage() {
           description: "Your Apex code has been prettified.",
         });
       } else {
-        toast({
-          title: "Formatting Failed",
-          description: result.error || "Could not format the code. Please check for syntax errors.",
-          variant: "destructive",
-        });
+        setOutput({ success: false, logs: '', error: result.error || 'Formatting failed. Please check for syntax errors.' });
       }
     } catch (error: any) {
       console.error("Prettier formatting failed:", error);
-      toast({
-        title: "Formatting Failed",
-        description: "An unknown error occurred during formatting.",
-        variant: "destructive",
-      });
+       setOutput({ success: false, logs: '', error: 'An unknown error occurred during formatting.' });
     }
   };
 
@@ -403,6 +397,8 @@ export default function ProblemSolvingPage() {
                             fontSize={fontSize}
                             editorTheme={editorTheme}
                             onPrettify={handlePrettify}
+                            output={output}
+                            setOutput={setOutput}
                         />
                     </ResizablePanel>
                 </ResizablePanelGroup>
