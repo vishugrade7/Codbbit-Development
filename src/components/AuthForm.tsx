@@ -232,6 +232,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
             email: user.email,
             name: signupValues.fullName,
             username: signupValues.username,
+            username_lowercase: signupValues.username.toLowerCase(),
             company: signupValues.company || '',
             country: signupValues.country,
             emailVerified: user.emailVerified,
