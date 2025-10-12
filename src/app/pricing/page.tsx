@@ -84,6 +84,7 @@ export default function PricingPage() {
   const { data: priceConfig, isLoading: isLoadingPrice } = useDoc<PriceConfig>(priceDocRef);
 
   const premiumPrice = useMemo(() => priceConfig?.premiumPrice ?? 129, [priceConfig]);
+  const paymentsEnabled = useMemo(() => priceConfig?.isPaymentsEnabled !== false, [priceConfig]);
   
   useEffect(() => {
       setFinalPrice(premiumPrice);
@@ -189,17 +190,17 @@ export default function PricingPage() {
         <div className="container mx-auto py-10 px-4 sm:px-6 lg:px-8">
           <header className="text-center mb-12">
             <h1 className="text-4xl font-bold font-headline tracking-tight text-foreground">
-              Pricing Plans
+              {paymentsEnabled ? "Pricing Plans" : "Coming Soon"}
             </h1>
             <p className="text-muted-foreground mt-2 max-w-2xl mx-auto">
-              Choose the plan that fits your needs. Start for free and upgrade when you're ready.
+              {paymentsEnabled ? "Choose the plan that fits your needs. Start for free and upgrade when you're ready." : "We're putting the finishing touches on our premium plans. Check back soon!"}
             </p>
           </header>
           {isLoadingPrice ? (
             <div className="flex justify-center items-center h-64">
                 <Loader2 className="h-12 w-12 animate-spin" />
             </div>
-           ) : (
+           ) : paymentsEnabled ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
             {tiers.map((tier) => (
               <Card key={tier.name} className={cn(
@@ -289,6 +290,10 @@ export default function PricingPage() {
               </Card>
             ))}
           </div>
+          ) : (
+             <div className="text-center">
+                <p className="text-muted-foreground">Check back soon for our exciting plans!</p>
+            </div>
           )}
            <div className="text-center mt-12">
                 <Link href="/settings">

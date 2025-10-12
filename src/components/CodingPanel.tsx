@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
-import type { Question, UserProfile, SfdcAuth } from "@/lib/types";
+import type { Question, UserProfile, SfdcAuth, PriceConfig } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import { executeSalesforceCode, deleteSalesforceMetadata } from "@/lib/actions";
@@ -71,8 +71,14 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
       if (!firestore || !user?.uid) return null;
       return doc(firestore, 'users', user.uid);
   }, [firestore, user?.uid]);
+
+  const priceDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'pricing');
+  }, [firestore]);
   
   const { data: userProfile } = useDoc<UserProfile>(userDocRef);
+  const { data: priceConfig } = useDoc<PriceConfig>(priceDocRef);
 
   const [isAiSheetOpen, setIsAiSheetOpen] = useState(false);
   const [isAiThinking, setIsAiThinking] = useState(false);
@@ -106,6 +112,13 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             if (!result.success) {
                 throw new Error(result.error || "Test run failed");
+            }
+
+             if (result.githubSyncMessage) {
+                toast({
+                    title: "GitHub Sync",
+                    description: result.githubSyncMessage,
+                });
             }
             
             onTestPass();
@@ -347,7 +360,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             </ResizablePanel>
         </ResizablePanelGroup>
         <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2">
-            {userProfile?.isPremium ? (
+            {userProfile?.isPremium && priceConfig?.isPaymentsEnabled !== false ? (
                  <Sheet open={isAiSheetOpen} onOpenChange={setIsAiSheetOpen}>
                     <SheetTrigger asChild>
                         <Button variant="outline" size="sm" className="rounded-md mr-auto">
@@ -404,12 +417,12 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                         </div>
                     </SheetContent>
                 </Sheet>
-            ) : (
+            ) : priceConfig?.isPaymentsEnabled !== false ? (
                 <Button variant="outline" size="sm" className="rounded-md mr-auto" disabled>
                     <Bot className="-ms-1 opacity-60" size={16} aria-hidden="true" />
                     Upgrade to Pro for AI
                 </Button>
-            )}
+            ): null}
 
             <AlertDialog>
                 <AlertDialogTrigger asChild>

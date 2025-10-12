@@ -47,6 +47,7 @@ export type Voucher = {
 
 export type PriceConfig = {
     premiumPrice: number;
+    isPaymentsEnabled?: boolean;
 }
 
 export type SalesforceCredentials = {

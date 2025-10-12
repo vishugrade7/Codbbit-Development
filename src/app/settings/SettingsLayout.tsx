@@ -5,7 +5,7 @@ import { useMemo, type ReactNode } from 'react';
 import { usePathname } from 'next/navigation';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import type { UserProfile } from '@/lib/types';
+import type { PriceConfig, UserProfile } from '@/lib/types';
 import Link from 'next/link';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -39,20 +39,31 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
     return doc(firestore, 'users', user.uid);
   }, [firestore, user?.uid]);
 
+  const priceDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'pricing');
+  }, [firestore]);
+
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
+  const { data: priceConfig, isLoading: isPriceLoading } = useDoc<PriceConfig>(priceDocRef);
   
   const activeSection = useMemo(() => {
       const current = settingsNav.find(item => item.href === pathname);
       return current ? current.name : 'General';
   }, [pathname]);
 
-  if (isUserLoading || isProfileLoading) {
+  const paymentsEnabled = priceConfig?.isPaymentsEnabled !== false;
+
+  if (isUserLoading || isProfileLoading || isPriceLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin" />
       </div>
     );
   }
+
+  const filteredSettingsNav = settingsNav.filter(item => paymentsEnabled || item.name !== 'Billing');
+
 
   return (
     <div className="container mx-auto max-w-6xl py-10 px-4 sm:px-6 lg:px-8">
@@ -73,6 +84,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
             </p>
           </div>
         </div>
+        {paymentsEnabled && (
         <Card className="p-1 border-2 border-primary/20 shadow-lg">
            <CardContent className="p-2 flex items-center justify-between gap-4">
             <h3 className="font-bold text-sm ml-2">Go Pro</h3>
@@ -81,12 +93,13 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
             </Button>
            </CardContent>
         </Card>
+        )}
       </header>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
         <aside className="md:col-span-1">
           <nav className="flex flex-col space-y-1">
-            {settingsNav.map((item) => (
+            {filteredSettingsNav.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}

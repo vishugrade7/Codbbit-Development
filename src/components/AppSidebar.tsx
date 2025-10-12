@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -10,7 +11,7 @@ import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, Lo
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
-import type { UserProfile } from '@/lib/types';
+import type { PriceConfig, UserProfile } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Button } from './ui/button';
@@ -34,8 +35,14 @@ export function AppSidebar() {
       if (!firestore || !user?.uid) return null;
       return doc(firestore, 'users', user.uid);
   }, [firestore, user?.uid]);
+
+  const priceDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'pricing');
+  }, [firestore]);
   
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
+  const { data: priceConfig } = useDoc<PriceConfig>(priceDocRef);
 
   const handleSignOut = () => {
     document.documentElement.classList.remove('grayscale-effect');
@@ -163,12 +170,14 @@ export function AppSidebar() {
                                 <span>Profile</span>
                             </Link>
                         </DropdownMenuItem>
+                        {priceConfig?.isPaymentsEnabled !== false && (
                          <DropdownMenuItem asChild>
                             <Link href="/pricing">
                                 <Star className="-ms-0.5 opacity-60" size={16} aria-hidden="true" />
                                 <span>Upgrade to Pro</span>
                             </Link>
                         </DropdownMenuItem>
+                        )}
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={handleSignOut}

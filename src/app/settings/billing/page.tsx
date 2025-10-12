@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, PriceConfig } from '@/lib/types';
 import { Loader2, CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
@@ -18,11 +18,18 @@ export default function BillingPage() {
     return doc(firestore, 'users', user.uid);
   }, [firestore, user?.uid]);
 
+  const priceDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'pricing');
+  }, [firestore]);
+
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
+  const { data: priceConfig, isLoading: isPriceLoading } = useDoc<PriceConfig>(priceDocRef);
 
   const currentPlan = userProfile?.isPremium ? 'Pro' : 'Free';
+  const paymentsEnabled = priceConfig?.isPaymentsEnabled !== false;
 
-  if (isProfileLoading) {
+  if (isProfileLoading || isPriceLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
         <Loader2 className="h-12 w-12 animate-spin" />
@@ -42,9 +49,11 @@ export default function BillingPage() {
             <p className="text-sm text-muted-foreground">Current Plan</p>
             <p className="text-lg font-semibold">{currentPlan}</p>
           </div>
-          <Button asChild variant={currentPlan === 'Pro' ? 'outline' : 'default'}>
-            <Link href="/pricing">{currentPlan === 'Pro' ? 'Manage Plan' : 'Upgrade'}</Link>
-          </Button>
+          {paymentsEnabled && (
+            <Button asChild variant={currentPlan === 'Pro' ? 'outline' : 'default'}>
+              <Link href="/pricing">{currentPlan === 'Pro' ? 'Manage Plan' : 'Upgrade'}</Link>
+            </Button>
+          )}
         </div>
       </CardContent>
       <CardFooter>

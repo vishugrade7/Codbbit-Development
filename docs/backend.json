@@ -147,7 +147,8 @@
         "description": "Stores pricing information for subscription plans.",
         "type": "object",
         "properties": {
-            "premiumPrice": { "type": "number", "description": "The price for the premium plan in USD." }
+            "premiumPrice": { "type": "number", "description": "The price for the premium plan in USD." },
+            "isPaymentsEnabled": { "type": "boolean", "description": "A feature flag to enable or disable payment features site-wide." }
         },
         "required": ["premiumPrice"]
     }

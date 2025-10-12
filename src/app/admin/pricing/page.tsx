@@ -43,7 +43,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { Loader2, Plus, MoreHorizontal, CalendarIcon, Trash2, DollarSign, Tag } from 'lucide-react';
+import { Loader2, Plus, MoreHorizontal, CalendarIcon, Trash2, DollarSign, Tag, Settings } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import type { Voucher, PriceConfig } from '@/lib/types';
 import { collection, doc } from 'firebase/firestore';
@@ -65,6 +65,7 @@ type VoucherFormData = z.infer<typeof voucherSchema>;
 
 const priceSchema = z.object({
     premiumPrice: z.coerce.number().min(0, 'Price must be a positive number.'),
+    isPaymentsEnabled: z.boolean(),
 });
 
 type PriceFormData = z.infer<typeof priceSchema>;
@@ -104,12 +105,13 @@ export default function PricingManagementPage() {
     resolver: zodResolver(priceSchema),
     defaultValues: {
         premiumPrice: 0,
+        isPaymentsEnabled: true,
     }
   });
 
   useEffect(() => {
       if (priceConfig) {
-          resetPriceForm({ premiumPrice: priceConfig.premiumPrice });
+          resetPriceForm({ premiumPrice: priceConfig.premiumPrice, isPaymentsEnabled: priceConfig.isPaymentsEnabled });
       }
   }, [priceConfig, resetPriceForm]);
 
@@ -117,10 +119,10 @@ export default function PricingManagementPage() {
     if (!priceDocRef) return;
     try {
         await setDocumentNonBlocking(priceDocRef, data, { merge: true });
-        toast({ title: 'Price Updated', description: 'The premium plan price has been updated.' });
+        toast({ title: 'Settings Updated', description: 'The pricing settings have been updated.' });
         refetchPrice();
     } catch (error) {
-        toast({ title: 'Error', description: 'Could not update the price.', variant: 'destructive' });
+        toast({ title: 'Error', description: 'Could not update the settings.', variant: 'destructive' });
     }
   }
 
@@ -192,31 +194,69 @@ export default function PricingManagementPage() {
         </div>
       </header>
 
-      <Card>
-        <CardHeader>
-            <CardTitle>Plan Pricing</CardTitle>
-            <CardDescription>Set the price for the premium subscription plan.</CardDescription>
-        </CardHeader>
-        <form onSubmit={handlePriceSubmit(onPriceSubmit)}>
-            <CardContent>
-                {isLoadingPrice ? <Loader2 className="h-6 w-6 animate-spin"/> : (
-                    <div className="max-w-sm">
-                        <Label htmlFor="premiumPrice">Premium Plan Price (USD)</Label>
-                        <div className="relative mt-2">
-                             <DollarSign />
-                             <Input id="premiumPrice" type="number" {...priceRegister('premiumPrice')} className="pl-9" />
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+        <Card>
+            <CardHeader>
+                <CardTitle>Plan Pricing</CardTitle>
+                <CardDescription>Set the price for the premium subscription plan.</CardDescription>
+            </CardHeader>
+            <form onSubmit={handlePriceSubmit(onPriceSubmit)}>
+                <CardContent>
+                    {isLoadingPrice ? <Loader2 className="h-6 w-6 animate-spin"/> : (
+                        <div className="max-w-sm">
+                            <Label htmlFor="premiumPrice">Premium Plan Price (USD)</Label>
+                            <div className="relative mt-2">
+                                <DollarSign className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                <Input id="premiumPrice" type="number" {...priceRegister('premiumPrice')} className="pl-9" />
+                            </div>
                         </div>
-                    </div>
-                )}
-            </CardContent>
-            <CardFooter>
-                 <Button type="submit" disabled={isSavingPrice}>
-                    {isSavingPrice && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Save Price
-                </Button>
-            </CardFooter>
-        </form>
-      </Card>
+                    )}
+                </CardContent>
+                <CardFooter>
+                    <Button type="submit" disabled={isSavingPrice}>
+                        {isSavingPrice && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Price
+                    </Button>
+                </CardFooter>
+            </form>
+        </Card>
+        <Card>
+            <CardHeader>
+                <CardTitle>Feature Flags</CardTitle>
+                <CardDescription>Enable or disable major features on the website.</CardDescription>
+            </CardHeader>
+            <form onSubmit={handlePriceSubmit(onPriceSubmit)}>
+                <CardContent>
+                    {isLoadingPrice ? <Loader2 className="h-6 w-6 animate-spin"/> : (
+                         <div className="flex items-center justify-between rounded-lg border p-4">
+                            <div>
+                                <Label htmlFor="isPaymentsEnabled" className="font-medium">Enable Payments</Label>
+                                <p className="text-sm text-muted-foreground">Show pricing page and upgrade buttons.</p>
+                            </div>
+                            <Controller
+                                name="isPaymentsEnabled"
+                                control={priceControl}
+                                render={({ field }) => (
+                                    <Switch
+                                    id="isPaymentsEnabled"
+                                    checked={field.value}
+                                    onCheckedChange={field.onChange}
+                                    />
+                                )}
+                            />
+                        </div>
+                    )}
+                </CardContent>
+                 <CardFooter>
+                    <Button type="submit" disabled={isSavingPrice}>
+                        {isSavingPrice && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        Save Settings
+                    </Button>
+                </CardFooter>
+            </form>
+        </Card>
+      </div>
+
 
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
