@@ -67,14 +67,6 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
                 <AlertDescription>
                     Congratulations! Your solution passed all the test cases.
                 </AlertDescription>
-                 <Accordion type="single" collapsible className="w-full mt-4">
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger>View Debug Logs</AccordionTrigger>
-                        <AccordionContent>
-                           <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md">{output.logs}</pre>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
             </Alert>
         )
     }
@@ -110,14 +102,10 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
                          <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md mt-2">{stackTrace}</pre>
                     </div>
                 )}
-                 <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="item-1">
-                        <AccordionTrigger>View Full Debug Log</AccordionTrigger>
-                        <AccordionContent>
-                           <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md">{output.logs}</pre>
-                        </AccordionContent>
-                    </AccordionItem>
-                </Accordion>
+                 <div>
+                    <h4 className="font-semibold">Full Debug Log</h4>
+                    <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md mt-2">{output.logs}</pre>
+                </div>
             </div>
         </Alert>
     )
