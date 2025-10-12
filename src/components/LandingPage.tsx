@@ -86,9 +86,6 @@ export function LandingPage() {
                     <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>
-                <Button variant="outline" asChild className="h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
-                  <Link href="/problems">Explore Problems</Link>
-                </Button>
               </motion.div>
             </div>
             <motion.div 
