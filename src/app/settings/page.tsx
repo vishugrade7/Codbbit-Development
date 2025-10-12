@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, CheckCircle, ShieldAlert, CheckIcon, XIcon, Link as LinkIcon } from 'lucide-react';
+import { Loader2, CheckCircle, ShieldAlert, CheckIcon, XIcon, Link as LinkIcon, Users, Linkedin } from 'lucide-react';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
@@ -154,6 +154,30 @@ export default function SettingsPage() {
                     ) : (
                          <Button variant="outline" size="sm" onClick={handleSendVerificationEmail}>Verify</Button>
                     )}
+                </div>
+                 <div className="flex items-center justify-between rounded-md border p-4">
+                    <div>
+                        <Label className="font-medium flex items-center gap-2"><Users className="h-4 w-4 text-muted-foreground"/> User Referrals</Label>
+                        <p className="text-sm text-muted-foreground">Invite 3 users to get verified.</p>
+                    </div>
+                     <Button variant="outline" size="sm" asChild>
+                        <a href="/settings/verification">
+                            Complete
+                            <LinkIcon className="ml-2 h-3 w-3" />
+                        </a>
+                    </Button>
+                </div>
+                 <div className="flex items-center justify-between rounded-md border p-4">
+                    <div>
+                        <Label className="font-medium flex items-center gap-2"><Linkedin className="h-4 w-4 text-muted-foreground"/> LinkedIn Account</Label>
+                        <p className="text-sm text-muted-foreground">Verify your identity via LinkedIn.</p>
+                    </div>
+                    <Button variant="outline" size="sm" asChild>
+                       <a href="/settings/verification">
+                            Complete
+                            <LinkIcon className="ml-2 h-3 w-3" />
+                        </a>
+                    </Button>
                 </div>
             </div>
         </div>
