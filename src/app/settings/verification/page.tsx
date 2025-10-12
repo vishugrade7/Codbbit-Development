@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -8,7 +7,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2, Copy, Linkedin, CheckCircle } from 'lucide-react';
+import { Loader2, Copy, Linkedin, CheckCircle, Share2 } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
@@ -48,6 +47,27 @@ export default function VerificationPage() {
   const handleVerifyWithLinkedIn = () => {
     toast({ title: 'Coming Soon!', description: 'LinkedIn verification is not yet implemented.' });
   }
+  
+  const handleShare = () => {
+    if (navigator.share) {
+      navigator.share({
+        title: 'Join me on Codbbit!',
+        text: `Join me on Codbbit and sharpen your Salesforce coding skills. Use my referral link!`,
+        url: referralLink,
+      })
+      .then(() => console.log('Successful share'))
+      .catch((error) => toast({
+        title: 'Share Failed',
+        description: 'There was an error trying to share your link.',
+        variant: 'destructive',
+      }));
+    } else {
+      toast({
+          title: "Share not supported",
+          description: "Your browser does not support the Web Share API. Please copy the link manually.",
+      });
+    }
+  };
 
   if (isProfileLoading) {
     return (
@@ -69,6 +89,9 @@ export default function VerificationPage() {
             <Input value={referralLink} readOnly />
             <Button variant="outline" size="icon" onClick={handleCopyToClipboard}>
               <Copy className="h-4 w-4" />
+            </Button>
+            <Button variant="outline" size="icon" onClick={handleShare}>
+              <Share2 className="h-4 w-4" />
             </Button>
           </div>
           <div className="mt-4">
