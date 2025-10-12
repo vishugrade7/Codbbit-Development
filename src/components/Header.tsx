@@ -16,9 +16,12 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { ArrowRight } from 'lucide-react';
+import { ArrowRight, Menu } from 'lucide-react';
 
 const navigationLinks: { href: string, label: string }[] = [
+    { href: '#features', label: 'Features' },
+    { href: '/pricing', label: 'Pricing' },
+    { href: '/blog', label: 'Blog' },
 ]
 
 export function Header() {
@@ -33,62 +36,11 @@ export function Header() {
                 Codbbit
             </h1>
           </Link>
-          {/* Mobile menu trigger */}
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button
-                className="group size-8 md:hidden"
-                variant="ghost"
-                size="icon"
-              >
-                <svg
-                  className="pointer-events-none"
-                  width={16}
-                  height={16}
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  xmlns="http://www.w3.org/2000/svg"
-                >
-                  <path
-                    d="M4 12L20 12"
-                    className="origin-center -translate-y-[7px] transition-all duration-300 ease-bouncy-1 group-aria-expanded:translate-x-0 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[315deg]"
-                  />
-                  <path
-                    d="M4 12H20"
-                    className="origin-center transition-all duration-300 ease-bouncy-2 group-aria-expanded:rotate-45"
-                  />
-                  <path
-                    d="M4 12H20"
-                    className="origin-center translate-y-[7px] transition-all duration-300 ease-bouncy-1 group-aria-expanded:translate-y-0 group-aria-expanded:rotate-[135deg]"
-                  />
-                </svg>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent align="start" className="w-36 p-1 md:hidden">
-              <NavigationMenu className="max-w-none *:w-full">
-                <NavigationMenuList className="flex-col items-start gap-0 md:gap-2">
-                  {navigationLinks.map((link, index) => (
-                    <NavigationMenuItem key={index} className="w-full">
-                      <NavigationMenuLink
-                        href={link.href}
-                        className="py-1.5"
-                      >
-                        {link.label}
-                      </NavigationMenuLink>
-                    </NavigationMenuItem>
-                  ))}
-                </NavigationMenuList>
-              </NavigationMenu>
-            </PopoverContent>
-          </Popover>
+          
           {/* Main nav */}
-          <div className="flex items-center gap-6">
+          <div className="hidden md:flex items-center gap-6">
             {/* Navigation menu */}
-            <NavigationMenu className="max-md:hidden">
+            <NavigationMenu>
               <NavigationMenuList className="gap-2">
                 {navigationLinks.map((link, index) => (
                   <NavigationMenuItem key={index}>
@@ -107,15 +59,53 @@ export function Header() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          <Button asChild variant="ghost" size="sm" className="text-sm">
-            <Link href="/login">Sign In</Link>
-          </Button>
-          <Button asChild size="sm" className="text-sm group">
-            <Link href="/signup">
-                Get Started
-                <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
-            </Link>
-          </Button>
+           <div className="hidden md:flex items-center gap-2">
+              <Button asChild variant="ghost" size="sm" className="text-sm">
+                <Link href="/login">Sign In</Link>
+              </Button>
+              <Button asChild size="sm" className="text-sm group">
+                <Link href="/signup">
+                    Get Started
+                    <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
+                </Link>
+              </Button>
+            </div>
+
+             {/* Mobile menu trigger */}
+            <Popover>
+                <PopoverTrigger asChild>
+                <Button
+                    className="md:hidden"
+                    variant="ghost"
+                    size="icon"
+                >
+                    <Menu />
+                    <span className="sr-only">Open menu</span>
+                </Button>
+                </PopoverTrigger>
+                <PopoverContent align="end" className="w-screen max-w-xs mt-2 mr-4 p-4 md:hidden">
+                    <nav className="grid gap-4">
+                        {navigationLinks.map((link) => (
+                        <Link
+                            key={link.href}
+                            href={link.href}
+                            className="text-sm font-medium text-foreground hover:text-primary"
+                        >
+                            {link.label}
+                        </Link>
+                        ))}
+                    </nav>
+                    <div className="mt-6 flex flex-col gap-2">
+                        <Button asChild variant="outline">
+                            <Link href="/login">Sign In</Link>
+                        </Button>
+                        <Button asChild>
+                            <Link href="/signup">Get Started</Link>
+                        </Button>
+                    </div>
+                </PopoverContent>
+            </Popover>
+
         </div>
       </div>
     </header>
