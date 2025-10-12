@@ -1,7 +1,9 @@
+
 "use client";
 
 import { motion } from 'framer-motion';
 import { useEffect, useRef, useState, useMemo } from 'react';
+import { cn } from '@/lib/utils';
 
 const buildKeyframes = (from: any, steps: any[]) => {
   const keys = new Set([...Object.keys(from), ...steps.flatMap(s => Object.keys(s))]);
@@ -86,7 +88,7 @@ const BlurText = ({
   const times = Array.from({ length: stepCount }, (_, i) => (stepCount === 1 ? 0 : i / (stepCount - 1)));
 
   return (
-    <p ref={ref} className={className} style={{ display: 'flex', flexWrap: 'wrap' }}>
+    <p ref={ref} className={cn(className, "justify-center")} style={{ display: 'flex', flexWrap: 'wrap' }}>
       {elements.map((segment, index) => {
         const animateKeyframes = buildKeyframes(fromSnapshot, toSnapshots);
 
