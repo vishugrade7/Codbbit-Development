@@ -21,6 +21,7 @@ import Image from 'next/image';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
+import { MusicToggleButton } from './MusicToggleButton';
 
 
 export function AppSidebar() {
@@ -120,6 +121,7 @@ export function AppSidebar() {
       </SidebarContent>
 
       <SidebarFooter className="mt-auto flex flex-col items-center gap-2 p-2">
+        <MusicToggleButton />
         <ThemeToggle />
          <TooltipProvider delayDuration={0}>
             <Tooltip>
