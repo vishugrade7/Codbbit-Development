@@ -1,14 +1,62 @@
+
 'use client';
 
 import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Loader2 } from 'lucide-react';
+import { Download, Loader2, ListFilter } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 import { collection } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
+import type { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+
+const allFields: (keyof UserProfile)[] = [
+    'name', 'username', 'email', 'company', 'country', 'points', 'isAdmin', 'isPremium', 'currentStreak', 'maxStreak', 'lastSolvedDate'
+];
+
+const fieldLabels: Record<keyof UserProfile, string> = {
+    name: 'Name',
+    username: 'Username',
+    email: 'Email',
+    company: 'Company',
+    country: 'Country',
+    points: 'Points',
+    isAdmin: 'Is Admin',
+    isPremium: 'Is Premium',
+    currentStreak: 'Current Streak',
+    maxStreak: 'Max Streak',
+    lastSolvedDate: 'Last Solved Date',
+    uid: '',
+    createdAt: '',
+    emailVerified: false,
+    phone: '',
+    phoneVerified: false,
+    about: '',
+    avatarUrl: '',
+    website: '',
+    githubUrl: '',
+    twitterUrl: '',
+    linkedinUrl: '',
+    trailheadUrl: '',
+    isEmailPublic: false,
+    fontSize: 0,
+    editorTheme: '',
+    activeSessionId: '',
+    achievements: {},
+    categoryPoints: {},
+    dsaStats: { Easy: 0, Medium: 0, Hard: 0 },
+    sfdcAuth: { connected: false, instanceUrl: '', accessToken: '', refreshToken: '', issuedAt: 0 },
+    githubSync: { connected: false },
+    solvedProblems: {},
+    starredProblems: [],
+    followedSheets: [],
+    submissionHeatmap: {},
+    contributions: [],
+    solvedQuestions: []
+}
 
 export default function ManageUsersPage() {
   const firestore = useFirestore();
@@ -21,28 +69,71 @@ export default function ManageUsersPage() {
   const { data: users, isLoading } = useCollection<UserProfile>(usersCollectionRef);
 
   const [isExporting, setIsExporting] = useState(false);
+  const [selectedFields, setSelectedFields] = useState<Record<keyof UserProfile, boolean>>({
+      name: true,
+      username: true,
+      email: true,
+      company: true,
+      country: true,
+      points: true,
+      isAdmin: true,
+      isPremium: false,
+      currentStreak: false,
+      maxStreak: false,
+      lastSolvedDate: false,
+      uid: false,
+      createdAt: false,
+      emailVerified: false,
+      phone: '',
+      phoneVerified: false,
+      about: '',
+      avatarUrl: '',
+      website: '',
+      githubUrl: '',
+      twitterUrl: '',
+      linkedinUrl: '',
+      trailheadUrl: '',
+      isEmailPublic: false,
+      fontSize: 0,
+      editorTheme: '',
+      activeSessionId: '',
+      achievements: {},
+      categoryPoints: {},
+      dsaStats: { Easy: 0, Medium: 0, Hard: 0 },
+      sfdcAuth: { connected: false, instanceUrl: '', accessToken: '', refreshToken: '', issuedAt: 0 },
+      githubSync: { connected: false },
+      solvedProblems: {},
+      starredProblems: [],
+      followedSheets: [],
+      submissionHeatmap: {},
+      contributions: [],
+      solvedQuestions: []
+  });
 
   const handleExportToExcel = () => {
     if (!users) return;
     setIsExporting(true);
 
     try {
-      // Prepare data for worksheet
-      const dataToExport = users.map(user => ({
-        Name: user.name,
-        Username: user.username,
-        Email: user.email,
-        Company: user.company,
-        Country: user.country,
-        Points: user.points,
-        IsAdmin: user.isAdmin,
-      }));
+      const activeFields = allFields.filter(field => selectedFields[field]);
+      if (activeFields.length === 0) {
+          alert("Please select at least one field to export.");
+          setIsExporting(false);
+          return;
+      }
+        
+      const dataToExport = users.map(user => {
+        const row: Record<string, any> = {};
+        activeFields.forEach(field => {
+            row[fieldLabels[field]] = user[field];
+        });
+        return row;
+      });
 
       const worksheet = XLSX.utils.json_to_sheet(dataToExport);
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
 
-      // Trigger download
       XLSX.writeFile(workbook, "Codbbit_Users.xlsx");
     } catch (error) {
       console.error("Failed to export to Excel", error);
@@ -58,14 +149,38 @@ export default function ManageUsersPage() {
           <h1 className="text-3xl font-bold font-headline tracking-tight">Manage Users</h1>
           <p className="text-muted-foreground mt-1">View, edit, or remove users.</p>
         </div>
-        <Button onClick={handleExportToExcel} disabled={isLoading || isExporting}>
-          {isExporting ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="mr-2 h-4 w-4" />
-          )}
-          Export to Excel
-        </Button>
+        <div className="flex items-center gap-2">
+            <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button variant="outline">
+                        <ListFilter className="mr-2 h-4 w-4" />
+                        Customize Export
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                    <DropdownMenuLabel>Fields to Export</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    {allFields.map(field => (
+                        <DropdownMenuCheckboxItem
+                            key={field}
+                            checked={selectedFields[field]}
+                            onCheckedChange={(checked) => setSelectedFields(prev => ({...prev, [field]: checked}))}
+                        >
+                            {fieldLabels[field]}
+                        </DropdownMenuCheckboxItem>
+                    ))}
+                </DropdownMenuContent>
+            </DropdownMenu>
+
+            <Button onClick={handleExportToExcel} disabled={isLoading || isExporting}>
+              {isExporting ? (
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              ) : (
+                <Download className="mr-2 h-4 w-4" />
+              )}
+              Export to Excel
+            </Button>
+        </div>
       </header>
 
       <Card>
