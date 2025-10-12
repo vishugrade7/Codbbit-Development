@@ -132,9 +132,15 @@ const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Rec
       <div className="flex flex-col">
           <div className="flex justify-between items-center mb-2">
               <h2 className="text-sm text-muted-foreground">{totalSubmissions} submissions in the last year</h2>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1"><Flame className="h-4 w-4 text-orange-500" /> Max Streak: <span className="font-semibold text-foreground">{maxStreak}</span></div>
-                  <div className="flex items-center gap-1"><Flame className="h-4 w-4 text-orange-500" /> Current Streak: <span className="font-semibold text-foreground">{currentStreak}</span></div>
+               <div className="flex items-center gap-2">
+                <Badge variant="outline" className="gap-1.5">
+                    <Flame className="-ms-0.5 h-3.5 w-3.5 text-orange-500" />
+                    Max Streak: {maxStreak}
+                </Badge>
+                <Badge variant="outline" className="gap-1.5">
+                    <Flame className="-ms-0.5 h-3.5 w-3.5 text-orange-500" />
+                    Current Streak: {currentStreak}
+                </Badge>
               </div>
           </div>
           <div className="flex gap-3">
