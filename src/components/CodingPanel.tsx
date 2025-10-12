@@ -23,7 +23,6 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
     AlertDialog,
@@ -85,12 +84,17 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
     const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No assertion message.';
     const stackTrace = errorParts.filter(line => line.trim().startsWith('Class.')).join('\n');
     
+    // Extract line number from the stack trace
+    const lineInfoMatch = stackTrace.match(/line (\d+)/);
+    const lineNumber = lineInfoMatch ? lineInfoMatch[1] : null;
+    
     return (
         <Alert variant="destructive" className="h-full">
             <XCircle className="h-5 w-5" />
             <AlertTitle className="text-lg font-bold">{testFailureLine}</AlertTitle>
-            <AlertDescription>
-                {errorMessage}
+            <AlertDescription className="flex items-center gap-2">
+                {errorMessage} 
+                {lineNumber && <Badge variant="secondary" className="font-mono">Line: {lineNumber}</Badge>}
             </AlertDescription>
             <div className="mt-4 space-y-4">
                 {stackTrace && (
