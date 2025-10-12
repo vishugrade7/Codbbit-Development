@@ -19,7 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { getUserRank } from '@/ai/flows/get-user-rank';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 
 export default function HomePage() {
@@ -177,6 +177,12 @@ export default function HomePage() {
              </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-16 p-0">
+             <SheetHeader>
+              <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
+              <SheetDescription className="sr-only">
+                A sidebar menu with navigation links for the application.
+              </SheetDescription>
+            </SheetHeader>
             <Sidebar>
                 <AppSidebar />
             </Sidebar>
