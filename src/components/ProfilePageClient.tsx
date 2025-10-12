@@ -426,7 +426,7 @@ export function ProfilePageClient() {
         {/* Right Column */}
         <div className="lg:col-span-2 space-y-8">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Contribution Graph</CardTitle></CardHeader>
+            <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Submissions</CardTitle></CardHeader>
             <CardContent>
               <ContributionGraph 
                 heatmap={profile.submissionHeatmap || {}} 
