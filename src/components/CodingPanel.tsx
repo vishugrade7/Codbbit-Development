@@ -51,6 +51,7 @@ interface CodingPanelProps {
   onTestPass: () => void;
   fontSize: number;
   editorTheme: string;
+  onPrettify: () => Promise<void>;
 }
 
 interface ChatMessage {
@@ -74,15 +75,16 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
     const errorParts = output.error?.split('\n') || [];
     const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Unknown Test Failure';
     const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No assertion message.';
-    const stackTrace = errorParts.filter(line => line.trim().startsWith('Class.')).join('\n');
     
-    const lineInfoMatch = stackTrace.match(/Class\.([\w\d_]+)\.[\w\d_]+: line (\d+)/);
-    const className = lineInfoMatch ? lineInfoMatch[1] : null;
+    // Updated to handle both "Class.TriggerName: line X" and "Class.ClassName.MethodName: line X"
+    const lineInfoMatch = output.error?.match(/Class\.([^:]+): line (\d+)/);
+    
+    const className = lineInfoMatch ? lineInfoMatch[1].split('.')[0] : null;
     const lineNumber = lineInfoMatch ? lineInfoMatch[2] : null;
 
     let finalErrorMessage = errorMessage;
     // For compile errors
-    if (!stackTrace && output.error?.includes('(Line:')) {
+    if (output.error?.includes('(Line:')) {
         finalErrorMessage = output.error;
     }
     
@@ -95,20 +97,12 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
                 {lineNumber && <Badge variant="secondary" className="font-mono">Line: {lineNumber}</Badge>}
                 {className && <Badge variant="secondary" className="font-mono">Class: {className}</Badge>}
             </AlertDescription>
-            <div className="mt-4 space-y-4">
-                {stackTrace && (
-                    <div>
-                        <h4 className="font-semibold">Stack Trace</h4>
-                         <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md mt-2">{stackTrace}</pre>
-                    </div>
-                )}
-            </div>
         </Alert>
     )
 }
 
 
-export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme }: CodingPanelProps) {
+export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme, onPrettify }: CodingPanelProps) {
   const [isPending, startTransition] = useTransition();
   
   const firestore = useFirestore();

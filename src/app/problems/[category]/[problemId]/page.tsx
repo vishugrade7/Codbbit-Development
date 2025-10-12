@@ -6,7 +6,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, Github, XCircle } from 'lucide-react';
+import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, Github, XCircle, Sparkles } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -44,6 +44,8 @@ import { HeaderBar } from '@/components/HeaderBar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import * as prettier from 'prettier/standalone';
+import * as prettierPluginApex from 'prettier-plugin-apex';
 
 const DEFAULT_FONT_SIZE = 14;
 const DEFAULT_EDITOR_THEME = 'vs-dark';
@@ -202,6 +204,27 @@ export default function ProblemSolvingPage() {
     }
   };
 
+  const handlePrettify = async () => {
+    try {
+      const formattedCode = await prettier.format(code, {
+        parser: 'apex',
+        plugins: [prettierPluginApex],
+      });
+      setCode(formattedCode);
+      toast({
+        title: "Code Formatted",
+        description: "Your Apex code has been prettified.",
+      });
+    } catch (error: any) {
+      console.error("Prettier formatting failed:", error);
+      toast({
+        title: "Formatting Failed",
+        description: "Could not format the code. Please check for syntax errors.",
+        variant: "destructive",
+      });
+    }
+  };
+
 
   const DifficultyFilterRadioGroup = ({ title, options, value, onValueChange }: { title: string, options: string[], value: string, onValueChange: (value: any) => void }) => (
     <div className="grid gap-2">
@@ -269,6 +292,7 @@ export default function ProblemSolvingPage() {
                 setFontSize={setFontSize}
                 editorTheme={editorTheme}
                 setEditorTheme={setEditorTheme}
+                onPrettify={handlePrettify}
                 leftControls={
                     <>
                         <AlertDialog>
@@ -315,6 +339,7 @@ export default function ProblemSolvingPage() {
                             onTestPass={handleTestPass}
                             fontSize={fontSize}
                             editorTheme={editorTheme}
+                            onPrettify={handlePrettify}
                         />
                     </ResizablePanel>
                 </ResizablePanelGroup>
