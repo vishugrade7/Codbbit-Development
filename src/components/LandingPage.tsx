@@ -12,6 +12,7 @@ import { Header } from "./Header";
 import { motion } from "framer-motion";
 import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
+import ShinyText from "./ui/ShinyText";
 
 export function LandingPage() {
   const features = [
@@ -81,7 +82,7 @@ export function LandingPage() {
               >
                 <Button asChild className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base bg-blue-600 hover:bg-blue-700 text-white">
                   <Link href="/signup">
-                    Start for Free
+                    <ShinyText text="Start for Free" />
                     <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>
@@ -102,8 +103,8 @@ export function LandingPage() {
                   className="rounded-md shadow-2xl ring-1 ring-muted/20"
                   priority
                 />
-                 <div className="absolute -left-12 -top-48 w-24 h-24 md:w-48 md:h-48 -z-10">
-                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(300deg)]" />
+                 <div className="absolute -left-12 -top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
+                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(310deg)]" />
                  </div>
               </div>
             </motion.div>
