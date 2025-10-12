@@ -22,6 +22,7 @@ import { Skeleton } from './ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
+import { Separator } from './ui/separator';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string, icon: React.ElementType }[] = [
@@ -75,7 +76,7 @@ export function Header() {
 
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/5 px-4 backdrop-blur-xl md:px-6 md:hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/5 px-4 backdrop-blur-xl md:hidden">
       <div className="flex h-16 items-center justify-between gap-4">
         {/* Left side */}
         <div className="flex items-center gap-6">
@@ -85,25 +86,6 @@ export function Header() {
                 Codbbit
             </h1>
           </Link>
-          
-          {/* Main nav */}
-          <div className="hidden md:flex items-center gap-6">
-            {/* Navigation menu */}
-            <NavigationMenu>
-              <NavigationMenuList className="gap-2">
-                {navigationLinks.map((link, index) => (
-                  <NavigationMenuItem key={index}>
-                    <NavigationMenuLink
-                      href={link.href}
-                      className="text-muted-foreground hover:text-primary py-1.5 font-medium"
-                    >
-                      {link.label}
-                    </NavigationMenuLink>
-                  </NavigationMenuItem>
-                ))}
-              </NavigationMenuList>
-            </NavigationMenu>
-          </div>
         </div>
         {/* Right side */}
         <div className="flex items-center gap-2">
@@ -198,11 +180,30 @@ export function Header() {
                       ))}
                     </nav>
                      <div className="mt-auto flex flex-col gap-4">
-                        {user ? (
-                           <Button onClick={handleSignOut} variant="outline" className="w-full">
-                              <LogOut className="mr-2 h-4 w-4" />
-                              Sign Out
-                          </Button>
+                        {user && userProfile ? (
+                          <div className="rounded-lg border bg-background/80 p-4">
+                              <div className="flex items-center gap-3 mb-4">
+                                <Avatar>
+                                  <AvatarImage src={userProfile.avatarUrl} alt={userProfile.name} />
+                                  <AvatarFallback>{getInitials(userProfile.name)}</AvatarFallback>
+                                </Avatar>
+                                <div className="flex flex-col">
+                                  <span className="font-semibold">{userProfile.name}</span>
+                                  <span className="text-sm text-muted-foreground">@{userProfile.username}</span>
+                                </div>
+                              </div>
+                              <Separator />
+                              <nav className="flex flex-col gap-1 mt-4">
+                                <Link href={`/${userProfile.username}`} className="flex items-center gap-2 py-2 text-sm text-muted-foreground hover:text-primary" onClick={() => setIsSheetOpen(false)}><User className="h-4 w-4" />Profile</Link>
+                                <Link href="/settings" className="flex items-center gap-2 py-2 text-sm text-muted-foreground hover:text-primary" onClick={() => setIsSheetOpen(false)}><Settings className="h-4 w-4" />Settings</Link>
+                                <Link href="/pricing" className="flex items-center gap-2 py-2 text-sm text-muted-foreground hover:text-primary" onClick={() => setIsSheetOpen(false)}><Star className="h-4 w-4" />Upgrade to Pro</Link>
+                              </nav>
+                              <Separator className="my-2" />
+                              <Button onClick={handleSignOut} variant="ghost" className="w-full justify-start px-2 py-2 h-auto text-sm text-red-500 hover:text-red-500">
+                                <LogOut className="mr-2 h-4 w-4" />
+                                Sign Out
+                              </Button>
+                          </div>
                         ) : (
                           <>
                             <Button asChild className="w-full">
