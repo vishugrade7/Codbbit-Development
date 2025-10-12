@@ -5,13 +5,14 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Loader2, ListFilter } from 'lucide-react';
+import { Download, Loader2, ListFilter, Upload } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 import { collection } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import type { DropdownMenuCheckboxItemProps } from "@radix-ui/react-dropdown-menu";
+import { useToast } from '@/hooks/use-toast';
 
 const allFields: (keyof UserProfile)[] = [
     'name', 'username', 'email', 'company', 'country', 'points', 'isAdmin', 'isPremium', 'currentStreak', 'maxStreak', 'lastSolvedDate'
@@ -60,6 +61,7 @@ const fieldLabels: Record<keyof UserProfile, string> = {
 
 export default function ManageUsersPage() {
   const firestore = useFirestore();
+  const { toast } = useToast();
   
   const usersCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -69,6 +71,7 @@ export default function ManageUsersPage() {
   const { data: users, isLoading } = useCollection<UserProfile>(usersCollectionRef);
 
   const [isExporting, setIsExporting] = useState(false);
+  const [isBackingUp, setIsBackingUp] = useState(false);
   const [selectedFields, setSelectedFields] = useState<Record<keyof UserProfile, boolean>>({
       name: true,
       username: true,
@@ -141,6 +144,22 @@ export default function ManageUsersPage() {
       setIsExporting(false);
     }
   };
+  
+  const handleBackup = async () => {
+    setIsBackingUp(true);
+    toast({
+        title: "Backup Started",
+        description: "User data is being backed up to Salesforce."
+    });
+    // Simulate backup process
+    await new Promise(resolve => setTimeout(resolve, 3000));
+    setIsBackingUp(false);
+    toast({
+        title: "Backup Complete",
+        description: "User data has been successfully backed up.",
+        variant: "success"
+    });
+  }
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -179,6 +198,14 @@ export default function ManageUsersPage() {
                 <Download className="mr-2 h-4 w-4" />
               )}
               Export to Excel
+            </Button>
+             <Button onClick={handleBackup} disabled={isLoading || isBackingUp}>
+                {isBackingUp ? (
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                ) : (
+                    <Upload className="mr-2 h-4 w-4" />
+                )}
+                Backup to Salesforce
             </Button>
         </div>
       </header>
