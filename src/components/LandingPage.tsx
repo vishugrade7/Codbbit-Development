@@ -14,6 +14,7 @@ import { useInView } from "react-intersection-observer";
 import React, { useEffect, useRef } from "react";
 import { cn } from "@/lib/utils";
 import { Input } from "./ui/input";
+import Aurora from "./Aurora";
 
 
 const LinePath = ({
@@ -97,8 +98,14 @@ export function LandingPage() {
       <main ref={ref}>
         {/* Hero Section */}
         <section
-            className="mx-auto flex h-[150vh] w-screen flex-col items-center overflow-hidden bg-background px-4 text-foreground"
+            className="relative mx-auto flex h-[150vh] w-screen flex-col items-center overflow-hidden bg-background px-4 text-foreground"
             >
+             <Aurora
+              colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
+              blend={0.5}
+              amplitude={1.0}
+              speed={0.5}
+            />
             <div className="mt-40 relative flex w-fit flex-col items-center justify-center gap-5 text-center">
                 <h1 className="font-headline relative z-10 text-5xl font-bold tracking-tight md:text-7xl">
                  The ultimate platform <br /> for mastering <br /> Salesforce Apex
