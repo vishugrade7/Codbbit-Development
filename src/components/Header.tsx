@@ -11,20 +11,28 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
 import { ArrowRight, Menu } from 'lucide-react';
+import StaggeredMenu from './StaggeredMenu';
+import { useIsMobile } from '@/hooks/use-mobile';
 
-const navigationLinks: { href: string, label: string }[] = [
-    { href: '#features', label: 'Features' },
-    { href: '/pricing', label: 'Pricing' },
-    { href: '/blog', label: 'Blog' },
-]
+
+const navigationLinks: { href: string, label: string, ariaLabel?: string }[] = [
+    { href: '/', label: 'Dashboard', ariaLabel: 'Go to dashboard' },
+    { href: '/problems', label: 'Problems', ariaLabel: 'View coding problems' },
+    { href: '/leaderboard', label: 'Leaderboard', ariaLabel: 'View the leaderboard' },
+    { href: '/sheets', label: 'Sheets', ariaLabel: 'View problem sheets' },
+];
+
+const socialItems = [
+  { label: 'Twitter', link: 'https://twitter.com' },
+  { label: 'GitHub', link: 'https://github.com' },
+  { label: 'LinkedIn', link: 'https://linkedin.com' }
+];
+
 
 export function Header() {
+  const isMobile = useIsMobile();
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 px-4 backdrop-blur-xl md:px-6">
       <div className="flex h-16 items-center justify-between gap-4">
@@ -70,42 +78,21 @@ export function Header() {
                 </Link>
               </Button>
             </div>
-
-             {/* Mobile menu trigger */}
-            <Popover>
-                <PopoverTrigger asChild>
-                <Button
-                    className="md:hidden"
-                    variant="ghost"
-                    size="icon"
-                >
-                    <Menu />
-                    <span className="sr-only">Open menu</span>
-                </Button>
-                </PopoverTrigger>
-                <PopoverContent align="end" className="w-screen max-w-xs mt-2 mr-4 p-4 md:hidden">
-                    <nav className="grid gap-4">
-                        {navigationLinks.map((link) => (
-                        <Link
-                            key={link.href}
-                            href={link.href}
-                            className="text-sm font-medium text-foreground hover:text-primary"
-                        >
-                            {link.label}
-                        </Link>
-                        ))}
-                    </nav>
-                    <div className="mt-6 flex flex-col gap-2">
-                        <Button asChild variant="outline">
-                            <Link href="/login">Sign In</Link>
-                        </Button>
-                        <Button asChild>
-                            <Link href="/signup">Get Started</Link>
-                        </Button>
-                    </div>
-                </PopoverContent>
-            </Popover>
-
+             {isMobile && (
+              <StaggeredMenu
+                position="right"
+                items={navigationLinks}
+                socialItems={socialItems}
+                displaySocials={true}
+                displayItemNumbering={true}
+                menuButtonColor="#000000"
+                openMenuButtonColor="#ffffff"
+                changeMenuColorOnOpen={true}
+                colors={['#2C3E50', '#008080']}
+                logoUrl="/logo.png"
+                accentColor="#008080"
+              />
+            )}
         </div>
       </div>
     </header>

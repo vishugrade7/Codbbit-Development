@@ -30,7 +30,6 @@ export default function HomePage() {
 
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const [userRank, setUserRank] = useState<number | null>(null);
-  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -169,26 +168,6 @@ export default function HomePage() {
 
   return (
     <SidebarProvider>
-       <div className="md:hidden">
-        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
-          <SheetTrigger asChild>
-             <Button variant="ghost" size="icon" className="absolute top-4 left-4 z-10">
-                <Menu className="h-5 w-5" />
-             </Button>
-          </SheetTrigger>
-          <SheetContent side="left" className="w-16 p-0">
-             <SheetHeader>
-              <SheetTitle className="sr-only">Mobile Navigation</SheetTitle>
-              <SheetDescription className="sr-only">
-                A sidebar menu with navigation links for the application.
-              </SheetDescription>
-            </SheetHeader>
-            <Sidebar>
-                <AppSidebar />
-            </Sidebar>
-          </SheetContent>
-        </Sheet>
-      </div>
       <Sidebar collapsible="icon" className="hidden md:block">
         <AppSidebar />
       </Sidebar>
