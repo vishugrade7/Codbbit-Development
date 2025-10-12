@@ -3,8 +3,8 @@
 'use client';
 
 import { useEffect, useState, useRef, useMemo } from 'react';
-import { useFirestore, useUser, setDocumentNonBlocking, useAuth, useStorage, useMemoFirebase } from '@/firebase';
-import type { UserProfile } from '@/lib/types';
+import { useFirestore, useUser, setDocumentNonBlocking, useAuth, useStorage, useMemoFirebase, useCollection } from '@/firebase';
+import type { Question, UserProfile } from '@/lib/types';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
@@ -27,7 +27,7 @@ import {
   Upload,
   Tag,
 } from 'lucide-react';
-import { doc } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -208,6 +208,26 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
   const [userRank, setUserRank] = useState<number | null>(null);
   const router = useRouter();
 
+  const problemsCollectionRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'problems');
+  }, [firestore]);
+  const { data: categoriesData, isLoading: isLoadingProblems } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
+
+  const problemCounts = useMemo(() => {
+    if (!categoriesData) return { Easy: 0, Medium: 0, Hard: 0, total: 0 };
+    
+    let easy = 0, medium = 0, hard = 0;
+    categoriesData.forEach(cat => {
+      (cat.Questions || []).forEach(q => {
+        if (q.difficulty === 'Easy') easy++;
+        else if (q.difficulty === 'Medium') medium++;
+        else if (q.difficulty === 'Hard') hard++;
+      });
+    });
+    return { Easy: easy, Medium: medium, Hard: hard, total: easy + medium + hard };
+  }, [categoriesData]);
+
   useEffect(() => {
     if (profile?.points != null) {
       getUserRank({ points: profile.points }).then(result => {
@@ -291,7 +311,7 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
     );
   };
 
-  if (isUserLoading) {
+  if (isUserLoading || isLoadingProblems) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
@@ -307,8 +327,8 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
   const isOwnProfile = currentUser?.uid === profile.uid;
   const isVerified = profile.emailVerified;
   const totalSolved = (profile.dsaStats?.Easy || 0) + (profile.dsaStats?.Medium || 0) + (profile.dsaStats?.Hard || 0);
-  const totalQuestions = 72; // Hardcoded for now
-  const progressPercentage = (totalSolved / totalQuestions) * 100;
+  const totalQuestions = problemCounts.total;
+  const progressPercentage = totalQuestions > 0 ? (totalSolved / totalQuestions) * 100 : 0;
   
   const recentActivity = Object.values(profile.solvedProblems || {}).sort((a: any, b: any) => new Date(b.solvedAt).getTime() - new Date(a.solvedAt).getTime()).slice(0, 5);
   
@@ -417,9 +437,9 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
                      <div>
                         <p className="text-sm">Total Solved: {totalSolved}/{totalQuestions}</p>
                         <ul className="mt-2 space-y-1 text-sm">
-                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500"></span>Easy: {profile.dsaStats?.Easy || 0}/41</li>
-                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500"></span>Medium: {profile.dsaStats?.Medium || 0}/26</li>
-                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500"></span>Hard: {profile.dsaStats?.Hard || 0}/5</li>
+                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500"></span>Easy: {profile.dsaStats?.Easy || 0}/{problemCounts.Easy}</li>
+                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500"></span>Medium: {profile.dsaStats?.Medium || 0}/{problemCounts.Medium}</li>
+                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500"></span>Hard: {profile.dsaStats?.Hard || 0}/{problemCounts.Hard}</li>
                         </ul>
                     </div>
                 </div>
