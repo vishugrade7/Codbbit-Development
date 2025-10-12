@@ -11,8 +11,7 @@ export async function GET(request: NextRequest) {
   const error = searchParams.get('error');
   const userId = searchParams.get('state'); // Get user ID from state parameter
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || request.headers.get('origin') || 'http://localhost:8080';
-  const redirectUrl = new URL('/settings/connected-apps', baseUrl);
+  const redirectUrl = new URL('/settings/connected-apps', request.nextUrl.origin);
 
 
   if (error) {
@@ -30,7 +29,7 @@ export async function GET(request: NextRequest) {
   if (setupAction === 'install' && installationId) {
     try {
         const privateKey = process.env.GITHUB_PRIVATE_KEY?.replace(/\\n/g, '\n');
-        const appId = process.env.GITHUB_APP_ID;
+        const appId = process.env.NEXT_PUBLIC_GITHUB_APP_ID;
 
         if (!privateKey || !appId) {
             throw new Error('GitHub App server configuration is missing.');
