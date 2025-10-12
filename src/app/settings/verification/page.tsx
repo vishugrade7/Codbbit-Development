@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -110,15 +109,10 @@ export default function VerificationPage() {
             <CardDescription>Verify your identity using your LinkedIn account to get the verified badge on your profile.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleVerifyWithLinkedIn} disabled={referredUsers < referralsNeeded}>
+            <Button onClick={handleVerifyWithLinkedIn}>
               <Linkedin className="mr-2 h-4 w-4" />
               Verify with LinkedIn
             </Button>
-            {referredUsers < referralsNeeded && (
-              <p className="text-sm text-muted-foreground mt-2">
-                  You must complete the referral step before verifying with LinkedIn.
-              </p>
-            )}
           </CardContent>
         </Card>
       </div>
