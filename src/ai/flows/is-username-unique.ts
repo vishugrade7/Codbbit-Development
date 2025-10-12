@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -43,11 +44,16 @@ const isUsernameUniqueFlow = ai.defineFlow(
     }
 
     try {
+      const lowercasedUsername = username.toLowerCase();
       const usersRef = firestore.collection('users');
-      const q = usersRef.where('username', '==', username).limit(1);
-      const querySnapshot = await q.get();
+      const querySnapshot = await usersRef.get();
+      
+      const isUsernameTaken = querySnapshot.docs.some(doc => {
+        const docData = doc.data();
+        return docData.username && docData.username.toLowerCase() === lowercasedUsername;
+      });
 
-      return { isUnique: querySnapshot.empty };
+      return { isUnique: !isUsernameTaken };
     } catch (error) {
       console.error('Error checking username uniqueness:', String(error));
       // In case of an error, assume it's not unique to be safe
