@@ -1,0 +1,61 @@
+/**
+ * @file Firestore Security Rules
+ * @description This ruleset enforces a strict user-ownership model for user profiles
+ * and allows public read access to coding questions.
+ *
+ * Data Structure:
+ * - /users/{userId}: Stores individual user profiles, accessible only to the owning user.
+ * - /questions/{questionId}: Stores coding questions, publicly readable but writable only by an admin (not yet implemented).
+ *
+ * Key Security Decisions:
+ * - User profiles are strictly private; only the authenticated user can read/write their own profile.
+ * - Coding questions are publicly readable, supporting open access to learning resources.
+ * - No user listing is allowed.
+ */
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    /**
+     * @description Enforces user-ownership for user profiles.
+     * @path /users/{userId}
+     * @allow (create) - User with UID 'user_abc' can create their profile at /users/user_abc.
+     * @allow (get, update, delete) - User with UID 'user_abc' can read, update, and delete their profile at /users/user_abc.
+     * @deny (create) - User with UID 'user_xyz' cannot create a profile at /users/user_abc.
+     * @deny (get, update, delete) - User with UID 'user_xyz' cannot read, update, or delete the profile at /users/user_abc.
+     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     */
+    match /users/{userId} {
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
+      function isOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId;
+      }
+
+      function isExistingOwner(userId) {
+        return isSignedIn() && request.auth.uid == userId && resource != null;
+      }
+
+      allow get: if isOwner(userId);
+      allow list: if false;
+      allow create: if isSignedIn() && isOwner(userId);
+      allow update: if isExistingOwner(userId);
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Allows public read access to coding questions.
+     * @path /questions/{questionId}
+     * @allow (get, list) - Any user, authenticated or not, can read coding questions.
+     * @deny (create, update, delete) - No user can create, update, or delete coding questions (admin-only, not yet implemented).
+     * @principle Public read access with owner-only writes (currently disabled).
+     */
+    match /questions/{questionId} {
+      allow get: if true;
+      allow list: if true;
+      allow create, update, delete: if false;
+    }
+  }
+}

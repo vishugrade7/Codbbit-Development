@@ -1,0 +1,205 @@
+
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "description": "Represents a user's profile in the Codbbit application.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "description": "The user's unique ID from Firebase Authentication." },
+        "email": { "type": "string", "format": "email" },
+        "name": { "type": "string", "description": "The user's full display name." },
+        "username": { "type": "string", "description": "The user's unique username." },
+        "company": { "type": "string" },
+        "country": { "type": "string" },
+        "emailVerified": { "type": "boolean" },
+        "phone": { "type": "string" },
+        "phoneVerified": { "type": "boolean" },
+        "about": { "type": "string" },
+        "avatarUrl": { "type": "string", "format": "uri" },
+        "website": { "type": "string", "format": "uri" },
+        "githubUrl": { "type": "string", "format": "uri" },
+        "twitterUrl": { "type": "string", "format": "uri" },
+        "linkedinUrl": { "type": "string", "format": "uri" },
+        "trailheadUrl": { "type": "string", "format": "uri" },
+        "isEmailPublic": { "type": "boolean" },
+        "isAdmin": { "type": "boolean" },
+        "points": { "type": "number", "description": "Total points accumulated by the user." },
+        "rank": { "type": "number" },
+        "currentStreak": { "type": "number", "description": "Current daily problem-solving streak." },
+        "maxStreak": { "type": "number", "description": "Maximum daily problem-solving streak." },
+        "lastSolvedDate": { "type": ["string", "null"], "format": "date" },
+        "activeSessionId": { "type": "string" },
+        "achievements": { "type": "object", "description": "Map of earned achievements." },
+        "categoryPoints": { "type": "object", "description": "Points per category." },
+        "dsaStats": {
+          "type": "object",
+          "properties": {
+            "Easy": { "type": "number" },
+            "Medium": { "type": "number" },
+            "Hard": { "type": "number" }
+          }
+        },
+        "sfdcAuth": {
+          "type": "object",
+          "properties": {
+            "connected": { "type": "boolean" },
+            "instanceUrl": { "type": "string" },
+            "accessToken": { "type": "string" },
+            "refreshToken": { "type": "string" },
+            "issuedAt": { "type": "number" }
+          }
+        },
+        "githubSync": {
+          "type": "object",
+          "properties": {
+            "connected": { "type": "boolean" },
+            "username": { "type": "string" },
+            "repo": { "type": "string" },
+            "accessToken": { "type": "string" }
+          }
+        },
+        "solvedProblems": {
+          "type": "object",
+          "description": "Map of solved problems with details.",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "difficulty": { "type": "string" },
+              "points": { "type": "number" },
+              "solvedAt": { "type": "string", "format": "date-time" },
+              "title": { "type": "string" }
+            }
+          }
+        },
+        "starredProblems": { "type": "array", "items": { "type": "string" } },
+        "submissionHeatmap": {
+          "type": "object",
+          "additionalProperties": { "type": "number" }
+        },
+        "contributions": { "type": "array", "items": { "type": "object" } }
+      },
+      "required": ["uid", "email", "username", "name"]
+    },
+    "CodeQuestion": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "CodeQuestion",
+      "type": "object",
+      "description": "Represents a single coding question.",
+      "properties": {
+        "id": { "type": "string" },
+        "title": { "type": "string" },
+        "description": { "type": "string" },
+        "difficulty": { "type": "string", "enum": ["Easy", "Medium", "Hard"] },
+        "starterCode": { "type": "string" },
+        "testcases": { "type": "string" },
+        "category": { "type": "string" },
+        "tags": { "type": "array", "items": { "type": "string" } },
+        "examples": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "input": { "type": "string" },
+              "output": { "type": "string" },
+              "explanation": { "type": "string" }
+            },
+            "required": ["input", "output"]
+          }
+        },
+        "hints": { "type": "array", "items": { "type": "string" } }
+      },
+      "required": ["id", "title", "description", "difficulty", "category"]
+    },
+     "ProblemSheet": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ProblemSheet",
+      "type": "object",
+      "description": "A curated list of coding problems.",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "questionIds": { "type": "array", "items": { "type": "string" } },
+        "createdBy": { "type": "string", "description": "The UID of the user who created the sheet." },
+        "followers": { "type": "number", "description": "Number of users following this sheet." }
+      },
+      "required": ["id", "name", "questionIds", "createdBy"]
+    },
+    "Voucher": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Voucher",
+      "description": "Represents a promotional voucher for premium plans.",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "code": { "type": "string" },
+        "type": { "type": "string", "enum": ["percentage", "fixed"] },
+        "value": { "type": "number" },
+        "isActive": { "type": "boolean" },
+        "expiresAt": { "type": ["string", "null"], "format": "date-time" }
+      },
+      "required": ["id", "code", "type", "value", "isActive"]
+    },
+    "PriceConfig": {
+        "title": "PriceConfig",
+        "description": "Stores pricing information for subscription plans.",
+        "type": "object",
+        "properties": {
+            "premiumPrice": { "type": "number", "description": "The price for the premium plan in USD." }
+        },
+        "required": ["premiumPrice"]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/users/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": { "$ref": "#/entities/UserProfile" },
+          "description": "Stores user profiles. The 'userId' parameter is the Firebase Authentication UID."
+        }
+      },
+      {
+        "path": "/questions/{questionId}",
+        "definition": {
+            "entityName": "CodeQuestion",
+            "schema": { "$ref": "#/entities/CodeQuestion" },
+            "description": "A collection where each document is a single coding problem."
+        }
+      },
+      {
+        "path": "/sheets/{sheetId}",
+        "definition": {
+          "entityName": "ProblemSheet",
+          "schema": { "$ref": "#/entities/ProblemSheet" },
+          "description": "A collection where each document is a problem sheet."
+        }
+      },
+      {
+        "path": "/vouchers/{voucherId}",
+        "definition": {
+          "entityName": "Voucher",
+          "schema": { "$ref": "#/entities/Voucher" },
+          "description": "Stores promotional vouchers."
+        }
+      },
+       {
+        "path": "/config/{configId}",
+        "definition": {
+          "entityName": "PriceConfig",
+          "schema": { "$ref": "#/entities/PriceConfig" },
+          "description": "Stores application configuration. Use specific document IDs like 'pricing'."
+        }
+      }
+    ]
+  }
+}
