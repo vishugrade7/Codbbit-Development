@@ -31,3 +31,4 @@ export * from './PasswordStrength';
 export * from './FeedbackForm';
 export * from './VerifiedBadge';
 export * from './CompanyAutocomplete';
+export * from './AuthGuard';

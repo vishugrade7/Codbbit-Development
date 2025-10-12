@@ -10,6 +10,7 @@ import Aurora from '@/components/Aurora';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
 import { Header } from '@/components/Header';
+import { AuthGuard } from '@/components/AuthGuard';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
@@ -59,10 +60,12 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
-            <Header />
-            <AppLayout>
-              {children}
-            </AppLayout>
+            <AuthGuard>
+              <Header />
+              <AppLayout>
+                {children}
+              </AppLayout>
+            </AuthGuard>
           </FirebaseClientProvider>
           <Toaster />
         </ThemeProvider>
