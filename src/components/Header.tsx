@@ -42,7 +42,7 @@ export function Header() {
 
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 px-4 backdrop-blur-xl md:px-6 md:hidden">
+    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/50 px-4 backdrop-blur-xl md:px-6 md:hidden">
       <div className="flex h-16 items-center justify-between gap-4">
         {/* Left side */}
         <div className="flex items-center gap-6">
@@ -94,7 +94,7 @@ export function Header() {
                     <span className="sr-only">Open Menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full max-w-xs bg-background/80 backdrop-blur-xl">
+                <SheetContent side="right" className="w-full max-w-xs bg-background/50 backdrop-blur-xl">
                   <div className="flex flex-col h-full">
                     <div className="border-b -mx-6 px-6 pb-4">
                        <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90" onClick={() => setIsSheetOpen(false)}>
