@@ -15,6 +15,7 @@ import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 import { Loader2, Github, Twitter, Linkedin, Link as LinkIcon, Mountain } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import useSound from 'use-sound';
 
 const socialLinksSchema = z.object({
   website: z.string().url().or(z.literal('')).optional(),
@@ -48,6 +49,7 @@ export default function SocialProfilesPage() {
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
   const router = useRouter();
+  const [playSuccessSound] = useSound('/audio/success.mp3');
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -97,6 +99,7 @@ export default function SocialProfilesPage() {
         };
       await setDocumentNonBlocking(userDocRef, updateData, { merge: true });
       await refetch();
+      playSuccessSound();
       toast({
         title: "Social Profiles Updated",
         description: "Your social links have been successfully updated.",
