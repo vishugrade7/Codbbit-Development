@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { doc, getDoc, updateDoc } from 'firebase-admin/firestore';
@@ -94,6 +95,27 @@ export async function initiateSalesforceOAuth(challenge: string) {
 
   return { success: true, url: oauthUrl.toString() };
 }
+
+export async function initiateLinkedInOAuth(userId: string) {
+  const clientId = process.env.LINKEDIN_CLIENT_ID;
+  const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/linkedin/callback`;
+
+  if (!clientId || !callbackUrl) {
+    const error = "LinkedIn environment variables are not set up.";
+    console.error(error);
+    return { success: false, error };
+  }
+  
+  const oauthUrl = new URL('https://www.linkedin.com/oauth/v2/authorization');
+  oauthUrl.searchParams.append('response_type', 'code');
+  oauthUrl.searchParams.append('client_id', clientId);
+  oauthUrl.searchParams.append('redirect_uri', callbackUrl);
+  oauthUrl.searchParams.append('state', userId); // Pass user ID in state
+  oauthUrl.searchParams.append('scope', 'profile openid');
+
+  return { success: true, url: oauthUrl.toString() };
+}
+
 
 async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     const db = firestore;

@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,6 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { initiateLinkedInOAuth } from '@/lib/actions';
 
 export default function VerificationPage() {
   const { toast } = useToast();
@@ -27,6 +29,7 @@ export default function VerificationPage() {
 
   const { data: userProfile, isLoading: isProfileLoading, refetch } = useDoc<UserProfile>(userDocRef);
   const [isShareDialogOpen, setIsShareDialogOpen] = useState(false);
+  const [isVerifyingLinkedIn, setIsVerifyingLinkedIn] = useState(false);
 
   // Generate referral code if it doesn't exist
   useEffect(() => {
@@ -48,8 +51,23 @@ export default function VerificationPage() {
     toast({ title: 'Copied!', description: 'Referral link copied to clipboard.' });
   };
   
-  const handleVerifyWithLinkedIn = () => {
-    toast({ title: 'Coming Soon!', description: 'LinkedIn verification is not yet implemented.' });
+  const handleVerifyWithLinkedIn = async () => {
+    if (!user) {
+        toast({title: 'Error', description: 'You must be logged in.', variant: 'destructive'});
+        return;
+    }
+    setIsVerifyingLinkedIn(true);
+    try {
+        const result = await initiateLinkedInOAuth(user.uid);
+        if (result.success && result.url) {
+            window.location.href = result.url;
+        } else {
+            throw new Error(result.error || 'Could not initiate LinkedIn verification.');
+        }
+    } catch(error: any) {
+        toast({ title: 'Error', description: error.message, variant: 'destructive'});
+        setIsVerifyingLinkedIn(false);
+    }
   }
   
   const handleShare = () => {
@@ -109,8 +127,8 @@ export default function VerificationPage() {
             <CardDescription>Verify your identity using your LinkedIn account to get the verified badge on your profile.</CardDescription>
           </CardHeader>
           <CardContent>
-            <Button onClick={handleVerifyWithLinkedIn}>
-              <Linkedin className="mr-2 h-4 w-4" />
+            <Button onClick={handleVerifyWithLinkedIn} disabled={isVerifyingLinkedIn}>
+              {isVerifyingLinkedIn ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Linkedin className="mr-2 h-4 w-4" />}
               Verify with LinkedIn
             </Button>
           </CardContent>
