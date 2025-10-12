@@ -79,25 +79,37 @@ export function FeedbackForm() {
     }
   }, [userProfile, reset]);
 
-  const onSubmit = async (data: FeedbackFormData) => {
+  const onSubmit = (data: FeedbackFormData) => {
     setIsSubmitting(true);
-    // Here you would typically send the feedback to your backend or a service like Formspree
-    console.log(data);
 
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    const emailBody = `
+User: ${data.name} (${data.email})
+
+Message:
+${data.message}
+    `;
+
+    const mailtoLink = `mailto:support@codbbit.com?subject=${encodeURIComponent(
+      `Feedback: ${data.subject}`
+    )}&body=${encodeURIComponent(emailBody)}`;
+
+    window.location.href = mailtoLink;
 
     toast({
-      title: 'Feedback Sent!',
-      description: "Thanks for your feedback. We'll get back to you soon.",
+      title: 'Redirecting to Email',
+      description: "Your email client has been opened to send your feedback.",
       variant: 'success',
     });
-    reset({
-        ...data,
-        subject: '',
-        message: ''
-    });
-    setIsSubmitting(false);
+    
+    // Reset form after a short delay to allow email client to open
+    setTimeout(() => {
+        reset({
+            ...data,
+            subject: '',
+            message: ''
+        });
+        setIsSubmitting(false);
+    }, 1000);
   };
 
   const isLoading = isUserLoading || isProfileLoading;
