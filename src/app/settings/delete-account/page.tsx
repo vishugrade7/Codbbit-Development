@@ -8,10 +8,13 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Loader2, ShieldAlert, Mail } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function DeleteAccountPage() {
   const { user } = useUser();
   const router = useRouter();
+  const [reason, setReason] = useState('');
   
   const handleEmailRequest = () => {
     if (!user || !user.email) return;
@@ -22,6 +25,9 @@ Please process the account deletion for the following user:
 
 User ID: ${user.uid}
 User Email: ${user.email}
+
+Reason for deletion:
+${reason || '(No reason provided)'}
 
 I understand that this action is irreversible and will permanently delete all my data.
     `;
@@ -44,6 +50,15 @@ I understand that this action is irreversible and will permanently delete all my
             solved problems, points, and leaderboard rankings. This cannot be undone. Clicking the button below will open an email to request deletion.
           </AlertDescription>
         </Alert>
+        <div className="space-y-2">
+            <Label htmlFor="deletion-reason">Reason for leaving (optional)</Label>
+            <Textarea 
+                id="deletion-reason"
+                placeholder="We'd love to know why you're leaving..."
+                value={reason}
+                onChange={(e) => setReason(e.target.value)}
+            />
+        </div>
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button
