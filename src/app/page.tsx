@@ -200,7 +200,7 @@ export default function HomePage() {
           </header>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="animate-fade-in-up bg-gradient-to-br from-purple-50 to-indigo-100 dark:from-purple-900/30 dark:to-indigo-900/30" style={{ animationDelay: '0.1s' }}>
+            <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.1s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Rank</CardTitle>
                 <Award className="h-4 w-4 text-muted-foreground" />
@@ -210,7 +210,7 @@ export default function HomePage() {
                 <p className="text-xs text-muted-foreground">Your position on the leaderboard</p>
               </CardContent>
             </Card>
-            <Card className="animate-fade-in-up bg-gradient-to-br from-green-50 to-emerald-100 dark:from-green-900/30 dark:to-emerald-900/30" style={{ animationDelay: '0.2s' }}>
+            <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.2s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Total Points</CardTitle>
                 <BarChart className="h-4 w-4 text-muted-foreground" />
@@ -220,7 +220,7 @@ export default function HomePage() {
                 <p className="text-xs text-muted-foreground">Keep solving to earn more</p>
               </CardContent>
             </Card>
-            <Card className="animate-fade-in-up bg-gradient-to-br from-orange-50 to-amber-100 dark:from-orange-900/30 dark:to-amber-900/30" style={{ animationDelay: '0.3s' }}>
+            <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.3s' }}>
               <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
                 <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
                  <Flame className={cn("h-4 w-4 text-muted-foreground", (userProfile?.currentStreak || 0) > 0 && "text-orange-400 animate-pulse")} />
