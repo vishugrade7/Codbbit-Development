@@ -252,7 +252,7 @@ export function LandingPage() {
                  <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90">
                    <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
                    <h1 className="text-md font-bold font-headline text-foreground">
-                      Salesforce Coder
+                      Codbbit
                   </h1>
                 </Link>
                 <p className="text-sm text-muted-foreground">The ultimate platform for mastering Salesforce Apex.</p>
