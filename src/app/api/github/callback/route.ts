@@ -56,13 +56,15 @@ export async function GET(request: NextRequest) {
         }
         
         const userDocRef = firestore.collection('users').doc(userId);
-        await userDocRef.update({
+        
+        // Use set with merge:true to prevent errors if the document doesn't exist yet.
+        await userDocRef.set({
             githubSync: {
                 connected: true,
                 installationId: parseInt(installationId, 10),
                 repo: repo,
             },
-        });
+        }, { merge: true });
         
         redirectUrl.searchParams.set('success', 'github_connected');
         return NextResponse.redirect(redirectUrl);
