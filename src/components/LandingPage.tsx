@@ -63,7 +63,7 @@ export function LandingPage() {
                 transition={{ duration: 0.5 }}
                 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
               >
-                Track, analyze & share
+                Master Salesforce Apex
               </motion.h1>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
@@ -71,7 +71,7 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.1 }}
                 className="mt-6 text-lg leading-8 text-muted-foreground"
               >
-                Codbbit helps you navigate and track your coding journey to success.
+                The ultimate platform for mastering Salesforce Apex. Sharpen your skills, compete on leaderboards, and prepare for certifications with real-world coding challenges.
               </motion.p>
               <motion.div 
                 initial={{ opacity: 0, y: 20 }}
@@ -81,12 +81,12 @@ export function LandingPage() {
               >
                 <Button size="lg" asChild className="group bg-blue-600 hover:bg-blue-700 text-white">
                   <Link href="/signup">
-                    Profile Tracker
+                    Start for Free
                     <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>
                 <Button size="lg" variant="outline" asChild>
-                  <Link href="/sheets">Company-Wise Kit</Link>
+                  <Link href="/problems">Explore Problems</Link>
                 </Button>
               </motion.div>
             </div>
