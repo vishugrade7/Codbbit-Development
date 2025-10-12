@@ -49,7 +49,15 @@ const isUsernameUniqueFlow = ai.defineFlow(
       }
       
       const existingUser = querySnapshot.docs[0].data();
-      return { isUnique: false, existingUserName: existingUser.name };
+      return { 
+          isUnique: false, 
+          existingUserName: 
+            existingUser.name ||
+            existingUser.username ||
+            existingUser.displayName ||
+            existingUser.fullName ||
+            'another user'
+        };
 
     } catch (error) {
       console.error('Error checking username uniqueness:', String(error));
