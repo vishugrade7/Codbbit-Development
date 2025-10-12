@@ -48,7 +48,7 @@ import {
   XMarkIcon,
   PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
-import { updateProfile, sendEmailVerification, type User } from 'firebase/auth';
+import { updateProfile, sendEmailVerification, type User, onIdTokenChanged } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { PasswordStrength } from './PasswordStrength';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -137,15 +137,15 @@ function AuthFormComponent({ type }: AuthFormProps) {
     }
     setUsernameStatus('checking');
     try {
-      const { isUnique, existingUserName } = await isUsernameUnique({ username });
+      const { isUnique, existingUserName: existingName } = await isUsernameUnique({ username });
       if (isUnique) {
         setUsernameStatus('unique');
         setExistingUserName(null);
         clearErrors('username');
       } else {
         setUsernameStatus('taken');
-        setExistingUserName(existingUserName || null);
-        setError('username', { type: 'manual', message: `This username is already taken by ${existingUserName}.` });
+        setExistingUserName(existingName || null);
+        setError('username', { type: 'manual', message: `This username is already taken by ${existingName}.` });
       }
     } catch (error) {
       setUsernameStatus('idle'); // Reset on error
@@ -173,6 +173,25 @@ function AuthFormComponent({ type }: AuthFormProps) {
     }
   }, [user, router]);
   
+  // This effect will run when the user state changes.
+  useEffect(() => {
+    if (auth) {
+        const unsubscribe = onIdTokenChanged(auth, async (user) => {
+            if (user && user.emailVerified && !isUserLoading) {
+                const userDocRef = doc(firestore, 'users', user.uid);
+                const userDoc = await (await fetch(userDocRef.path)).json();
+                if (userDoc?.referredBy) {
+                    await handleReferral({ referralCode: userDoc.referredBy });
+                    // Optionally clear the referredBy field after processing
+                    setDocumentNonBlocking(userDocRef, { referredBy: '' }, { merge: true });
+                }
+            }
+        });
+        return () => unsubscribe();
+    }
+}, [auth, firestore, isUserLoading]);
+
+
   const handleResendVerification = async () => {
     if (!unverifiedUser) return;
     setIsResending(true);
@@ -270,17 +289,20 @@ function AuthFormComponent({ type }: AuthFormProps) {
           
           setDocumentNonBlocking(userDocRef, newUserProfile, { merge: false });
           
-          // Handle referral code in a non-blocking way
-          if (signupValues.referralCode) {
-            handleReferral({ referralCode: signupValues.referralCode });
-          }
-          
+          // Send verification email
+          await sendEmailVerification(user);
+
           // After successful sign up, prompt user to check email
           toast({
             title: 'Account Created!',
             description: 'Please check your inbox to verify your email address.',
             variant: 'success'
           });
+          
+           // Sign out the user and prompt them to verify
+          await auth.signOut();
+          setUnverifiedUser(user);
+          setShowVerifyEmailDialog(true);
         }
       } catch (error: any) {
         if (error.code === 'auth/email-already-in-use') {
