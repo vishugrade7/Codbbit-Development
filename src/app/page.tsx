@@ -243,7 +243,7 @@ export default function HomePage() {
                     <p className="font-semibold text-lg">{problemOfTheDay.title}</p>
                     <p className="text-muted-foreground text-sm mt-1 mb-4">A new challenge, every single day. Can you solve it?</p>
                     <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="gap-1.5">
+                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                           <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheDay.difficulty))} aria-hidden="true"></span>
                           {problemOfTheDay.difficulty}
                         </Badge>
@@ -263,7 +263,7 @@ export default function HomePage() {
                     <p className="font-semibold text-lg">{problemOfTheWeek.title}</p>
                     <p className="text-muted-foreground text-sm mt-1 mb-4">A hand-picked problem to test your skills this week.</p>
                      <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="gap-1.5">
+                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                           <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheWeek.difficulty))} aria-hidden="true"></span>
                           {problemOfTheWeek.difficulty}
                         </Badge>
@@ -289,7 +289,7 @@ export default function HomePage() {
                         <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
                            <p className="font-semibold">{problem.title}</p>
                            <div className="flex items-center gap-4">
-                              <Badge variant="outline" className="gap-1.5">
+                              <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                                 <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
                                 {problem.difficulty}
                               </Badge>

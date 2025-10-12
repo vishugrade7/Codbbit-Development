@@ -494,7 +494,7 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
                                     <TimelineTitle>{act.title}</TimelineTitle>
                                 </div>
                               </div>
-                              <Badge variant="outline" className="gap-1.5">
+                              <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                                   <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true" />
                                   {act.difficulty}
                               </Badge>
