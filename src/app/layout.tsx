@@ -29,7 +29,7 @@ function AppLayout({ children }: { children: React.ReactNode }) {
           speed={0.5}
         />
       )}
-      {children}
+      <main className="pt-16 md:pt-0">{children}</main>
     </>
   );
 }
