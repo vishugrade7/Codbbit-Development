@@ -78,6 +78,7 @@ export interface UserProfile {
   username: string;
   company: string;
   country: string;
+  createdAt?: string; // Add createdAt for sorting recent users
   emailVerified: boolean;
   phone: string;
   phoneVerified: boolean;
