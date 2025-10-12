@@ -135,12 +135,12 @@ export default function SettingsPage() {
                         {usernameStatus === 'taken' && <XIcon className="h-4 w-4 text-red-500" />}
                     </div>
                 </div>
-                {usernameStatus === 'taken' && <p className="text-sm text-red-500 mt-1">This username is already taken by {existingUserName}.</p>}
+                {usernameStatus === 'taken' && <p className="text-sm text-red-500 mt-1">This username is already taken by ${existingUserName}.</p>}
              </div>
         </div>
         <div className="p-6">
             <h3 className="text-lg font-semibold leading-tight">Verification</h3>
-            <p className="text-sm text-muted-foreground mt-1">Verify your identity to unlock all features.</p>
+            <p className="text-sm text-muted-foreground mt-1">Complete below steps to get verified</p>
             <div className="space-y-4 mt-4">
                 <div className="flex items-center justify-between rounded-md border p-4">
                     <div>
