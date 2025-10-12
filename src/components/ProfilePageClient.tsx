@@ -42,6 +42,7 @@ import { cn } from '@/lib/utils';
 import { VerifiedBadge } from './VerifiedBadge';
 import { getUserRank } from '@/ai/flows/get-user-rank';
 import { Timeline, TimelineContent, TimelineDate, TimelineHeader, TimelineIndicator, TimelineItem, TimelineSeparator, TimelineTitle } from './ui/timeline';
+import { ScrollArea } from './ui/scroll-area';
 
 
 const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Record<string, number>, currentStreak: number, maxStreak: number }) => {
@@ -477,27 +478,29 @@ export function ProfilePageClient() {
           
            <Card>
             <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
-            <CardContent>
-                <Timeline>
-                  {recentActivity.map((act: any, index) => (
-                    <TimelineItem key={act.title + index} step={index + 1}>
-                      <TimelineHeader className="justify-between">
-                          <div className="flex items-center gap-4">
-                            <TimelineSeparator />
-                            <TimelineIndicator />
-                            <div>
-                                <TimelineDate>{new Date(act.solvedAt).toLocaleDateString()}</TimelineDate>
-                                <TimelineTitle>{act.title}</TimelineTitle>
-                            </div>
-                          </div>
-                          <Badge variant="outline" className="gap-1.5">
-                              <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true" />
-                              {act.difficulty}
-                          </Badge>
-                      </TimelineHeader>
-                    </TimelineItem>
-                  ))}
-                </Timeline>
+            <CardContent className="h-[400px]">
+                <ScrollArea className="h-full">
+                    <Timeline>
+                      {recentActivity.map((act: any, index) => (
+                        <TimelineItem key={act.title + index} step={index + 1}>
+                          <TimelineHeader className="justify-between">
+                              <div className="flex items-center gap-4">
+                                <TimelineSeparator />
+                                <TimelineIndicator />
+                                <div>
+                                    <TimelineDate>{new Date(act.solvedAt).toLocaleDateString()}</TimelineDate>
+                                    <TimelineTitle>{act.title}</TimelineTitle>
+                                </div>
+                              </div>
+                              <Badge variant="outline" className="gap-1.5">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true" />
+                                  {act.difficulty}
+                              </Badge>
+                          </TimelineHeader>
+                        </TimelineItem>
+                      ))}
+                    </Timeline>
+                </ScrollArea>
             </CardContent>
           </Card>
 
