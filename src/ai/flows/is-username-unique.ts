@@ -9,7 +9,7 @@
  */
 
 import { ai } from '@/ai/genkit';
-import { z } from 'genkit';
+import { z } from 'zod';
 import { firestore } from '@/firebase/server-init';
 
 const IsUsernameUniqueInputSchema = z.object({
@@ -25,12 +25,6 @@ const IsUsernameUniqueOutputSchema = z.object({
 export type IsUsernameUniqueOutput = z.infer<
   typeof IsUsernameUniqueOutputSchema
 >;
-
-export async function isUsernameUnique(
-  input: IsUsernameUniqueInput
-): Promise<IsUsernameUniqueOutput> {
-  return isUsernameUniqueFlow(input);
-}
 
 const isUsernameUniqueFlow = ai.defineFlow(
   {
@@ -58,3 +52,9 @@ const isUsernameUniqueFlow = ai.defineFlow(
     }
   }
 );
+
+export async function isUsernameUnique(
+  input: IsUsernameUniqueInput
+): Promise<IsUsernameUniqueOutput> {
+  return isUsernameUniqueFlow(input);
+}
