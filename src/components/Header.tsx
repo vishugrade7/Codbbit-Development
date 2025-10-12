@@ -14,6 +14,7 @@ import {
 import { ArrowRight, Menu } from 'lucide-react';
 import StaggeredMenu from './StaggeredMenu';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useEffect, useState } from 'react';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string }[] = [
@@ -32,6 +33,12 @@ const socialItems = [
 
 export function Header() {
   const isMobile = useIsMobile();
+  const [isClient, setIsClient] = useState(false);
+
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+
 
   return (
     <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/80 px-4 backdrop-blur-xl md:px-6">
@@ -78,7 +85,7 @@ export function Header() {
                 </Link>
               </Button>
             </div>
-             {isMobile && (
+             {isClient && isMobile && (
               <StaggeredMenu
                 position="right"
                 items={navigationLinks}
