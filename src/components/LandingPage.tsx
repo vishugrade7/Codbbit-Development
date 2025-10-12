@@ -107,7 +107,7 @@ export function LandingPage() {
                   priority
                 />
                  <div className="absolute -left-12 -top-12 w-32 h-32 md:w-48 md:h-48">
-                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(240deg)]" />
+                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(300deg)]" />
                  </div>
               </div>
             </motion.div>
