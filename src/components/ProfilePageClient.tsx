@@ -363,7 +363,18 @@ export function ProfilePageClient() {
 
               <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
                 {profile.name}
-                {isVerified && <VerifiedBadge />}
+                {isVerified && (
+                  <TooltipProvider>
+                    <Tooltip>
+                      <TooltipTrigger>
+                        <VerifiedBadge />
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Verified</p>
+                      </TooltipContent>
+                    </Tooltip>
+                  </TooltipProvider>
+                )}
               </h1>
               <p className="text-muted-foreground">@{profile.username}</p>
               <div className="mt-4 flex flex-col items-center justify-center text-sm text-muted-foreground space-y-1">
