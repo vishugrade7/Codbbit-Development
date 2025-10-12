@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle } from 'lucide-react';
+import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
@@ -19,6 +19,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { getUserRank } from '@/ai/flows/get-user-rank';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 
 export default function HomePage() {
@@ -29,6 +30,7 @@ export default function HomePage() {
 
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -167,7 +169,21 @@ export default function HomePage() {
 
   return (
     <SidebarProvider>
-      <Sidebar>
+       <div className="md:hidden">
+        <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+          <SheetTrigger asChild>
+             <Button variant="ghost" size="icon" className="absolute top-4 left-4 z-10">
+                <Menu className="h-5 w-5" />
+             </Button>
+          </SheetTrigger>
+          <SheetContent side="left" className="w-16 p-0">
+            <Sidebar>
+                <AppSidebar />
+            </Sidebar>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <Sidebar collapsible="icon" className="hidden md:block">
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
