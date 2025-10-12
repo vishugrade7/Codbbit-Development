@@ -342,6 +342,12 @@ export function ProfilePageClient() {
     }
   };
 
+  const getCompanyLogoUrl = (companyName?: string) => {
+    if (!companyName) return '';
+    const domain = companyName.toLowerCase().replace(/ /g, '').replace(/,/g, '').replace(/\./g, '') + '.com';
+    return `https://img.logo.dev/${domain}`;
+  };
+
   return (
     <div className="p-4 sm:p-6 lg:p-8 space-y-8 bg-muted/20 min-h-screen">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
@@ -386,7 +392,12 @@ export function ProfilePageClient() {
               <p className="text-muted-foreground">@{profile.username}</p>
               <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
-                  <Briefcase className="h-4 w-4" />
+                  {profile.company && (
+                    <Avatar className='h-4 w-4'>
+                      <AvatarImage src={getCompanyLogoUrl(profile.company)} />
+                      <AvatarFallback><Briefcase className="h-3 w-3"/></AvatarFallback>
+                    </Avatar>
+                  )}
                   <span>{profile.company}</span>
                 </div>
                 <span className="mx-2">|</span>
