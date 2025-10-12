@@ -4,46 +4,29 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, ShieldAlert } from 'lucide-react';
-import { useUser, useAuth } from '@/firebase';
-import { useToast } from '@/hooks/use-toast';
+import { Loader2, ShieldAlert, Mail } from 'lucide-react';
+import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
-import { deleteUserAccount } from '@/lib/actions';
 
 export default function DeleteAccountPage() {
   const { user } = useUser();
-  const auth = useAuth();
-  const { toast } = useToast();
   const router = useRouter();
-  const [confirmation, setConfirmation] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
+  
+  const handleEmailRequest = () => {
+    if (!user || !user.email) return;
 
-  const handleDelete = async () => {
-    if (confirmation !== 'DELETE' || !user) return;
+    const subject = `Account Deletion Request for user: ${user.uid}`;
+    const body = `
+Please process the account deletion for the following user:
 
-    setIsDeleting(true);
-    const result = await deleteUserAccount(user.uid);
+User ID: ${user.uid}
+User Email: ${user.email}
 
-    if (result.success) {
-      toast({
-        title: 'Account Deleted',
-        description: 'Your account has been permanently deleted. You will be redirected shortly.',
-        variant: 'success',
-      });
-      // It might take a moment for onAuthStateChanged to fire, so we can sign out client-side too.
-      await auth.signOut(); 
-      router.push('/');
-    } else {
-      toast({
-        title: 'Deletion Failed',
-        description: result.error,
-        variant: 'destructive',
-      });
-      setIsDeleting(false);
-    }
+I understand that this action is irreversible and will permanently delete all my data.
+    `;
+    const mailtoLink = `mailto:support@codbbit.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    window.location.href = mailtoLink;
   };
 
   return (
@@ -58,30 +41,17 @@ export default function DeleteAccountPage() {
           <AlertTitle>Warning: This action is irreversible.</AlertTitle>
           <AlertDescription>
             Deleting your account will permanently erase all of your data, including your profile,
-            solved problems, points, and leaderboard rankings. This cannot be undone.
+            solved problems, points, and leaderboard rankings. This cannot be undone. Clicking the button below will open an email to request deletion.
           </AlertDescription>
         </Alert>
-        <div className="space-y-2">
-          <Label htmlFor="confirmation">
-            To confirm, please type <strong className="text-foreground">DELETE</strong> below:
-          </Label>
-          <Input
-            id="confirmation"
-            value={confirmation}
-            onChange={(e) => setConfirmation(e.target.value)}
-            placeholder="DELETE"
-            disabled={isDeleting}
-          />
-        </div>
       </CardContent>
       <CardFooter className="flex justify-end">
         <Button
           variant="destructive"
-          onClick={handleDelete}
-          disabled={confirmation !== 'DELETE' || isDeleting}
+          onClick={handleEmailRequest}
         >
-          {isDeleting && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          {isDeleting ? 'Deleting Account...' : 'Delete My Account'}
+          <Mail className="mr-2 h-4 w-4" />
+          Request Account Deletion via Email
         </Button>
       </CardFooter>
     </Card>
