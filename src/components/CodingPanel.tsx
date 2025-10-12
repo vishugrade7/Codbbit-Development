@@ -72,8 +72,8 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
     }
 
     const errorParts = output.error?.split('\n') || [];
-    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Test Execution Error';
-    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No specific assertion message.';
+    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Unknown Test Failure';
+    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No assertion message.';
     const stackTrace = errorParts.filter(line => line.trim().startsWith('Class.')).join('\n');
     
     const lineInfoMatch = stackTrace.match(/Class\.([\w\d_]+)\.[\w\d_]+: line (\d+)/);
@@ -102,10 +102,6 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
                          <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md mt-2">{stackTrace}</pre>
                     </div>
                 )}
-                 <div>
-                    <h4 className="font-semibold">Full Debug Log</h4>
-                    <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md mt-2">{output.logs}</pre>
-                </div>
             </div>
         </Alert>
     )
