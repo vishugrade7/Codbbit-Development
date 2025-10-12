@@ -1,23 +1,33 @@
-
 'use client';
 
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
-import { Loader2, ShieldAlert, Mail } from 'lucide-react';
+import { ShieldAlert, Mail } from 'lucide-react';
 import { useUser } from '@/firebase';
 import { useRouter } from 'next/navigation';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useToast } from '@/hooks/use-toast';
 
 export default function DeleteAccountPage() {
   const { user } = useUser();
   const router = useRouter();
   const [reason, setReason] = useState('');
+  const { toast } = useToast();
   
   const handleEmailRequest = () => {
     if (!user || !user.email) return;
+
+    if (!reason.trim()) {
+      toast({
+        title: 'Reason Required',
+        description: 'Please provide a reason for deleting your account.',
+        variant: 'destructive',
+      });
+      return;
+    }
 
     const subject = `Account Deletion Request for user: ${user.uid}`;
     const body = `
@@ -27,7 +37,7 @@ User ID: ${user.uid}
 User Email: ${user.email}
 
 Reason for deletion:
-${reason || '(No reason provided)'}
+${reason}
 
 I understand that this action is irreversible and will permanently delete all my data.
     `;
@@ -51,7 +61,7 @@ I understand that this action is irreversible and will permanently delete all my
           </AlertDescription>
         </Alert>
         <div className="space-y-2">
-            <Label htmlFor="deletion-reason">Reason for leaving (optional)</Label>
+            <Label htmlFor="deletion-reason">Reason for leaving</Label>
             <Textarea 
                 id="deletion-reason"
                 placeholder="We'd love to know why you're leaving..."
