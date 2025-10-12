@@ -194,13 +194,11 @@ const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Rec
 };
 
 
-export function ProfilePageClient() {
+export function ProfilePageClient({ profile }: { profile: UserProfile | null }) {
   const firestore = useFirestore();
   const storage = useStorage();
   const params = useParams();
   const { user: currentUser, isUserLoading } = useUser();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
   const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [uploadProgress, setUploadProgress] = useState(0);
@@ -211,30 +209,13 @@ export function ProfilePageClient() {
   const router = useRouter();
 
   useEffect(() => {
-    const fetchProfileAndRank = async () => {
-      const username = params.username as string;
-      if (!username) return;
-
-      setLoading(true);
-      try {
-        const userProfile = await getUserProfileByUsername({ username });
-        setProfile(userProfile);
-        if (userProfile && userProfile.points != null) {
-          const rankResult = await getUserRank({ points: userProfile.points });
-          setUserRank(rankResult.rank);
-        }
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-        setProfile(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    if (!isUserLoading) {
-        fetchProfileAndRank();
+    if (profile?.points != null) {
+      getUserRank({ points: profile.points }).then(result => {
+        setUserRank(result.rank);
+      });
     }
-  }, [params, isUserLoading]);
+  }, [profile]);
+
 
   const solvedCategories = useMemo(() => {
     if (!profile?.solvedProblems) {
@@ -293,7 +274,8 @@ export function ProfilePageClient() {
           const userDocRef = doc(firestore, 'users', currentUser.uid);
           setDocumentNonBlocking(userDocRef, { avatarUrl: downloadURL }, { merge: true });
 
-          setProfile(prev => prev ? { ...prev, avatarUrl: downloadURL } : null);
+          // Optimistically update the UI, but the server component will re-render anyway.
+          // setProfile(prev => prev ? { ...prev, avatarUrl: downloadURL } : null);
           
           toast({ title: "Success", description: "Your profile picture has been updated." });
         } catch (error: any) {
@@ -309,12 +291,12 @@ export function ProfilePageClient() {
     );
   };
 
-  if (loading || isUserLoading || userRank === null) {
+  if (isUserLoading) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
   if (!profile) {
-    notFound();
+    return <div className="flex items-center justify-center h-screen"><p>Profile not found.</p></div>;
   }
   
   const getInitials = (name: string | null | undefined) => {
