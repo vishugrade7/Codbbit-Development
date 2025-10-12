@@ -475,18 +475,20 @@ export function ProfilePageClient() {
                 <Timeline>
                   {recentActivity.map((act: any, index) => (
                     <TimelineItem key={act.title + index} step={index + 1}>
-                      <TimelineHeader>
-                        <TimelineSeparator />
-                        <TimelineDate>{new Date(act.solvedAt).toLocaleDateString()}</TimelineDate>
-                        <TimelineTitle>{act.title}</TimelineTitle>
-                        <TimelineIndicator />
+                      <TimelineHeader className="justify-between">
+                          <div className="flex items-center gap-4">
+                            <TimelineSeparator />
+                            <TimelineIndicator />
+                            <div>
+                                <TimelineDate>{new Date(act.solvedAt).toLocaleDateString()}</TimelineDate>
+                                <TimelineTitle>{act.title}</TimelineTitle>
+                            </div>
+                          </div>
+                          <Badge variant="outline" className="gap-1.5">
+                              <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true" />
+                              {act.difficulty}
+                          </Badge>
                       </TimelineHeader>
-                      <TimelineContent>
-                        <Badge variant="outline" className="gap-1.5">
-                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true" />
-                            {act.difficulty}
-                        </Badge>
-                      </TimelineContent>
                     </TimelineItem>
                   ))}
                 </Timeline>
