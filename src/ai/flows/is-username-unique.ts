@@ -56,7 +56,7 @@ const isUsernameUniqueFlow = ai.defineFlow(
             existingUser.username ||
             existingUser.displayName ||
             existingUser.fullName ||
-            'another user'
+            username
         };
 
     } catch (error) {
