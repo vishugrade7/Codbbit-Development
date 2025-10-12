@@ -16,6 +16,7 @@ import { countries } from '@/lib/countries';
 import { Combobox } from './ui/combobox';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useDebounce } from '@/hooks/use-debounce';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 
 const PAGE_SIZE = 20;
 
@@ -81,7 +82,18 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                             <AvatarImage src={user.avatarUrl} />
                                             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                                         </Avatar>
-                                        {user.emailVerified && <VerifiedBadge className="absolute -end-1.5 -top-1.5" />}
+                                        {user.emailVerified && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Verified</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        )}
                                     </div>
                                     <div>
                                         <div className="font-medium">{user.name}</div>
