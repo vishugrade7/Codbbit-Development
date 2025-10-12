@@ -146,8 +146,8 @@ export default function CategoryPage() {
                                     </Link>
                                 </TableCell>
                                 <TableCell>
-                                    <Badge variant="outline" className="gap-1.5 w-24 justify-center">
-                                      <span className={cn("size-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
+                                    <Badge variant="outline" className="gap-1.5">
+                                      <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
                                       {question.difficulty}
                                     </Badge>
                                 </TableCell>

@@ -482,7 +482,10 @@ export function ProfilePageClient() {
                         <TimelineIndicator />
                       </TimelineHeader>
                       <TimelineContent>
-                        <Badge variant="outline" className={cn("w-24 justify-center", getDifficultyDotClass(act.difficulty))}>{act.difficulty}</Badge>
+                        <Badge variant="outline" className="gap-1.5">
+                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true" />
+                            {act.difficulty}
+                        </Badge>
                       </TimelineContent>
                     </TimelineItem>
                   ))}

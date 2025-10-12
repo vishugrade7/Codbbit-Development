@@ -56,7 +56,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
         </h1>
         <div className="flex items-center gap-2 flex-wrap mb-4">
           <Badge variant="outline" className="gap-1.5">
-            <span className={cn("size-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
+            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
             {question.difficulty}
           </Badge>
           <Badge variant="secondary">

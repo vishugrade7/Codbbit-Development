@@ -362,8 +362,8 @@ export function SheetDisplayPage({ sheetId }: { sheetId: string }) {
                                     </TableCell>
                                     <TableCell>{q.category}</TableCell>
                                     <TableCell>
-                                        <Badge variant="outline" className="gap-1.5 w-24 justify-center">
-                                          <span className={cn("size-1.5 rounded-full", getDifficultyDotClass(q.difficulty))} aria-hidden="true"></span>
+                                        <Badge variant="outline" className="gap-1.5">
+                                          <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(q.difficulty))} aria-hidden="true"></span>
                                           {q.difficulty}
                                         </Badge>
                                     </TableCell>
