@@ -2,7 +2,7 @@
 
 'use server';
 
-import { doc, getDoc, updateDoc } from 'firebase-admin/firestore';
+import { doc, getDoc, updateDoc, deleteDoc } from 'firebase-admin/firestore';
 import { firestore } from '@/firebase/server-init';
 import type { UserProfile, SfdcAuth, Question } from '@/lib/types';
 import { getAuth } from 'firebase-admin/auth';
@@ -602,6 +602,38 @@ export async function deleteSalesforceMetadata(
   } catch (error: any) {
     return { success: false, error: error.message };
   }
+}
+
+export async function deleteUserAccount(userId: string): Promise<{ success: boolean, error?: string }> {
+    try {
+        // Delete user from Firebase Authentication
+        await getAuth().deleteUser(userId);
+
+        // Delete user document from Firestore
+        const userDocRef = firestore.collection('users').doc(userId);
+        await deleteDoc(userDocRef);
+
+        // Revalidate paths if needed, for example, the user's profile page
+        // revalidatePath('/profile'); // This is client-side, would need to be handled differently
+
+        return { success: true };
+
+    } catch (error: any) {
+        console.error("Error deleting user account:", error);
+        
+        let errorMessage = "An unknown error occurred while deleting your account.";
+        if (error.code === 'auth/requires-recent-login') {
+            errorMessage = "This is a sensitive operation and requires you to have recently logged in. Please log out and log back in before trying again.";
+        } else if (error.code === 'auth/user-not-found') {
+            // This can happen if the auth user was already deleted but firestore failed.
+            // We can consider this a partial success, but we'll report an error for clarity.
+             const userDocRef = firestore.collection('users').doc(userId);
+             await deleteDoc(userDocRef);
+             return { success: true };
+        }
+        
+        return { success: false, error: errorMessage };
+    }
 }
 
 export { pushSolutionToGitHub };
