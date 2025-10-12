@@ -347,7 +347,14 @@ export function ProfilePageClient() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         {/* Left Column */}
         <div className="lg:col-span-1 space-y-8">
-          <Card>
+          <Card className="relative">
+             {isOwnProfile && (
+                <Button variant="ghost" size="icon" className="absolute top-4 right-4" asChild>
+                  <Link href="/settings/profile">
+                    <Pencil className="h-4 w-4" />
+                  </Link>
+                </Button>
+              )}
             <CardContent className="p-6 text-center">
               <div className="relative group w-24 h-24 mx-auto mb-4">
                 <Avatar className="h-24 w-24 ring-4 ring-primary/20">
@@ -394,13 +401,6 @@ export function ProfilePageClient() {
                 <Button variant="ghost" size="icon"><Linkedin className="h-5 w-5" /></Button>
                 <Button variant="ghost" size="icon"><Twitter className="h-5 w-5" /></Button>
               </div>
-              {isOwnProfile && (
-                <Button variant="outline" className="mt-4 w-full" asChild>
-                  <Link href="/settings/profile">
-                    <Pencil className="mr-2 h-4 w-4" /> Edit Profile
-                  </Link>
-                </Button>
-              )}
             </CardContent>
           </Card>
 
