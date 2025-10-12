@@ -18,8 +18,6 @@ export default function VerificationPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   
-  // For this example, we'll simulate the referred user count.
-  const [referredUsers, setReferredUsers] = useState(0); 
   const referralsNeeded = 3;
 
   const userDocRef = useMemoFirebase(() => {
@@ -38,6 +36,7 @@ export default function VerificationPage() {
     }
   }, [userProfile, userDocRef, refetch]);
 
+  const referredUsers = userProfile?.referredUsersCount || 0;
   const referralLink = `${process.env.NEXT_PUBLIC_BASE_URL}/signup?ref=${userProfile?.referralCode}`;
   const progress = (referredUsers / referralsNeeded) * 100;
 

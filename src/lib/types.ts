@@ -99,6 +99,8 @@ export interface UserProfile {
   fontSize?: number;
   editorTheme?: string;
   referralCode?: string;
+  referredBy?: string;
+  referredUsersCount?: number;
 
   lastSolvedDate: string | null;
   activeSessionId: string;

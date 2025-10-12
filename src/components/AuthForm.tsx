@@ -38,8 +38,8 @@ import {
   initiateEmailSignIn,
   initiateEmailSignUp,
 } from '@/firebase/non-blocking-login';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState, useCallback } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState, useCallback, Suspense } from 'react';
 import {
   ArrowPathIcon,
   UserIcon,
@@ -56,6 +56,7 @@ import { Combobox } from './ui/combobox';
 import { countries } from '@/lib/countries';
 import { useDebounce } from '@/hooks/use-debounce';
 import { isUsernameUnique } from '@/ai/flows/is-username-unique';
+import { handleReferral } from '@/ai/flows/handle-referral';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 
@@ -74,6 +75,7 @@ const signupSchema = z.object({
     .regex(/[A-Z]/, 'Password must contain at least one uppercase letter.')
     .regex(/[a-z]/, 'Password must contain at least one lowercase letter.')
     .regex(/[0-9]/, 'Password must contain at least one number.'),
+  referralCode: z.string().optional(),
 });
 
 type AuthFormProps = {
@@ -82,10 +84,11 @@ type AuthFormProps = {
 
 type UsernameStatus = 'idle' | 'checking' | 'unique' | 'taken';
 
-export function AuthForm({ type }: AuthFormProps) {
+function AuthFormComponent({ type }: AuthFormProps) {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { user, isUserLoading } = useUser();
   const { toast } = useToast();
   const [activeTab, setActiveTab] = useState('account');
@@ -93,6 +96,8 @@ export function AuthForm({ type }: AuthFormProps) {
   const [showVerifyEmailDialog, setShowVerifyEmailDialog] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<User | null>(null);
   const [isResending, setIsResending] = useState(false);
+
+  const referralCodeFromUrl = searchParams.get('ref') || '';
 
   const isLogin = type === 'login';
   const schema = isLogin ? loginSchema : signupSchema;
@@ -107,6 +112,7 @@ export function AuthForm({ type }: AuthFormProps) {
         username: '',
         company: '',
         country: '',
+        referralCode: referralCodeFromUrl,
       }),
     },
      mode: 'onChange'
@@ -254,9 +260,17 @@ export function AuthForm({ type }: AuthFormProps) {
             starredProblems: [],
             submissionHeatmap: {},
             contributions: [],
+            referredBy: signupValues.referralCode || '',
+            referredUsersCount: 0,
           };
           
           setDocumentNonBlocking(userDocRef, newUserProfile, { merge: false });
+          
+          // Handle referral code in a non-blocking way
+          if (signupValues.referralCode) {
+            handleReferral({ referralCode: signupValues.referralCode });
+          }
+          
           // After successful sign up, prompt user to check email
           toast({
             title: 'Account Created!',
@@ -449,6 +463,19 @@ export function AuthForm({ type }: AuthFormProps) {
                               </FormItem>
                           )}
                           />
+                          <FormField
+                            control={form.control}
+                            name="referralCode"
+                            render={({ field }) => (
+                              <FormItem>
+                                <FormLabel>Referral Code (Optional)</FormLabel>
+                                <FormControl>
+                                  <Input placeholder="Enter referral code" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                              </FormItem>
+                            )}
+                          />
                       </div>
                       {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
                       <div className="flex gap-2">
@@ -508,4 +535,13 @@ export function AuthForm({ type }: AuthFormProps) {
       </AlertDialog>
     </>
   );
+}
+
+
+export function AuthForm(props: AuthFormProps) {
+  return (
+    <Suspense>
+      <AuthFormComponent {...props} />
+    </Suspense>
+  )
 }
