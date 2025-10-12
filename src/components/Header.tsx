@@ -94,7 +94,7 @@ export function Header() {
                     <span className="sr-only">Open Menu</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="right" className="w-full max-w-xs">
+                <SheetContent side="right" className="w-full max-w-xs bg-background/80 backdrop-blur-xl">
                   <div className="flex flex-col h-full">
                     <div className="border-b -mx-6 px-6 pb-4">
                        <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90" onClick={() => setIsSheetOpen(false)}>
