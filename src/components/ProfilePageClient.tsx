@@ -5,7 +5,7 @@
 import { useEffect, useState, useRef, useMemo } from 'react';
 import { useFirestore, useUser, setDocumentNonBlocking, useAuth, useStorage, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
-import { useParams, notFound } from 'next/navigation';
+import { useParams, notFound, useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -207,6 +207,7 @@ export function ProfilePageClient() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
   const [userRank, setUserRank] = useState<number | null>(null);
+  const router = useRouter();
 
   useEffect(() => {
     const fetchProfileAndRank = async () => {
@@ -358,7 +359,7 @@ export function ProfilePageClient() {
                     <Pencil className="h-8 w-8 text-white" />
                   </button>
                 )}
-                 {isVerified && <VerifiedBadge className="absolute -end-1.5 -top-1.5" />}
+                 {isVerified && <VerifiedBadge className="absolute -bottom-1.5 -end-1.5" />}
               </div>
 
               <h1 className="text-2xl font-bold">{profile.name}</h1>
