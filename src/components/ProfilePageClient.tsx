@@ -41,6 +41,7 @@ import { getUserProfileByUsername } from '@/ai/flows/get-user-profile-by-usernam
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from './VerifiedBadge';
 import { getUserRank } from '@/ai/flows/get-user-rank';
+import { Timeline, TimelineContent, TimelineDate, TimelineHeader, TimelineIndicator, TimelineItem, TimelineSeparator, TimelineTitle } from './ui/timeline';
 
 
 const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Record<string, number>, currentStreak: number, maxStreak: number }) => {
@@ -444,19 +445,22 @@ export function ProfilePageClient() {
           
            <Card>
             <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                 {recentActivity.map((act: any) => (
-                    <div key={act.title} className="flex justify-between items-center">
-                        <div>
-                            <p className="font-semibold">{act.title}</p>
-                            <p className="text-sm text-muted-foreground">Solved {new Date(act.solvedAt).toLocaleDateString()}</p>
-                        </div>
-                        <Badge variant="outline" className="gap-1.5">
-                          <span className={cn("size-1.5 rounded-full", getDifficultyDotClass(act.difficulty))} aria-hidden="true"></span>
-                          {act.difficulty}
-                        </Badge>
-                    </div>
-                ))}
+            <CardContent>
+                <Timeline>
+                  {recentActivity.map((act: any, index) => (
+                    <TimelineItem key={act.title + index} step={index + 1}>
+                      <TimelineHeader>
+                        <TimelineSeparator />
+                        <TimelineDate>{new Date(act.solvedAt).toLocaleDateString()}</TimelineDate>
+                        <TimelineTitle>{act.title}</TimelineTitle>
+                        <TimelineIndicator />
+                      </TimelineHeader>
+                      <TimelineContent>
+                        <Badge variant="outline" className={cn("w-24 justify-center", getDifficultyDotClass(act.difficulty))}>{act.difficulty}</Badge>
+                      </TimelineContent>
+                    </TimelineItem>
+                  ))}
+                </Timeline>
             </CardContent>
           </Card>
 
