@@ -359,10 +359,12 @@ export function ProfilePageClient() {
                     <Pencil className="h-8 w-8 text-white" />
                   </button>
                 )}
-                 {isVerified && <VerifiedBadge className="absolute -bottom-1.5 -end-1.5" />}
               </div>
 
-              <h1 className="text-2xl font-bold">{profile.name}</h1>
+              <h1 className="text-2xl font-bold flex items-center justify-center gap-2">
+                {profile.name}
+                {isVerified && <VerifiedBadge />}
+              </h1>
               <p className="text-muted-foreground">@{profile.username}</p>
               <div className="mt-4 flex flex-col items-center justify-center text-sm text-muted-foreground space-y-1">
                 <div className="flex items-center gap-2">
