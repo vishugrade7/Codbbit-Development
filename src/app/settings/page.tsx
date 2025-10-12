@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { useState, useEffect, useCallback } from 'react';
@@ -36,6 +35,7 @@ export default function SettingsPage() {
   const [username, setUsername] = useState('');
   const [isSaving, setIsSaving] = useState(false);
   const [usernameStatus, setUsernameStatus] = useState<UsernameStatus>('idle');
+  const [existingUserName, setExistingUserName] = useState<string | null>(null);
   const debouncedUsername = useDebounce(username, 500);
 
   const checkUsername = useCallback(async (name: string) => {
@@ -49,8 +49,9 @@ export default function SettingsPage() {
     }
     setUsernameStatus('checking');
     try {
-      const { isUnique } = await isUsernameUnique({ username: name });
+      const { isUnique, existingUserName: existingName } = await isUsernameUnique({ username: name });
       setUsernameStatus(isUnique ? 'unique' : 'taken');
+      setExistingUserName(existingName || null);
     } catch (error) {
       setUsernameStatus('idle'); // Reset on error
     }
@@ -93,12 +94,12 @@ export default function SettingsPage() {
       return;
     }
      if (usernameStatus === 'taken') {
-        toast({ title: "Username Taken", description: "Please choose a different username.", variant: "destructive" });
+        toast({ title: "Username Taken", description: `This username is already taken by ${existingUserName}.`, variant: "destructive" });
         return;
     }
     setIsSaving(true);
     try {
-        await setDocumentNonBlocking(userDocRef, { username }, { merge: true });
+        await setDocumentNonBlocking(userDocRef, { username, username_lowercase: username.toLowerCase() }, { merge: true });
         await refetch();
         toast({ title: "Settings Saved", description: "Your changes have been saved." });
     } catch (e) {
@@ -134,7 +135,7 @@ export default function SettingsPage() {
                         {usernameStatus === 'taken' && <XIcon className="h-4 w-4 text-red-500" />}
                     </div>
                 </div>
-                {usernameStatus === 'taken' && <p className="text-sm text-red-500 mt-1">This username is already taken.</p>}
+                {usernameStatus === 'taken' && <p className="text-sm text-red-500 mt-1">This username is already taken by {existingUserName}.</p>}
              </div>
         </div>
         <div className="p-6">
