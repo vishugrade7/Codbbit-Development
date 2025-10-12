@@ -214,13 +214,17 @@ export default function ProblemSolvingPage() {
           description: "Your Apex code has been prettified.",
         });
       } else {
-        throw new Error(result.error || "Formatting failed.");
+        toast({
+          title: "Formatting Failed",
+          description: result.error || "Could not format the code. Please check for syntax errors.",
+          variant: "destructive",
+        });
       }
     } catch (error: any) {
       console.error("Prettier formatting failed:", error);
       toast({
         title: "Formatting Failed",
-        description: "Could not format the code. Please check for syntax errors.",
+        description: "An unknown error occurred during formatting.",
         variant: "destructive",
       });
     }
