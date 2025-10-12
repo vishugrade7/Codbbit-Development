@@ -15,7 +15,7 @@ import {
   ResizableHandle,
   type PanelGroup,
 } from "@/components/ui/resizable";
-import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award } from "lucide-react";
+import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   Sheet,
@@ -41,6 +41,8 @@ import { askQuestion } from "@/ai/flows/ask-question";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
 import { Badge } from "./ui/badge";
+import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
 
 
 interface CodingPanelProps {
@@ -56,6 +58,60 @@ interface ChatMessage {
   sender: 'user' | 'ai';
   text: string;
 }
+
+const TestResultDisplay = ({ output }: { output: { success: boolean; logs: string; error?: string; }}) => {
+    if (output.success) {
+        return (
+            <Alert variant="success" className="h-full">
+                 <CheckCircle className="h-5 w-5" />
+                <AlertTitle className="text-lg font-bold">All Tests Passed!</AlertTitle>
+                <AlertDescription>
+                    Congratulations! Your solution passed all the test cases.
+                </AlertDescription>
+                 <Accordion type="single" collapsible className="w-full mt-4">
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger>View Debug Logs</AccordionTrigger>
+                        <AccordionContent>
+                           <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md">{output.logs}</pre>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </Alert>
+        )
+    }
+
+    const errorParts = output.error?.split('\n') || [];
+    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Unknown Test Failure';
+    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No assertion message.';
+    const stackTrace = errorParts.filter(line => line.trim().startsWith('Class.')).join('\n');
+    
+    return (
+        <Alert variant="destructive" className="h-full">
+            <XCircle className="h-5 w-5" />
+            <AlertTitle className="text-lg font-bold">{testFailureLine}</AlertTitle>
+            <AlertDescription>
+                {errorMessage}
+            </AlertDescription>
+            <div className="mt-4 space-y-4">
+                {stackTrace && (
+                    <div>
+                        <h4 className="font-semibold">Stack Trace</h4>
+                         <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md mt-2">{stackTrace}</pre>
+                    </div>
+                )}
+                 <Accordion type="single" collapsible className="w-full">
+                    <AccordionItem value="item-1">
+                        <AccordionTrigger>View Full Debug Log</AccordionTrigger>
+                        <AccordionContent>
+                           <pre className="whitespace-pre-wrap font-code text-xs bg-black text-white p-4 rounded-md">{output.logs}</pre>
+                        </AccordionContent>
+                    </AccordionItem>
+                </Accordion>
+            </div>
+        </Alert>
+    )
+}
+
 
 export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme }: CodingPanelProps) {
   const [isPending, startTransition] = useTransition();
@@ -110,82 +166,80 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
-            if (!result.success) {
-                throw new Error(result.error || "Test run failed");
-            }
+            // The main result processing is now inside the if/else blocks.
+            // But we still set the raw output for the panel to use.
+            setOutput(result);
+            
+            if (result.success) {
+                onTestPass();
+                // --- User Progress Update Logic ---
+                if (userDocRef && userProfile) {
+                    const problemId = question.id;
+                    const solvedQuestions = userProfile.solvedQuestions || [];
 
+                    if (!solvedQuestions.includes(problemId)) {
+                        const pointsMap = { 'Easy': 10, 'Medium': 20, 'Hard': 50 };
+                        const pointsGained = pointsMap[question.difficulty] || 0;
+                        
+                        const today = new Date();
+                        const todayStr = today.toISOString().split('T')[0];
+                        const yesterday = new Date();
+                        yesterday.setDate(today.getDate() - 1);
+                        const yesterdayStr = yesterday.toISOString().split('T')[0];
+                        
+                        const lastSolvedDate = userProfile.lastSolvedDate;
+                        let newCurrentStreak = userProfile.currentStreak || 0;
+
+                        if (lastSolvedDate === yesterdayStr) {
+                            newCurrentStreak++;
+                        } else if (lastSolvedDate !== todayStr) {
+                            newCurrentStreak = 1;
+                        }
+                        
+                        const newSubmissionHeatmap = {
+                            ...userProfile.submissionHeatmap,
+                            [todayStr]: (userProfile.submissionHeatmap[todayStr] || 0) + 1,
+                        };
+                        
+                        const newDsaStats = { ...userProfile.dsaStats };
+                        newDsaStats[question.difficulty] = (newDsaStats[question.difficulty] || 0) + 1;
+                        
+                        const updatedProfile = {
+                            points: (userProfile.points || 0) + pointsGained,
+                            dsaStats: newDsaStats,
+                            lastSolvedDate: todayStr,
+                            currentStreak: newCurrentStreak,
+                            maxStreak: Math.max(userProfile.maxStreak || 0, newCurrentStreak),
+                            submissionHeatmap: newSubmissionHeatmap,
+                            solvedQuestions: [...solvedQuestions, problemId],
+                            solvedProblems: {
+                                ...userProfile.solvedProblems,
+                                [problemId]: {
+                                    difficulty: question.difficulty,
+                                    points: pointsGained,
+                                    solvedAt: new Date().toISOString(),
+                                    title: question.title,
+                                }
+                            }
+                        };
+
+                        setDocumentNonBlocking(userDocRef, updatedProfile, { merge: true });
+                    }
+                }
+            } else {
+                 // No need to throw an error here, just let the UI display the failure.
+            }
              if (result.githubSyncMessage) {
                 toast({
                     title: "GitHub Sync",
                     description: result.githubSyncMessage,
                 });
             }
-            
-            onTestPass();
-            setOutput(result);
-            
-            // --- User Progress Update Logic ---
-            if (result.success && userDocRef && userProfile) {
-                const problemId = question.id;
-                const solvedQuestions = userProfile.solvedQuestions || [];
-
-                // Only update if the problem hasn't been solved before
-                if (!solvedQuestions.includes(problemId)) {
-                    
-                    const pointsMap = { 'Easy': 10, 'Medium': 20, 'Hard': 50 };
-                    const pointsGained = pointsMap[question.difficulty] || 0;
-                    
-                    const today = new Date();
-                    const todayStr = today.toISOString().split('T')[0];
-                    const yesterday = new Date();
-                    yesterday.setDate(today.getDate() - 1);
-                    const yesterdayStr = yesterday.toISOString().split('T')[0];
-                    
-                    const lastSolvedDate = userProfile.lastSolvedDate;
-                    let newCurrentStreak = userProfile.currentStreak || 0;
-
-                    if (lastSolvedDate === yesterdayStr) {
-                        newCurrentStreak++;
-                    } else if (lastSolvedDate !== todayStr) {
-                        newCurrentStreak = 1;
-                    }
-                    
-                    const newSubmissionHeatmap = {
-                        ...userProfile.submissionHeatmap,
-                        [todayStr]: (userProfile.submissionHeatmap[todayStr] || 0) + 1,
-                    };
-                    
-                    const newDsaStats = { ...userProfile.dsaStats };
-                    newDsaStats[question.difficulty] = (newDsaStats[question.difficulty] || 0) + 1;
-                    
-                    const updatedProfile = {
-                        points: (userProfile.points || 0) + pointsGained,
-                        dsaStats: newDsaStats,
-                        lastSolvedDate: todayStr,
-                        currentStreak: newCurrentStreak,
-                        maxStreak: Math.max(userProfile.maxStreak || 0, newCurrentStreak),
-                        submissionHeatmap: newSubmissionHeatmap,
-                        solvedQuestions: [...solvedQuestions, problemId],
-                        solvedProblems: {
-                            ...userProfile.solvedProblems,
-                            [problemId]: {
-                                difficulty: question.difficulty,
-                                points: pointsGained,
-                                solvedAt: new Date().toISOString(),
-                                title: question.title,
-                            }
-                        }
-                    };
-
-                    setDocumentNonBlocking(userDocRef, updatedProfile, { merge: true });
-                }
-            }
 
 
         } catch (e: any) {
             const errorMessage = e.message || "An unknown error occurred.";
             setOutput({ success: false, logs: "", error: errorMessage });
-        } finally {
         }
     });
   };
@@ -322,11 +376,10 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 onExpand={() => setResultsPanelSize(35)}
             >
                 <div className="h-full flex flex-col">
-                    <div className="flex-shrink-0 flex items-center justify-between px-2 py-1 border-b">
+                    <div className="flex-shrink-0 flex items-center justify-between px-4 py-1 border-b">
                         <div className="flex items-center gap-2">
-                            <Button variant="ghost" size="sm" className="h-7 font-semibold text-xs">
-                               Test Results
-                            </Button>
+                           <FileText className="h-4 w-4 text-muted-foreground" />
+                            <h3 className="font-semibold text-sm">Test Results</h3>
                         </div>
                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleResultsPanel}>
                             {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
@@ -335,16 +388,14 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                     {!isMinimized && (
                       <ScrollArea className="flex-grow bg-muted/30">
                           <div className="p-4 h-full">
-                          {output ? (
-                              <pre className={`whitespace-pre-wrap font-code text-sm ${output.success ? 'text-foreground' : 'text-red-400'}`}>
-                                  {output.success ? `✅ Success!\n\n--- Logs ---\n${output.logs}` : `❌ Error!\n\n${output.error}\n\n--- Logs ---\n${output.logs}`}
-                              </pre>
-                              ) : isExecuting ? (
+                           {isExecuting ? (
                               <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                   <Loader2 className="animate-spin h-8 w-8" />
                                   <span>Executing code...</span>
                               </div>
-                              ) : (
+                            ) : output ? (
+                                <TestResultDisplay output={output} />
+                            ) : (
                               <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                   <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
                                       <Play className="h-6 w-6 text-foreground ml-1" />
@@ -352,7 +403,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                                   <h3 className="text-lg font-medium text-foreground">Ready to Run</h3>
                                   <p className="text-sm text-center max-w-xs">Submit your solution to run tests against the problem's criteria.</p>
                               </div>
-                              )}
+                            )}
                           </div>
                       </ScrollArea>
                     )}
