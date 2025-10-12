@@ -23,6 +23,7 @@ import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from './ui/dropdown-menu';
 import { useRouter } from 'next/navigation';
 import { Separator } from './ui/separator';
+import { cn } from '@/lib/utils';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string, icon: React.ElementType }[] = [
@@ -76,7 +77,10 @@ export function Header() {
 
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 border-b bg-background/5 px-4 backdrop-blur-xl md:hidden">
+    <header className={cn(
+      "fixed top-0 left-0 right-0 z-50 border-b bg-background/5 px-4 backdrop-blur-xl",
+      user ? "md:hidden" : ""
+    )}>
       <div className="flex h-16 items-center justify-between gap-4">
         {/* Left side */}
         <div className="flex items-center gap-6">
