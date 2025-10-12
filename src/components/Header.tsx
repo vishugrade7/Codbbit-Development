@@ -11,17 +11,17 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
-import { ArrowRight, Menu } from 'lucide-react';
+import { ArrowRight, Menu, LayoutGrid, Code, Trophy, Sheet as SheetIcon } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 
-const navigationLinks: { href: string, label: string, ariaLabel?: string }[] = [
-    { href: '/', label: 'Dashboard', ariaLabel: 'Go to dashboard' },
-    { href: '/problems', label: 'Problems', ariaLabel: 'View coding problems' },
-    { href: '/leaderboard', label: 'Leaderboard', ariaLabel: 'View the leaderboard' },
-    { href: '/sheets', label: 'Sheets', ariaLabel: 'View problem sheets' },
+const navigationLinks: { href: string, label: string, ariaLabel?: string, icon: React.ElementType }[] = [
+    { href: '/', label: 'Dashboard', ariaLabel: 'Go to dashboard', icon: LayoutGrid },
+    { href: '/problems', label: 'Problems', ariaLabel: 'View coding problems', icon: Code },
+    { href: '/leaderboard', label: 'Leaderboard', ariaLabel: 'View the leaderboard', icon: Trophy },
+    { href: '/sheets', label: 'Sheets', ariaLabel: 'View problem sheets', icon: SheetIcon },
 ];
 
 const socialItems = [
@@ -106,7 +106,8 @@ export function Header() {
                     </div>
                     <nav className="flex flex-col gap-4 mt-8">
                       {navigationLinks.map((link) => (
-                        <Link key={link.href} href={link.href} className="text-lg font-medium text-muted-foreground hover:text-primary" onClick={() => setIsSheetOpen(false)}>
+                        <Link key={link.href} href={link.href} className="flex items-center gap-3 text-lg font-medium text-muted-foreground hover:text-primary" onClick={() => setIsSheetOpen(false)}>
+                          <link.icon className="h-5 w-5" />
                           {link.label}
                         </Link>
                       ))}
