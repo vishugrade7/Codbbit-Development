@@ -81,7 +81,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                             <AvatarImage src={user.avatarUrl} />
                                             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                                         </Avatar>
-                                        {user.emailVerified && user.phoneVerified && <VerifiedBadge className="absolute -end-1.5 -top-1.5" />}
+                                        {user.emailVerified && <VerifiedBadge className="absolute -end-1.5 -top-1.5" />}
                                     </div>
                                     <div>
                                         <div className="font-medium">{user.name}</div>
