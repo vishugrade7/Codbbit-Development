@@ -1,508 +1,74 @@
 
 'use client';
 
-import { useEffect, useState, useRef, useMemo } from 'react';
-import { useFirestore, useUser, setDocumentNonBlocking, useAuth, useStorage, useMemoFirebase } from '@/firebase';
-import type { UserProfile } from '@/lib/types';
-import { useParams, notFound } from 'next/navigation';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import {
-  Briefcase,
-  MapPin,
-  Link as LinkIcon,
-  Github,
-  Linkedin,
-  Twitter,
-  Pencil,
-  Award,
-  Trophy,
-  Flame,
-  PlusCircle,
-  Clock,
-  Loader2,
-  Upload,
-  Tag,
-} from 'lucide-react';
+import { useMemo } from 'react';
+import { notFound, useParams } from 'next/navigation';
+import { ProfilePageClient } from '@/components/ProfilePageClient';
+import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { updateProfile as updateAuthProfile } from 'firebase/auth';
-import { ref as storageRef, uploadBytesResumable, getDownloadURL } from 'firebase/storage';
-import { Progress } from '@/components/ui/progress';
-import Link from 'next/link';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { getUserProfileByUsername } from '@/ai/flows/get-user-profile-by-username';
-import { cn } from '@/lib/utils';
+import type { UserProfile } from '@/lib/types';
+import { Loader2 } from 'lucide-react';
+import { AppSidebar, Sidebar, SidebarInset, SidebarProvider } from '@/components';
 
 
-const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Record<string, number>, currentStreak: number, maxStreak: number }) => {
-    const today = new Date();
-    const endDate = new Date(today);
-    const startDate = new Date(new Date().setFullYear(today.getFullYear() - 1));
-    startDate.setDate(startDate.getDate() + 1);
-
-    const dates = useMemo(() => {
-        const dates = [];
-        let currentDate = new Date(startDate);
-        while (currentDate <= endDate) {
-            dates.push(new Date(currentDate));
-            currentDate.setDate(currentDate.getDate() + 1);
-        }
-        return dates;
-    }, [startDate, endDate]);
-    
-    const totalSubmissions = useMemo(() => Object.values(heatmap).reduce((sum, count) => sum + count, 0), [heatmap]);
-
-    const weeks = useMemo(() => {
-      const weeks: ({ date: Date; count: number; } | null)[][] = [];
-      let currentWeek: ({ date: Date; count: number; } | null)[] = Array(7).fill(null);
-
-      // Align the first day of the year to the correct day of the week
-      const firstDayOfWeek = startDate.getDay();
-      for (let i = 0; i < firstDayOfWeek; i++) {
-          currentWeek[i] = null;
-      }
-      
-      dates.forEach(date => {
-          const dayOfWeek = date.getDay();
-          const dateString = date.toISOString().split('T')[0];
-          currentWeek[dayOfWeek] = {
-              date: date,
-              count: heatmap[dateString] || 0,
-          };
-
-          if (dayOfWeek === 6) { // If it's Saturday (end of the week)
-              weeks.push(currentWeek);
-              currentWeek = Array(7).fill(null); // Start a new week
-          }
-      });
-      
-      // Push the last, possibly incomplete week
-      if (currentWeek.some(d => d !== null)) {
-          weeks.push(currentWeek);
-      }
-
-      return weeks;
-
-    }, [startDate, dates, heatmap]);
-
-
-    const getColor = (count: number) => {
-        if (count < 0) return 'bg-transparent'; // For null days
-        if (count === 0) return 'bg-gray-200 dark:bg-[#161b22]';
-        if (count <= 2) return 'bg-[#0e4429]';
-        if (count <= 4) return 'bg-[#006d32]';
-        if (count <= 6) return 'bg-[#26a641]';
-        return 'bg-[#39d353]';
-    };
-
-    const monthNames = useMemo(() => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], []);
-    
-    const monthLabels = useMemo(() => {
-        const labels: { name: string, index: number }[] = [];
-        let lastMonth = -1;
-        weeks.forEach((week, weekIndex) => {
-            const firstDayOfWeek = week.find(day => day !== null);
-            if (firstDayOfWeek) {
-                const month = firstDayOfWeek.date.getMonth();
-                if (month !== lastMonth) {
-                    // Show month label if it's the first week of a new month,
-                    // or if it appears after the first couple of columns to avoid clutter.
-                    if (weekIndex > 1) {
-                        labels.push({ name: monthNames[month], index: weekIndex });
-                        lastMonth = month;
-                    }
-                }
-            }
-        });
-        return labels;
-    }, [weeks, monthNames]);
-
-
-  return (
-    <TooltipProvider>
-      <div className="flex flex-col">
-          <div className="flex justify-between items-center mb-2">
-              <h2 className="text-sm text-muted-foreground">{totalSubmissions} submissions in the last year</h2>
-              <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                  <div className="flex items-center gap-1"><Flame className="h-4 w-4 text-orange-500" /> Max Streak: <span className="font-semibold text-foreground">{maxStreak}</span></div>
-                  <div className="flex items-center gap-1"><Flame className="h-4 w-4 text-orange-500" /> Current Streak: <span className="font-semibold text-foreground">{currentStreak}</span></div>
-              </div>
-          </div>
-          <div className="flex gap-3">
-              <div className="flex flex-col text-xs text-muted-foreground justify-between pt-5 pb-1">
-                  <span>Mon</span>
-                  <span className="invisible">Tue</span>
-                  <span>Wed</span>
-                  <span className="invisible">Thu</span>
-                  <span>Fri</span>
-                  <span className="invisible">Sat</span>
-                  <span className="invisible">Sun</span>
-              </div>
-              <div className="flex-grow flex flex-col overflow-x-auto">
-                  <div className="grid grid-flow-col" style={{ gridTemplateRows: `repeat(1, auto)` }}>
-                      {monthLabels.map(({ name, index }) => (
-                           <div key={name+index} className="text-xs text-muted-foreground -translate-x-1/2" style={{ gridColumn: index + 1 }}>{name}</div>
-                      ))}
-                  </div>
-                  <div className="grid grid-flow-col grid-rows-7 gap-1">
-                      {weeks.flat().map((day, index) => (
-                          <Tooltip key={index} delayDuration={100}>
-                            <TooltipTrigger asChild>
-                              <div
-                                className={`w-3.5 h-3.5 rounded-sm ${getColor(day ? day.count : -1)}`}
-                              />
-                            </TooltipTrigger>
-                            {day && day.count >= 0 && (
-                               <TooltipContent>
-                                  <p>{day.count} contributions on {day.date.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}</p>
-                              </TooltipContent>
-                            )}
-                          </Tooltip>
-                      ))}
-                  </div>
-              </div>
-          </div>
-        <div className="flex justify-end items-center mt-2 text-xs text-muted-foreground gap-2">
-            <span>Less</span>
-            <div className="w-3 h-3 rounded-sm bg-gray-200 dark:bg-[#161b22]"></div>
-            <div className="w-3 h-3 rounded-sm bg-[#0e4429]"></div>
-            <div className="w-3 h-3 rounded-sm bg-[#006d32]"></div>
-            <div className="w-3 h-3 rounded-sm bg-[#26a641]"></div>
-            <div className="w-3 h-3 rounded-sm bg-[#39d353]"></div>
-            <span>More</span>
-        </div>
-      </div>
-    </TooltipProvider>
-  );
-};
-
-
-export function ProfilePageClient() {
-  const firestore = useFirestore();
-  const storage = useStorage();
+export default function ProfilePage() {
   const params = useParams();
+  const username = params.username as string;
   const { user: currentUser, isUserLoading } = useUser();
-  const [profile, setProfile] = useState<UserProfile | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [isUploadDialogOpen, setIsUploadDialogOpen] = useState(false);
-  const [selectedFile, setSelectedFile] = useState<File | null>(null);
-  const [uploadProgress, setUploadProgress] = useState(0);
-  const [isUploading, setIsUploading] = useState(false);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const { toast } = useToast();
+  const firestore = useFirestore();
 
-  useEffect(() => {
-    const fetchProfile = async () => {
-      const username = params.username as string;
-      if (!username) return;
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !currentUser?.uid) return null;
+    return doc(firestore, 'users', currentUser.uid);
+  }, [firestore, currentUser?.uid]);
 
-      setLoading(true);
-      try {
-        const userProfile = await getUserProfileByUsername({ username });
-        setProfile(userProfile);
-      } catch (error) {
-        console.error("Failed to fetch profile:", error);
-        setProfile(null);
-      } finally {
-        setLoading(false);
-      }
-    };
+  const { data: userProfile, isLoading: isProfileLoading } =
+    useDoc<UserProfile>(userDocRef);
 
-    if (!isUserLoading) {
-        fetchProfile();
-    }
-  }, [params, isUserLoading]);
-
-  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    if (file) {
-      setSelectedFile(file);
-    }
-  };
-
-  const handleUploadAvatar = async () => {
-    if (!currentUser || !profile || !selectedFile || !storage) {
-      toast({ title: "Error", description: "No file selected or user not authenticated.", variant: "destructive" });
-      return;
-    }
-    if (currentUser.uid !== profile.uid) {
-      toast({ title: "Error", description: "You can only change your own profile picture.", variant: "destructive" });
-      return;
-    }
-
-    setIsUploading(true);
-    setUploadProgress(0);
-
-    const filePath = `avatars/${currentUser.uid}/${selectedFile.name}`;
-    const fileRef = storageRef(storage, filePath);
-    const uploadTask = uploadBytesResumable(fileRef, selectedFile);
-
-    uploadTask.on(
-      'state_changed',
-      (snapshot) => {
-        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-        setUploadProgress(progress);
-      },
-      (error) => {
-        console.error("Upload failed:", error);
-        toast({ title: "Upload Failed", description: error.message, variant: "destructive" });
-        setIsUploading(false);
-      },
-      async () => {
-        try {
-          const downloadURL = await getDownloadURL(uploadTask.snapshot.ref);
-
-          if (currentUser) {
-            await updateAuthProfile(currentUser, { photoURL: downloadURL });
-          }
-          const userDocRef = doc(firestore, 'users', currentUser.uid);
-          setDocumentNonBlocking(userDocRef, { avatarUrl: downloadURL }, { merge: true });
-
-          setProfile(prev => prev ? { ...prev, avatarUrl: downloadURL } : null);
-          
-          toast({ title: "Success", description: "Your profile picture has been updated." });
-        } catch (error: any) {
-          console.error("Failed to update profile with new avatar:", error);
-          toast({ title: "Update Failed", description: error.message, variant: "destructive" });
-        } finally {
-          setIsUploading(false);
-          setIsUploadDialogOpen(false);
-          setSelectedFile(null);
-          setUploadProgress(0);
-        }
-      }
+  if (isUserLoading || isProfileLoading) {
+    return (
+      <div className="flex min-h-screen flex-col items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin" />
+      </div>
     );
-  };
-
-  if (loading || isUserLoading) {
-    return <div className="flex items-center justify-center h-screen"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 
-  if (!profile) {
-    notFound();
+  // If there's a username in the URL, it's someone else's profile.
+  // We're simplifying to only show the logged-in user's profile for now.
+  if (username) {
+     return (
+        <SidebarProvider>
+            <Sidebar>
+                <AppSidebar />
+            </Sidebar>
+            <SidebarInset>
+                <div className="p-4 sm:p-6 lg:p-8">
+                    <p>Viewing other user profiles is not supported yet.</p>
+                </div>
+            </SidebarInset>
+        </SidebarProvider>
+     )
   }
-  
-  const getInitials = (name: string | null | undefined) => {
-    if (!name) return 'U';
-    return name.split(' ').map((n) => n[0]).join('').substring(0, 2);
-  };
 
-  const isOwnProfile = currentUser?.uid === profile.uid;
-  const totalSolved = (profile.dsaStats?.Easy || 0) + (profile.dsaStats?.Medium || 0) + (profile.dsaStats?.Hard || 0);
-  const totalQuestions = 72; // Hardcoded for now
-  const progressPercentage = (totalSolved / totalQuestions) * 100;
-  
-  const achievements = [
-    { icon: Award, name: "Mastermind", date: "about 1 month ago", color: "text-yellow-500" },
-    { icon: Trophy, name: "Apex Coder", date: "2 months ago", color: "text-green-500" },
-    { icon: Flame, name: "Just Getting Started", date: "3 months ago", color: "text-orange-500" },
-    { icon: PlusCircle, name: "New Challenger", date: "3 months ago", color: "text-blue-500" },
-    { icon: Clock, name: "Streak Starter", date: "3 months ago", color: "text-indigo-500" },
-  ]
-  
-  const recentActivity = [
-      { title: "Find Unique Accounts from a Given List", solved: "about 1 month ago", difficulty: "Easy" }
-  ]
-  
-  const getDifficultyClass = (difficulty: string | undefined) => {
-    switch (difficulty) {
-      case 'Easy':
-        return 'text-green-500 border-green-500';
-      case 'Medium':
-        return 'text-yellow-500 border-yellow-500';
-      case 'Hard':
-        return 'text-red-500 border-red-500';
-      default:
-        return 'text-muted-foreground border-muted-foreground';
-    }
-  };
+  if (!userProfile) {
+    // This could happen if the user is logged in but their profile doc doesn't exist yet
+    return (
+       <div className="flex min-h-screen flex-col items-center justify-center">
+        <Loader2 className="h-12 w-12 animate-spin" />
+        <p>Creating your profile...</p>
+      </div>
+    )
+  }
+
 
   return (
-    <div className="p-4 sm:p-6 lg:p-8 space-y-8 bg-muted/20 min-h-screen">
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column */}
-        <div className="lg:col-span-1 space-y-8">
-          <Card>
-            <CardContent className="p-6 text-center">
-              <div className="relative group w-24 h-24 mx-auto mb-4">
-                <Avatar className="h-24 w-24 ring-4 ring-primary/20">
-                  <AvatarImage src={profile.avatarUrl} alt={profile.name} />
-                  <AvatarFallback>{getInitials(profile.name)}</AvatarFallback>
-                </Avatar>
-                {isOwnProfile && (
-                  <button onClick={() => setIsUploadDialogOpen(true)} className="absolute inset-0 bg-black/50 flex items-center justify-center rounded-full opacity-0 group-hover:opacity-100 transition-opacity">
-                    <Pencil className="h-8 w-8 text-white" />
-                  </button>
-                )}
-              </div>
-
-              <h1 className="text-2xl font-bold">{profile.name}</h1>
-              <p className="text-muted-foreground">@{profile.username}</p>
-              <div className="mt-4 flex flex-col items-center justify-center text-sm text-muted-foreground space-y-1">
-                <div className="flex items-center gap-2">
-                  <Briefcase />
-                  <span>{profile.company}</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <MapPin />
-                  <span>{profile.country}</span>
-                </div>
-              </div>
-              <div className="mt-4 flex justify-center gap-3">
-                <Button variant="ghost" size="icon"><LinkIcon /></Button>
-                <Button variant="ghost" size="icon"><Github /></Button>
-                <Button variant="ghost" size="icon"><Linkedin /></Button>
-                <Button variant="ghost" size="icon"><Twitter /></Button>
-              </div>
-              {isOwnProfile && (
-                <Button variant="outline" className="mt-4 w-full" asChild>
-                  <Link href="/settings/profile">
-                    <Pencil /> Edit Profile
-                  </Link>
-                </Button>
-              )}
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2"><Trophy /> Progress</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <div className="flex items-center justify-around">
-                    <div className="relative">
-                        <svg className="h-32 w-32 -rotate-90">
-                            <circle cx="64" cy="64" r="54" fill="transparent" stroke="currentColor" strokeWidth="10" className="text-gray-200 dark:text-gray-700" />
-                            <circle cx="64" cy="64" r="54" fill="transparent" stroke="currentColor" strokeWidth="10" className="text-sky-500" strokeDasharray="339.292" strokeDashoffset={339.292 - (progressPercentage / 100) * 339.292} />
-                        </svg>
-                        <div className="absolute inset-0 flex flex-col items-center justify-center">
-                            <span className="text-3xl font-bold">{totalSolved}</span>
-                            <span className="text-sm text-muted-foreground">Solved</span>
-                        </div>
-                    </div>
-                     <div>
-                        <p className="text-sm">Total Solved: {totalSolved}/{totalQuestions}</p>
-                        <ul className="mt-2 space-y-1 text-sm">
-                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-green-500"></span>Easy: {profile.dsaStats?.Easy || 0}/41</li>
-                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-yellow-500"></span>Medium: {profile.dsaStats?.Medium || 0}/26</li>
-                            <li className="flex items-center gap-2"><span className="h-2 w-2 rounded-full bg-red-500"></span>Hard: {profile.dsaStats?.Hard || 0}/5</li>
-                        </ul>
-                    </div>
-                </div>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader><CardTitle>Solved Categories</CardTitle></CardHeader>
-            <CardContent className="flex flex-wrap gap-2">
-                <Badge variant="secondary">undefined <span className="ml-2 text-muted-foreground">14</span></Badge>
-                <Badge variant="secondary">Collections & DML <span className="ml-2 text-muted-foreground">2</span></Badge>
-            </CardContent>
-          </Card>
-          
-          <Card>
-            <CardHeader><CardTitle>Starred Problems</CardTitle></CardHeader>
-            <CardContent className="space-y-4">
-                <div className="flex justify-between items-center"><span>Build Id to Account Map</span><Badge variant="outline" className={cn("w-24 justify-center", getDifficultyClass("Easy"))}>Easy</Badge></div>
-                <div className="flex justify-between items-center"><span>Calculate Opportunity Sum for Each Customer</span><Badge variant="outline" className={cn("w-24 justify-center", getDifficultyClass("Medium"))}>Medium</Badge></div>
-                <div className="flex justify-between items-center"><span>Process JSON and Create Records</span><Badge variant="outline" className={cn("w-24 justify-center", getDifficultyClass("Medium"))}>Medium</Badge></div>
-            </CardContent>
-          </Card>
-
-        </div>
-
-        {/* Right Column */}
-        <div className="lg:col-span-2 space-y-8">
-          <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Clock /> Contribution Graph</CardTitle></CardHeader>
-            <CardContent>
-              <ContributionGraph 
-                heatmap={profile.submissionHeatmap || {}} 
-                currentStreak={profile.currentStreak || 0}
-                maxStreak={profile.maxStreak || 0}
-              />
-            </CardContent>
-          </Card>
-          
-           <Card>
-            <CardHeader><CardTitle>Achievements</CardTitle><p className="text-sm text-muted-foreground">Badges earned from your activity.</p></CardHeader>
-            <CardContent className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {achievements.map(ach => (
-                    <div key={ach.name} className="flex items-center gap-4 rounded-lg border p-4">
-                        <ach.icon className={`h-8 w-8 ${ach.color}`} />
-                        <div>
-                            <p className="font-semibold">{ach.name}</p>
-                            <p className="text-sm text-muted-foreground">{ach.date}</p>
-                        </div>
-                    </div>
-                ))}
-            </CardContent>
-          </Card>
-          
-           <Card>
-            <CardHeader><CardTitle>Recent Activity</CardTitle></CardHeader>
-            <CardContent>
-                 {recentActivity.map(act => (
-                    <div key={act.title} className="flex justify-between items-center">
-                        <div>
-                            <p className="font-semibold">{act.title}</p>
-                            <p className="text-sm text-muted-foreground">Solved {act.solved}</p>
-                        </div>
-                        <Badge variant="outline" className={cn("w-24 justify-center", getDifficultyClass(act.difficulty))}>{act.difficulty}</Badge>
-                    </div>
-                ))}
-            </CardContent>
-          </Card>
-
-        </div>
-      </div>
-      <Dialog open={isUploadDialogOpen} onOpenChange={setIsUploadDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Update Profile Picture</DialogTitle>
-            <DialogDescription>
-              Choose a new image to upload.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <Input
-              id="avatar-file"
-              type="file"
-              ref={fileInputRef}
-              onChange={handleFileChange}
-              accept="image/*"
-              className="hidden"
-            />
-            <Button
-              variant="outline"
-              onClick={() => fileInputRef.current?.click()}
-              disabled={isUploading}
-            >
-              <Upload />
-              {selectedFile ? selectedFile.name : 'Choose an image'}
-            </Button>
-            {isUploading && (
-              <div className="space-y-2">
-                <Progress value={uploadProgress} />
-                <p className="text-xs text-muted-foreground text-center">{Math.round(uploadProgress)}%</p>
-              </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setIsUploadDialogOpen(false)} disabled={isUploading}>Cancel</Button>
-            <Button onClick={handleUploadAvatar} disabled={isUploading || !selectedFile}>
-              {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-              {isUploading ? 'Uploading...' : 'Save'}
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-    </div>
+    <SidebarProvider>
+      <Sidebar>
+        <AppSidebar />
+      </Sidebar>
+      <SidebarInset>
+        <ProfilePageClient profile={userProfile} />
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
