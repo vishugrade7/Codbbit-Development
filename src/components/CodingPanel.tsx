@@ -137,6 +137,33 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     setOutput(null);
   }, [question.id, setOutput]);
 
+  const toggleResultsPanel = (expand?: boolean) => {
+    const isMinimized = resultsPanelSize < 10;
+    
+    let shouldExpand;
+    if (typeof expand === 'boolean') {
+        shouldExpand = expand;
+    } else {
+        shouldExpand = isMinimized;
+    }
+
+    if (shouldExpand) {
+        panelGroupRef.current?.setLayout([65, 35]);
+    } else {
+        panelGroupRef.current?.setLayout([95, 5]);
+    }
+  }
+
+  // Effect to auto-expand panel on new error
+  useEffect(() => {
+      if (output && !output.success) {
+          const isMinimized = resultsPanelSize < 10;
+          if (isMinimized) {
+            toggleResultsPanel(true);
+          }
+      }
+  }, [output, resultsPanelSize]);
+
   const handleSubmitCode = () => {
     startTransition(async () => {
         const isMinimized = resultsPanelSize < 10;
@@ -313,17 +340,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     }
   };
   
-  const toggleResultsPanel = () => {
-    const isMinimized = resultsPanelSize < 10;
-    const newSize = isMinimized ? 35 : 5;
-    
-    // Imperatively resize the panels
-    const layout = panelGroupRef.current?.getLayout();
-    if (layout) {
-      panelGroupRef.current?.setLayout([100 - newSize, newSize]);
-    }
-  }
-  
   const aiPlaceholders = [
     "How do I access related records?",
     "Explain SOQL to me like I'm five.",
@@ -371,7 +387,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                            <FileText className="h-4 w-4 text-muted-foreground" />
                             <h3 className="font-semibold text-sm">Test Results</h3>
                         </div>
-                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={toggleResultsPanel}>
+                         <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleResultsPanel()}>
                             {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                          </Button>
                     </div>

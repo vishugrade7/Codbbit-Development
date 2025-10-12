@@ -2,7 +2,7 @@
 
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
@@ -46,6 +46,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { prettifyApexCode } from '@/lib/code-actions';
+import { useDebounce } from '@/hooks/use-debounce';
 
 const DEFAULT_FONT_SIZE = 14;
 const DEFAULT_EDITOR_THEME = 'vs-dark';
@@ -78,6 +79,7 @@ export default function ProblemSolvingPage() {
   const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
   
   const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
+  const debouncedCode = useDebounce(code, 10000);
 
 
   const userDocRef = useMemoFirebase(() => {
@@ -179,6 +181,33 @@ export default function ProblemSolvingPage() {
     }
   }, [isLoading, problem]);
 
+  const handlePrettify = useCallback(async (showToast = true) => {
+    try {
+      const result = await prettifyApexCode(code);
+      if (result.success && result.formattedCode) {
+        setCode(result.formattedCode);
+        if (showToast) {
+          toast({
+            title: "Code Formatted",
+            description: "Your Apex code has been prettified.",
+          });
+        }
+      } else {
+        setOutput({ success: false, logs: '', error: result.error || 'Formatting failed. Please check for syntax errors.' });
+      }
+    } catch (error: any) {
+      console.error("Prettier formatting failed:", error);
+       setOutput({ success: false, logs: '', error: 'An unknown error occurred during formatting.' });
+    }
+  }, [code, setCode, toast]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      handlePrettify(false); // Don't show toast on auto-run
+    }, 10000);
+    return () => clearInterval(interval);
+  }, [debouncedCode, handlePrettify]);
+
   
   if (isLoading || !problem || isLoadingProblems) {
     return (
@@ -203,24 +232,6 @@ export default function ProblemSolvingPage() {
         title: "Code Reset",
         description: "The code has been reset to the original starter template.",
       });
-    }
-  };
-
-  const handlePrettify = async () => {
-    try {
-      const result = await prettifyApexCode(code);
-      if (result.success && result.formattedCode) {
-        setCode(result.formattedCode);
-        toast({
-          title: "Code Formatted",
-          description: "Your Apex code has been prettified.",
-        });
-      } else {
-        setOutput({ success: false, logs: '', error: result.error || 'Formatting failed. Please check for syntax errors.' });
-      }
-    } catch (error: any) {
-      console.error("Prettier formatting failed:", error);
-       setOutput({ success: false, logs: '', error: 'An unknown error occurred during formatting.' });
     }
   };
 
@@ -291,7 +302,7 @@ export default function ProblemSolvingPage() {
                 setFontSize={setFontSize}
                 editorTheme={editorTheme}
                 setEditorTheme={setEditorTheme}
-                onPrettify={handlePrettify}
+                onPrettify={() => handlePrettify()}
                 leftControls={
                     <>
                         <Sheet>
@@ -396,7 +407,7 @@ export default function ProblemSolvingPage() {
                             onTestPass={handleTestPass}
                             fontSize={fontSize}
                             editorTheme={editorTheme}
-                            onPrettify={handlePrettify}
+                            onPrettify={() => handlePrettify()}
                             output={output}
                             setOutput={setOutput}
                         />
