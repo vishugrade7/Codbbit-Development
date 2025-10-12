@@ -151,6 +151,15 @@
   .glass .bg-card, .glass .bg-popover {
     @apply backdrop-blur-xl;
   }
+
+  *:focus-visible {
+    outline: none;
+    box-shadow: none;
+  }
+
+  .focus-ring {
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2;
+  }
 }
 
 @layer utilities {
