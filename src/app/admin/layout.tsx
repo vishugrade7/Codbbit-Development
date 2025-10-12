@@ -14,7 +14,7 @@ import type { UserProfile } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { Button } from '@/components/ui/button';
 import { HeaderBar } from '@/components/HeaderBar';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 
 export default function AdminLayout({
   children,
@@ -71,6 +71,10 @@ export default function AdminLayout({
              </Button>
           </SheetTrigger>
           <SheetContent side="left" className="w-72 p-0">
+             <SheetHeader className="sr-only">
+                <SheetTitle>Admin Menu</SheetTitle>
+                <SheetDescription>Navigation links for the admin dashboard.</SheetDescription>
+              </SheetHeader>
             <Sidebar>
                 <AdminSidebar />
             </Sidebar>

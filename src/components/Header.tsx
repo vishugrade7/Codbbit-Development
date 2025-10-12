@@ -14,7 +14,7 @@ import {
 import { ArrowRight, Menu, LayoutGrid, Code, Trophy, Sheet as SheetIcon, User, LogOut, Settings, Star } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, useState } from 'react';
-import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
+import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
 import { useAuth, useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 import { doc } from 'firebase/firestore';
@@ -90,69 +90,6 @@ export function Header() {
         {/* Right side */}
         <div className="flex items-center gap-2">
           <ThemeToggle />
-          {isUserLoading || isProfileLoading ? (
-            <div className="hidden md:flex items-center gap-2">
-              <Skeleton className="h-9 w-20" />
-              <Skeleton className="h-9 w-24" />
-            </div>
-          ) : user && userProfile ? (
-            <div className="hidden md:flex items-center gap-2">
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" className="relative h-9 w-9 rounded-full">
-                     <Avatar className="h-9 w-9">
-                        <AvatarImage src={userProfile.avatarUrl || user.photoURL || ''} alt={userProfile.name} />
-                        <AvatarFallback>{getInitials(userProfile.name)}</AvatarFallback>
-                    </Avatar>
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent className="w-56" align="end" forceMount>
-                    <DropdownMenuLabel className="font-normal">
-                      <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">{userProfile.name}</p>
-                        <p className="text-xs leading-none text-muted-foreground">@{userProfile.username}</p>
-                      </div>
-                    </DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem asChild>
-                        <Link href={`/${userProfile.username}`}>
-                            <User className="mr-2 h-4 w-4" />
-                            <span>Profile</span>
-                        </Link>
-                    </DropdownMenuItem>
-                     <DropdownMenuItem asChild>
-                        <Link href="/settings">
-                            <Settings className="mr-2 h-4 w-4" />
-                            <span>Settings</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link href="/pricing">
-                            <Star className="mr-2 h-4 w-4" />
-                            <span>Upgrade to Pro</span>
-                        </Link>
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleSignOut}>
-                        <LogOut className="mr-2 h-4 w-4" />
-                        <span>Log out</span>
-                    </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
-          ) : (
-            <div className="hidden md:flex items-center gap-2">
-              <Button asChild variant="ghost" size="sm" className="text-sm">
-                <Link href="/login">Sign In</Link>
-              </Button>
-              <Button asChild size="sm" className="text-sm group">
-                <Link href="/signup">
-                    Get Started
-                    <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
-                </Link>
-              </Button>
-            </div>
-          )}
              {isClient && isMobile && (
                <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                 <SheetTrigger asChild>
@@ -162,6 +99,10 @@ export function Header() {
                   </Button>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-full max-w-xs bg-background/5 backdrop-blur-xl">
+                  <SheetHeader className="sr-only">
+                    <SheetTitle>Main Menu</SheetTitle>
+                    <SheetDescription>Main navigation links for the application.</SheetDescription>
+                  </SheetHeader>
                   <div className="flex flex-col h-full">
                     <div className="border-b -mx-6 px-6 pb-4">
                        <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90" onClick={() => setIsSheetOpen(false)}>
