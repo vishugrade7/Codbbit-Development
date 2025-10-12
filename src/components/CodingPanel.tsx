@@ -80,21 +80,28 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
     }
 
     const errorParts = output.error?.split('\n') || [];
-    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Unknown Test Failure';
-    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No assertion message.';
+    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'Test Execution Error';
+    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || 'No specific assertion message.';
     const stackTrace = errorParts.filter(line => line.trim().startsWith('Class.')).join('\n');
     
-    // Extract line number from the stack trace
-    const lineInfoMatch = stackTrace.match(/line (\d+)/);
-    const lineNumber = lineInfoMatch ? lineInfoMatch[1] : null;
+    const lineInfoMatch = stackTrace.match(/Class\.([\w\d_]+)\.[\w\d_]+: line (\d+)/);
+    const className = lineInfoMatch ? lineInfoMatch[1] : null;
+    const lineNumber = lineInfoMatch ? lineInfoMatch[2] : null;
+
+    let finalErrorMessage = errorMessage;
+    // For compile errors
+    if (!stackTrace && output.error?.includes('(Line:')) {
+        finalErrorMessage = output.error;
+    }
     
     return (
         <Alert variant="destructive" className="h-full">
             <XCircle className="h-5 w-5" />
             <AlertTitle className="text-lg font-bold">{testFailureLine}</AlertTitle>
-            <AlertDescription className="flex items-center gap-2">
-                {errorMessage} 
+            <AlertDescription className="flex items-center gap-2 flex-wrap">
+                {finalErrorMessage} 
                 {lineNumber && <Badge variant="secondary" className="font-mono">Line: {lineNumber}</Badge>}
+                {className && <Badge variant="secondary" className="font-mono">Class: {className}</Badge>}
             </AlertDescription>
             <div className="mt-4 space-y-4">
                 {stackTrace && (
