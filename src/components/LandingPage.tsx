@@ -99,7 +99,7 @@ export function LandingPage() {
             >
               <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <Image
-                  src="/hero-dashboard.png"
+                  src="/image 1.png"
                   alt="App screenshot"
                   width={2432}
                   height={1442}
