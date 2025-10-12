@@ -55,6 +55,7 @@ export function LandingPage() {
       <main>
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-background py-20 md:py-32">
+          <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
               <motion.h1 
@@ -79,13 +80,13 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="mt-10 flex items-center justify-center gap-x-6"
               >
-                <Button size="lg" asChild className="group bg-blue-600 hover:bg-blue-700 text-white">
+                <Button asChild className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base bg-blue-600 hover:bg-blue-700 text-white">
                   <Link href="/signup">
                     Start for Free
                     <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
                   </Link>
                 </Button>
-                <Button size="lg" variant="outline" asChild>
+                <Button variant="outline" asChild className="h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
                   <Link href="/problems">Explore Problems</Link>
                 </Button>
               </motion.div>
@@ -111,7 +112,6 @@ export function LandingPage() {
               </div>
             </motion.div>
           </div>
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
         </section>
 
         {/* Features Section */}
