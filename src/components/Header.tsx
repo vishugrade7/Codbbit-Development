@@ -12,9 +12,9 @@ import {
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
 import { ArrowRight, Menu } from 'lucide-react';
-import StaggeredMenu from './StaggeredMenu';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, useState } from 'react';
+import { Sheet, SheetContent, SheetTrigger } from './ui/sheet';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string }[] = [
@@ -34,6 +34,7 @@ const socialItems = [
 export function Header() {
   const isMobile = useIsMobile();
   const [isClient, setIsClient] = useState(false);
+  const [isSheetOpen, setIsSheetOpen] = useState(false);
 
   useEffect(() => {
     setIsClient(true);
@@ -86,19 +87,41 @@ export function Header() {
               </Button>
             </div>
              {isClient && isMobile && (
-              <StaggeredMenu
-                position="right"
-                items={navigationLinks}
-                socialItems={socialItems}
-                displaySocials={true}
-                displayItemNumbering={true}
-                menuButtonColor="#000000"
-                openMenuButtonColor="#ffffff"
-                changeMenuColorOnOpen={true}
-                colors={['#2C3E50', '#008080']}
-                logoUrl="/logo.png"
-                accentColor="#008080"
-              />
+               <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
+                <SheetTrigger asChild>
+                  <Button variant="ghost" size="icon">
+                    <Menu />
+                    <span className="sr-only">Open Menu</span>
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="right" className="w-full max-w-xs">
+                  <div className="flex flex-col h-full">
+                    <div className="border-b -mx-6 px-6 pb-4">
+                       <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90" onClick={() => setIsSheetOpen(false)}>
+                         <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
+                         <h1 className="text-md font-bold font-headline text-foreground">
+                            Codbbit
+                        </h1>
+                      </Link>
+                    </div>
+                    <nav className="flex flex-col gap-4 mt-8">
+                      {navigationLinks.map((link) => (
+                        <Link key={link.href} href={link.href} className="text-lg font-medium text-muted-foreground hover:text-primary" onClick={() => setIsSheetOpen(false)}>
+                          {link.label}
+                        </Link>
+                      ))}
+                    </nav>
+                     <div className="mt-auto flex flex-col gap-4">
+                        <Button asChild className="w-full">
+                          <Link href="/signup" onClick={() => setIsSheetOpen(false)}>Get Started</Link>
+                        </Button>
+                        <Button asChild variant="outline" className="w-full">
+                          <Link href="/login" onClick={() => setIsSheetOpen(false)}>Sign In</Link>
+                        </Button>
+                     </div>
+                  </div>
+                </SheetContent>
+              </Sheet>
             )}
         </div>
       </div>
