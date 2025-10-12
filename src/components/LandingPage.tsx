@@ -11,6 +11,7 @@ import Link from 'next/link';
 import { Header } from "./Header";
 import { motion } from "framer-motion";
 import { Input } from "./ui/input";
+import BlurText from "./ui/BlurText";
 
 export function LandingPage() {
   const features = [
@@ -58,14 +59,12 @@ export function LandingPage() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <motion.h1 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5 }}
+              <BlurText
+                text="Master Salesforce Apex"
+                delay={100}
+                animateBy="words"
                 className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
-              >
-                Master Salesforce Apex
-              </motion.h1>
+              />
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -103,7 +102,7 @@ export function LandingPage() {
                   className="rounded-md shadow-2xl ring-1 ring-muted/20"
                   priority
                 />
-                 <div className="absolute -left-12 -top-24 w-24 h-24 md:w-48 md:h-48">
+                 <div className="absolute -left-12 -top-48 w-24 h-24 md:w-48 md:h-48 -z-10">
                    <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(300deg)]" />
                  </div>
               </div>
