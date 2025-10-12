@@ -13,6 +13,16 @@ export async function prettifyApexCode(code: string): Promise<{ success: boolean
     return { success: true, formattedCode };
   } catch (error: any) {
     console.error("Prettier formatting failed on server:", error);
+
+    // Check if the error has location information
+    if (error.loc && error.loc.start) {
+        const { line, column } = error.loc.start;
+        return { 
+            success: false, 
+            error: `Error at line ${line}, column ${column}: ${error.message}` 
+        };
+    }
+    
     return { success: false, error: error.message || "Failed to format code." };
   }
 }
