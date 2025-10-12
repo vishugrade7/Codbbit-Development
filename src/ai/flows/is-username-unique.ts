@@ -44,16 +44,13 @@ const isUsernameUniqueFlow = ai.defineFlow(
     }
 
     try {
-      const lowercasedUsername = username.toLowerCase();
       const usersRef = firestore.collection('users');
-      const querySnapshot = await usersRef.get();
-      
-      const isUsernameTaken = querySnapshot.docs.some(doc => {
-        const docData = doc.data();
-        return docData.username && docData.username.toLowerCase() === lowercasedUsername;
-      });
+      // Use a query to check for the username directly, which is more performant.
+      const q = usersRef.where('username', '==', username).limit(1);
+      const querySnapshot = await q.get();
 
-      return { isUnique: !isUsernameTaken };
+      // If the snapshot is empty, no user with that username exists.
+      return { isUnique: querySnapshot.empty };
     } catch (error) {
       console.error('Error checking username uniqueness:', String(error));
       // In case of an error, assume it's not unique to be safe
