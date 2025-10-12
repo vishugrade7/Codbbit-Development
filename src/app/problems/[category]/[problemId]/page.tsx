@@ -35,7 +35,6 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
-import { getSolutionFromGitHub } from '@/lib/github-actions';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
@@ -152,21 +151,9 @@ export default function ProblemSolvingPage() {
           setProblem(foundProblem);
 
           const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id] || userProfile.solvedProblems[foundProblem.title]);
-          const githubConnected = userProfile?.githubSync?.connected;
+          
+          setCode(foundProblem.starterCode || '');
 
-          if (isSolved && githubConnected && user?.uid) {
-            const result = await getSolutionFromGitHub(user.uid, foundProblem.title);
-            if (result.success && result.content) {
-              setCode(result.content);
-            } else {
-              setCode(foundProblem.starterCode || '');
-              if (result.error) {
-                  toast({ title: "Could Not Load Solution", description: `Falling back to starter code. Reason: ${result.error}`, variant: 'destructive' });
-              }
-            }
-          } else {
-            setCode(foundProblem.starterCode || '');
-          }
         } else {
           setProblem(null);
         }
@@ -214,36 +201,6 @@ export default function ProblemSolvingPage() {
       });
     }
   };
-
-  const handleSyncToGitHub = async () => {
-    if (!user?.uid || !problem?.title) {
-        toast({ title: "Error", description: "Cannot sync without user and problem information.", variant: "destructive" });
-        return;
-    }
-
-    setIsSyncing(true);
-    setSyncStatus([]);
-    setSyncError(null);
-    setIsSyncDialogOpen(true);
-
-    const updateStatus = (message: string) => setSyncStatus(prev => [...prev, message]);
-
-    try {
-        updateStatus("Connecting to GitHub...");
-        // This function is now called from within the `executeSalesforceCode` server action
-        // const result = await pushSolutionToGitHub(user.uid, problem.title, code);
-        // if (result.success) {
-        //     updateStatus("Sync Successful!");
-        //     updateStatus(result.message);
-        // } else {
-        //     throw new Error(result.error);
-        // }
-    } catch (error: any) {
-        setSyncError(error.message);
-    } finally {
-        setIsSyncing(false);
-    }
-  }
 
 
   const DifficultyFilterRadioGroup = ({ title, options, value, onValueChange }: { title: string, options: string[], value: string, onValueChange: (value: any) => void }) => (
@@ -308,79 +265,12 @@ export default function ProblemSolvingPage() {
         <div className="flex flex-col h-screen bg-background text-foreground glass:bg-background/80 glass:backdrop-blur-xl">
              <HeaderBar
                 onReset={handleResetCode}
-                onSyncToGitHub={handleSyncToGitHub}
                 fontSize={fontSize}
                 setFontSize={setFontSize}
                 editorTheme={editorTheme}
                 setEditorTheme={setEditorTheme}
                 leftControls={
                     <>
-                        <Sheet>
-                          <SheetTrigger asChild>
-                             <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <Menu className="h-4 w-4" />
-                            </Button>
-                          </SheetTrigger>
-                          <SheetContent side="left" className="w-[450px] sm:w-[540px] p-0">
-                                <SheetHeader className="p-4 border-b">
-                                  <SheetTitle>Problem List</SheetTitle>
-                                  <SheetDescription className="sr-only">Browse and filter coding problems.</SheetDescription>
-                                </SheetHeader>
-                                  <div className="p-4 border-b">
-                                      <div className="flex items-center justify-between gap-2">
-                                        <div className="relative flex-grow">
-                                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
-                                            <Input 
-                                                placeholder="Search problems..."
-                                                className="pl-9 h-10"
-                                                value={searchTerm}
-                                                onChange={(e) => setSearchTerm(e.target.value)}
-                                            />
-                                        </div>
-                                        <Popover>
-                                          <PopoverTrigger asChild>
-                                            <Button variant="outline" size="icon" className="h-9 w-9">
-                                              <Filter className="h-4 w-4" />
-                                            </Button>
-                                          </PopoverTrigger>
-                                          <PopoverContent className="w-60 p-4" align="end">
-                                            <div className="grid gap-4">
-                                              <DifficultyFilterRadioGroup 
-                                                  title="Difficulty"
-                                                  options={['All', 'Easy', 'Medium', 'Hard']}
-                                                  value={difficultyFilter}
-                                                  onValueChange={(val: 'All' | 'Easy' | 'Medium' | 'Hard') => setDifficultyFilter(val)}
-                                              />
-                                            </div>
-                                          </PopoverContent>
-                                        </Popover>
-                                    </div>
-                                  </div>
-                                <ScrollArea className="h-full">
-                                <div className="py-4">
-                                  {groupedProblems.map((group) => (
-                                    <div key={group.category} className="mb-6">
-                                      <h3 className="px-6 text-sm font-semibold text-gray-400 mb-2 flex items-center">
-                                        {group.category}
-                                      </h3>
-                                      <ul className="space-y-1">
-                                        {group.questions.map(q => (
-                                          <li key={q.id || q.title}>
-                                            <Link href={`/problems/${group.category}/${q.id || q.title}`} className={cn(
-                                                "flex items-center py-2 px-6 text-gray-500 dark:text-gray-300 hover:bg-muted transition-colors",
-                                                isProblemActive(q) && "bg-blue-100 dark:bg-blue-900/50 text-blue-600 dark:text-white"
-                                            )}>
-                                                <span className="ml-2 truncate">{q.title}</span>
-                                            </Link>
-                                          </li>
-                                        ))}
-                                      </ul>
-                                    </div>
-                                  ))}
-                                  </div>
-                                </ScrollArea>
-                          </SheetContent>
-                        </Sheet>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
