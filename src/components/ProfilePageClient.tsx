@@ -459,7 +459,13 @@ export function ProfilePageClient() {
         {/* Right Column */}
         <div className="lg:col-span-2 space-y-8">
           <Card>
-            <CardHeader><CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Submissions</CardTitle></CardHeader>
+            <CardHeader className="flex flex-row items-center justify-between">
+              <CardTitle className="flex items-center gap-2"><Clock className="h-5 w-5" /> Submissions</CardTitle>
+              <div className="flex flex-col items-center p-2 rounded-md bg-muted">
+                <span className="text-2xl font-bold text-primary">{userRank}</span>
+                <span className="text-xs text-muted-foreground -mt-1">Rank</span>
+              </div>
+            </CardHeader>
             <CardContent>
               <ContributionGraph 
                 heatmap={profile.submissionHeatmap || {}} 
