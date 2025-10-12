@@ -377,11 +377,12 @@ export function ProfilePageClient() {
                 )}
               </h1>
               <p className="text-muted-foreground">@{profile.username}</p>
-              <div className="mt-4 flex flex-col items-center justify-center text-sm text-muted-foreground space-y-1">
+              <div className="mt-4 flex items-center justify-center text-sm text-muted-foreground">
                 <div className="flex items-center gap-2">
                   <Briefcase className="h-4 w-4" />
                   <span>{profile.company}</span>
                 </div>
+                <span className="mx-2">|</span>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-4 w-4" />
                   <span>{profile.country}</span>
