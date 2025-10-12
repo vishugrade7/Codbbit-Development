@@ -98,6 +98,7 @@ export interface UserProfile {
   trailheadUrl?: string;
   fontSize?: number;
   editorTheme?: string;
+  referralCode?: string;
 
   lastSolvedDate: string | null;
   activeSessionId: string;

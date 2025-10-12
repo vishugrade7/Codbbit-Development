@@ -11,7 +11,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Loader2, Settings, User, KeyRound, Share2, Briefcase, Mail, CreditCard, Trash2, Link as LinkIcon, Star, Github } from 'lucide-react';
+import { Loader2, Settings, User, KeyRound, Share2, Briefcase, Mail, CreditCard, Trash2, Link as LinkIcon, Star, Github, ShieldCheck } from 'lucide-react';
 
 const getInitials = (name: string | null | undefined) => {
   if (!name) return 'U';
@@ -27,6 +27,7 @@ const settingsNav = [
   { name: 'Company', href: '/settings/company', icon: Briefcase },
   { name: 'Email Notifications', href: '/settings/notifications', icon: Mail },
   { name: 'Billing', href: '/settings/billing', icon: CreditCard },
+  { name: 'Verification', href: '/settings/verification', icon: ShieldCheck, required: (user: UserProfile | null) => !user?.emailVerified },
 ];
 
 export function SettingsLayout({ children }: { children: ReactNode }) {
@@ -62,7 +63,11 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
     );
   }
 
-  const filteredSettingsNav = settingsNav.filter(item => paymentsEnabled || item.name !== 'Billing');
+  const filteredSettingsNav = settingsNav.filter(item => {
+    if (item.name === 'Billing' && !paymentsEnabled) return false;
+    if (item.required) return item.required(userProfile);
+    return true;
+  });
 
 
   return (
