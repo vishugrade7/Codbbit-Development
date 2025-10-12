@@ -9,6 +9,7 @@ import Script from 'next/script';
 import Aurora from '@/components/Aurora';
 import { useEffect, useState } from 'react';
 import Head from 'next/head';
+import { Header } from '@/components/Header';
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
@@ -58,6 +59,7 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
+            <Header />
             <AppLayout>
               {children}
             </AppLayout>
