@@ -10,6 +10,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Header } from "./Header";
 import { motion } from "framer-motion";
+import { Input } from "./ui/input";
 
 export function LandingPage() {
   const features = [
