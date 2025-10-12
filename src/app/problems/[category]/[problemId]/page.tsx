@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useEffect, useMemo, useState } from 'react';
@@ -20,7 +21,6 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
   SheetDescription,
 } from "@/components/ui/sheet";
 import {
@@ -44,8 +44,7 @@ import { HeaderBar } from '@/components/HeaderBar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import * as prettier from 'prettier/standalone';
-import * as prettierPluginApex from 'prettier-plugin-apex';
+import { prettifyApexCode } from '@/lib/code-actions';
 
 const DEFAULT_FONT_SIZE = 14;
 const DEFAULT_EDITOR_THEME = 'vs-dark';
@@ -206,15 +205,16 @@ export default function ProblemSolvingPage() {
 
   const handlePrettify = async () => {
     try {
-      const formattedCode = await prettier.format(code, {
-        parser: 'apex',
-        plugins: [prettierPluginApex],
-      });
-      setCode(formattedCode);
-      toast({
-        title: "Code Formatted",
-        description: "Your Apex code has been prettified.",
-      });
+      const result = await prettifyApexCode(code);
+      if (result.success && result.formattedCode) {
+        setCode(result.formattedCode);
+        toast({
+          title: "Code Formatted",
+          description: "Your Apex code has been prettified.",
+        });
+      } else {
+        throw new Error(result.error || "Formatting failed.");
+      }
     } catch (error: any) {
       console.error("Prettier formatting failed:", error);
       toast({
@@ -295,6 +295,64 @@ export default function ProblemSolvingPage() {
                 onPrettify={handlePrettify}
                 leftControls={
                     <>
+                        <Sheet>
+                          <SheetTrigger asChild>
+                             <Button variant="ghost" size="icon" className="h-8 w-8">
+                                <Menu className="h-4 w-4"/>
+                              </Button>
+                          </SheetTrigger>
+                           <SheetContent side="left" className="p-0">
+                             <SheetHeader className="sr-only">
+                                <SheetTitle>Problem List</SheetTitle>
+                                <SheetDescription>Navigate to other problems.</SheetDescription>
+                              </SheetHeader>
+                             <div className="p-4 border-b">
+                                  <div className="flex items-center justify-between">
+                                      <h3 className="font-semibold">Problems</h3>
+                                      <Popover>
+                                          <PopoverTrigger asChild>
+                                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                                  <Filter className="h-4 w-4" />
+                                              </Button>
+                                          </PopoverTrigger>
+                                          <PopoverContent className="w-60">
+                                              <DifficultyFilterRadioGroup title="Difficulty" options={['All', 'Easy', 'Medium', 'Hard']} value={difficultyFilter} onValueChange={setDifficultyFilter} />
+                                          </PopoverContent>
+                                      </Popover>
+                                  </div>
+                                  <Input
+                                      placeholder="Search..."
+                                      value={searchTerm}
+                                      onChange={(e) => setSearchTerm(e.target.value)}
+                                      className="mt-2"
+                                  />
+                              </div>
+                              <ScrollArea className="h-[calc(100vh-80px)]">
+                                <div className="p-2">
+                                  {groupedProblems.map(group => (
+                                    <div key={group.category} className="mb-2">
+                                      <h4 className="font-semibold text-sm px-2 py-1">{group.category}</h4>
+                                      <div className="flex flex-col gap-1">
+                                        {group.questions.map(p => (
+                                           <Link key={p.id} href={`/problems/${p.category}/${p.id}`}>
+                                              <Button
+                                                variant={isProblemActive(p) ? "secondary" : "ghost"}
+                                                className="w-full justify-start h-auto py-2"
+                                              >
+                                                <div className="flex items-center gap-2">
+                                                  {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Circle className="h-4 w-4 text-muted-foreground/50" />}
+                                                  <span className="truncate">{p.title}</span>
+                                                </div>
+                                              </Button>
+                                          </Link>
+                                        ))}
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              </ScrollArea>
+                           </SheetContent>
+                        </Sheet>
                         <AlertDialog>
                           <AlertDialogTrigger asChild>
                             <Button variant="ghost" size="icon" className="h-8 w-8">
