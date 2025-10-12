@@ -95,7 +95,7 @@ export function LandingPage() {
               initial={{ opacity: 0, y: 50 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3, type: 'spring' }}
-              className="relative mt-16 flow-root sm:mt-24 max-w-6xl mx-auto"
+              className="relative mt-16 flow-root sm:mt-24 max-w-4xl mx-auto"
             >
               <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <Image
