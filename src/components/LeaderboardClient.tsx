@@ -150,7 +150,7 @@ export function LeaderboardClient() {
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
     
-    let users = allUsers;
+    let users = allUsers.filter(user => user.emailVerified);
     if (activeTab === 'country' && countryFilter) {
       users = users.filter(user => user.country === countryFilter);
     }
