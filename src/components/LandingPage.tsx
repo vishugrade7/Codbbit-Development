@@ -249,8 +249,8 @@ export function LandingPage() {
             <nav className="flex items-center gap-6">
               <Link href="#features" className="text-sm text-muted-foreground hover:text-primary">Features</Link>
               <Link href="/pricing" className="text-sm text-muted-foreground hover:text-primary">Pricing</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link>
-              <Link href="#" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link>
+              <Link href="/privacy" className="text-sm text-muted-foreground hover:text-primary">Privacy Policy</Link>
+              <Link href="/terms" className="text-sm text-muted-foreground hover:text-primary">Terms of Service</Link>
             </nav>
           </div>
         </div>
