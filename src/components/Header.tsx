@@ -100,7 +100,7 @@ export function Header() {
               </Button>
               <Button asChild>
                 <Link href="/signup">
-                  <ShinyText text="Get Started" />
+                  Get Started
                 </Link>
               </Button>
             </div>
