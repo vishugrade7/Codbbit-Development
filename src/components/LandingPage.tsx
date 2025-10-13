@@ -95,7 +95,7 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="mt-10 flex items-center justify-center gap-x-6"
               >
-                <Button asChild className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
+                <Button asChild variant="ghost" className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
                   <Link href="/signup">
                     <ShinyText text="Start for Free" />
                     <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
@@ -119,7 +119,7 @@ export function LandingPage() {
                   priority
                 />
                  <div className="absolute -left-12 -top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
-                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(310deg)]" />
+                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(10deg)]" />
                  </div>
               </div>
             </motion.div>
