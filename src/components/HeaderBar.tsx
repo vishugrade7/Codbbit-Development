@@ -118,7 +118,7 @@ export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fon
                 <TooltipProvider>
                     <Tooltip>
                         <TooltipTrigger asChild>
-                            <Badge variant="outline" className="rounded-full px-3 py-1 text-sm font-semibold border-2 border-blue-300/80 bg-blue-50 dark:bg-blue-950/50">
+                            <Badge variant="outline" className="rounded-full px-3 py-1 text-sm font-semibold bg-blue-50 dark:bg-blue-950/50">
                                 <Award className="mr-2 h-4 w-4 text-blue-500"/>
                                 <CountUp from={prevPoints.current || 0} to={userProfile.points} duration={1.5} />
                             </Badge>
