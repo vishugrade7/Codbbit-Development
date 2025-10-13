@@ -6,7 +6,7 @@ import React from 'react';
 
 
 export default function SheetDetailPage({ params }: { params: { sheetId: string } }) {
-  const { sheetId } = React.use(params);
+  const { sheetId } = params;
 
   return (
     <SidebarProvider>
