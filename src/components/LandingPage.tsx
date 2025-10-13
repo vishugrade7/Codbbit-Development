@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -13,6 +12,7 @@ import { motion } from "framer-motion";
 import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
 import ShinyText from "./ui/ShinyText";
+import RotatingText from "./ui/RotatingText";
 
 export function LandingPage() {
   const features = [
@@ -60,12 +60,26 @@ export function LandingPage() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <BlurText
-                text="Master Salesforce Apex"
-                delay={100}
-                animateBy="words"
-                className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
-              />
+              <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex items-center justify-center gap-2">
+                <BlurText
+                  text="Master Salesforce"
+                  delay={100}
+                  animateBy="words"
+                  className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
+                />
+                 <RotatingText
+                    texts={['Apex', 'SOQL', 'LWC']}
+                    mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-primary-foreground overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg"
+                    staggerFrom={"last"}
+                    initial={{ y: "100%" }}
+                    animate={{ y: 0 }}
+                    exit={{ y: "-120%" }}
+                    staggerDuration={0.025}
+                    splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
+                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
+                    rotationInterval={2000}
+                  />
+              </div>
               <motion.p 
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
@@ -104,7 +118,7 @@ export function LandingPage() {
                   priority
                 />
                  <div className="absolute -left-12 -top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
-                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(310deg)]" />
+                   <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(300deg)]" />
                  </div>
               </div>
             </motion.div>
