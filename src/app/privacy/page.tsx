@@ -1,9 +1,8 @@
-
 'use client';
 
 export default function PrivacyPolicyPage() {
   return (
-    <div className="min-h-screen p-4 sm:p-6 lg:p-8">
+    <div className="min-h-screen p-4 sm:p-6 lg:p-8 pt-20">
         <div className="prose dark:prose-invert max-w-4xl mx-auto">
             <h1>Privacy Policy</h1>
             <p>Last updated: {new Date().toLocaleDateString()}</p>
