@@ -246,20 +246,6 @@ export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fon
                  </Tooltip>
             </TooltipProvider>
             <ThemeToggle />
-            <TooltipProvider>
-                <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link href="/settings">
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                        <Settings className="h-4 w-4" />
-                    </Button>
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent>
-                    <p>Settings</p>
-                </TooltipContent>
-                </Tooltip>
-            </TooltipProvider>
         </div>
     </header>
   )
