@@ -24,6 +24,7 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLab
 import { useRouter } from 'next/navigation';
 import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
+import ShinyText from './ui/ShinyText';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string, icon: React.ElementType }[] = [
@@ -98,7 +99,9 @@ export function Header() {
                 <Link href="/login">Login</Link>
               </Button>
               <Button asChild>
-                <Link href="/signup">Get Started</Link>
+                <Link href="/signup">
+                  <ShinyText text="Get Started" />
+                </Link>
               </Button>
             </div>
            )}
