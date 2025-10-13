@@ -29,6 +29,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '.
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Badge } from './ui/badge';
+import CountUp from './ui/CountUp';
+import React from 'react';
 
 
 export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fontSize, setFontSize, editorTheme, setEditorTheme, onPrettify }: { leftControls: React.ReactNode; onReset?: () => void; children: React.ReactNode, onSyncToGitHub?: () => void; fontSize: number, setFontSize: (size: number) => void; editorTheme: string; setEditorTheme: (theme: string) => void; onPrettify?: () => void; }) {
@@ -42,6 +44,11 @@ export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fon
   }, [firestore, user?.uid]);
 
   const { data: userProfile } = useDoc<UserProfile>(userDocRef);
+  const prevPoints = React.useRef(userProfile?.points);
+
+  React.useEffect(() => {
+    prevPoints.current = userProfile?.points;
+  }, [userProfile?.points]);
   
   const editorThemes = ["vs-dark", "light", "hc-black", "vs", "hc-light", "monokai"];
   
@@ -113,7 +120,7 @@ export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fon
                         <TooltipTrigger asChild>
                             <Badge variant="outline" className="rounded-full px-3 py-1 text-sm font-semibold border-2 border-blue-300/80 bg-blue-50 dark:bg-blue-950/50">
                                 <Award className="mr-2 h-4 w-4 text-blue-500"/>
-                                {userProfile.points}
+                                <CountUp from={prevPoints.current || 0} to={userProfile.points} duration={1.5} />
                             </Badge>
                         </TooltipTrigger>
                         <TooltipContent>
