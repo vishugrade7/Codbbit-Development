@@ -5,7 +5,7 @@ import { useState, useEffect, useTransition, useRef } from "react";
 import type { Question, UserProfile, SfdcAuth, PriceConfig } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { executeSalesforceCode, deleteSalesforceMetadata } from "@/lib/actions";
+import { executeSalesforceCode, deleteSalesforceMetadata, initiateSalesforceOAuth } from "@/lib/actions";
 import { useDoc, useFirestore, useUser, useMemoFirebase, setDocumentNonBlocking } from "@/firebase";
 import { doc } from 'firebase/firestore';
 import { CodeEditor } from "./CodeEditor";
@@ -15,7 +15,7 @@ import {
   ResizableHandle,
   type PanelGroup,
 } from "@/components/ui/resizable";
-import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText } from "lucide-react";
+import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText, AlertTriangle } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   Sheet,
@@ -35,6 +35,7 @@ import {
     AlertDialogTitle,
     AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from "./ui/input";
 import { askQuestion } from "@/ai/flows/ask-question";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -106,12 +107,14 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
 
 export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme, onPrettify, output, setOutput }: CodingPanelProps) {
   const [isPending, startTransition] = useTransition();
+  const { toast } = useToast();
   
   const firestore = useFirestore();
   const { user } = useUser();
   const panelGroupRef = useRef<PanelGroup>(null);
   const [resultsPanelSize, setResultsPanelSize] = useState(5);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showAuthDialog, setShowAuthDialog] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
@@ -164,8 +167,40 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
       }
   }, [output, resultsPanelSize]);
 
+  const handleAuthWithSalesforce = async () => {
+    // 1. Generate code verifier
+    const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
+    sessionStorage.setItem('salesforce_code_verifier', verifier);
+
+    // 2. Generate code challenge
+    const encoder = new TextEncoder();
+    const data = encoder.encode(verifier);
+    const digest = await window.crypto.subtle.digest('SHA-256', data);
+    const challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
+      .replace(/\+/g, '-')
+      .replace(/\//g, '_')
+      .replace(/=/g, '');
+    
+    // 3. Call server action with the challenge
+    const result = await initiateSalesforceOAuth(challenge);
+    if (result.success && result.url) {
+      window.location.href = result.url;
+    } else {
+      toast({
+        title: "Authentication Error",
+        description: result.error || "Could not initiate Salesforce authentication.",
+        variant: "destructive",
+      });
+    }
+  };
+
   const handleSubmitCode = () => {
     startTransition(async () => {
+        if (!user || !userProfile?.sfdcAuth?.connected) {
+            setShowAuthDialog(true);
+            return;
+        }
+
         const isMinimized = resultsPanelSize < 10;
         if (isMinimized && panelGroupRef.current) {
             panelGroupRef.current.setLayout([65, 35]);
@@ -174,9 +209,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
         setOutput(null);
         
         try {
-            if (!user || !userProfile?.sfdcAuth?.connected) {
-                throw new Error("Salesforce connection details not configured. Please set them in Settings.");
-            }
             if (!question.testcases) {
                 throw new Error("There are no test cases defined for this problem.");
             }
@@ -353,6 +385,23 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
 
   return (
     <div className="h-full w-full flex flex-col">
+       <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="text-yellow-500" />
+                  Salesforce Connection Required
+                </DialogTitle>
+                <DialogDescription>
+                  You must connect your Salesforce account to submit solutions and run tests.
+                </DialogDescription>
+              </DialogHeader>
+              <DialogFooter>
+                <Button variant="outline" onClick={() => setShowAuthDialog(false)}>Cancel</Button>
+                <Button onClick={handleAuthWithSalesforce}>Connect</Button>
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
         <ResizablePanelGroup 
             direction="vertical" 
             className="flex-grow"
