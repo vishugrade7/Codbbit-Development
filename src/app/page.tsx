@@ -20,6 +20,7 @@ import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { getUserRank } from '@/ai/flows/get-user-rank';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import BlurText from '@/components/ui/BlurText';
 
 
 export default function HomePage() {
@@ -192,9 +193,12 @@ export default function HomePage() {
           </Dialog>
 
           <header className="mb-8 animate-fade-in-up">
-            <h1 className="text-3xl font-bold font-headline tracking-tight">
-              Welcome back, {userProfile?.name || 'Coder'}!
-            </h1>
+            <BlurText
+                text={`Welcome back, ${userProfile?.name || 'Coder'}!`}
+                className="text-3xl font-bold font-headline tracking-tight"
+                delay={100}
+                animateBy="words"
+            />
             <p className="text-muted-foreground mt-1">
               Ready to tackle your next challenge? Let's get started.
             </p>
