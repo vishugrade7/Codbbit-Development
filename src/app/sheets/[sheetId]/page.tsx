@@ -5,8 +5,7 @@ import { AppSidebar, Sidebar, SidebarProvider, SheetDisplayPage, SidebarInset } 
 import React from 'react';
 
 
-export default function SheetDetailPage({ params }: { params: { sheetId: string } }) {
-  const { sheetId } = params;
+export default function SheetDetailPage({ params: { sheetId } }: { params: { sheetId: string } }) {
 
   return (
     <SidebarProvider>

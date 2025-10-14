@@ -21,8 +21,7 @@ interface CategoryDoc {
     Questions: Partial<Question>[];
 }
 
-export default function CategoryPage() {
-  const params = useParams();
+export default function CategoryPage({ params }: { params: { category: string } }) {
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
