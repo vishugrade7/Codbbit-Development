@@ -9,6 +9,8 @@ export async function prettifyApexCode(code: string): Promise<{ success: boolean
     const formattedCode = await prettier.format(code, {
       parser: 'apex',
       plugins: [prettierPluginApex],
+      // Adding a dummy filepath helps the plugin resolve its parsers correctly.
+      filepath: 'dummy.cls',
     });
     return { success: true, formattedCode };
   } catch (error: any) {
