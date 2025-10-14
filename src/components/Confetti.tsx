@@ -2,21 +2,22 @@
 'use client';
 
 import { useEffect, useRef, useCallback } from 'react';
-import confetti from 'canvas-confetti';
 
 export function Confetti() {
-  const refAnimationInstance = useRef<confetti.CreateTypes | null>(null);
+  const refAnimationInstance = useRef<any>(null);
 
   const getInstance = useCallback((instance: HTMLCanvasElement | null) => {
     if (instance) {
-      refAnimationInstance.current = confetti.create(instance, {
-        useWorker: true,
-        resize: true,
-      });
+      import('canvas-confetti').then(confetti => {
+        refAnimationInstance.current = confetti.create(instance, {
+          useWorker: true,
+          resize: true,
+        });
+      })
     }
   }, []);
 
-  const makeShot = useCallback((particleRatio: number, opts: confetti.Options) => {
+  const makeShot = useCallback((particleRatio: number, opts: any) => {
     refAnimationInstance.current &&
       refAnimationInstance.current({
         ...opts,

@@ -21,9 +21,9 @@ export default {
         xl: '20px',
       },
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Comfortaa', 'sans-serif'],
-        code: ['Source Code Pro', 'monospace'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        headline: ['var(--font-comfortaa)', 'sans-serif'],
+        code: ['var(--font-space-grotesk)', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',
