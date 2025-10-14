@@ -82,7 +82,7 @@ export function LandingPage() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex items-center justify-center gap-2">
+              <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap items-center justify-center gap-2">
                 <BlurText
                   text="Master Salesforce"
                   delay={100}
@@ -91,7 +91,7 @@ export function LandingPage() {
                 />
                  <RotatingText
                     texts={['Apex', 'SOQL', 'LWC']}
-                    mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-primary-foreground overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg"
+                    mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-primary-foreground overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg text-4xl sm:text-6xl"
                     staggerFrom={"last"}
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
@@ -139,7 +139,7 @@ export function LandingPage() {
                   className="rounded-md shadow-2xl ring-1 ring-muted/20"
                   priority
                 />
-                 <div className="absolute -left-12 -top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
+                 <div className="absolute -left-12 -top-12 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
                    <Image src="/image 2.GIF" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(10deg)]" />
                  </div>
               </div>
@@ -247,3 +247,5 @@ export function LandingPage() {
     </div>
   );
 }
+
+    
