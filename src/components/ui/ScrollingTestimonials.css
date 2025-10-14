@@ -1,0 +1,38 @@
+.scrolling-testimonials-container {
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+  mask-image: linear-gradient(
+    to right,
+    transparent,
+    black 20%,
+    black 80%,
+    transparent
+  );
+}
+
+.scrolling-testimonials {
+  display: flex;
+  width: max-content;
+  animation: scroll 60s linear infinite;
+}
+
+@keyframes scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.testimonial-card {
+  width: 350px;
+  margin: 0 1rem;
+  flex-shrink: 0;
+}

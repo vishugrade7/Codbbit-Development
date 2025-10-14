@@ -14,6 +14,9 @@ import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
 import ShinyText from "./ui/ShinyText";
 import RotatingText from "./ui/RotatingText";
+import { cn } from "@/lib/utils";
+import './ui/ScrollingTestimonials.css';
+
 
 export function LandingPage() {
   const features = [
@@ -50,6 +53,24 @@ export function LandingPage() {
           'Solve problems that mirror what you\'ll face in technical interviews for Salesforce developer roles.',
       },
     ];
+
+    const testimonials = [
+        { name: "John Doe", title: "Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", text: "Codbbit has been a game-changer for my interview prep. The problems are realistic and the real-time execution environment is invaluable." },
+        { name: "Jane Smith", title: "Senior Apex Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", text: "The AI assistant is amazing. It helps me understand concepts without just giving me the answer. My coding has improved so much." },
+        { name: "Sam Adams", title: "Salesforce Technical Architect", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", text: "I love the problem sheets. I can focus on specific areas where I need to improve, like asynchronous Apex or SOQL performance." },
+        { name: "Emily White", title: "Salesforce Consultant", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705a", text: "The leaderboard is a great motivator. It's fun to compete with other developers and see my progress." },
+        { name: "Michael Brown", title: "Junior Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705b", text: "As someone new to Salesforce, Codbbit has been an incredible learning tool. The examples are clear and the feedback is instant." },
+        { name: "Sarah Green", title: "Salesforce Admin & Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705c", text: "The variety of problems is fantastic. It covers everything from basic Apex to complex trigger scenarios." },
+        { name: "David Black", title: "Freelance Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d", text: "I recommend Codbbit to all my students. It's the best platform for hands-on Apex practice." },
+        { name: "Laura Blue", title: "Salesforce Platform Champion", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705e", text: "The secure org integration gives me confidence that I'm practicing in a safe and realistic environment." },
+        { name: "Chris Yellow", title: " aspiring Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705f", text: "The community is great. It's helpful to see how others approach the same problem." },
+        { name: "Olivia Purple", title: "Salesforce MVP", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706a", text: "Codbbit is an essential tool for any serious Salesforce developer. It keeps my skills sharp." },
+        { name: "Daniel Red", title: "Lead Salesforce Engineer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706b", text: "The AI-generated hints are a lifesaver. They guide you in the right direction without spoiling the challenge." },
+        { name: "Sophia Orange", title: "Certified Technical Architect", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706c", text: "This is the platform I wish I had when I was starting my CTA journey. It's simply brilliant." },
+    ];
+    
+    // Duplicate testimonials for a seamless loop
+    const duplicatedTestimonials = [...testimonials, ...testimonials];
 
   return (
     <div className="bg-background text-foreground antialiased">
@@ -156,67 +177,35 @@ export function LandingPage() {
 
         {/* Testimonials Section */}
         <section className="bg-muted/20 py-20">
-          <div className="container mx-auto px-4">
-            <div className="mx-auto max-w-3xl text-center">
-              <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">What developers are saying</h2>
-              <p className="mt-6 text-lg text-muted-foreground">
-                Thousands of developers use Codbbit to sharpen their Apex skills.
-              </p>
+            <div className="container mx-auto px-4">
+                <div className="mx-auto max-w-3xl text-center">
+                    <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">What developers are saying</h2>
+                    <p className="mt-6 text-lg text-muted-foreground">
+                        Thousands of developers use Codbbit to sharpen their Apex skills.
+                    </p>
+                </div>
             </div>
-            <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="italic">
-                    "Codbbit has been a game-changer for my interview prep. The problems are realistic and the real-time execution environment is invaluable."
-                  </p>
-                </CardContent>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704d" />
-                    <AvatarFallback>JD</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-bold">John Doe</p>
-                    <p className="text-sm text-muted-foreground">Salesforce Developer</p>
-                  </div>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="italic">
-                    "The AI assistant is amazing. It helps me understand concepts without just giving me the answer. My coding has improved so much."
-                  </p>
-                </CardContent>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704e" />
-                    <AvatarFallback>JS</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-bold">Jane Smith</p>
-                    <p className="text-sm text-muted-foreground">Senior Apex Developer</p>
-                  </div>
-                </CardHeader>
-              </Card>
-              <Card>
-                <CardContent className="pt-6">
-                  <p className="italic">
-                    "I love the problem sheets. I can focus on specific areas where I need to improve, like asynchronous Apex or SOQL performance."
-                  </p>
-                </CardContent>
-                <CardHeader className="flex flex-row items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src="https://i.pravatar.cc/150?u=a042581f4e29026704f" />
-                    <AvatarFallback>SA</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-bold">Sam Adams</p>
-                    <p className="text-sm text-muted-foreground">Salesforce Technical Architect</p>
-                  </div>
-                </CardHeader>
-              </Card>
+            <div className="scrolling-testimonials-container mt-16">
+                <div className="scrolling-testimonials">
+                    {duplicatedTestimonials.map((testimonial, index) => (
+                        <Card key={index} className="testimonial-card">
+                            <CardContent className="pt-6">
+                                <p className="italic">"{testimonial.text}"</p>
+                            </CardContent>
+                            <CardHeader className="flex flex-row items-center gap-4">
+                                <Avatar>
+                                    <AvatarImage src={testimonial.avatar} />
+                                    <AvatarFallback>{testimonial.name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+                                </Avatar>
+                                <div>
+                                    <p className="font-bold">{testimonial.name}</p>
+                                    <p className="text-sm text-muted-foreground">{testimonial.title}</p>
+                                </div>
+                            </CardHeader>
+                        </Card>
+                    ))}
+                </div>
             </div>
-          </div>
         </section>
       </main>
 
@@ -233,7 +222,7 @@ export function LandingPage() {
                 </Link>
                 <p className="text-sm text-muted-foreground">The ultimate platform for mastering Salesforce Apex.</p>
               </div>
-              <div className="md:col-span-3">
+              <div className="md:col-span-3 md:justify-self-end">
                   <h3 className="font-semibold text-lg mb-4">Subscribe to our newsletter</h3>
                   <p className="text-muted-foreground mb-4">Get the latest news, updates, and tips straight to your inbox.</p>
                   <form className="flex w-full max-w-md gap-2">
