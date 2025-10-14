@@ -45,7 +45,6 @@ import { HeaderBar } from '@/components/HeaderBar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { prettifyApexCode } from '@/lib/code-actions';
 import { useDebounce } from '@/hooks/use-debounce';
 
 const DEFAULT_FONT_SIZE = 14;
@@ -181,33 +180,6 @@ export default function ProblemSolvingPage() {
     }
   }, [isLoading, problem]);
 
-  const handlePrettify = useCallback(async (showToast = true) => {
-    try {
-      const result = await prettifyApexCode(code);
-      if (result.success && result.formattedCode) {
-        setCode(result.formattedCode);
-        if (showToast) {
-          toast({
-            title: "Code Formatted",
-            description: "Your Apex code has been prettified.",
-          });
-        }
-      } else {
-        setOutput({ success: false, logs: '', error: result.error || 'Formatting failed. Please check for syntax errors.' });
-      }
-    } catch (error: any) {
-      console.error("Prettier formatting failed:", error);
-       setOutput({ success: false, logs: '', error: 'An unknown error occurred during formatting.' });
-    }
-  }, [code, setCode, toast]);
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      handlePrettify(false); // Don't show toast on auto-run
-    }, 10000);
-    return () => clearInterval(interval);
-  }, [debouncedCode, handlePrettify]);
-
   
   if (isLoading || !problem || isLoadingProblems) {
     return (
@@ -302,7 +274,6 @@ export default function ProblemSolvingPage() {
                 setFontSize={setFontSize}
                 editorTheme={editorTheme}
                 setEditorTheme={setEditorTheme}
-                onPrettify={() => handlePrettify()}
                 leftControls={
                     <>
                         <Sheet>
@@ -407,7 +378,6 @@ export default function ProblemSolvingPage() {
                             onTestPass={handleTestPass}
                             fontSize={fontSize}
                             editorTheme={editorTheme}
-                            onPrettify={() => handlePrettify()}
                             output={output}
                             setOutput={setOutput}
                         />

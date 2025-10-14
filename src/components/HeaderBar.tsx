@@ -33,7 +33,7 @@ import CountUp from './ui/CountUp';
 import React from 'react';
 
 
-export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fontSize, setFontSize, editorTheme, setEditorTheme, onPrettify }: { leftControls: React.ReactNode; onReset?: () => void; children: React.ReactNode, onSyncToGitHub?: () => void; fontSize: number, setFontSize: (size: number) => void; editorTheme: string; setEditorTheme: (theme: string) => void; onPrettify?: () => void; }) {
+export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fontSize, setFontSize, editorTheme, setEditorTheme }: { leftControls: React.ReactNode; onReset?: () => void; children: React.ReactNode, onSyncToGitHub?: () => void; fontSize: number, setFontSize: (size: number) => void; editorTheme: string; setEditorTheme: (theme: string) => void; }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
@@ -86,20 +86,6 @@ export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fon
         </div>
         <div className="flex items-center gap-1">
              {children}
-             {onPrettify && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onPrettify}>
-                        <Sparkles className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Prettify Code</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
              {userProfile?.githubSync?.connected && onSyncToGitHub && (
                 <TooltipProvider>
                   <Tooltip>

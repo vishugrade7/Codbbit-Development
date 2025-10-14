@@ -52,7 +52,6 @@ interface CodingPanelProps {
   onTestPass: () => void;
   fontSize: number;
   editorTheme: string;
-  onPrettify: () => Promise<void>;
   output: { success: boolean; logs: string; error?: string } | null;
   setOutput: (output: { success: boolean; logs: string; error?: string } | null) => void;
 }
@@ -105,7 +104,7 @@ const TestResultDisplay = ({ output }: { output: { success: boolean; logs: strin
 }
 
 
-export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme, onPrettify, output, setOutput }: CodingPanelProps) {
+export function CodingPanel({ question, code, setCode, onTestPass, fontSize, editorTheme, output, setOutput }: CodingPanelProps) {
   const [isPending, startTransition] = useTransition();
   const { toast } = useToast();
   
