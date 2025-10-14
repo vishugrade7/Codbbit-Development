@@ -10,14 +10,8 @@ import Aurora from '@/components/Aurora';
 import { useEffect, useState } from 'react';
 import { Header } from '@/components/Header';
 import { AuthGuard } from '@/components/AuthGuard';
-import { Inter, Space_Grotesk, Comfortaa } from 'next/font/google';
 import { usePathname } from 'next/navigation';
 import { Footer } from '@/components/Footer';
-
-const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
-const spaceGrotesk = Space_Grotesk({ subsets: ['latin'], variable: '--font-space-grotesk' });
-const comfortaa = Comfortaa({ subsets: ['latin'], variable: '--font-comfortaa' });
-
 
 function AppLayout({ children }: { children: React.ReactNode }) {
   const { theme } = useTheme();
@@ -58,8 +52,16 @@ export default function RootLayout({
           <title>Codbbit</title>
           <meta name="description" content="A playground for Salesforce Apex coding challenges." />
           <link rel="icon" href="/logo.png" />
+          <link rel="preconnect" href="https://fonts.googleapis.com" />
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+          <link href="https://fonts.googleapis.com/css2?family=Comfortaa:wght@300..700&family=Inter:wght@100..900&family=Space+Grotesk:wght@300..700&display=swap" rel="stylesheet" />
       </head>
-      <body className={`${inter.variable} ${spaceGrotesk.variable} ${comfortaa.variable} font-body antialiased bg-background text-foreground`}>
+      <body className="font-body antialiased bg-background text-foreground" style={{
+        // @ts-ignore
+        '--font-inter': '"Inter", sans-serif',
+        '--font-space-grotesk': '"Space Grotesk", monospace',
+        '--font-comfortaa': '"Comfortaa", sans-serif',
+      }}>
         <ThemeProvider
           attribute="class"
           defaultTheme="system"
