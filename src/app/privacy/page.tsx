@@ -4,7 +4,7 @@
 export default function PrivacyPolicyPage() {
   return (
     <div className="bg-background text-foreground min-h-screen">
-      <div className="container mx-auto px-4 py-16 sm:px-6 lg:px-8">
+      <div className="container mx-auto px-4 pt-24 pb-16 sm:px-6 lg:px-8">
         <div className="max-w-3xl mx-auto">
           <header className="text-center mb-12">
             <h1 className="text-4xl font-extrabold tracking-tight font-headline sm:text-5xl">Privacy Policy</h1>
