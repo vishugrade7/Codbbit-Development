@@ -5,13 +5,6 @@ import Editor, { type Monaco, type OnChange, loader } from '@monaco-editor/react
 import { editor } from 'monaco-editor';
 import { useEffect, useState } from 'react';
 
-loader.config({
-  paths: {
-    vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.49.0/min/vs'
-  }
-});
-
-
 interface CodeEditorProps {
   value: string;
   onChange: OnChange;
