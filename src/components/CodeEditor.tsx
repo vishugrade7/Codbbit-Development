@@ -1,7 +1,7 @@
 
 'use client';
 
-import Editor, { type Monaco, type OnChange, loader } from '@monaco-editor/react';
+import Editor, { type Monaco, type OnChange } from '@monaco-editor/react';
 import { editor } from 'monaco-editor';
 import { useEffect, useState } from 'react';
 
@@ -14,14 +14,6 @@ interface CodeEditorProps {
   options?: editor.IStandaloneEditorConstructionOptions;
 }
 
-// Define the custom Apex language configuration
-const apexLanguageConfig: any = {
-  id: 'apex',
-  extensions: ['.cls', '.trigger'],
-  aliases: ['Apex'],
-  loader: () => import('monaco-editor/esm/vs/basic-languages/apex/apex.js'),
-};
-
 export function CodeEditor({ value, onChange, language = 'apex', theme = 'vs-dark', readOnly = false, options = {} }: CodeEditorProps) {
   const [isMounted, setIsMounted] = useState(false);
 
@@ -29,20 +21,6 @@ export function CodeEditor({ value, onChange, language = 'apex', theme = 'vs-dar
   useEffect(() => {
     setIsMounted(true);
   }, []);
-
-  function handleEditorWillMount(monaco: Monaco) {
-    // Register the Apex language if it doesn't already exist
-    const languages = monaco.languages.getLanguages();
-    if (!languages.some(({ id }) => id === 'apex')) {
-      monaco.languages.register(apexLanguageConfig);
-      monaco.languages.onLanguage(apexLanguageConfig.id, () => {
-         apexLanguageConfig.loader().then((module: any) => {
-             monaco.languages.setMonarchTokensProvider(apexLanguageConfig.id, module.language);
-             monaco.languages.setLanguageConfiguration(apexLanguageConfig.id, module.conf);
-         })
-      });
-    }
-  }
 
   function handleEditorDidMount(editor: editor.IStandaloneCodeEditor, monaco: Monaco) {
     // Disable pasting
@@ -79,7 +57,6 @@ export function CodeEditor({ value, onChange, language = 'apex', theme = 'vs-dar
         theme={theme}
         value={value}
         onChange={onChange}
-        beforeMount={handleEditorWillMount}
         onMount={handleEditorDidMount}
         options={{
           automaticLayout: true,
