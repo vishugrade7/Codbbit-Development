@@ -214,8 +214,12 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
-            // The main result processing is now inside the if/else blocks.
-            // But we still set the raw output for the panel to use.
+            if (result.error?.includes('Failed to refresh Salesforce token')) {
+                setShowAuthDialog(true);
+                setOutput({ success: false, logs: "", error: "Your Salesforce session has expired. Please reconnect." });
+                return;
+            }
+
             setOutput(result);
             
             if (result.success) {
