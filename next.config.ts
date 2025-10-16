@@ -37,9 +37,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  experimental: {
-    serverComponentsExternalPackages: ['ogl'],
-  },
+  serverExternalPackages: ['ogl'],
 };
 
 export default nextConfig;
