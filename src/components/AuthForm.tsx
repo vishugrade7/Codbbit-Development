@@ -173,24 +173,6 @@ function AuthFormComponent({ type }: AuthFormProps) {
     }
   }, [user, router]);
   
-  // This effect will run when the user state changes.
-  useEffect(() => {
-    if (auth) {
-        const unsubscribe = onIdTokenChanged(auth, async (user) => {
-            if (user && user.emailVerified && !isUserLoading) {
-                const userDocRef = doc(firestore, 'users', user.uid);
-                const userDoc = await (await fetch(userDocRef.path)).json();
-                if (userDoc?.referredBy) {
-                    await handleReferral({ referralCode: userDoc.referredBy });
-                    // Optionally clear the referredBy field after processing
-                    setDocumentNonBlocking(userDocRef, { referredBy: '' }, { merge: true });
-                }
-            }
-        });
-        return () => unsubscribe();
-    }
-}, [auth, firestore, isUserLoading]);
-
 
   const handleResendVerification = async () => {
     if (!unverifiedUser) return;
