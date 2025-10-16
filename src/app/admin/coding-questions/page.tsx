@@ -289,6 +289,10 @@ export default function CodingQuestionsPage() {
           <h1 className="text-3xl font-bold font-headline tracking-tight">Problem Management</h1>
           <p className="text-muted-foreground mt-1">View, edit, or add new Apex coding challenges to the platform.</p>
         </div>
+        <Button onClick={() => toast({ title: 'Action Triggered', description: 'Adding managed package...' })}>
+          <Plus />
+          Add Managed Package
+        </Button>
       </header>
       
       <div className="flex items-center justify-between mb-4">
