@@ -105,6 +105,7 @@
 
     --sidebar-active-gradient-start: 220 30% 15%;
     --sidebar-active-gradient-end: 260 40% 18%;
+    --sidebar: linear-gradient(180deg, hsl(220 15% 15%), hsl(220 15% 10%));
   }
 
   .glass {
