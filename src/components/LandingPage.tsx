@@ -66,7 +66,7 @@ export function LandingPage() {
         { name: "Laura Blue", title: "Salesforce Platform Champion", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705e", text: "The secure org integration gives me confidence that I'm practicing in a safe and realistic environment." },
         { name: "Chris Yellow", title: " aspiring Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705f", text: "The community is great. It's helpful to see how others approach the same problem." },
         { name: "Olivia Purple", title: "Salesforce MVP", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706a", text: "Codbbit is an essential tool for any serious Salesforce developer. It keeps my skills sharp." },
-        { name: "Daniel Red", title: "Lead Salesforce Engineer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706b", text: "The AI-generated hints are a lifesaver. They guide you in the right direction without spoiling the challenge." },
+        { name: "Daniel Red", title: "Lead Salesforce Engineer", avatar: "https://i.pravatar.cc/150?u=a_042581f4e29026706b", text: "The AI-generated hints are a lifesaver. They guide you in the right direction without spoiling the challenge." },
         { name: "Sophia Orange", title: "Certified Technical Architect", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706c", text: "This is the platform I wish I had when I was starting my CTA journey. It's simply brilliant." },
     ];
     
@@ -117,10 +117,10 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="mt-10 flex items-center justify-center gap-x-6"
               >
-                <Button asChild className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
+                <Button asChild className="h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
                   <Link href="/signup">
                     Get Started
-                    <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                    <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </motion.div>

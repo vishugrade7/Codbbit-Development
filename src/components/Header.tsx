@@ -100,10 +100,10 @@ export function Header() {
                 <Button variant="ghost" asChild>
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild className="group">
+                <Button asChild>
                   <Link href="/signup">
                     Get Started
-                     <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                     <ArrowRight className="h-4 w-4" />
                   </Link>
                 </Button>
               </div>
@@ -167,10 +167,10 @@ export function Header() {
                             </div>
                           ) : (
                             <>
-                              <Button asChild className="w-full group">
+                              <Button asChild className="w-full">
                                 <Link href="/signup" onClick={() => setIsSheetOpen(false)}>
                                   Get Started
-                                  <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                                  <ArrowRight className="h-4 w-4" />
                                 </Link>
                               </Button>
                               <Button asChild variant="outline" className="w-full">
