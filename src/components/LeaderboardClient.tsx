@@ -17,6 +17,7 @@ import { Combobox } from './ui/combobox';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
+import Link from 'next/link';
 
 const PAGE_SIZE = 20;
 
@@ -95,12 +96,14 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                             </TooltipProvider>
                                         )}
                                     </div>
-                                    <div>
-                                        <div className="font-medium">{user.name}</div>
-                                        <span className="text-muted-foreground mt-0.5 text-xs">
-                                          @{user.username}
-                                        </span>
-                                    </div>
+                                    <Link href={`/${user.username}`} className="hover:underline">
+                                      <div>
+                                          <div className="font-medium">{user.name}</div>
+                                          <span className="text-muted-foreground mt-0.5 text-xs">
+                                            @{user.username}
+                                          </span>
+                                      </div>
+                                    </Link>
                                 </div>
                             </TableCell>
                             <TableCell>
