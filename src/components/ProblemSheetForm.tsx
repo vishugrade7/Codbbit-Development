@@ -3,7 +3,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser, setDocumentNonBlocking } from '@/firebase';
+import { useCollection, useDoc, useFirestore, useMemoFirebase, useUser, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { Question, ProblemSheet } from '@/lib/types';
 import { Button } from '@/components/ui/button';
@@ -17,9 +17,20 @@ import {
   TableHeader,
   TableRow,
 } from '@/components/ui/table';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FilePlus2, Loader2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle } from 'lucide-react';
+import { ArrowLeft, FilePlus2, Loader2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -161,6 +172,24 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
     }
   };
 
+  const handleDeleteSheet = async () => {
+    if (!sheetDocRef || !isEditMode) return;
+    try {
+      await deleteDocumentNonBlocking(sheetDocRef);
+      toast({
+        title: "Sheet Deleted",
+        description: `The sheet "${sheetName}" has been permanently deleted.`,
+      });
+      router.push('/sheets');
+    } catch (error) {
+       toast({
+        title: "Error",
+        description: `Could not delete the sheet.`,
+        variant: "destructive",
+      });
+    }
+  };
+
   const getDifficultyDotClass = (difficulty: 'Easy' | 'Medium' | 'Hard' | undefined) => {
     switch (difficulty) {
       case 'Easy':
@@ -229,6 +258,27 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                         </div>
                     </PopoverContent>
                 </Popover>
+                 {isEditMode && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="destructive" size="icon" className="w-10 h-10">
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Are you sure you want to delete this sheet?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently delete the problem sheet.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={handleDeleteSheet}>Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
               </div>
         </div>
         <Input
