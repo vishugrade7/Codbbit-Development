@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2, Link as LinkIcon } from 'lucide-react';
+import { Loader2, Link as LinkIcon, Cloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import Image from 'next/image';
@@ -116,7 +116,7 @@ export default function ConnectedAppsPage() {
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
           <div className="flex items-center gap-4">
             <div className="p-2 rounded-md bg-muted">
-                <Image src="/salesforce.png" alt="Salesforce" width={24} height={24} className="rounded-sm" />
+                <Cloud className="h-6 w-6 text-primary" />
             </div>
             <div>
               <p className="font-semibold">Salesforce</p>
