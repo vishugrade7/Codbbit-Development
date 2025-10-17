@@ -24,7 +24,6 @@ import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLab
 import { useRouter } from 'next/navigation';
 import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
-import ShinyText from './ui/ShinyText';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string, icon: React.ElementType }[] = [
@@ -168,8 +167,11 @@ export function Header() {
                             </div>
                           ) : (
                             <>
-                              <Button asChild className="w-full">
-                                <Link href="/signup" onClick={() => setIsSheetOpen(false)}>Get Started</Link>
+                              <Button asChild className="w-full group">
+                                <Link href="/signup" onClick={() => setIsSheetOpen(false)}>
+                                  Get Started
+                                  <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
+                                </Link>
                               </Button>
                               <Button asChild variant="outline" className="w-full">
                                 <Link href="/login" onClick={() => setIsSheetOpen(false)}>Sign In</Link>
