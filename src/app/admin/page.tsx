@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { SubmissionsChart } from '@/components/charts/SubmissionsChart';
 import { ProblemsChart } from '@/components/charts/ProblemsChart';
 import { useMemo } from 'react';
+import Link from 'next/link';
 
 export default function AdminDashboardPage() {
     const firestore = useFirestore();
@@ -127,7 +128,7 @@ export default function AdminDashboardPage() {
                             {recentUsers?.map(user => (
                                 <TableRow key={user.uid}>
                                     <TableCell>
-                                        <div className="flex items-center gap-3">
+                                        <Link href={`/${user.username}`} className="flex items-center gap-3 hover:underline">
                                             <Avatar>
                                                 <AvatarImage src={user.avatarUrl} />
                                                 <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
@@ -136,7 +137,7 @@ export default function AdminDashboardPage() {
                                                 <p className="font-medium">{user.name}</p>
                                                 <p className="text-sm text-muted-foreground">{user.email}</p>
                                             </div>
-                                        </div>
+                                        </Link>
                                     </TableCell>
                                     <TableCell>
                                         <Badge variant={user.isAdmin ? "destructive" : "outline"}>
