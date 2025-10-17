@@ -7,9 +7,11 @@ import Aurora from '@/components/Aurora';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { usePathname } from 'next/navigation';
+import { useUser } from '@/firebase';
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const { theme } = useTheme();
+  const { user } = useUser();
   const [isClient, setIsClient] = useState(false);
   const pathname = usePathname();
 
@@ -18,7 +20,7 @@ export function AppLayout({ children }: { children: ReactNode }) {
   }, []);
   
   const noFooterPaths = ['/login', '/signup'];
-  const showFooter = !noFooterPaths.includes(pathname);
+  const showFooter = !noFooterPaths.includes(pathname) && !user;
 
   return (
     <>
