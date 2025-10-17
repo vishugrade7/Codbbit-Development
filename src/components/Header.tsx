@@ -110,7 +110,7 @@ export function Header() {
             </>
            )}
            <ThemeToggle />
-            {isClient && isMobile && (
+            {isClient && (isMobile || user) && (
                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                   <SheetTrigger asChild>
                     <Button variant="ghost" size="icon">
