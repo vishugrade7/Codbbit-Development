@@ -1,45 +1,11 @@
 
-'use client';
-
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
 import { FirebaseClientProvider } from '@/firebase/client-provider';
-import { ThemeProvider, useTheme } from '@/components/ThemeProvider';
+import { ThemeProvider } from '@/components/ThemeProvider';
 import Script from 'next/script';
-import Aurora from '@/components/Aurora';
-import { useEffect, useState } from 'react';
-import { Header } from '@/components/Header';
 import { AuthGuard } from '@/components/AuthGuard';
-import { usePathname } from 'next/navigation';
-import { Footer } from '@/components/Footer';
-
-function AppLayout({ children }: { children: React.ReactNode }) {
-  const { theme } = useTheme();
-  const [isClient, setIsClient] = useState(false);
-  const pathname = usePathname();
-
-  useEffect(() => {
-    setIsClient(true);
-  }, []);
-  
-  const noFooterPaths = ['/login', '/signup'];
-  const showFooter = !noFooterPaths.includes(pathname);
-
-  return (
-    <>
-      {isClient && theme === 'glass' && (
-        <Aurora
-          colorStops={["#3A29FF", "#FF94B4", "#FF3232"]}
-          blend={0.5}
-          amplitude={1.0}
-          speed={0.5}
-        />
-      )}
-      <main className="pt-16 md:pt-0">{children}</main>
-      {showFooter && <Footer />}
-    </>
-  );
-}
+import { AppLayout } from '@/components/AppLayout';
 
 export default function RootLayout({
   children,
@@ -70,7 +36,6 @@ export default function RootLayout({
         >
           <FirebaseClientProvider>
             <AuthGuard>
-              <Header />
               <AppLayout>
                 {children}
               </AppLayout>

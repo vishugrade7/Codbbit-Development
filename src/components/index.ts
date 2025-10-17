@@ -33,3 +33,4 @@ export * from './VerifiedBadge';
 export * from './CompanyAutocomplete';
 export * from './AuthGuard';
 export * from './Footer';
+export * from './AppLayout';
