@@ -119,7 +119,7 @@ export function Header() {
                       <span className="sr-only">Open Menu</span>
                     </Button>
                   </SheetTrigger>
-                  <SheetContent side="right" className="w-full max-w-xs bg-background/5 backdrop-blur-xl">
+                  <SheetContent side="right" className="w-full max-w-xs bg-background/80 backdrop-blur-xl">
                     <SheetHeader className="sr-only">
                       <SheetTitle>Main Menu</SheetTitle>
                       <SheetDescription>Main navigation links for the application.</SheetDescription>
