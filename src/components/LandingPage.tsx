@@ -117,10 +117,10 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.2 }}
                 className="mt-10 flex items-center justify-center gap-x-6"
               >
-                <Button asChild variant="outline" className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
+                <Button asChild className="group h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
                   <Link href="/signup">
-                    <ShinyText text="Start for Free" className="text-blue-500" />
-                    <ArrowRight className="-mr-1 h-4 w-4 opacity-60 transition-transform group-hover:translate-x-0.5" />
+                    Get Started
+                    <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
                   </Link>
                 </Button>
               </motion.div>

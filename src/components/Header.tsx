@@ -101,9 +101,10 @@ export function Header() {
                 <Button variant="ghost" asChild>
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className="group">
                   <Link href="/signup">
                     Get Started
+                     <ArrowRight className="h-4 w-4 -translate-x-1 opacity-0 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
                   </Link>
                 </Button>
               </div>
