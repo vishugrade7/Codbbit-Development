@@ -87,7 +87,7 @@ export function Header() {
         <div className="flex items-center gap-6">
            <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90">
              <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
-             <h1 className="text-md font-bold font-headline text-foreground">
+             <h1 className="text-md font-bold font-sans text-foreground">
                 Codbbit
             </h1>
           </Link>
@@ -100,10 +100,10 @@ export function Header() {
                 <Button variant="ghost" asChild>
                   <Link href="/login">Login</Link>
                 </Button>
-                <Button asChild>
+                <Button asChild className="group">
                   <Link href="/signup">
                     Get Started
-                     <ArrowRight className="h-4 w-4" />
+                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                   </Link>
                 </Button>
               </div>
@@ -127,7 +127,7 @@ export function Header() {
                       <div className="border-b -mx-6 px-6 pb-4">
                          <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90" onClick={() => setIsSheetOpen(false)}>
                            <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
-                           <h1 className="text-md font-bold font-headline text-foreground">
+                           <h1 className="text-md font-bold font-sans text-foreground">
                               Codbbit
                           </h1>
                         </Link>
@@ -167,10 +167,10 @@ export function Header() {
                             </div>
                           ) : (
                             <>
-                              <Button asChild className="w-full">
+                              <Button asChild className="w-full group">
                                 <Link href="/signup" onClick={() => setIsSheetOpen(false)}>
                                   Get Started
-                                  <ArrowRight className="h-4 w-4" />
+                                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
                                 </Link>
                               </Button>
                               <Button asChild variant="outline" className="w-full">

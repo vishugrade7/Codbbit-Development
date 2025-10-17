@@ -21,6 +21,7 @@ export default {
         xl: '20px',
       },
       fontFamily: {
+        sans: ['var(--font-comfortaa)', 'sans-serif'],
         body: ['var(--font-inter)', 'sans-serif'],
         headline: ['var(--font-space-grotesk)', 'sans-serif'],
         code: ['var(--font-space-grotesk)', 'monospace'],

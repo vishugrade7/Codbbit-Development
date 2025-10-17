@@ -25,7 +25,7 @@ export default function RootLayout({
       <body className="font-body antialiased bg-background text-foreground" style={{
         // @ts-ignore
         '--font-inter': '"Inter", sans-serif',
-        '--font-space-grotesk': '"Space Grotesk", monospace',
+        '--font-space-grotesk': '"Space Grotesk", sans-serif',
         '--font-comfortaa': '"Comfortaa", sans-serif',
       }}>
         <ThemeProvider
