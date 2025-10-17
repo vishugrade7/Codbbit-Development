@@ -40,7 +40,6 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/t
 import { getUserProfileByUsername } from '@/ai/flows/get-user-profile-by-username';
 import { cn } from '@/lib/utils';
 import { VerifiedBadge } from './VerifiedBadge';
-import { getUserRank } from '@/ai/flows/get-user-rank';
 import { Timeline, TimelineContent, TimelineDate, TimelineHeader, TimelineIndicator, TimelineItem, TimelineSeparator, TimelineTitle } from './ui/timeline';
 import { ScrollArea } from './ui/scroll-area';
 
@@ -213,6 +212,12 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
     return collection(firestore, 'problems');
   }, [firestore]);
   const { data: categoriesData, isLoading: isLoadingProblems } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
+  
+  const allUsersCollectionRef = useMemoFirebase(() => {
+      if (!firestore) return null;
+      return collection(firestore, 'users');
+  }, [firestore]);
+  const { data: allUsers, isLoading: isLoadingAllUsers } = useCollection<UserProfile>(allUsersCollectionRef);
 
   const problemCounts = useMemo(() => {
     if (!categoriesData) return { Easy: 0, Medium: 0, Hard: 0, total: 0 };
@@ -229,12 +234,11 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
   }, [categoriesData]);
 
   useEffect(() => {
-    if (profile?.points != null) {
-      getUserRank({ points: profile.points }).then(result => {
-        setUserRank(result.rank);
-      });
+    if (profile?.points != null && allUsers) {
+      const rank = allUsers.filter(u => u.points > profile.points).length + 1;
+      setUserRank(rank);
     }
-  }, [profile]);
+  }, [profile, allUsers]);
 
 
   const solvedCategories = useMemo(() => {
@@ -311,7 +315,7 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
     );
   };
 
-  if (isUserLoading || isLoadingProblems) {
+  if (isUserLoading || isLoadingProblems || isLoadingAllUsers) {
     return <div className="flex items-center justify-center h-screen"><Loader2 className="h-12 w-12 animate-spin" /></div>;
   }
 

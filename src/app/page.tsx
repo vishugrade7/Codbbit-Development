@@ -19,7 +19,6 @@ import { LandingPage } from '@/components/LandingPage';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { getUserRank } from '@/ai/flows/get-user-rank';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import BlurText from '@/components/ui/BlurText';
 
@@ -39,6 +38,13 @@ export default function HomePage() {
   }, [firestore, user?.uid]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
+  
+  const allUsersCollectionRef = useMemoFirebase(() => {
+      if (!firestore) return null;
+      return collection(firestore, 'users');
+  }, [firestore]);
+
+  const { data: allUsers, isLoading: isLoadingAllUsers } = useCollection<UserProfile>(allUsersCollectionRef);
 
   const sheetsCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -90,12 +96,11 @@ export default function HomePage() {
   }, [userProfile]);
   
   useEffect(() => {
-    if (userProfile?.points != null) {
-      getUserRank({ points: userProfile.points }).then(result => {
-        setUserRank(result.rank);
-      });
+    if (userProfile?.points != null && allUsers) {
+      const rank = allUsers.filter(u => u.points > userProfile.points).length + 1;
+      setUserRank(rank);
     }
-  }, [userProfile]);
+  }, [userProfile, allUsers]);
 
   const handleAuthWithSalesforce = async () => {
     // 1. Generate code verifier
@@ -124,7 +129,7 @@ export default function HomePage() {
     }
   };
 
-  const isLoading = isUserLoading || isProfileLoading || isLoadingSheets || isLoadingProblems || userRank === null;
+  const isLoading = isUserLoading || isProfileLoading || isLoadingSheets || isLoadingProblems || userRank === null || isLoadingAllUsers;
 
   if (isUserLoading) {
     return (
