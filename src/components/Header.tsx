@@ -11,7 +11,7 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
 } from "@/components/ui/navigation-menu"
-import { ArrowRight, Menu, LayoutGrid, Code, Trophy, Sheet as SheetIcon, User, LogOut, Settings, Star } from 'lucide-react';
+import { ArrowRight, Menu, LayoutGrid, Code, Trophy, Sheet as SheetIcon, User, LogOut, Settings, Star, Cloud } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useEffect, useState } from 'react';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from './ui/sheet';
@@ -87,6 +87,7 @@ export function Header() {
         <div className="flex items-center gap-6">
            <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90">
              <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
+             <Cloud className="h-5 w-5 text-primary"/>
              <h1 className="text-md font-bold font-sans text-foreground">
                 Codbbit
             </h1>
@@ -127,6 +128,7 @@ export function Header() {
                       <div className="border-b -mx-6 px-6 pb-4">
                          <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90" onClick={() => setIsSheetOpen(false)}>
                            <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
+                            <Cloud className="h-5 w-5 text-primary"/>
                            <h1 className="text-md font-bold font-sans text-foreground">
                               Codbbit
                           </h1>
