@@ -21,10 +21,11 @@ interface CategoryDoc {
     Questions: Partial<Question>[];
 }
 
-export default function CategoryPage({ params }: { params: { category: string } }) {
+export default function CategoryPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
+  const params = useParams();
   const categoryName = decodeURIComponent(params.category as string);
 
   const categoryDocRef = useMemoFirebase(() => {
