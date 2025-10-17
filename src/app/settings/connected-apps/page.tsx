@@ -41,7 +41,9 @@ export default function ConnectedAppsPage() {
   const [isDisconnectingSalesforce, setIsDisconnectingSalesforce] = useState(false);
   const [isDisconnectingGitHub, setIsDisconnectingGitHub] = useState(false);
   
-  const githubAppUrl = `https://github.com/apps/${process.env.NEXT_PUBLIC_GITHUB_APP_NAME}/installations/new?state=${user?.uid}`;
+  const githubAppId = process.env.NEXT_PUBLIC_GITHUB_APP_ID;
+  const githubAppUrl = githubAppId ? `https://github.com/apps/${githubAppId}/installations/new?state=${user?.uid}`: '#';
+
 
   const handleAuthWithSalesforce = async () => {
     setIsConnecting(true);
@@ -217,7 +219,7 @@ export default function ConnectedAppsPage() {
               </AlertDialogContent>
             </AlertDialog>
           ) : (
-            <Button asChild className="w-full sm:w-auto">
+            <Button asChild className="w-full sm:w-auto" disabled={!githubAppId}>
               <Link href={githubAppUrl} target="_blank">
                 <Github className="mr-2 h-4 w-4" />
                 Connect
