@@ -91,6 +91,7 @@ export async function initiateSalesforceOAuth(challenge: string) {
   oauthUrl.searchParams.append('scope', 'api refresh_token');
   oauthUrl.searchParams.append('code_challenge', challenge);
   oauthUrl.searchParams.append('code_challenge_method', 'S256');
+  oauthUrl.searchParams.append('prompt', 'login');
 
   return { success: true, url: oauthUrl.toString() };
 }
