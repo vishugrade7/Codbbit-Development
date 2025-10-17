@@ -1,8 +1,9 @@
 
+
 'use client';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Settings, Code, Info, RefreshCw, SlidersHorizontal, Award, Github, Sparkles } from 'lucide-react';
+import { Settings, Code, Info, RefreshCw, SlidersHorizontal, Award, Sparkles } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
@@ -33,7 +34,7 @@ import CountUp from './ui/CountUp';
 import React from 'react';
 
 
-export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fontSize, setFontSize, editorTheme, setEditorTheme }: { leftControls: React.ReactNode; onReset?: () => void; children: React.ReactNode, onSyncToGitHub?: () => void; fontSize: number, setFontSize: (size: number) => void; editorTheme: string; setEditorTheme: (theme: string) => void; }) {
+export function HeaderBar({ leftControls, onReset, children, fontSize, setFontSize, editorTheme, setEditorTheme }: { leftControls: React.ReactNode; onReset?: () => void; children: React.ReactNode; fontSize: number, setFontSize: (size: number) => void; editorTheme: string; setEditorTheme: (theme: string) => void; }) {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
@@ -86,20 +87,6 @@ export function HeaderBar({ leftControls, onReset, children, onSyncToGitHub, fon
         </div>
         <div className="flex items-center gap-1">
              {children}
-             {userProfile?.githubSync?.connected && onSyncToGitHub && (
-                <TooltipProvider>
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onSyncToGitHub}>
-                        <Github className="h-4 w-4" />
-                      </Button>
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p>Sync to GitHub</p>
-                    </TooltipContent>
-                  </Tooltip>
-                </TooltipProvider>
-              )}
              <Popover>
                 <TooltipProvider>
                     <Tooltip>

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2, Link as LinkIcon, Github } from 'lucide-react';
+import { Loader2, Link as LinkIcon } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import Image from 'next/image';
@@ -39,11 +40,7 @@ export default function ConnectedAppsPage() {
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnectingSalesforce, setIsDisconnectingSalesforce] = useState(false);
-  const [isDisconnectingGitHub, setIsDisconnectingGitHub] = useState(false);
   
-  const githubAppId = process.env.NEXT_PUBLIC_GITHUB_APP_ID;
-  const githubAppUrl = githubAppId ? `https://github.com/apps/${githubAppId}/installations/new?state=${user?.uid}`: '#';
-
 
   const handleAuthWithSalesforce = async () => {
     setIsConnecting(true);
@@ -98,29 +95,8 @@ export default function ConnectedAppsPage() {
     }
   }
 
-  const handleDisconnectGitHub = async () => {
-      if (!userDocRef) return;
-      setIsDisconnectingGitHub(true);
-      try {
-          await setDocumentNonBlocking(userDocRef, {
-              githubSync: {
-                  connected: false,
-                  installationId: null,
-                  repo: null
-              }
-          }, { merge: true });
-          await refetch();
-          toast({ title: "GitHub Sync Disconnected", description: "Your solutions will no longer be synced to GitHub." });
-      } catch (error: any) {
-          toast({ title: "Error", description: "Could not disconnect GitHub sync.", variant: 'destructive'});
-      } finally {
-          setIsDisconnectingGitHub(false);
-      }
-  }
-
 
   const isSalesforceConnected = userProfile?.sfdcAuth?.connected || false;
-  const isGithubConnected = userProfile?.githubSync?.connected || false;
 
   if (isProfileLoading) {
     return (
@@ -134,7 +110,7 @@ export default function ConnectedAppsPage() {
     <Card>
       <CardHeader>
         <CardTitle>Connected Apps</CardTitle>
-        <CardDescription>Manage your third-party application connections for Salesforce and GitHub.</CardDescription>
+        <CardDescription>Manage your third-party application connections for Salesforce.</CardDescription>
       </CardHeader>
       <CardContent className="divide-y divide-border">
         {/* Salesforce Connection */}
@@ -175,55 +151,6 @@ export default function ConnectedAppsPage() {
             <Button onClick={handleAuthWithSalesforce} disabled={isConnecting} className="w-full sm:w-auto">
               {isConnecting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <LinkIcon className="mr-2 h-4 w-4" />}
               Connect
-            </Button>
-          )}
-        </div>
-
-        {/* GitHub Connection */}
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
-          <div className="flex items-center gap-4">
-            <Github className="h-8 w-8" />
-            <div>
-              <p className="font-semibold">GitHub Sync</p>
-              <p className="text-sm text-muted-foreground">
-                {isGithubConnected && userProfile?.githubSync?.repo ? (
-                  <Link href={`https://github.com/${userProfile.githubSync.repo}`} target="_blank" rel="noopener noreferrer" className="font-mono hover:underline">
-                    {userProfile.githubSync.repo}
-                  </Link>
-                 ) : 'Sync solutions to a repository.'}
-              </p>
-            </div>
-          </div>
-          {isGithubConnected ? (
-            <AlertDialog>
-              <AlertDialogTrigger asChild>
-                <Button variant="destructive" disabled={isDisconnectingGitHub} className="w-full sm:w-auto">
-                  {isDisconnectingGitHub && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                  Disconnect
-                </Button>
-              </AlertDialogTrigger>
-              <AlertDialogContent>
-                <AlertDialogHeader>
-                  <AlertDialogTitle>Disconnect GitHub?</AlertDialogTitle>
-                  <AlertDialogDescription>
-                    This will stop syncing new solutions to your repository. Existing solutions will not be affected.
-                  </AlertDialogDescription>
-                </AlertDialogHeader>
-                <AlertDialogFooter>
-                  <AlertDialogCancel>Cancel</AlertDialogCancel>
-                  <AlertDialogAction onClick={handleDisconnectGitHub} disabled={isDisconnectingGitHub}>
-                    {isDisconnectingGitHub && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                    Disconnect
-                  </AlertDialogAction>
-                </AlertDialogFooter>
-              </AlertDialogContent>
-            </AlertDialog>
-          ) : (
-            <Button asChild className="w-full sm:w-auto" disabled={!githubAppId}>
-              <Link href={githubAppUrl} target="_blank">
-                <Github className="mr-2 h-4 w-4" />
-                Connect
-              </Link>
             </Button>
           )}
         </div>

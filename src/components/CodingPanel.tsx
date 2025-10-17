@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
@@ -159,9 +160,13 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   // Effect to auto-expand panel on new error
   useEffect(() => {
       if (output && !output.success) {
-          const isMinimized = resultsPanelSize < 10;
-          if (isMinimized) {
-            toggleResultsPanel(true);
+          if (output.error === 'Your Salesforce session has expired. Please reconnect.') {
+            setShowAuthDialog(true);
+          } else {
+            const isMinimized = resultsPanelSize < 10;
+            if (isMinimized) {
+                toggleResultsPanel(true);
+            }
           }
       }
   }, [output, resultsPanelSize]);
@@ -281,13 +286,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             } else {
                  // No need to throw an error here, just let the UI display the failure.
             }
-             if (result.githubSyncMessage) {
-                toast({
-                    title: "GitHub Sync",
-                    description: result.githubSyncMessage,
-                });
-            }
-
 
         } catch (e: any) {
             const errorMessage = e.message || "An unknown error occurred.";

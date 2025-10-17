@@ -7,7 +7,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, Github, XCircle, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -45,7 +45,6 @@ import { HeaderBar } from '@/components/HeaderBar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { useDebounce } from '@/hooks/use-debounce';
 
 const DEFAULT_FONT_SIZE = 14;
 const DEFAULT_EDITOR_THEME = 'vs-dark';
@@ -78,7 +77,6 @@ export default function ProblemSolvingPage() {
   const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
   
   const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
-  const debouncedCode = useDebounce(code, 10000);
 
 
   const userDocRef = useMemoFirebase(() => {
@@ -232,7 +230,7 @@ export default function ProblemSolvingPage() {
         <DialogContent>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-                <Github /> Syncing to GitHub
+                Syncing to GitHub
             </DialogTitle>
             <DialogDescription>
               Your code is being pushed to your repository.

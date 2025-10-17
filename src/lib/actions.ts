@@ -7,7 +7,6 @@ import { firestore } from '@/firebase/server-init';
 import type { UserProfile, SfdcAuth, Question } from '@/lib/types';
 import { getAuth } from 'firebase-admin/auth';
 import { revalidatePath } from 'next/cache';
-import { pushSolutionToGitHub } from '@/lib/github-actions';
 
 
 type SalesforceTokenResponse = {
@@ -504,17 +503,6 @@ async function salesforceExecuteTestClass(
       };
     }
     
-    // Non-blocking call to push solution to GitHub
-    if (problem.title) {
-        pushSolutionToGitHub(userId, problem.title, userCode).then(result => {
-            if (result.success) {
-                console.log(result.message);
-            } else {
-                console.error(result.error);
-            }
-        });
-    }
-
     return {
       success: true,
       logs: `✅ All tests passed!\n\nLogs:\n${logs}`,
@@ -635,5 +623,3 @@ export async function deleteUserAccount(userId: string): Promise<{ success: bool
         return { success: false, error: errorMessage };
     }
 }
-
-export { pushSolutionToGitHub };

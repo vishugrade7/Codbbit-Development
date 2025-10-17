@@ -19,7 +19,6 @@
         "about": { "type": "string" },
         "avatarUrl": { "type": "string", "format": "uri" },
         "website": { "type": "string", "format": "uri" },
-        "githubUrl": { "type": "string", "format": "uri" },
         "twitterUrl": { "type": "string", "format": "uri" },
         "linkedinUrl": { "type": "string", "format": "uri" },
         "trailheadUrl": { "type": "string", "format": "uri" },
@@ -49,15 +48,6 @@
             "accessToken": { "type": "string" },
             "refreshToken": { "type": "string" },
             "issuedAt": { "type": "number" }
-          }
-        },
-        "githubSync": {
-          "type": "object",
-          "properties": {
-            "connected": { "type": "boolean" },
-            "username": { "type": "string" },
-            "repo": { "type": "string" },
-            "accessToken": { "type": "string" }
           }
         },
         "solvedProblems": {

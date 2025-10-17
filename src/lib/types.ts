@@ -67,12 +67,6 @@ export type SfdcAuth = {
     issuedAt: number;
 };
 
-export type GitHubSync = {
-  connected: boolean;
-  installationId?: number;
-  repo?: string;
-};
-
 export interface UserProfile {
   uid: string;
   email: string;
@@ -93,7 +87,6 @@ export interface UserProfile {
   currentStreak: number;
   maxStreak: number;
   website?: string;
-  githubUrl?: string;
   twitterUrl?: string;
   linkedinUrl?: string;
   trailheadUrl?: string;
@@ -113,7 +106,6 @@ export interface UserProfile {
     Hard: number;
   };
   sfdcAuth: SfdcAuth;
-  githubSync?: GitHubSync;
   solvedProblems: Record<string, {
     difficulty: string;
     points: number;

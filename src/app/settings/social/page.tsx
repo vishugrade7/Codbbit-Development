@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -13,12 +14,11 @@ import { Label } from '@/components/ui/label';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2, Github, Twitter, Linkedin, Link as LinkIcon, Mountain } from 'lucide-react';
+import { Loader2, Twitter, Linkedin, Link as LinkIcon, Mountain } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const socialLinksSchema = z.object({
   website: z.string().url().or(z.literal('')).optional(),
-  github: z.string().optional(),
   twitter: z.string().optional(),
   linkedin: z.string().optional(),
   trailhead: z.string().optional(),
@@ -62,7 +62,6 @@ export default function SocialProfilesPage() {
     resolver: zodResolver(socialLinksSchema),
     defaultValues: {
       website: '',
-      github: '',
       twitter: '',
       linkedin: '',
       trailhead: '',
@@ -73,7 +72,6 @@ export default function SocialProfilesPage() {
     if (userProfile) {
       reset({
         website: userProfile.website || '',
-        github: getPathFromUrl(userProfile.githubUrl, 'https://github.com/'),
         twitter: getPathFromUrl(userProfile.twitterUrl, 'https://twitter.com/'),
         linkedin: getPathFromUrl(userProfile.linkedinUrl, 'https://linkedin.com/in/'),
         trailhead: getPathFromUrl(userProfile.trailheadUrl, 'https://www.salesforce.com/trailblazer/'),
@@ -90,7 +88,6 @@ export default function SocialProfilesPage() {
     try {
         const updateData = {
             website: data.website,
-            githubUrl: data.github ? `https://github.com/${data.github}` : '',
             twitterUrl: data.twitter ? `https://twitter.com/${data.twitter}` : '',
             linkedinUrl: data.linkedin ? `https://linkedin.com/in/${data.linkedin}` : '',
             trailheadUrl: data.trailhead ? `https://www.salesforce.com/trailblazer/${data.trailhead}` : '',
@@ -142,21 +139,6 @@ export default function SocialProfilesPage() {
                 />
             </div>
             {errors.website && <p className="text-sm text-red-500">{errors.website.message}</p>}
-          </div>
-
-          <div className="space-y-2">
-            <Label htmlFor="github">GitHub</Label>
-             <div className="flex h-10 w-full items-center rounded-md border border-input bg-background text-sm ring-offset-background focus-within:ring-2 focus-within:ring-ring focus-within:ring-offset-2">
-                <span className="pl-3 pr-2 text-muted-foreground">https://github.com/</span>
-                <Controller
-                    name="github"
-                    control={control}
-                    render={({ field }) => (
-                        <Input id="github" {...field} placeholder="your-username" className="border-0 h-auto p-0 focus-visible:ring-0 focus-visible:ring-offset-0"/>
-                    )}
-                />
-            </div>
-            {errors.github && <p className="text-sm text-red-500">{errors.github.message}</p>}
           </div>
 
           <div className="space-y-2">
