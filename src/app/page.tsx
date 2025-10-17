@@ -95,7 +95,7 @@ export default function HomePage() {
         setUserRank(result.rank);
       });
     }
-  }, [userProfile?.points]);
+  }, [userProfile]);
 
   const handleAuthWithSalesforce = async () => {
     // 1. Generate code verifier
