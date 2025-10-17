@@ -65,6 +65,7 @@ export function Header() {
     document.documentElement.classList.remove('grayscale-effect');
     auth.signOut();
     router.push('/login');
+    setIsSheetOpen(false);
   };
 
   const getInitials = (name: string | null | undefined) => {
@@ -106,8 +107,10 @@ export function Header() {
                   </Link>
                 </Button>
               </div>
-              <ThemeToggle />
-              {isClient && isMobile && (
+            </>
+           )}
+           <ThemeToggle />
+            {isClient && isMobile && (
                  <Sheet open={isSheetOpen} onOpenChange={setIsSheetOpen}>
                   <SheetTrigger asChild>
                     <Button variant="ghost" size="icon">
@@ -177,8 +180,6 @@ export function Header() {
                   </SheetContent>
                 </Sheet>
               )}
-            </>
-           )}
         </div>
       </div>
     </header>
