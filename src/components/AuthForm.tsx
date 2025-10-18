@@ -59,6 +59,7 @@ import { isUsernameUnique } from '@/ai/flows/is-username-unique';
 import { handleReferral } from '@/ai/flows/handle-referral';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
+import Image from 'next/image';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -308,6 +309,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
     <>
       <Card className="w-full max-w-md">
         <CardHeader className="items-center text-center">
+          <Image src="/logo.png" alt="Codbbit Logo" width={64} height={64} className="mb-4" />
           <CardTitle className="pt-4 font-headline">{isLogin ? 'Welcome Back!' : 'Create an account'}</CardTitle>
           <CardDescription>
             {isLogin ? 'Sign in to continue your coding journey.' : 'Enter your information to get started for free.'}
