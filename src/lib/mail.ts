@@ -1,16 +1,11 @@
+
 'use server';
 
 import * as nodemailer from 'nodemailer';
-
-interface FeedbackEmailData {
-  name: string;
-  email: string;
-  subject: string;
-  message: string;
-}
+import type { Attachment } from 'nodemailer/lib/mailer';
 
 export async function sendFeedbackEmail(
-  data: FeedbackEmailData
+  formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
   const { ZOHO_SMTP_HOST, ZOHO_SMTP_PORT, ZOHO_SMTP_USER, ZOHO_SMTP_PASS } =
     process.env;
@@ -28,6 +23,16 @@ export async function sendFeedbackEmail(
     };
   }
 
+  const name = formData.get('name') as string;
+  const email = formData.get('email') as string;
+  const subject = formData.get('subject') as string;
+  const message = formData.get('message') as string;
+  const attachmentFile = formData.get('attachment') as File | null;
+  
+  if (!name || !email || !subject || !message) {
+    return { success: false, error: 'Missing required fields.' };
+  }
+
   const transport = nodemailer.createTransport({
     host: ZOHO_SMTP_HOST,
     port: parseInt(ZOHO_SMTP_PORT, 10),
@@ -36,19 +41,30 @@ export async function sendFeedbackEmail(
       pass: ZOHO_SMTP_PASS,
     },
   });
+  
+  const attachments: Attachment[] = [];
+  if (attachmentFile && attachmentFile.size > 0) {
+      const buffer = Buffer.from(await attachmentFile.arrayBuffer());
+      attachments.push({
+          filename: attachmentFile.name,
+          content: buffer,
+          contentType: attachmentFile.type,
+      });
+  }
 
   const mailOptions = {
     from: `"Codbbit Feedback" <noreply@codbbit.com>`,
     to: 'codbbit@gmail.com',
-    subject: `New Feedback: ${data.subject}`,
+    subject: `New Feedback: ${subject}`,
     html: `
       <h2>New Feedback Submission</h2>
-      <p><strong>From:</strong> ${data.name} (${data.email})</p>
-      <p><strong>Subject:</strong> ${data.subject}</p>
+      <p><strong>From:</strong> ${name} (${email})</p>
+      <p><strong>Subject:</strong> ${subject}</p>
       <hr>
       <h3>Message:</h3>
-      <p>${data.message.replace(/\n/g, '<br>')}</p>
+      <p>${message.replace(/\n/g, '<br>')}</p>
     `,
+    attachments: attachments,
   };
 
   try {

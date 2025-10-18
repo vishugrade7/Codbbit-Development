@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -27,14 +28,26 @@ import {
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Paperclip } from 'lucide-react';
 import { sendFeedbackEmail } from '@/lib/mail';
+
+const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
+const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const feedbackSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
   subject: z.string().min(1, 'Please select a subject.'),
   message: z.string().min(10, 'Message must be at least 10 characters long.'),
+  attachment: z
+    .custom<FileList>()
+    .optional()
+    .transform(file => file && file.length > 0 ? file[0] : null)
+    .refine(file => !file || file.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
+    .refine(
+      file => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
+      "Only .jpg, .jpeg, .png and .webp formats are supported."
+    ),
 });
 
 type FeedbackFormData = z.infer<typeof feedbackSchema>;
@@ -51,12 +64,14 @@ export function FeedbackForm() {
   const { data: userProfile, isLoading: isProfileLoading } = useDoc(userDocRef);
 
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [attachmentName, setAttachmentName] = useState<string | null>(null);
 
   const {
     control,
     register,
     handleSubmit,
     reset,
+    watch,
     formState: { errors },
   } = useForm<FeedbackFormData>({
     resolver: zodResolver(feedbackSchema),
@@ -65,8 +80,19 @@ export function FeedbackForm() {
       email: '',
       subject: '',
       message: '',
+      attachment: undefined,
     },
   });
+
+  const attachment = watch("attachment");
+
+  useEffect(() => {
+    if (attachment) {
+      setAttachmentName(attachment.name);
+    } else {
+      setAttachmentName(null);
+    }
+  }, [attachment]);
 
   useEffect(() => {
     if (userProfile) {
@@ -81,19 +107,22 @@ export function FeedbackForm() {
 
   const onSubmit = async (data: FeedbackFormData) => {
     setIsSubmitting(true);
+    const formData = new FormData();
+    Object.entries(data).forEach(([key, value]) => {
+        if (value) {
+            formData.append(key, value);
+        }
+    });
+
     try {
-      const result = await sendFeedbackEmail(data);
+      const result = await sendFeedbackEmail(formData);
       if (result.success) {
         toast({
           title: 'Feedback Sent!',
           description: "Thank you for your feedback. We'll get back to you soon.",
           variant: 'success',
         });
-        reset({
-            ...data,
-            subject: '',
-            message: ''
-        });
+        reset();
       } else {
         throw new Error(result.error || 'An unknown error occurred.');
       }
@@ -186,6 +215,11 @@ export function FeedbackForm() {
                 disabled={isSubmitting}
               />
               {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
+            </div>
+             <div className="space-y-2">
+                <Label htmlFor="attachment">Attachment (Optional)</Label>
+                 <Input id="attachment" type="file" {...register("attachment")} accept="image/*" />
+                {errors.attachment && <p className="text-sm text-red-500">{errors.attachment.message as string}</p>}
             </div>
           </CardContent>
           <CardFooter className="justify-end">
