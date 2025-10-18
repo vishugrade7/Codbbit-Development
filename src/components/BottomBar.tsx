@@ -10,12 +10,16 @@ import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, Dialog
 import { Tooltip, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import type { UserProfile } from "@/lib/types";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useToast } from "@/hooks/use-toast";
 import { installSalesforcePackage } from "@/lib/actions";
+
+type ManagedPackage = {
+  url: string;
+};
 
 export function BottomBar() {
   const firestore = useFirestore();
@@ -32,6 +36,19 @@ export function BottomBar() {
   }, [firestore, user?.uid]);
 
   const { data: userProfile } = useDoc<UserProfile>(userDocRef);
+
+  const packageDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'packages', 'URL');
+  }, [firestore]);
+
+  const { data: managedPackage } = useDoc<ManagedPackage>(packageDocRef);
+
+  useEffect(() => {
+    if (managedPackage?.url) {
+      setPackageUrl(managedPackage.url);
+    }
+  }, [managedPackage]);
 
   const isSalesforceConnected = userProfile?.sfdcAuth?.connected || false;
 
@@ -69,7 +86,7 @@ export function BottomBar() {
          toast({ title: "Installation Failed", description: error.message, variant: "destructive" });
     } finally {
         setIsInstalling(false);
-        setPackageUrl('');
+        // Do not clear packageUrl on close
     }
   }
 
