@@ -24,6 +24,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import { ThemeToggle } from './ThemeToggle';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 
 export function AdminSidebar() {
   const { user, isUserLoading } = useUser();
@@ -69,18 +70,9 @@ export function AdminSidebar() {
     <>
       <SidebarHeader>
         <div className={cn("flex items-center w-full group-data-[collapsible=icon]:justify-center", isCollapsed ? "" : "justify-between")}>
-            <div className={cn("flex-1", isCollapsed ? "justify-center" : "pl-4")}>
-                {isCollapsed ? (
-                    <button onClick={() => setOpen(true)} className="group/logo relative">
-                        <Shield className="h-7 w-7 text-foreground transition-opacity duration-200 group-hover/logo:opacity-0" />
-                        <PanelRightOpen className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-7 w-7 text-foreground opacity-0 transition-opacity duration-200 group-hover/logo:opacity-100" />
-                    </button>
-                ) : (
-                    <div className="flex items-center gap-2">
-                        <Shield className="h-8 w-8 text-foreground" />
-                        <h2 className="font-bold text-lg">Admin</h2>
-                    </div>
-                )}
+            <div className={cn("flex-1 flex items-center gap-2", isCollapsed ? "justify-center" : "pl-4")}>
+                <Image src="/logo.png" alt="Codbbit Logo" width={32} height={32} />
+                {!isCollapsed && <h2 className="font-bold text-lg">Admin</h2>}
             </div>
             {!isCollapsed && (
               <div className="pr-4">
