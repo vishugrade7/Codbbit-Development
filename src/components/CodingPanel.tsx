@@ -232,9 +232,9 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 // --- User Progress Update Logic ---
                 if (userDocRef && userProfile) {
                     const problemId = question.id;
-                    const solvedQuestions = userProfile.solvedQuestions || [];
+                    const solvedProblems = userProfile.solvedProblems || {};
 
-                    if (!solvedQuestions.includes(problemId)) {
+                    if (!solvedProblems[problemId]) {
                         const pointsMap = { 'Easy': 10, 'Medium': 20, 'Hard': 50 };
                         const pointsGained = pointsMap[question.difficulty] || 0;
                         
@@ -268,7 +268,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                             currentStreak: newCurrentStreak,
                             maxStreak: Math.max(userProfile.maxStreak || 0, newCurrentStreak),
                             submissionHeatmap: newSubmissionHeatmap,
-                            solvedQuestions: [...solvedQuestions, problemId],
                             solvedProblems: {
                                 ...userProfile.solvedProblems,
                                 [problemId]: {
@@ -276,6 +275,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                                     points: pointsGained,
                                     solvedAt: new Date().toISOString(),
                                     title: question.title,
+                                    category: question.category,
                                 }
                             }
                         };
