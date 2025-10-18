@@ -209,37 +209,39 @@ export default function HomePage() {
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
-            <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.1s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Rank</CardTitle>
-                <Award className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">#{userRank || 'N/A'}</div>
-                <p className="text-xs text-muted-foreground">Your position on the leaderboard</p>
-              </CardContent>
-            </Card>
-            <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.2s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Total Points</CardTitle>
-                <BarChart className="h-4 w-4 text-muted-foreground" />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{userProfile?.points || 0}</div>
-                <p className="text-xs text-muted-foreground">Keep solving to earn more</p>
-              </CardContent>
-            </Card>
-            <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.3s' }}>
-              <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
-                 <Flame className={cn("h-4 w-4 text-muted-foreground", (userProfile?.currentStreak || 0) > 0 && "text-orange-400 animate-pulse")} />
-              </CardHeader>
-              <CardContent>
-                <div className="text-2xl font-bold">{userProfile?.currentStreak || 0} days</div>
-                <p className="text-xs text-muted-foreground">Keep the flame alive!</p>
-              </CardContent>
-            </Card>
+          <div className="w-full lg:w-1/2 mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+              <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.1s' }}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Rank</CardTitle>
+                  <Award className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">#{userRank || 'N/A'}</div>
+                  <p className="text-xs text-muted-foreground">Your position on the leaderboard</p>
+                </CardContent>
+              </Card>
+              <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.2s' }}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Total Points</CardTitle>
+                  <BarChart className="h-4 w-4 text-muted-foreground" />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{userProfile?.points || 0}</div>
+                  <p className="text-xs text-muted-foreground">Keep solving to earn more</p>
+                </CardContent>
+              </Card>
+              <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.3s' }}>
+                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                  <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
+                   <Flame className={cn("h-4 w-4 text-muted-foreground", (userProfile?.currentStreak || 0) > 0 && "text-orange-400 animate-pulse")} />
+                </CardHeader>
+                <CardContent>
+                  <div className="text-2xl font-bold">{userProfile?.currentStreak || 0} days</div>
+                  <p className="text-xs text-muted-foreground">Keep the flame alive!</p>
+                </CardContent>
+              </Card>
+            </div>
           </div>
           
            <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
