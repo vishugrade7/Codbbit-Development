@@ -1,111 +1,145 @@
 /**
- * @file Firestore Security Rules
- * @description This ruleset enforces a strict user-ownership model for user profiles and allows public read access to coding questions and problem sheets.
+ * @fileoverview Firestore Security Rules for Codbbit application.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes secure user data ownership and access control.
+ * It enforces strict ownership for user profiles and uses a combination of
+ * ownership and public read access for other collections. Data shape validation
+ * is relaxed for prototyping.
  *
  * Data Structure:
- * - /users/{userId}: Stores individual user profiles.  Access is restricted to the owning user.
- * - /questions/{questionId}: Stores coding questions. Publicly readable.
- * - /sheets/{sheetId}: Stores problem sheets. Publicly readable.
- * - /vouchers/{voucherId}: Stores voucher information.  No specific access rules defined, defaulting to none.
- * - /config/{configId}: Stores configuration settings. No specific access rules defined, defaulting to none.
- * - /packages/URL/packages/{packageName}: Stores managed package information. No specific access rules defined, defaulting to none.
+ * - /users/{userId}: Stores individual user profiles, secured by owner-only access.
+ * - /questions/{questionId}: Stores coding questions; publicly readable, owner-only writes are NOT enabled, missing owner field.
+ * - /sheets/{sheetId}: Stores problem sheets, created by users, publicly readable.
+ * - /vouchers/{voucherId}: Stores promotional vouchers.
+ * - /config/{configId}: Stores application configuration.
+ * - /packages/URL/packages/{packageName}: Stores information about managed packages.
  *
  * Key Security Decisions:
- * - User profiles are strictly owned by the authenticated user.
- * - Coding questions and problem sheets are publicly readable to facilitate open access to learning resources.
- * - Listing of user documents is forbidden.
- * - Vouchers, Configuration, and Managed Package information are not accessible by default.
+ * - User profiles are strictly private and accessible only to the owning user.
+ * - Public listing of user profiles is disallowed.
+ * - Public read access is enabled for questions and problem sheets, with owner-only writes.
  *
  * Denormalization for Authorization:
- *   - User profiles are stored under /users/{userId}, which matches the Firebase Auth UID, enabling simple `isOwner()` checks.
+ *  The current data model does not require denormalization. The design assumes
+ *  direct ownership checks based on the `uid` field in user profiles and
+ *  `createdBy` field in problem sheets.
+ *
+ * Structural Segregation:
+ *  The application does not currently segregate data into private and public
+ *  collections. All user-specific data is stored under the /users/{userId}
+ *  path, ensuring privacy.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Controls access to user profile documents.
+     * @description Checks if the request is made by a signed-in user.
+     * @returns {boolean} True if the user is signed in, false otherwise.
+     */
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the owner of the resource.
+     * @param {string} userId - The user ID to compare with the authenticated user's ID.
+     * @returns {boolean} True if the user is the owner, false otherwise.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+
+    /**
+     * @description Checks if the authenticated user is the existing owner of the resource.
+     * @param {string} userId - The user ID to compare with the authenticated user's ID.
+     * @returns {boolean} True if the user is the owner and the resource exists, false otherwise.
+     */
+    function isExistingOwner(userId) {
+        return isOwner(userId) && resource != null;
+    }
+
+    /**
+     * @description User profile rules. Only the owner can read and write their own profile.
      * @path /users/{userId}
-     * @allow (create) Authenticated user can create their own profile.
-     * @deny (create) Authenticated user cannot create a profile for another user.
-     * @allow (get, list) Authenticated user can read their own profile.
-     * @deny (get, list) Authenticated user cannot read another user's profile.
-     * @allow (update, delete) Authenticated user can update or delete their own profile.
-     * @deny (update, delete) Authenticated user cannot update or delete another user's profile.
-     * @principle Enforces document ownership for all operations.
+     * @allow (get, update, delete) if isOwner(userId) - Allows the user with UID 'user123' to read, update, and delete their own profile.
+     * @allow (create) if isOwner(userId) - Allows the user with UID 'user123' to create their own profile.
+     * @deny (get, update, delete) if !isOwner(userId) - Denies access to other user profiles.
+     * @deny (create) if !isOwner(userId) - Denies creation of a profile with a mismatched user ID.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
-      function isOwner(userId) {
-        return request.auth.uid == userId;
-      }
-
-      function isExistingOwner(userId) {
-        return isOwner(userId) && exists(resource);
-      }
-
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isSignedIn() && isOwner(userId) && request.resource.data.uid == userId;
-      allow update: if isExistingOwner(userId) && request.resource.data.uid == request.auth.uid;
+      allow create: if isOwner(userId) && request.resource.data.uid == userId;
+      allow update: if isExistingOwner(userId) && request.resource.data.uid == resource.data.uid;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to code question documents.
+     * @description Rules for coding questions. Anyone can read, but owner-only writes are intended (missing ownership field).
      * @path /questions/{questionId}
-     * @allow (get, list) Any user can read coding questions.
-     * @deny (create, update, delete) No user can create, update, or delete coding questions.
-     * @principle Allows public read access, restricts write access.
+     * @allow (get, list) if true - Allows any user to read any coding question.
+     * @deny (create, update, delete) if false - Since the 'CodeQuestion' entity is missing an 'ownerId' or 'authorId' field, writes are disabled for now.
+     * @principle Public read access with owner-only writes (missing ownership field).
      */
     match /questions/{questionId} {
-      allow get, list: if true;
-      allow create, update, delete: if false;
+      allow get: if true;
+      allow list: if true;
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
     /**
-     * @description Controls access to problem sheet documents.
+     * @description Rules for problem sheets. Anyone can read, creator can write.
      * @path /sheets/{sheetId}
-     * @allow (get, list) Any user can read problem sheets.
-     * @deny (create, update, delete) No user can create, update, or delete problem sheets.
-     * @principle Allows public read access, restricts write access.
+     * @allow (get, list) if true - Allows any user to read any problem sheet.
+     * @allow (create) if isSignedIn() - Allows any authenticated user to create a new problem sheet.
+     * @allow (update, delete) if isExistingOwner(resource.data.createdBy) - Allows the creator to update and delete their problem sheet.
+     * @deny (create, update, delete) if !isSignedIn() - Denies unauthenticated users from creating, updating, or deleting problem sheets.
+     * @principle Public read access with owner-only writes, enforces user authentication.
      */
     match /sheets/{sheetId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create: if isSignedIn() && request.resource.data.createdBy == request.auth.uid;
+      allow update: if isExistingOwner(resource.data.createdBy);
+      allow delete: if isExistingOwner(resource.data.createdBy);
     }
 
     /**
-     * @description Controls access to voucher documents.
+     * @description Rules for vouchers. Limited access.
      * @path /vouchers/{voucherId}
-     * @deny (get, list, create, update, delete) No user can access voucher information by default.
-     * @principle Restricts all access to vouchers by default.
      */
     match /vouchers/{voucherId} {
-      allow read, write: if false;
+      allow get: if false;
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
      /**
-      * @description Controls access to config documents.
+      * @description Rules for pricing configuration. Limited access.
       * @path /config/{configId}
-      * @deny (get, list, create, update, delete) No user can access config information by default.
-      * @principle Restricts all access to configuration by default.
       */
     match /config/{configId} {
-      allow read, write: if false;
+      allow get: if false;
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
 
-     /**
-      * @description Controls access to managed package documents.
-      * @path /packages/URL/packages/{packageName}
-      * @deny (get, list, create, update, delete) No user can access package information by default.
-      * @principle Restricts all access to managed packages by default.
-      */
-    match /packages/{url}/packages/{packageName} {
-        allow read, write: if false;
+    /**
+     * @description Rules for managed packages.
+     * @path /packages/URL/packages/{packageName}
+     */
+    match /packages/URL/packages/{packageName} {
+      allow get: if false;
+      allow list: if false;
+      allow create: if false;
+      allow update: if false;
+      allow delete: if false;
     }
   }
 }

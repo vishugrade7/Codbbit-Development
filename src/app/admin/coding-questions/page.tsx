@@ -340,7 +340,7 @@ export default function CodingQuestionsPage() {
     try {
         const packageName = managedPackageName.trim();
         // Use the package name as the document ID
-        const packageDocRef = doc(firestore, 'packages', 'URL', 'packages', packageName);
+        const packageDocRef = doc(firestore, 'packages/URL', packageName);
         
         // The data to be stored
         const packageData = {
