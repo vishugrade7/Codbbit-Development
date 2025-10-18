@@ -632,6 +632,7 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
       body: JSON.stringify({
         SubscriberPackageVersionKey: packageVersionKey,
         SecurityType: 'Full',
+        NameConflictResolution: 'Block',
       }),
     });
 
