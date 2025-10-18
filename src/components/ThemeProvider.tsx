@@ -4,7 +4,7 @@
 import * as React from "react";
 import { createContext, useContext, useEffect, useState } from "react"
 
-type Theme = "dark" | "light" | "system" | "glass"
+type Theme = "dark" | "light" | "system"
 
 type ThemeProviderProps = {
   children: React.ReactNode
@@ -26,7 +26,7 @@ const ThemeProviderContext = React.createContext<ThemeProviderState>(initialStat
 
 export function ThemeProvider({
   children,
-  defaultTheme = "glass",
+  defaultTheme = "system",
   storageKey = "vite-ui-theme",
   ...props
 }: ThemeProviderProps) {
@@ -46,7 +46,7 @@ export function ThemeProvider({
   React.useEffect(() => {
     const root = window.document.documentElement
 
-    root.classList.remove("light", "dark", "glass")
+    root.classList.remove("light", "dark")
 
     let effectiveTheme = theme;
     if (theme === "system") {

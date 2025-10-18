@@ -107,28 +107,6 @@
     --sidebar-active-gradient-end: 260 40% 18%;
     --sidebar: linear-gradient(180deg, hsl(220 15% 15%), hsl(220 15% 10%));
   }
-
-  .glass {
-    --background: 240 10% 3.9% / 0.2;
-    --foreground: 210 20% 98%;
-    --card: 240 4% 15% / 0.4;
-    --card-foreground: 210 20% 98%;
-    --popover: 240 4% 10% / 0.4;
-    --popover-foreground: 210 20% 98%;
-    --primary: 210 20% 98%;
-    --primary-foreground: 221 82% 57%;
-    --secondary: 220 15% 20% / 0.5;
-    --secondary-foreground: 210 20% 98%;
-    --muted: 220 15% 20% / 0.5;
-    --muted-foreground: 215 20.2% 65.1%;
-    --accent: 151 71% 44%;
-    --accent-foreground: 210 40% 98%;
-    --destructive: 0 62.8% 30.6% / 0.8;
-    --destructive-foreground: 210 20% 98%;
-    --border: 210 20% 98% / 0.2;
-    --input: 210 20% 98% / 0.1;
-    --ring: 210 20% 98%;
-  }
 }
 
 @layer base {
@@ -142,15 +120,6 @@
   .grayscale-effect {
     filter: grayscale(100%);
     transition: filter 0.3s ease-in-out;
-  }
-
-  .glass [data-sidebar="sidebar"] {
-    background-color: hsl(var(--card) / 0.5);
-    @apply backdrop-blur-xl;
-  }
-  
-  .glass .bg-card, .glass .bg-popover {
-    @apply backdrop-blur-xl;
   }
 
   *:focus-visible {

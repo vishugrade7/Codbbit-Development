@@ -265,7 +265,7 @@ export default function ProblemSolvingPage() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
-        <div className="flex flex-col h-screen bg-background text-foreground glass:bg-background/80 glass:backdrop-blur-xl">
+        <div className="flex flex-col h-screen bg-background text-foreground">
              <HeaderBar
                 onReset={handleResetCode}
                 fontSize={fontSize}

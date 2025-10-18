@@ -30,7 +30,6 @@ export function CategoryCard({ category, index }: CategoryCardProps) {
   const cardClasses = cn(
     'transition-all hover:shadow-lg hover:-translate-y-1 flex flex-col',
     'dark:bg-opacity-20 dark:backdrop-blur-sm',
-    'glass:bg-opacity-20 glass:backdrop-blur-sm',
     {
       'bg-category-green-bg border-category-green-border text-category-green-fg': theme === 'green',
       'bg-category-yellow-bg border-category-yellow-border text-category-yellow-fg': theme === 'yellow',
