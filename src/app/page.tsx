@@ -209,145 +209,148 @@ export default function HomePage() {
             </p>
           </header>
 
-          <div className="w-full lg:w-1/2">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-              <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.1s' }}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Rank</CardTitle>
-                  <Award className="h-4 w-4 text-muted-foreground" />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <div className="space-y-8">
+              <div className="w-full">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.1s' }}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Rank</CardTitle>
+                      <Award className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">#{userRank || 'N/A'}</div>
+                      <p className="text-xs text-muted-foreground">Your position on the leaderboard</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.2s' }}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Total Points</CardTitle>
+                      <BarChart className="h-4 w-4 text-muted-foreground" />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{userProfile?.points || 0}</div>
+                      <p className="text-xs text-muted-foreground">Keep solving to earn more</p>
+                    </CardContent>
+                  </Card>
+                  <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.3s' }}>
+                    <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+                      <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
+                       <Flame className={cn("h-4 w-4 text-muted-foreground", (userProfile?.currentStreak || 0) > 0 && "text-orange-400 animate-pulse")} />
+                    </CardHeader>
+                    <CardContent>
+                      <div className="text-2xl font-bold">{userProfile?.currentStreak || 0} days</div>
+                      <p className="text-xs text-muted-foreground">Keep the flame alive!</p>
+                    </CardContent>
+                  </Card>
+                </div>
+              </div>
+              <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
+                  <CardDescription>Curated lists to sharpen your skills.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="text-2xl font-bold">#{userRank || 'N/A'}</div>
-                  <p className="text-xs text-muted-foreground">Your position on the leaderboard</p>
-                </CardContent>
-              </Card>
-              <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.2s' }}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Points</CardTitle>
-                  <BarChart className="h-4 w-4 text-muted-foreground" />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{userProfile?.points || 0}</div>
-                  <p className="text-xs text-muted-foreground">Keep solving to earn more</p>
-                </CardContent>
-              </Card>
-              <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.3s' }}>
-                <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
-                   <Flame className={cn("h-4 w-4 text-muted-foreground", (userProfile?.currentStreak || 0) > 0 && "text-orange-400 animate-pulse")} />
-                </CardHeader>
-                <CardContent>
-                  <div className="text-2xl font-bold">{userProfile?.currentStreak || 0} days</div>
-                  <p className="text-xs text-muted-foreground">Keep the flame alive!</p>
+                  <div className="space-y-2">
+                    {sheets && sheets.map((sheet, index) => {
+                        const colorClasses = getCategoryColorClasses(index);
+                        return (
+                          <Link href={`/sheets/${sheet.id}`} key={sheet.id} className={cn(
+                            'flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
+                            colorClasses.card
+                          )}>
+                              <div className="flex items-center gap-3">
+                                 <div className={cn("p-2 rounded-md", colorClasses.button)}>
+                                   <FileText className="h-5 w-5" />
+                                 </div>
+                                 <div>
+                                    <p className="font-semibold">{sheet.name}</p>
+                                    <p className="text-xs opacity-70">{sheet.questionIds.length} problems</p>
+                                 </div>
+                              </div>
+                              <ChevronRight className="h-5 w-5 opacity-70" />
+                          </Link>
+                        )
+                    })}
+                    <Button variant="outline" className="w-full !mt-4" asChild>
+                       <Link href="/sheets">View All Sheets</Link>
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             </div>
-          </div>
-          
-           <div className="grid grid-cols-1 xl:grid-cols-2 gap-8 mb-8">
-            {problemOfTheDay && (
-                <Card className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+            <div className="space-y-8">
+              <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary"/> Problem of the Day</CardTitle>
+                  <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
+                  <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                    <p className="font-semibold text-lg">{problemOfTheDay.title}</p>
-                    <p className="text-muted-foreground text-sm mt-1 mb-4">A new challenge, every single day. Can you solve it?</p>
-                    <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                          <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheDay.difficulty))} aria-hidden="true"></span>
-                          {problemOfTheDay.difficulty}
-                        </Badge>
-                         <Button asChild>
-                            <Link href={`/problems/${problemOfTheDay.category}/${problemOfTheDay.id || problemOfTheDay.title}`}>Solve Now</Link>
-                         </Button>
-                    </div>
+                  <div className="space-y-4 py-8">
+                    {unsolvedProblems.map(problem => (
+                       <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
+                          <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
+                             <p className="font-semibold">{problem.title}</p>
+                             <div className="flex items-center gap-4">
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                  {problem.difficulty}
+                                </Badge>
+                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                             </div>
+                          </div>
+                       </Link>
+                    ))}
+                    <Button variant="outline" className="w-full !mt-4" asChild>
+                       <Link href="/problems">View All Problems</Link>
+                    </Button>
+                  </div>
                 </CardContent>
-                </Card>
-            )}
-             {problemOfTheWeek && (
-                <Card className="bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-                <CardHeader>
-                    <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-purple-500"/> Problem of the Week</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <p className="font-semibold text-lg">{problemOfTheWeek.title}</p>
-                    <p className="text-muted-foreground text-sm mt-1 mb-4">A hand-picked problem to test your skills this week.</p>
-                     <div className="flex items-center justify-between">
-                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                          <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheWeek.difficulty))} aria-hidden="true"></span>
-                          {problemOfTheWeek.difficulty}
-                        </Badge>
-                         <Button asChild>
-                            <Link href={`/problems/${problemOfTheWeek.category}/${problemOfTheWeek.id || problemOfTheWeek.title}`}>Take the Challenge</Link>
-                         </Button>
-                    </div>
-                </CardContent>
-                </Card>
-            )}
-          </div>
+              </Card>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
-                <CardDescription>Curated lists to sharpen your skills.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {sheets && sheets.map((sheet, index) => {
-                      const colorClasses = getCategoryColorClasses(index);
-                      return (
-                        <Link href={`/sheets/${sheet.id}`} key={sheet.id} className={cn(
-                          'flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
-                          colorClasses.card
-                        )}>
-                            <div className="flex items-center gap-3">
-                               <div className={cn("p-2 rounded-md", colorClasses.button)}>
-                                 <FileText className="h-5 w-5" />
-                               </div>
-                               <div>
-                                  <p className="font-semibold">{sheet.name}</p>
-                                  <p className="text-xs opacity-70">{sheet.questionIds.length} problems</p>
-                               </div>
-                            </div>
-                            <ChevronRight className="h-5 w-5 opacity-70" />
-                        </Link>
-                      )
-                  })}
-                  <Button variant="outline" className="w-full !mt-4" asChild>
-                     <Link href="/sheets">View All Sheets</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-            <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
-                <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-4 py-8">
-                  {unsolvedProblems.map(problem => (
-                     <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
-                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                           <p className="font-semibold">{problem.title}</p>
-                           <div className="flex items-center gap-4">
-                              <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                {problem.difficulty}
-                              </Badge>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                           </div>
+              <div className="grid grid-cols-1 gap-8">
+                {problemOfTheDay && (
+                    <Card className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary"/> Problem of the Day</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="font-semibold text-lg">{problemOfTheDay.title}</p>
+                        <p className="text-muted-foreground text-sm mt-1 mb-4">A new challenge, every single day. Can you solve it?</p>
+                        <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                              <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheDay.difficulty))} aria-hidden="true"></span>
+                              {problemOfTheDay.difficulty}
+                            </Badge>
+                             <Button asChild>
+                                <Link href={`/problems/${problemOfTheDay.category}/${problemOfTheDay.id || problemOfTheDay.title}`}>Solve Now</Link>
+                             </Button>
                         </div>
-                     </Link>
-                  ))}
-                  <Button variant="outline" className="w-full !mt-4" asChild>
-                     <Link href="/problems">View All Problems</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
+                    </CardContent>
+                    </Card>
+                )}
+                 {problemOfTheWeek && (
+                    <Card className="bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                    <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-purple-500"/> Problem of the Week</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="font-semibold text-lg">{problemOfTheWeek.title}</p>
+                        <p className="text-muted-foreground text-sm mt-1 mb-4">A hand-picked problem to test your skills this week.</p>
+                         <div className="flex items-center justify-between">
+                            <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                              <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheWeek.difficulty))} aria-hidden="true"></span>
+                              {problemOfTheWeek.difficulty}
+                            </Badge>
+                             <Button asChild>
+                                <Link href={`/problems/${problemOfTheWeek.category}/${problemOfTheWeek.id || problemOfTheWeek.title}`}>Take the Challenge</Link>
+                             </Button>
+                        </div>
+                    </CardContent>
+                    </Card>
+                )}
+              </div>
+            </div>
           </div>
 
         </main>
