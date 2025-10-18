@@ -20,6 +20,7 @@ import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import BlurText from '@/components/ui/BlurText';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 
 export default function HomePage() {
@@ -66,7 +67,7 @@ export default function HomePage() {
     
     const solvedProblemIds = new Set(Object.keys(userProfile.solvedProblems || {}));
 
-    return allProblems.filter(problem => !solvedProblemIds.has(problem.id!)).slice(0, 3);
+    return allProblems.filter(problem => !solvedProblemIds.has(problem.id!)).slice(0, 5);
   }, [categoriesData, userProfile]);
 
   const problemOfTheDay = useMemo(() => {
@@ -286,25 +287,27 @@ export default function HomePage() {
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4 py-8">
-                    {unsolvedProblems.map(problem => (
-                       <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
-                          <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                             <p className="font-semibold">{problem.title}</p>
-                             <div className="flex items-center gap-4">
-                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                  {problem.difficulty}
-                                </Badge>
-                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                             </div>
-                          </div>
-                       </Link>
-                    ))}
-                    <Button variant="outline" className="w-full !mt-4" asChild>
-                       <Link href="/problems">View All Problems</Link>
-                    </Button>
-                  </div>
+                  <ScrollArea className="h-[300px]">
+                    <div className="space-y-4 pr-4">
+                      {unsolvedProblems.map(problem => (
+                         <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
+                            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
+                               <p className="font-semibold">{problem.title}</p>
+                               <div className="flex items-center gap-4">
+                                  <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                    {problem.difficulty}
+                                  </Badge>
+                                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                               </div>
+                            </div>
+                         </Link>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                  <Button variant="outline" className="w-full mt-4" asChild>
+                     <Link href="/problems">View All Problems</Link>
+                  </Button>
                 </CardContent>
               </Card>
 
