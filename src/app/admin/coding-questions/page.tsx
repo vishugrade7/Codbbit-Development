@@ -281,6 +281,41 @@ export default function CodingQuestionsPage() {
     }
   }
 
+  const handleDownloadSample = () => {
+    const sampleProblem = {
+      title: "Your Problem Title",
+      description: "A clear and detailed description of what the user needs to do.",
+      difficulty: "Easy", // Can be "Easy", "Medium", or "Hard"
+      category: "The category this problem belongs to (e.g., SOQL, Apex Basics)",
+      starterCode: "public class Solution {\n    // Your starter code here\n}",
+      testcases: "@isTest\nprivate class SolutionTest {\n    // Your test cases here\n}",
+      examples: [
+        {
+          input: "Example input",
+          output: "Expected output",
+          explanation: "Optional explanation of the example."
+        }
+      ],
+      hints: [
+        { value: "A helpful hint to guide the user." },
+        { value: "Another hint if they need more help." }
+      ],
+      tags: ["Array", "Hash Table"],
+      isPremium: false
+    };
+
+    const jsonString = JSON.stringify(sampleProblem, null, 2);
+    const blob = new Blob([jsonString], { type: 'application/json' });
+    const href = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    link.download = 'sample-problem.json';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(href);
+  };
+
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -386,7 +421,7 @@ export default function CodingQuestionsPage() {
             <DialogTrigger asChild>
                 <Button variant="outline">
                     <Download />
-                    Sample
+                    Add From JSON
                 </Button>
             </DialogTrigger>
             <DialogContent className="sm:max-w-xl">
@@ -437,9 +472,9 @@ export default function CodingQuestionsPage() {
             </DialogContent>
           </Dialog>
 
-          <Button variant="outline">
-            <Upload />
-            Upload
+          <Button variant="outline" onClick={handleDownloadSample}>
+            <Download />
+            Download Sample
           </Button>
           <Button onClick={handleAddNewProblem}>
             <Plus />
@@ -530,3 +565,5 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
+
+    
