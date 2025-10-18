@@ -301,5 +301,3 @@ export function LeaderboardClient() {
     </div>
   );
 }
-
-    
