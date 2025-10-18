@@ -209,7 +209,7 @@ export default function HomePage() {
             </p>
           </header>
 
-          <div className="w-full lg:w-1/2 mx-auto">
+          <div className="w-full lg:w-1/2">
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
               <Card className="animate-fade-in-up bg-gradient-to-br from-primary/20 to-primary/5 dark:from-primary/30 dark:to-primary/10" style={{ animationDelay: '0.1s' }}>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
