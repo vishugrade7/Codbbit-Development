@@ -327,7 +327,7 @@ export default function HomePage() {
                 <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
               </CardHeader>
               <CardContent>
-                <div className="space-y-4 py-4">
+                <div className="space-y-4 py-8">
                   {unsolvedProblems.map(problem => (
                      <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
                         <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
