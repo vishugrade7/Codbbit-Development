@@ -22,7 +22,7 @@ export default {
       },
       fontFamily: {
         body: ['var(--font-inter)', 'sans-serif'],
-        headline: ['var(--font-comfortaa)', 'sans-serif'],
+        headline: ['var(--font-poppins)', 'sans-serif'],
         code: ['var(--font-space-grotesk)', 'monospace'],
       },
       colors: {
