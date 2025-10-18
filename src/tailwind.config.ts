@@ -23,7 +23,7 @@ export default {
       fontFamily: {
         sans: ['var(--font-comfortaa)', 'sans-serif'],
         body: ['var(--font-inter)', 'sans-serif'],
-        headline: ['var(--font-space-grotesk)', 'sans-serif'],
+        headline: ['var(--font-comfortaa)', 'sans-serif'],
         code: ['var(--font-space-grotesk)', 'monospace'],
       },
       colors: {
