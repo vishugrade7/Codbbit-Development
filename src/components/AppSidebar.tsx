@@ -104,7 +104,7 @@ export function AppSidebar() {
                     <Tooltip key={item.value}>
                       <TooltipTrigger asChild>
                          <Link href={item.href}>
-                            <TabsTrigger value={item.value} className="py-3 h-12 w-12 data-[state=active]:bg-primary/10 data-[state=active]:text-primary">
+                            <TabsTrigger value={item.value} className="py-3 h-12 w-12 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:rounded-full">
                                 <item.icon size={20} aria-hidden="true" />
                             </TabsTrigger>
                         </Link>
