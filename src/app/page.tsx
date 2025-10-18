@@ -325,7 +325,7 @@ export default function HomePage() {
                       const colorClasses = getCategoryColorClasses(index);
                       return (
                         <Link href={`/sheets/${sheet.id}`} key={sheet.id} className={cn(
-                          'flex items-center justify-between p-3 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
+                          'flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
                           colorClasses.card
                         )}>
                             <div className="flex items-center gap-3">
