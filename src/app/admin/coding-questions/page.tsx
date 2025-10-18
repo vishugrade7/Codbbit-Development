@@ -323,31 +323,36 @@ export default function CodingQuestionsPage() {
   
   const handleSaveManagedPackage = async () => {
     if (!managedPackageName.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Package name cannot be empty.',
-        variant: 'destructive',
-      });
-      return;
+        toast({
+            title: 'Error',
+            description: 'Package name cannot be empty.',
+            variant: 'destructive',
+        });
+        return;
     }
-     if (!firestore) {
-      toast({ title: 'Error', description: 'Database not available.', variant: 'destructive' });
-      return;
+    if (!firestore) {
+        toast({ title: 'Error', description: 'Database not available.', variant: 'destructive' });
+        return;
     }
 
     setIsSavingPackage(true);
 
     try {
         const packageName = managedPackageName.trim();
+        // Use the package name as the document ID
         const packageDocRef = doc(firestore, 'packages', 'URL', 'packages', packageName);
+        
+        // The data to be stored
         const packageData = {
-          url: packageName
+            url: packageName
         };
+
+        // Save the document
         await setDocumentNonBlocking(packageDocRef, packageData, { merge: true });
         
         toast({
             title: 'Package Saved',
-            description: `Package "${packageName}" has been saved.`,
+            description: `Package "${packageName}" has been saved successfully.`,
         });
         setManagedPackageName('');
         setShowManagedPackageInput(false);
@@ -630,6 +635,8 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
+
+    
 
     
 
