@@ -106,12 +106,20 @@ export function BottomBar() {
             </DialogContent>
         </Dialog>
         <Dialog open={isInstallDialogOpen} onOpenChange={setIsInstallDialogOpen}>
-            <DialogTrigger asChild>
-                <button className="flex items-center gap-1.5 hover:text-foreground">
-                    <Package size={16} className={isInstalling ? "animate-pulse" : ""} />
-                    <span>Install Package</span>
-                </button>
-            </DialogTrigger>
+          <TooltipProvider>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <DialogTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-6 w-6">
+                      <Package size={16} className={isInstalling ? "animate-pulse" : ""} />
+                    </Button>
+                </DialogTrigger>
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>Install Package</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
             <DialogContent>
                 <DialogHeader>
                     <DialogTitle>Install a Managed Package</DialogTitle>
