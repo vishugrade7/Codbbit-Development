@@ -2,9 +2,9 @@
 'use client';
 
 import { useMemo } from 'react';
-import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
-import { collection } from 'firebase/firestore';
-import type { Question } from '@/lib/types';
+import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
+import { collection, doc } from 'firebase/firestore';
+import type { Question, UserProfile } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CategoryCard } from '@/components/CategoryCard';
@@ -21,6 +21,14 @@ type Category = {
 
 export default function PracticeProblemsPage() {
   const firestore = useFirestore();
+  const { user } = useUser();
+
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user?.uid]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userDocRef);
 
   const problemsCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -32,14 +40,27 @@ export default function PracticeProblemsPage() {
   const categories: Category[] = useMemo(() => {
     if (!categoriesData) return [];
     
-    return categoriesData.map(categoryDoc => ({
-      ...categoryDoc,
-      name: categoryDoc.id,
-      questionCount: categoryDoc.Questions?.length || 0,
-      solved: Math.floor(Math.random() * (categoryDoc.Questions?.length || 0)), // Placeholder for solved count
-    })).sort((a,b) => a.name.localeCompare(b.name));
+    const solvedProblemIds = userProfile?.solvedProblems ? new Set(Object.keys(userProfile.solvedProblems)) : new Set();
 
-  }, [categoriesData]);
+    return categoriesData.map(categoryDoc => {
+      const questions = categoryDoc.Questions || [];
+      const solvedCount = questions.reduce((acc, q) => {
+        const problemId = q.id || q.title;
+        if (problemId && solvedProblemIds.has(problemId)) {
+          return acc + 1;
+        }
+        return acc;
+      }, 0);
+
+      return {
+        ...categoryDoc,
+        name: categoryDoc.id,
+        questionCount: questions.length,
+        solved: solvedCount,
+      };
+    }).sort((a,b) => a.name.localeCompare(b.name));
+
+  }, [categoriesData, userProfile]);
 
   if (isLoading) {
     return (
