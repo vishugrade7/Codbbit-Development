@@ -229,9 +229,9 @@ export function LeaderboardClient() {
           </p>
         </div>
         {currentUserRank && (
-             <Card className="max-w-xs bg-muted/30">
-                <CardContent className="p-3">
-                    <div className="flex items-center gap-4">
+             <Card className="bg-muted/30 overflow-hidden">
+                <CardContent className="p-0 flex items-center">
+                    <div className="p-3 flex items-center gap-4">
                         <Avatar className="h-12 w-12">
                             <AvatarImage src={currentUserRank.avatarUrl} />
                             <AvatarFallback>{getInitials(currentUserRank.name)}</AvatarFallback>
@@ -240,14 +240,17 @@ export function LeaderboardClient() {
                             <p className="font-semibold">{currentUserRank.name}</p>
                             <p className="text-sm text-muted-foreground">@{currentUserRank.username}</p>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center px-2">
                             <p className="text-2xl font-bold">{currentUserRank.rank}</p>
                             <p className="text-xs text-muted-foreground">Rank</p>
                         </div>
-                        <div className="text-center">
+                        <div className="text-center px-2">
                             <p className="text-2xl font-bold">{currentUserRank.points}</p>
                             <p className="text-xs text-muted-foreground">Points</p>
                         </div>
+                    </div>
+                    <div className="h-full">
+                        <Image src="/leaderboardcodbbit.png" alt="Leaderboard mascot" width={100} height={100} className="object-cover h-full" />
                     </div>
                 </CardContent>
             </Card>
@@ -298,3 +301,5 @@ export function LeaderboardClient() {
     </div>
   );
 }
+
+    
