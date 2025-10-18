@@ -55,16 +55,16 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
             {question.title}
         </h1>
         <div className="flex items-center gap-2 flex-wrap mb-4">
-          <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+          <Badge variant="outline" className="gap-1.5 w-24 justify-center">
             <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
             {question.difficulty}
           </Badge>
-          <Badge variant="secondary">
+          <Badge variant="secondary" className="w-24 justify-center">
             <Tag />
             {question.category}
           </Badge>
           {(question.tags || []).map(tag => (
-            <Badge key={tag} variant="secondary">
+            <Badge key={tag} variant="secondary" className="w-24 justify-center">
               <Tag />
               {tag}
             </Badge>
