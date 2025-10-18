@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { useToast } from "@/hooks/use-toast";
+import { installSalesforcePackage } from "@/lib/actions";
 
 export function BottomBar() {
   const firestore = useFirestore();
@@ -39,13 +40,37 @@ export function BottomBar() {
       toast({ title: "Error", description: "Please enter a package URL.", variant: "destructive" });
       return;
     }
-    setIsInstalling(true);
-    // Simulate installation
-    await new Promise(resolve => setTimeout(resolve, 3000));
-    setIsInstalling(false);
-    setIsInstallDialogOpen(false);
-    setPackageUrl('');
-    toast({ title: "Installation Started", description: "The package installation is in progress in your Salesforce org." });
+     if (!userProfile?.sfdcAuth) {
+      toast({ title: "Error", description: "Salesforce account not connected.", variant: "destructive" });
+      return;
+    }
+
+    try {
+        const url = new URL(packageUrl);
+        const packageVersionKey = url.searchParams.get('p0');
+
+        if (!packageVersionKey) {
+            throw new Error("Invalid package URL. Could not find package key (p0).");
+        }
+        
+        setIsInstalling(true);
+        toast({ title: "Installation Started", description: "Package installation is in progress. This may take several minutes." });
+        setIsInstallDialogOpen(false);
+
+        const result = await installSalesforcePackage(userProfile.sfdcAuth, packageVersionKey);
+
+        if (result.success) {
+            toast({ title: "Installation Complete", description: "The package has been successfully installed in your org.", variant: "success" });
+        } else {
+            throw new Error(result.error || "An unknown error occurred during installation.");
+        }
+
+    } catch (error: any) {
+         toast({ title: "Installation Failed", description: error.message, variant: "destructive" });
+    } finally {
+        setIsInstalling(false);
+        setPackageUrl('');
+    }
   }
 
   return (
@@ -68,7 +93,7 @@ export function BottomBar() {
         <Dialog open={isInstallDialogOpen} onOpenChange={setIsInstallDialogOpen}>
             <DialogTrigger asChild>
                 <button className="flex items-center gap-1.5 hover:text-foreground">
-                    <Package size={16} className="animate-pulse" />
+                    <Package size={16} className={isInstalling ? "animate-pulse" : ""} />
                     <span>Install Package</span>
                 </button>
             </DialogTrigger>

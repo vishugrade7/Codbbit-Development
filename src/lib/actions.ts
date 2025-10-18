@@ -624,3 +624,41 @@ export async function deleteUserAccount(userId: string): Promise<{ success: bool
         return { success: false, error: errorMessage };
     }
 }
+
+export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey: string): Promise<{ success: boolean, error?: string }> {
+  try {
+    const res = await sfdcFetch(auth, '/services/data/v59.0/tooling/sobjects/PackageInstallRequest', {
+      method: 'POST',
+      body: JSON.stringify({
+        SubscriberPackageVersionKey: packageVersionKey,
+        SecurityType: 'Full',
+      }),
+    });
+
+    const requestId = res.id;
+    if (!requestId) {
+      throw new Error('Failed to create PackageInstallRequest.');
+    }
+
+    let status = 'IN_PROGRESS';
+    for (let i = 0; i < 60; i++) { // Poll for up to 5 minutes (60 * 5s)
+      await new Promise(r => setTimeout(r, 5000));
+      const statusRes = await sfdcFetch(auth, `/services/data/v59.0/tooling/sobjects/PackageInstallRequest/${requestId}`);
+      status = statusRes.Status;
+
+      if (status === 'SUCCESS') {
+        return { success: true };
+      }
+      if (status === 'ERROR') {
+        console.error('Package installation error:', statusRes.Errors);
+        throw new Error(`Package installation failed: ${JSON.stringify(statusRes.Errors)}`);
+      }
+    }
+
+    throw new Error('Package installation timed out.');
+
+  } catch (error: any) {
+    console.error('installSalesforcePackage error:', error);
+    return { success: false, error: error.message };
+  }
+}
