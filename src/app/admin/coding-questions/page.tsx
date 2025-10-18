@@ -341,10 +341,11 @@ export default function CodingQuestionsPage() {
         const packageDocRef = doc(firestore, 'packages', 'URL');
         
         const packageData = {
-            url: managedPackageUrl.trim()
+            url: managedPackageUrl.trim(),
+            lastUpdatedAt: new Date().toISOString(),
         };
 
-        setDocumentNonBlocking(packageDocRef, packageData);
+        setDocumentNonBlocking(packageDocRef, packageData, { merge: true });
         
         toast({
             title: 'Package Saved',

@@ -151,7 +151,8 @@
       "description": "Represents a Salesforce managed package URL.",
       "type": "object",
       "properties": {
-        "url": { "type": "string", "format": "uri" }
+        "url": { "type": "string", "format": "uri" },
+        "lastUpdatedAt": { "type": "string", "format": "date-time" }
       },
       "required": ["url"]
     }
