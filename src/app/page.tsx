@@ -288,34 +288,6 @@ export default function HomePage() {
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
-                <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="space-y-2">
-                  {unsolvedProblems.map(problem => (
-                     <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
-                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                           <p className="font-semibold">{problem.title}</p>
-                           <div className="flex items-center gap-4">
-                              <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                {problem.difficulty}
-                              </Badge>
-                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                           </div>
-                        </div>
-                     </Link>
-                  ))}
-                  <Button variant="outline" className="w-full !mt-4" asChild>
-                     <Link href="/problems">View All Problems</Link>
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-
             <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
               <CardHeader>
                 <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
@@ -345,6 +317,33 @@ export default function HomePage() {
                   })}
                   <Button variant="outline" className="w-full !mt-4" asChild>
                      <Link href="/sheets">View All Sheets</Link>
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
+                <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  {unsolvedProblems.map(problem => (
+                     <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
+                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
+                           <p className="font-semibold">{problem.title}</p>
+                           <div className="flex items-center gap-4">
+                              <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                {problem.difficulty}
+                              </Badge>
+                              <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                           </div>
+                        </div>
+                     </Link>
+                  ))}
+                  <Button variant="outline" className="w-full !mt-4" asChild>
+                     <Link href="/problems">View All Problems</Link>
                   </Button>
                 </div>
               </CardContent>
