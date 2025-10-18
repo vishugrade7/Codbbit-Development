@@ -14,7 +14,7 @@ export default function PrivacyPolicyPage() {
           <div className="space-y-10">
             <section>
               <h2 className="text-2xl font-bold mb-4 border-b pb-2">Introduction</h2>
-              <p className="text-muted-foreground">This Privacy Policy describes how Zyntra ("we", "us", or "our") collects, uses, and protects the personal information of users. By using our platform, you consent to the data practices described in this policy.</p>
+              <p className="text-muted-foreground">This Privacy Policy describes how Codbbit ("we", "us", or "our") collects, uses, and protects the personal information of users. By using our platform, you consent to the data practices described in this policy.</p>
             </section>
 
             <section>
@@ -29,7 +29,7 @@ export default function PrivacyPolicyPage() {
             <section>
               <h2 className="text-2xl font-bold mb-4 border-b pb-2">How We Use Your Information</h2>
                <ul className="list-disc list-inside space-y-2 text-muted-foreground">
-                <li>To provide, maintain, and personalize the Zyntra platform.</li>
+                <li>To provide, maintain, and personalize the Codbbit platform.</li>
                 <li>To process payments for premium subscriptions.</li>
                 <li>To improve our services, features, and AI models.</li>
                 <li>To communicate important updates and offers where permitted.</li>
@@ -48,7 +48,7 @@ export default function PrivacyPolicyPage() {
             
             <section>
               <h2 className="text-2xl font-bold mb-4 border-b pb-2">Contact Us</h2>
-              <p className="text-muted-foreground">For any questions or concerns about your privacy, please contact us at <a href="mailto:support@zyntra.com" className="text-primary hover:underline">support@zyntra.com</a>.</p>
+              <p className="text-muted-foreground">For any questions or concerns about your privacy, please contact us at <a href="mailto:support@codbbit.com" className="text-primary hover:underline">support@codbbit.com</a>.</p>
             </section>
           </div>
         </div>

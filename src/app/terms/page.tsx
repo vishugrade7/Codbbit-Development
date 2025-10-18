@@ -50,7 +50,7 @@ export default function TermsAndConditionsPage() {
             </h2>
             <p className="text-muted-foreground">
               The Service and its original content, features, and functionality
-              are and will remain the exclusive property of Zyntra and its
+              are and will remain the exclusive property of Codbbit and its
               licensors.
             </p>
           </section>
@@ -81,7 +81,7 @@ export default function TermsAndConditionsPage() {
               6. Limitation of Liability
             </h2>
             <p className="text-muted-foreground">
-              Our Service is provided "as is." In no event shall Zyntra be liable
+              Our Service is provided "as is." In no event shall Codbbit be liable
               for any indirect, incidental, or consequential damages resulting
               from your use of the Service.
             </p>

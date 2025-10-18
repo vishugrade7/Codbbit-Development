@@ -56,16 +56,16 @@ export function LandingPage() {
     ];
 
     const testimonials = [
-        { name: "John Doe", title: "Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", text: "Zyntra has been a game-changer for my interview prep. The problems are realistic and the real-time execution environment is invaluable." },
+        { name: "John Doe", title: "Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", text: "Codbbit has been a game-changer for my interview prep. The problems are realistic and the real-time execution environment is invaluable." },
         { name: "Jane Smith", title: "Senior Apex Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", text: "The AI assistant is amazing. It helps me understand concepts without just giving me the answer. My coding has improved so much." },
         { name: "Sam Adams", title: "Salesforce Technical Architect", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704f", text: "I love the problem sheets. I can focus on specific areas where I need to improve, like asynchronous Apex or SOQL performance." },
         { name: "Emily White", title: "Salesforce Consultant", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705a", text: "The leaderboard is a great motivator. It's fun to compete with other developers and see my progress." },
-        { name: "Michael Brown", title: "Junior Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705b", text: "As someone new to Salesforce, Zyntra has been an incredible learning tool. The examples are clear and the feedback is instant." },
+        { name: "Michael Brown", title: "Junior Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705b", text: "As someone new to Salesforce, Codbbit has been an incredible learning tool. The examples are clear and the feedback is instant." },
         { name: "Sarah Green", title: "Salesforce Admin & Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705c", text: "The variety of problems is fantastic. It covers everything from basic Apex to complex trigger scenarios." },
-        { name: "David Black", title: "Freelance Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d", text: "I recommend Zyntra to all my students. It's the best platform for hands-on Apex practice." },
+        { name: "David Black", title: "Freelance Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d", text: "I recommend Codbbit to all my students. It's the best platform for hands-on Apex practice." },
         { name: "Laura Blue", title: "Salesforce Platform Champion", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705e", text: "The secure org integration gives me confidence that I'm practicing in a safe and realistic environment." },
         { name: "Chris Yellow", title: " aspiring Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705f", text: "The community is great. It's helpful to see how others approach the same problem." },
-        { name: "Olivia Purple", title: "Salesforce MVP", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706a", text: "Zyntra is an essential tool for any serious Salesforce developer. It keeps my skills sharp." },
+        { name: "Olivia Purple", title: "Salesforce MVP", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706a", text: "Codbbit is an essential tool for any serious Salesforce developer. It keeps my skills sharp." },
         { name: "Daniel Red", title: "Lead Salesforce Engineer", avatar: "https://i.pravatar.cc/150?u=a_042581f4e29026706b", text: "The AI-generated hints are a lifesaver. They guide you in the right direction without spoiling the challenge." },
         { name: "Sophia Orange", title: "Certified Technical Architect", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706c", text: "This is the platform I wish I had when I was starting my CTA journey. It's simply brilliant." },
     ];
@@ -141,7 +141,7 @@ export function LandingPage() {
                   priority
                 />
                  <div className="absolute -left-12 -top-12 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
-                   <Image src="/logo.png" alt="Zyntra Owl Mascot" width={200} height={200} className="[transform:rotate(10deg)]" />
+                   <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(10deg)]" />
                  </div>
               </div>
             </motion.div>
@@ -182,7 +182,7 @@ export function LandingPage() {
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">What developers are saying</h2>
                     <p className="mt-6 text-lg text-muted-foreground">
-                        Thousands of developers use Zyntra to sharpen their Apex skills.
+                        Thousands of developers use Codbbit to sharpen their Apex skills.
                     </p>
                 </div>
             </div>

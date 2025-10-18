@@ -28,7 +28,7 @@ export default function NotFound() {
         >
           <Image
             src="/logo.png"
-            alt="Zyntra Owl Mascot looking lost"
+            alt="Codbbit Owl Mascot looking lost"
             width={200}
             height={200}
             className="drop-shadow-lg"

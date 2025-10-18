@@ -150,7 +150,7 @@ export default function PricingPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: paymentAmount * 100, // amount in the smallest currency unit
         currency: "USD",
-        name: "Zyntra Premium",
+        name: "Codbbit Premium",
         description: "Lifetime Access",
         image: "/logo.png",
         handler: function (response: any){
