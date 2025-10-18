@@ -25,7 +25,7 @@ export function BottomBar() {
   const isSalesforceConnected = userProfile?.sfdcAuth?.connected || false;
 
   return (
-    <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-8 items-center justify-between border-t bg-background/95 px-4 text-sm text-muted-foreground backdrop-blur-sm md:pl-[calc(60px+1rem)]">
+    <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-8 items-center justify-between border-t bg-background/95 px-4 text-sm text-muted-foreground backdrop-blur-sm md:left-[60px]">
       <div className="flex items-center gap-4">
          <TooltipProvider>
             <Tooltip>
@@ -70,4 +70,3 @@ export function BottomBar() {
     </footer>
   );
 }
-
