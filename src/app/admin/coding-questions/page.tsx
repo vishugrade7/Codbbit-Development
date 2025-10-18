@@ -339,8 +339,8 @@ export default function CodingQuestionsPage() {
 
     try {
         const packageName = managedPackageName.trim();
-        // Use the package name as the document ID
-        const packageDocRef = doc(firestore, 'packages/URL', packageName);
+        // Use the package name as the document ID in the 'packages' collection
+        const packageDocRef = doc(firestore, 'packages', packageName);
         
         // The data to be stored
         const packageData = {
@@ -348,7 +348,7 @@ export default function CodingQuestionsPage() {
         };
 
         // Save the document
-        await setDocumentNonBlocking(packageDocRef, packageData, { merge: true });
+        setDocumentNonBlocking(packageDocRef, packageData, { merge: true });
         
         toast({
             title: 'Package Saved',
@@ -635,11 +635,5 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
-
-    
-
-    
-
-    
 
     

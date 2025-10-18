@@ -205,7 +205,7 @@
         }
       },
       {
-        "path": "/packages/URL/{packageName}",
+        "path": "/packages/{packageName}",
         "definition": {
           "entityName": "ManagedPackage",
           "schema": { "$ref": "#/entities/ManagedPackage" },
