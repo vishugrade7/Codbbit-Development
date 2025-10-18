@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -115,6 +116,10 @@
   }
   body {
     @apply bg-background text-foreground;
+  }
+  
+  main {
+    padding-bottom: 2.5rem; /* Add padding to prevent content from being hidden by the bottom bar */
   }
 
   .grayscale-effect {

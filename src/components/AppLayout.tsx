@@ -8,6 +8,7 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { usePathname } from 'next/navigation';
 import { useUser } from '@/firebase';
+import { BottomBar } from './BottomBar';
 
 export function AppLayout({ children }: { children: ReactNode }) {
   const { user } = useUser();
@@ -20,12 +21,14 @@ export function AppLayout({ children }: { children: ReactNode }) {
   
   const noFooterPaths = ['/login', '/signup'];
   const showFooter = !noFooterPaths.includes(pathname) && !user;
+  const showBottomBar = user && !pathname.startsWith('/admin');
 
   return (
     <>
       <Header />
       <main className="pt-16 md:pt-0">{children}</main>
       {showFooter && <Footer />}
+      {showBottomBar && <BottomBar />}
     </>
   );
 }
