@@ -33,7 +33,7 @@ const getCompanyLogoUrl = (companyName?: string) => {
     if (!companyName) return '';
     try {
         const domain = new URL(`https://${companyName.toLowerCase().replace(/ /g, '').replace(/,/g, '').replace(/\./g, '') + '.com'}`).hostname;
-        return `https://logo.clearbit.com/${domain}`;
+        return `https://img.logo.dev/${domain}`;
     } catch (e) {
         return '';
     }
