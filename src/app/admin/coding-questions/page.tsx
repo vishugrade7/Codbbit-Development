@@ -81,6 +81,7 @@ export default function CodingQuestionsPage() {
 
   const [showManagedPackageInput, setShowManagedPackageInput] = useState(false);
   const [managedPackageName, setManagedPackageName] = useState('');
+  const [managedPackageUrl, setManagedPackageUrl] = useState('');
   const [isSavingPackage, setIsSavingPackage] = useState(false);
 
 
@@ -322,10 +323,10 @@ export default function CodingQuestionsPage() {
   };
   
   const handleSaveManagedPackage = async () => {
-    if (!managedPackageName.trim()) {
+    if (!managedPackageName.trim() || !managedPackageUrl.trim()) {
         toast({
             title: 'Error',
-            description: 'Package name cannot be empty.',
+            description: 'Package name and URL cannot be empty.',
             variant: 'destructive',
         });
         return;
@@ -344,7 +345,7 @@ export default function CodingQuestionsPage() {
         
         // The data to be stored
         const packageData = {
-            url: packageName
+            url: managedPackageUrl.trim()
         };
 
         // Save the document
@@ -355,6 +356,7 @@ export default function CodingQuestionsPage() {
             description: `Package "${packageName}" has been saved successfully.`,
         });
         setManagedPackageName('');
+        setManagedPackageUrl('');
         setShowManagedPackageInput(false);
     } catch(e) {
         console.error(e);
@@ -384,6 +386,12 @@ export default function CodingQuestionsPage() {
                 value={managedPackageName}
                 onChange={(e) => setManagedPackageName(e.target.value)}
                 className="w-48"
+              />
+              <Input
+                placeholder="Enter package URL..."
+                value={managedPackageUrl}
+                onChange={(e) => setManagedPackageUrl(e.target.value)}
+                className="w-64"
               />
               <Button onClick={handleSaveManagedPackage} disabled={isSavingPackage}>
                 {isSavingPackage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
