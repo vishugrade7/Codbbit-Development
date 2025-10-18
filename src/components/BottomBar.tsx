@@ -27,28 +27,7 @@ export function BottomBar() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-8 items-center justify-between border-t bg-background/95 px-4 text-sm text-muted-foreground backdrop-blur-sm md:left-[60px]">
       <div className="flex items-center gap-4">
-         <TooltipProvider>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <button className={cn(
-                        "flex items-center gap-1.5 hover:text-foreground",
-                        isSalesforceConnected ? "text-green-500 hover:text-green-600" : "text-destructive hover:text-destructive/90"
-                    )}>
-                        {isSalesforceConnected ? <Check size={16} /> : <X size={16} />}
-                        <Cloud size={16} />
-                        <span>Salesforce</span>
-                    </button>
-                </TooltipTrigger>
-                <TooltipContent side="top">
-                    <p>{isSalesforceConnected ? `Connected to ${userProfile?.sfdcAuth?.instanceUrl}` : 'Not Connected to Salesforce'}</p>
-                </TooltipContent>
-            </Tooltip>
-        </TooltipProvider>
-
-        <div className="flex items-center gap-1.5">
-          <GitBranch size={16} />
-          <span>main</span>
-        </div>
+        {/* Removed Salesforce and main branch indicators */}
       </div>
       <div className="flex items-center gap-4">
         <Dialog>
