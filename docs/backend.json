@@ -151,11 +151,9 @@
       "description": "Represents a Salesforce managed package.",
       "type": "object",
       "properties": {
-        "id": { "type": "string" },
-        "name": { "type": "string" },
         "url": { "type": "string", "format": "uri" }
       },
-      "required": ["id", "name", "url"]
+      "required": ["url"]
     }
   },
   "auth": {
@@ -207,11 +205,11 @@
         }
       },
       {
-        "path": "/packages/{packageId}",
+        "path": "/packages/{packageName}",
         "definition": {
           "entityName": "ManagedPackage",
           "schema": { "$ref": "#/entities/ManagedPackage" },
-          "description": "Stores managed package information."
+          "description": "Stores managed package information. The document ID is the package name."
         }
       }
     ]

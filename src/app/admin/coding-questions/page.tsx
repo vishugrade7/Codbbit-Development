@@ -338,18 +338,16 @@ export default function CodingQuestionsPage() {
     setIsSavingPackage(true);
 
     try {
-        const packageId = uuidv4();
-        const packageDocRef = doc(firestore, 'packages', packageId);
+        const packageName = managedPackageName.trim();
+        const packageDocRef = doc(firestore, 'packages', packageName);
         const packageData = {
-            id: packageId,
-            name: managedPackageName.trim(),
-            url: managedPackageName.trim(), // Storing name as url for now
+            url: packageName, 
         };
         await setDocumentNonBlocking(packageDocRef, packageData, {});
         
         toast({
             title: 'Package Saved',
-            description: `Package "${managedPackageName}" has been saved.`,
+            description: `Package "${packageName}" has been saved.`,
         });
         setManagedPackageName('');
         setShowManagedPackageInput(false);
