@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -29,6 +28,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 import { Loader2 } from 'lucide-react';
+import { sendFeedbackEmail } from '@/lib/mail';
 
 const feedbackSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
@@ -79,37 +79,33 @@ export function FeedbackForm() {
     }
   }, [userProfile, reset]);
 
-  const onSubmit = (data: FeedbackFormData) => {
+  const onSubmit = async (data: FeedbackFormData) => {
     setIsSubmitting(true);
-
-    const emailBody = `
-User: ${data.name} (${data.email})
-
-Message:
-${data.message}
-    `;
-
-    const mailtoLink = `mailto:support@codbbit.com?subject=${encodeURIComponent(
-      `Feedback: ${data.subject}`
-    )}&body=${encodeURIComponent(emailBody)}`;
-
-    window.location.href = mailtoLink;
-
-    toast({
-      title: 'Redirecting to Email',
-      description: "Your email client has been opened to send your feedback.",
-      variant: 'success',
-    });
-    
-    // Reset form after a short delay to allow email client to open
-    setTimeout(() => {
+    try {
+      const result = await sendFeedbackEmail(data);
+      if (result.success) {
+        toast({
+          title: 'Feedback Sent!',
+          description: "Thank you for your feedback. We'll get back to you soon.",
+          variant: 'success',
+        });
         reset({
             ...data,
             subject: '',
             message: ''
         });
+      } else {
+        throw new Error(result.error || 'An unknown error occurred.');
+      }
+    } catch (error: any) {
+        toast({
+            title: 'Error Sending Feedback',
+            description: error.message,
+            variant: 'destructive',
+        });
+    } finally {
         setIsSubmitting(false);
-    }, 1000);
+    }
   };
 
   const isLoading = isUserLoading || isProfileLoading;
