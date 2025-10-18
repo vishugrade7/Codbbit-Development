@@ -97,6 +97,7 @@ export interface UserProfile {
   referredUsersCount?: number;
 
   lastSolvedDate: string | null;
+  lastPackageInstallDate?: string;
   activeSessionId: string;
   achievements: Record<string, any>;
   categoryPoints: Record<string, any>;

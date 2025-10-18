@@ -50,15 +50,13 @@ export function BottomBar() {
     }
   }, [managedPackage]);
 
-  const isSalesforceConnected = userProfile?.sfdcAuth?.connected || false;
-
   const handleInstallPackage = async () => {
     if (!packageUrl) {
       toast({ title: "Error", description: "Please enter a package URL.", variant: "destructive" });
       return;
     }
-     if (!userProfile?.sfdcAuth) {
-      toast({ title: "Error", description: "Salesforce account not connected.", variant: "destructive" });
+     if (!userProfile?.sfdcAuth || !userProfile.uid) {
+      toast({ title: "Error", description: "Salesforce account not connected or user not found.", variant: "destructive" });
       return;
     }
 
@@ -74,7 +72,7 @@ export function BottomBar() {
         toast({ title: "Installation Started", description: "Package installation is in progress. This may take several minutes." });
         setIsInstallDialogOpen(false);
 
-        const result = await installSalesforcePackage(userProfile.sfdcAuth, packageVersionKey);
+        const result = await installSalesforcePackage(userProfile.sfdcAuth, packageVersionKey, userProfile.uid);
 
         if (result.success) {
             toast({ title: "Installation Complete", description: "The package has been successfully installed in your org.", variant: "success" });

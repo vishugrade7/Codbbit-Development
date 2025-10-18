@@ -625,7 +625,7 @@ export async function deleteUserAccount(userId: string): Promise<{ success: bool
     }
 }
 
-export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey: string): Promise<{ success: boolean, error?: string }> {
+export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey: string, userId: string): Promise<{ success: boolean, error?: string }> {
   try {
     const res = await sfdcFetch(auth, '/services/data/v59.0/tooling/sobjects/PackageInstallRequest', {
       method: 'POST',
@@ -648,6 +648,10 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
       status = statusRes.Status;
 
       if (status === 'SUCCESS') {
+        const userDocRef = firestore.collection('users').doc(userId);
+        await updateDoc(userDocRef, {
+            lastPackageInstallDate: new Date().toISOString(),
+        });
         return { success: true };
       }
       if (status === 'ERROR') {
