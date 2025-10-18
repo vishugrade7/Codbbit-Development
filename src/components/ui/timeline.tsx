@@ -69,9 +69,9 @@ const TimelineItem = React.forwardRef<
       ref={ref}
       data-completed={isCompleted}
       className={cn(
-        "flex-1 gap-4",
-        "flex flex-row items-start",
-        "[&:not(:last-child)]:pb-10",
+        "gap-4",
+        "flex items-start",
+        "[&:not(:last-child)]:flex-1",
         "data-[completed=true]:[--indicator-color:hsl(var(--primary))]",
         className
       )}

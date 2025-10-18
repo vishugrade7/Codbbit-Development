@@ -92,7 +92,7 @@ export function AppSidebar() {
     <>
       <SidebarHeader>
         <Link href="/" className="flex items-center justify-center">
-            <Image src="/logo.png" alt="Codbbit Logo" width={32} height={32} />
+            <Image src="/logo.png" alt="Zyntra Logo" width={32} height={32} />
         </Link>
       </SidebarHeader>
 

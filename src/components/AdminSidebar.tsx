@@ -71,7 +71,7 @@ export function AdminSidebar() {
       <SidebarHeader>
         <div className={cn("flex items-center w-full group-data-[collapsible=icon]:justify-center", isCollapsed ? "" : "justify-between")}>
             <div className={cn("flex-1 flex items-center gap-2", isCollapsed ? "justify-center" : "pl-4")}>
-                <Image src="/logo.png" alt="Codbbit Logo" width={32} height={32} />
+                <Image src="/logo.png" alt="Zyntra Logo" width={32} height={32} />
                 {!isCollapsed && <h2 className="font-bold text-lg">Admin</h2>}
             </div>
             {!isCollapsed && (

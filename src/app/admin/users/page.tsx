@@ -137,7 +137,7 @@ export default function ManageUsersPage() {
       const workbook = XLSX.utils.book_new();
       XLSX.utils.book_append_sheet(workbook, worksheet, "Users");
 
-      XLSX.writeFile(workbook, "Codbbit_Users.xlsx");
+      XLSX.writeFile(workbook, "Zyntra_Users.xlsx");
     } catch (error) {
       console.error("Failed to export to Excel", error);
     } finally {

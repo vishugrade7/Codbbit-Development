@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -26,8 +27,8 @@ export default function NotFound() {
           }}
         >
           <Image
-            src="/image 2.GIF"
-            alt="Codbbit Owl Mascot looking lost"
+            src="/logo.png"
+            alt="Zyntra Owl Mascot looking lost"
             width={200}
             height={200}
             className="drop-shadow-lg"

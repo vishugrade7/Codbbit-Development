@@ -150,7 +150,7 @@ export default function PricingPage() {
         key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID,
         amount: paymentAmount * 100, // amount in the smallest currency unit
         currency: "USD",
-        name: "Codbbit Premium",
+        name: "Zyntra Premium",
         description: "Lifetime Access",
         image: "/logo.png",
         handler: function (response: any){
@@ -166,7 +166,7 @@ export default function PricingPage() {
             address: "Razorpay Corporate Office"
         },
         theme: {
-            color: "#2C3E50"
+            color: "#1B60FF"
         }
     };
     const rzp = new window.Razorpay(options);

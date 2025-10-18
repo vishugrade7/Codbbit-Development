@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -41,7 +42,7 @@ ${reason}
 
 I understand that this action is irreversible and will permanently delete all my data.
     `;
-    const mailtoLink = `mailto:support@codbbit.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+    const mailtoLink = `mailto:support@zyntra.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     window.location.href = mailtoLink;
   };
 

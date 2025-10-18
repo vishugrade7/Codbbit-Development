@@ -309,7 +309,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
     <>
       <Card className="w-full max-w-md">
         <CardHeader className="items-center text-center">
-          <Image src="/logo.png" alt="Codbbit Logo" width={96} height={96} className="mb-4" />
+          <Image src="/logo.png" alt="Zyntra Logo" width={96} height={96} className="mb-4" />
           <CardTitle className="pt-4 font-headline">{isLogin ? 'Welcome Back!' : 'Create an account'}</CardTitle>
           <CardDescription>
             {isLogin ? 'Sign in to continue your coding journey.' : 'Enter your information to get started for free.'}

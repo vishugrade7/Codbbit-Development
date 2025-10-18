@@ -21,10 +21,10 @@ export default {
         xl: '20px',
       },
       fontFamily: {
-        sans: ['var(--font-poppins)', 'sans-serif'],
-        body: ['var(--font-inter)', 'sans-serif'],
-        headline: ['var(--font-poppins)', 'sans-serif'],
-        code: ['var(--font-space-grotesk)', 'monospace'],
+        sans: ['var(--font-sans)', 'sans-serif'],
+        body: ['var(--font-sans)', 'sans-serif'],
+        headline: ['var(--font-sans)', 'sans-serif'],
+        code: ['var(--font-sans)', 'monospace'],
       },
       colors: {
         background: 'hsl(var(--background))',

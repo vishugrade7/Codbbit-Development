@@ -13,9 +13,9 @@ export function Footer() {
          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             <div className="flex flex-col gap-4">
                <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90">
-                 <Image src="/logo.png" alt="Codbbit Logo" width={24} height={24} />
+                 <Image src="/logo.png" alt="Zyntra Logo" width={24} height={24} />
                  <h1 className="text-md font-bold font-code text-foreground">
-                    Codbbit
+                    Zyntra
                 </h1>
               </Link>
               <p className="text-sm text-muted-foreground">The ultimate platform for mastering Salesforce Apex.</p>
@@ -31,7 +31,7 @@ export function Footer() {
           </div>
         <div className="mt-8 pt-8 border-t flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <span className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Codbbit. All rights reserved.</span>
+            <span className="text-sm text-muted-foreground">&copy; {new Date().getFullYear()} Zyntra. All rights reserved.</span>
           </div>
           <nav className="flex items-center gap-6">
             <Link href="/#features" className="text-sm text-muted-foreground hover:text-primary">Features</Link>

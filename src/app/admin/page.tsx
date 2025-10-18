@@ -112,7 +112,7 @@ export default function AdminDashboardPage() {
             <Card>
                 <CardHeader>
                     <CardTitle>Recent Sign-ups</CardTitle>
-                    <CardDescription>The newest members of the Codbbit community.</CardDescription>
+                    <CardDescription>The newest members of the Zyntra community.</CardDescription>
                 </CardHeader>
                 <CardContent>
                     <Table>
