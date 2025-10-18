@@ -35,6 +35,12 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'flagsapi.com',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   serverExternalPackages: ['ogl'],

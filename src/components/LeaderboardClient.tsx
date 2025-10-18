@@ -18,6 +18,7 @@ import { CompanyAutocomplete } from './CompanyAutocomplete';
 import { useDebounce } from '@/hooks/use-debounce';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import Link from 'next/link';
+import Image from 'next/image';
 
 const PAGE_SIZE = 20;
 
@@ -117,7 +118,12 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                     </div>
                                 ) : 'N/A'}
                             </TableCell>
-                            <TableCell>{countryMap.get(user.country) || user.country}</TableCell>
+                            <TableCell>
+                                <div className="flex items-center gap-2">
+                                    <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />
+                                    {countryMap.get(user.country) || user.country}
+                                </div>
+                            </TableCell>
                             <TableCell className="text-right font-bold">{user.points}</TableCell>
                         </TableRow>
                         ))}
