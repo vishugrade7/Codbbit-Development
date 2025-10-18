@@ -15,7 +15,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-          <title>Zyntra</title>
+          <title>codbbit 💻</title>
           <meta name="description" content="A playground for Salesforce Apex coding challenges." />
           <link rel="icon" href="/logo.png" />
           <link rel="preconnect" href="https://fonts.googleapis.com" />
