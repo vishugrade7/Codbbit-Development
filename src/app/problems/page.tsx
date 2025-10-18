@@ -58,7 +58,8 @@ export default function PracticeProblemsPage() {
         questionCount: questions.length,
         solved: solvedCount,
       };
-    }).sort((a,b) => a.name.localeCompare(b.name));
+    }).filter(category => category.questionCount > 0) // Filter out categories with 0 questions
+      .sort((a,b) => a.name.localeCompare(b.name));
 
   }, [categoriesData, userProfile]);
 
