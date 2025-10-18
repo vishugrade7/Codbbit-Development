@@ -148,7 +148,7 @@
     "ManagedPackage": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ManagedPackage",
-      "description": "Represents a Salesforce managed package.",
+      "description": "Represents a Salesforce managed package URL.",
       "type": "object",
       "properties": {
         "url": { "type": "string", "format": "uri" }
@@ -205,15 +205,13 @@
         }
       },
       {
-        "path": "/packages/{packageName}",
+        "path": "/packages/URL",
         "definition": {
           "entityName": "ManagedPackage",
           "schema": { "$ref": "#/entities/ManagedPackage" },
-          "description": "Stores managed package information. The document ID is the package name."
+          "description": "Stores the managed package URL. This is a fixed path."
         }
       }
     ]
   }
 }
-
-    

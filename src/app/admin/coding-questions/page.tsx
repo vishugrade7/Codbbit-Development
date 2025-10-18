@@ -80,7 +80,6 @@ export default function CodingQuestionsPage() {
   });
 
   const [showManagedPackageInput, setShowManagedPackageInput] = useState(false);
-  const [managedPackageName, setManagedPackageName] = useState('');
   const [managedPackageUrl, setManagedPackageUrl] = useState('');
   const [isSavingPackage, setIsSavingPackage] = useState(false);
 
@@ -323,10 +322,10 @@ export default function CodingQuestionsPage() {
   };
   
   const handleSaveManagedPackage = async () => {
-    if (!managedPackageName.trim() || !managedPackageUrl.trim()) {
+    if (!managedPackageUrl.trim()) {
         toast({
             title: 'Error',
-            description: 'Package name and URL cannot be empty.',
+            description: 'Package URL cannot be empty.',
             variant: 'destructive',
         });
         return;
@@ -339,30 +338,25 @@ export default function CodingQuestionsPage() {
     setIsSavingPackage(true);
 
     try {
-        const packageName = managedPackageName.trim();
-        // Use the package name as the document ID in the 'packages' collection
-        const packageDocRef = doc(firestore, 'packages', packageName);
+        const packageDocRef = doc(firestore, 'packages', 'URL');
         
-        // The data to be stored
         const packageData = {
             url: managedPackageUrl.trim()
         };
 
-        // Save the document
-        setDocumentNonBlocking(packageDocRef, packageData, { merge: true });
+        setDocumentNonBlocking(packageDocRef, packageData);
         
         toast({
             title: 'Package Saved',
-            description: `Package "${packageName}" has been saved successfully.`,
+            description: `Package URL has been saved successfully.`,
         });
-        setManagedPackageName('');
         setManagedPackageUrl('');
         setShowManagedPackageInput(false);
     } catch(e) {
         console.error(e);
         toast({
             title: 'Error',
-            description: 'Could not save the package.',
+            description: 'Could not save the package URL.',
             variant: 'destructive',
         });
     } finally {
@@ -381,12 +375,6 @@ export default function CodingQuestionsPage() {
         <div>
           {showManagedPackageInput ? (
             <div className="flex items-center gap-2">
-              <Input
-                placeholder="Enter package name..."
-                value={managedPackageName}
-                onChange={(e) => setManagedPackageName(e.target.value)}
-                className="w-48"
-              />
               <Input
                 placeholder="Enter package URL..."
                 value={managedPackageUrl}
@@ -643,5 +631,3 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
-
-    
