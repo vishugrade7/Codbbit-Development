@@ -56,6 +56,11 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
             </div>
         )
     }
+    
+    const isUserVerified = (user: UserProfile) => {
+        return user.emailVerified && (user.referredUsersCount || 0) >= 3 && user.linkedinUrl;
+    }
+
     return (
         <Card>
             <CardContent className="p-0">
@@ -84,7 +89,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                             <AvatarImage src={user.avatarUrl} />
                                             <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                                         </Avatar>
-                                        {user.emailVerified && (
+                                        {isUserVerified(user) && (
                                             <TooltipProvider>
                                                 <Tooltip>
                                                     <TooltipTrigger>
@@ -159,7 +164,7 @@ export function LeaderboardClient() {
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
     
-    let users = allUsers.filter(user => user.emailVerified);
+    let users = allUsers;
     if (activeTab === 'country' && countryFilter) {
       users = users.filter(user => user.country === countryFilter);
     }
