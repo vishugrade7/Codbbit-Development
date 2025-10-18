@@ -46,6 +46,7 @@ import Link from 'next/link';
 import { ProblemFilter } from '@/components/ProblemFilter';
 import type { FilterState } from '@/components/ProblemFilter';
 import { cn } from '@/lib/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 
 interface Category {
@@ -80,6 +81,7 @@ export default function CodingQuestionsPage() {
 
   const [showManagedPackageInput, setShowManagedPackageInput] = useState(false);
   const [managedPackageName, setManagedPackageName] = useState('');
+  const [isSavingPackage, setIsSavingPackage] = useState(false);
 
 
   const categoriesCollectionRef = useMemoFirebase(() => {
@@ -319,20 +321,47 @@ export default function CodingQuestionsPage() {
     URL.revokeObjectURL(href);
   };
   
-  const handleSaveManagedPackage = () => {
-    if (managedPackageName.trim()) {
-      toast({
-        title: 'Package Saved',
-        description: `Package "${managedPackageName}" has been saved.`,
-      });
-      setManagedPackageName('');
-      setShowManagedPackageInput(false);
-    } else {
+  const handleSaveManagedPackage = async () => {
+    if (!managedPackageName.trim()) {
       toast({
         title: 'Error',
         description: 'Package name cannot be empty.',
         variant: 'destructive',
       });
+      return;
+    }
+     if (!firestore) {
+      toast({ title: 'Error', description: 'Database not available.', variant: 'destructive' });
+      return;
+    }
+
+    setIsSavingPackage(true);
+
+    try {
+        const packageId = uuidv4();
+        const packageDocRef = doc(firestore, 'packages', packageId);
+        const packageData = {
+            id: packageId,
+            name: managedPackageName.trim(),
+            url: managedPackageName.trim(), // Storing name as url for now
+        };
+        await setDocumentNonBlocking(packageDocRef, packageData, {});
+        
+        toast({
+            title: 'Package Saved',
+            description: `Package "${managedPackageName}" has been saved.`,
+        });
+        setManagedPackageName('');
+        setShowManagedPackageInput(false);
+    } catch(e) {
+        console.error(e);
+        toast({
+            title: 'Error',
+            description: 'Could not save the package.',
+            variant: 'destructive',
+        });
+    } finally {
+        setIsSavingPackage(false);
     }
   };
 
@@ -353,7 +382,10 @@ export default function CodingQuestionsPage() {
                 onChange={(e) => setManagedPackageName(e.target.value)}
                 className="w-48"
               />
-              <Button onClick={handleSaveManagedPackage}>Save</Button>
+              <Button onClick={handleSaveManagedPackage} disabled={isSavingPackage}>
+                {isSavingPackage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                Save
+              </Button>
               <Button variant="ghost" onClick={() => setShowManagedPackageInput(false)}>Cancel</Button>
             </div>
           ) : (
@@ -602,4 +634,3 @@ export default function CodingQuestionsPage() {
 }
 
     
-
