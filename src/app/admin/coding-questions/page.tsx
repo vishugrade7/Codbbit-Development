@@ -341,9 +341,9 @@ export default function CodingQuestionsPage() {
         const packageName = managedPackageName.trim();
         const packageDocRef = doc(firestore, 'packages', 'URL', 'packages', packageName);
         const packageData = {
-            url: packageName, 
+          url: packageName
         };
-        await setDocumentNonBlocking(packageDocRef, packageData, {});
+        await setDocumentNonBlocking(packageDocRef, packageData, { merge: true });
         
         toast({
             title: 'Package Saved',
@@ -630,6 +630,8 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
+
+    
 
     
 
