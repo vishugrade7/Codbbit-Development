@@ -164,7 +164,8 @@ export function LeaderboardClient() {
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
     
-    let users = allUsers;
+    let users = allUsers.filter(user => !user.isAdmin);
+
     if (activeTab === 'country' && countryFilter) {
       users = users.filter(user => user.country === countryFilter);
     }
@@ -187,17 +188,19 @@ export function LeaderboardClient() {
   const rankedUsers = useMemo(() => {
     if (!paginatedUsers) return [];
     // The rank needs to be based on the index within the *filtered* list, not just the paginated one
+    const nonAdminUsers = allUsers?.filter(u => !u.isAdmin) || [];
     return paginatedUsers.map((user) => {
-        const overallRank = allUsers ? allUsers.findIndex(u => u.uid === user.uid) + 1 : 0;
+        const overallRank = nonAdminUsers.findIndex(u => u.uid === user.uid) + 1;
         return { ...user, rank: overallRank };
     });
   }, [paginatedUsers, allUsers]);
   
   const currentUserRank = useMemo(() => {
       if (!currentUser || !allUsers) return null;
-      const userIndex = allUsers.findIndex(u => u.uid === currentUser.uid);
+      const nonAdminUsers = allUsers.filter(u => !u.isAdmin);
+      const userIndex = nonAdminUsers.findIndex(u => u.uid === currentUser.uid);
       if (userIndex === -1) return null;
-      const userRankData = allUsers[userIndex];
+      const userRankData = nonAdminUsers[userIndex];
       return { ...userRankData, rank: userIndex + 1 };
   }, [currentUser, allUsers]);
   
