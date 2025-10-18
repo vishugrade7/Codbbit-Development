@@ -78,6 +78,9 @@ export default function CodingQuestionsPage() {
     search: '',
   });
 
+  const [showManagedPackageInput, setShowManagedPackageInput] = useState(false);
+  const [managedPackageName, setManagedPackageName] = useState('');
+
 
   const categoriesCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -315,6 +318,23 @@ export default function CodingQuestionsPage() {
     document.body.removeChild(link);
     URL.revokeObjectURL(href);
   };
+  
+  const handleSaveManagedPackage = () => {
+    if (managedPackageName.trim()) {
+      toast({
+        title: 'Package Saved',
+        description: `Package "${managedPackageName}" has been saved.`,
+      });
+      setManagedPackageName('');
+      setShowManagedPackageInput(false);
+    } else {
+      toast({
+        title: 'Error',
+        description: 'Package name cannot be empty.',
+        variant: 'destructive',
+      });
+    }
+  };
 
 
   return (
@@ -324,10 +344,25 @@ export default function CodingQuestionsPage() {
           <h1 className="text-3xl font-bold font-headline tracking-tight">Problem Management</h1>
           <p className="text-muted-foreground mt-1">View, edit, or add new Apex coding challenges to the platform.</p>
         </div>
-        <Button onClick={() => toast({ title: 'Action Triggered', description: 'Adding managed package...' })}>
-          <Plus />
-          Add Managed Package
-        </Button>
+        <div>
+          {showManagedPackageInput ? (
+            <div className="flex items-center gap-2">
+              <Input
+                placeholder="Enter package name..."
+                value={managedPackageName}
+                onChange={(e) => setManagedPackageName(e.target.value)}
+                className="w-48"
+              />
+              <Button onClick={handleSaveManagedPackage}>Save</Button>
+              <Button variant="ghost" onClick={() => setShowManagedPackageInput(false)}>Cancel</Button>
+            </div>
+          ) : (
+            <Button onClick={() => setShowManagedPackageInput(true)}>
+              <Plus />
+              Add Managed Package
+            </Button>
+          )}
+        </div>
       </header>
       
       <div className="flex items-center justify-between mb-4">
@@ -567,3 +602,4 @@ export default function CodingQuestionsPage() {
 }
 
     
+
