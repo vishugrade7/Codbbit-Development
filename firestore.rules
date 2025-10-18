@@ -1,61 +1,104 @@
 /**
  * @file Firestore Security Rules
- * @description This ruleset enforces a strict user-ownership model for user profiles
- * and allows public read access to coding questions.
+ * @description This ruleset enforces a strict user-ownership model for user profiles and allows public read access to code questions and problem sheets.
  *
  * Data Structure:
- * - /users/{userId}: Stores individual user profiles, accessible only to the owning user.
- * - /questions/{questionId}: Stores coding questions, publicly readable but writable only by an admin (not yet implemented).
+ * - /users/{userId}: Stores individual user profiles.  Access is restricted to the owning user.
+ * - /questions/{questionId}: Stores code questions. Publicly readable.
+ * - /sheets/{sheetId}: Stores problem sheets. Publicly readable, but write access restricted to the creator.
+ * - /vouchers/{voucherId}: Stores promotional vouchers.
+ * - /config/{configId}: Stores application configuration.
+ * - /packages/{packageName}: Stores Salesforce managed package information.
  *
  * Key Security Decisions:
- * - User profiles are strictly private; only the authenticated user can read/write their own profile.
- * - Coding questions are publicly readable, supporting open access to learning resources.
- * - No user listing is allowed.
+ * - User profiles are strictly private and accessible only to the owning user.
+ * - Listing of user profiles is disallowed.
+ * - Code questions and problem sheets are publicly readable to facilitate open access to learning resources.
+ * - Only admins can create, update, and delete managed package information.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Enforces user-ownership for user profiles.
+     * @description Secure user profiles, allowing only the owner to read and write their own profile.
      * @path /users/{userId}
-     * @allow (create) - User with UID 'user_abc' can create their profile at /users/user_abc.
-     * @allow (get, update, delete) - User with UID 'user_abc' can read, update, and delete their profile at /users/user_abc.
-     * @deny (create) - User with UID 'user_xyz' cannot create a profile at /users/user_abc.
-     * @deny (get, update, delete) - User with UID 'user_xyz' cannot read, update, or delete the profile at /users/user_abc.
-     * @principle Enforces document ownership for writes and restricts access to a user's own data tree.
+     * @allow (read, write) User 'alice' (UID: 'alice') can read/write their own profile at /users/alice.
+     * @deny (read, write) User 'bob' (UID: 'bob') cannot read/write Alice's profile at /users/alice.
+     * @principle Enforces document ownership for writes.
      */
     match /users/{userId} {
-      function isSignedIn() {
-        return request.auth != null;
-      }
-
+      // Validate that userId matches authenticated user's ID
       function isOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId;
+        return request.auth != null && request.auth.uid == userId;
       }
 
+      // Check if the user is an existing owner of the document
       function isExistingOwner(userId) {
-        return isSignedIn() && request.auth.uid == userId && resource != null;
+          return isOwner(userId) && resource != null;
       }
 
       allow get: if isOwner(userId);
       allow list: if false;
-      allow create: if isSignedIn() && isOwner(userId);
-      allow update: if isExistingOwner(userId);
+      allow create: if isOwner(userId);
+      allow update: if isExistingOwner(userId) && request.resource.data.uid == resource.data.uid;
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allows public read access to coding questions.
+     * @description Allow public read access to code questions.
      * @path /questions/{questionId}
-     * @allow (get, list) - Any user, authenticated or not, can read coding questions.
-     * @deny (create, update, delete) - No user can create, update, or delete coding questions (admin-only, not yet implemented).
-     * @principle Public read access with owner-only writes (currently disabled).
+     * @allow (read) Any user can read a question.
+     * @deny (create, update, delete) No one can create, update, or delete questions via client.
+     * @principle Provides open access to learning resources, with restricted write access.
      */
     match /questions/{questionId} {
-      allow get: if true;
-      allow list: if true;
+      allow get, list: if true;
       allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Allow public read access to problem sheets.
+     * @path /sheets/{sheetId}
+     * @allow (read) Any user can read a problem sheet.
+     * @deny (create, update, delete) Only admins can create, update, or delete sheets.
+     * @principle Provides open access to curated problem lists.
+     */
+    match /sheets/{sheetId} {
+      allow get, list: if true;
+      allow create, update, delete: if false;
+    }
+
+    /**
+     * @description Restrict access to vouchers.
+     * @path /vouchers/{voucherId}
+     * @allow (none) No one can read or write vouchers.
+     * @principle Vouchers are not accessible to regular users.
+     */
+    match /vouchers/{voucherId} {
+      allow get, list, create, update, delete: if false;
+    }
+
+    /**
+     * @description Restrict access to config documents.
+     * @path /config/{configId}
+     * @allow (none) No one can read or write config documents.
+     * @principle Configuration settings are not accessible to regular users.
+     */
+    match /config/{configId} {
+      allow get, list, create, update, delete: if false;
+    }
+
+    /**
+     * @description Allow read access to packages for everyone, and only admins can write.
+     * @path /packages/{packageName}
+     * @allow (read) Any user can read the package URL.
+     * @allow (write) Only admins can create, update, or delete package information.
+     * @principle Allows public access to package information, but protects against unauthorized modifications.
+     */
+    match /packages/{packageName} {
+      allow read: if true;
+      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
     }
   }
 }
