@@ -8,7 +8,6 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
-import { Header } from "./Header";
 import { motion } from "framer-motion";
 import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
@@ -75,15 +74,13 @@ export function LandingPage() {
 
   return (
     <div className="bg-background text-foreground antialiased">
-      <Header />
-
       <main>
         {/* Hero Section */}
         <section className="relative overflow-hidden bg-background py-20 md:py-32">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap items-center justify-center gap-2">
+              <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
                 <BlurText
                   text="Master Salesforce"
                   delay={100}
@@ -126,23 +123,32 @@ export function LandingPage() {
               </motion.div>
             </div>
             <motion.div 
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
+              initial={{ opacity: 0, y: 50, scale: 0.95 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3, type: 'spring' }}
               className="relative mt-16 flow-root sm:mt-24 max-w-4xl mx-auto"
             >
               <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
-                <Image
-                  src="/image 1.png"
-                  alt="App screenshot"
-                  width={2432}
-                  height={1442}
-                  className="rounded-md shadow-2xl ring-1 ring-muted/20"
-                  priority
-                />
-                 <div className="absolute -left-12 -top-12 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10">
-                   <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="[transform:rotate(10deg)]" />
-                 </div>
+                <motion.div
+                    animate={{ scale: [1, 1.02, 1] }}
+                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
+                >
+                    <Image
+                    src="/image 1.png"
+                    alt="App screenshot"
+                    width={2432}
+                    height={1442}
+                    className="rounded-md shadow-2xl ring-1 ring-muted/20"
+                    priority
+                    />
+                </motion.div>
+                 <motion.div 
+                    className="absolute -left-12 -top-12 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10"
+                    animate={{ y: [0, -15, 0], rotate: [10, 5, 10] }}
+                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                 >
+                   <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg" />
+                 </motion.div>
               </div>
             </motion.div>
           </div>
