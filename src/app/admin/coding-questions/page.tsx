@@ -339,7 +339,7 @@ export default function CodingQuestionsPage() {
 
     try {
         const packageName = managedPackageName.trim();
-        const packageDocRef = doc(firestore, 'packages', packageName);
+        const packageDocRef = doc(firestore, 'packages', 'URL', 'packages', packageName);
         const packageData = {
             url: packageName, 
         };
@@ -630,5 +630,7 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
+
+    
 
     

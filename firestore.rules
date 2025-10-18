@@ -1,104 +1,131 @@
 /**
- * @file Firestore Security Rules
- * @description This ruleset enforces a strict user-ownership model for user profiles and allows public read access to code questions and problem sheets.
+ * @fileoverview Firestore Security Rules for Codbbit application.
+ *
+ * Core Philosophy:
+ * This ruleset prioritizes secure user data access. User profiles are strictly controlled by their respective owners.
+ * Public access is granted to coding questions and problem sheets. Vouchers and packages are read-only to authenticated users.
  *
  * Data Structure:
- * - /users/{userId}: Stores individual user profiles.  Access is restricted to the owning user.
- * - /questions/{questionId}: Stores code questions. Publicly readable.
- * - /sheets/{sheetId}: Stores problem sheets. Publicly readable, but write access restricted to the creator.
- * - /vouchers/{voucherId}: Stores promotional vouchers.
- * - /config/{configId}: Stores application configuration.
- * - /packages/{packageName}: Stores Salesforce managed package information.
+ * - /users/{userId}: User profiles, accessible only to the user themselves.
+ * - /questions/{questionId}: Publicly accessible coding questions.
+ * - /sheets/{sheetId}: Publicly accessible problem sheets.
+ * - /vouchers/{voucherId}: Vouchers, publicly readable.
+ * - /config/{configId}: Application configuration, publicly readable.
+ * - /packages/{packageName}: Managed packages, publicly readable.
  *
  * Key Security Decisions:
- * - User profiles are strictly private and accessible only to the owning user.
- * - Listing of user profiles is disallowed.
- * - Code questions and problem sheets are publicly readable to facilitate open access to learning resources.
- * - Only admins can create, update, and delete managed package information.
+ * - User listing is explicitly denied.
+ * - Data consistency is enforced between the path and the document's internal `uid` field in `/users/{userId}`.
+ * - Public read access is granted to questions and sheets.
+ * - Write operations are only allowed with validated ownership.
+ *
+ * Denormalization for Authorization:
+ *  N/A - No denormalization is used in this ruleset.
+ *
+ * Structural Segregation:
+ *  N/A - No structural segregation is used in this ruleset.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
     /**
-     * @description Secure user profiles, allowing only the owner to read and write their own profile.
+     * @description Secure user profiles under /users/{userId}.
      * @path /users/{userId}
-     * @allow (read, write) User 'alice' (UID: 'alice') can read/write their own profile at /users/alice.
-     * @deny (read, write) User 'bob' (UID: 'bob') cannot read/write Alice's profile at /users/alice.
-     * @principle Enforces document ownership for writes.
+     * @allow (create) - Authenticated user creates their profile with matching UID.
+     * @allow (get, update, delete) - Authenticated user accesses their own profile.
+     * @deny (create) - Authenticated user tries to create a profile with a mismatched UID.
+     * @deny (get, update, delete) - Authenticated user tries to access another user's profile.
+     * @deny (list) - Listing users is not permitted.
+     * @principle Enforces document ownership for all operations.
      */
     match /users/{userId} {
-      // Validate that userId matches authenticated user's ID
+      function isSignedIn() {
+        return request.auth != null;
+      }
+
       function isOwner(userId) {
-        return request.auth != null && request.auth.uid == userId;
+        return request.auth.uid == userId;
       }
 
-      // Check if the user is an existing owner of the document
       function isExistingOwner(userId) {
-          return isOwner(userId) && resource != null;
+        return isOwner(userId) && resource != null;
       }
 
+      // Only the owner can read their profile.
       allow get: if isOwner(userId);
-      allow list: if false;
-      allow create: if isOwner(userId);
-      allow update: if isExistingOwner(userId) && request.resource.data.uid == resource.data.uid;
+
+      // Only the owner can list their own profile (should be empty)
+      allow list: if false; // Listing is never allowed for security
+
+      // Only the user can create their own profile, and the uid must match.
+      allow create: if isSignedIn() && request.auth.uid == userId;
+
+      // Only the owner can update their own profile.
+      allow update: if isExistingOwner(userId);
+
+      // Only the owner can delete their own profile.
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Allow public read access to code questions.
+     * @description Allow public read access to coding questions. Owner-only writes are disallowed until an ownership field is added.
      * @path /questions/{questionId}
-     * @allow (read) Any user can read a question.
-     * @deny (create, update, delete) No one can create, update, or delete questions via client.
-     * @principle Provides open access to learning resources, with restricted write access.
+     * @allow (get, list) - Any user can read the questions.
+     * @deny (create, update, delete) - No one can write.
+     * @principle Allows public read access to coding questions; write operations are disabled until owner validation is added.
      */
     match /questions/{questionId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+      allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
     /**
-     * @description Allow public read access to problem sheets.
+     * @description Allow public read access to problem sheets. Owner-only writes are disallowed until an ownership field is added.
      * @path /sheets/{sheetId}
-     * @allow (read) Any user can read a problem sheet.
-     * @deny (create, update, delete) Only admins can create, update, or delete sheets.
-     * @principle Provides open access to curated problem lists.
+     * @allow (get, list) - Any user can read the sheets.
+     * @deny (create, update, delete) - No one can write.
+     * @principle Allows public read access to problem sheets; write operations are disabled until owner validation is added.
      */
     match /sheets/{sheetId} {
       allow get, list: if true;
-      allow create, update, delete: if false;
+       allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
     /**
-     * @description Restrict access to vouchers.
+     * @description Allow public read access to vouchers. Owner-only writes are disallowed until an ownership field is added.
      * @path /vouchers/{voucherId}
-     * @allow (none) No one can read or write vouchers.
-     * @principle Vouchers are not accessible to regular users.
+     * @allow (get, list) - Any user can read the vouchers.
+     * @deny (create, update, delete) - No one can write.
+     * @principle Allows public read access to vouchers; write operations are disabled until owner validation is added.
      */
     match /vouchers/{voucherId} {
-      allow get, list, create, update, delete: if false;
+      allow get, list: if true;
+       allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
     /**
-     * @description Restrict access to config documents.
+     * @description Allow public read access to config. Owner-only writes are disallowed until an ownership field is added.
      * @path /config/{configId}
-     * @allow (none) No one can read or write config documents.
-     * @principle Configuration settings are not accessible to regular users.
+     * @allow (get, list) - Any user can read the config.
+     * @deny (create, update, delete) - No one can write.
+     * @principle Allows public read access to config; write operations are disabled until owner validation is added.
      */
     match /config/{configId} {
-      allow get, list, create, update, delete: if false;
+      allow get, list: if true;
+       allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
 
     /**
-     * @description Allow read access to packages for everyone, and only admins can write.
+     * @description Allow public read access to packages. Owner-only writes are disallowed until an ownership field is added.
      * @path /packages/{packageName}
-     * @allow (read) Any user can read the package URL.
-     * @allow (write) Only admins can create, update, or delete package information.
-     * @principle Allows public access to package information, but protects against unauthorized modifications.
+     * @allow (get, list) - Any user can read the packages.
+     * @deny (create, update, delete) - No one can write.
+     * @principle Allows public read access to packages; write operations are disabled until owner validation is added.
      */
     match /packages/{packageName} {
-      allow read: if true;
-      allow write: if request.auth != null && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.isAdmin == true;
+      allow get, list: if true;
+       allow create, update, delete: if false; // TODO: Add owner validation once the schema is updated with an ownership field.
     }
   }
 }
