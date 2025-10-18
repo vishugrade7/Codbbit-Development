@@ -15,7 +15,42 @@ import ShinyText from "./ui/ShinyText";
 import RotatingText from "./ui/RotatingText";
 import { cn } from "@/lib/utils";
 import './ui/ScrollingTestimonials.css';
-import { Footer } from "./Footer";
+
+const FeatureSection = ({ feature, index }: { feature: any; index: number }) => {
+  const isOdd = index % 2 !== 0;
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 50 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, amount: 0.3 }}
+      transition={{ duration: 0.6 }}
+      className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
+    >
+      <div className={cn("space-y-4", isOdd && "md:order-2")}>
+        <div className="inline-flex items-center gap-3">
+            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                {feature.icon}
+            </div>
+            <h3 className="text-2xl font-bold font-headline">{feature.title}</h3>
+        </div>
+        <p className="text-lg text-muted-foreground">{feature.description}</p>
+      </div>
+      <motion.div 
+        className={cn("rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:p-4", isOdd && "md:order-1")}
+        whileHover={{ scale: 1.05 }}
+        transition={{ type: "spring", stiffness: 300 }}
+      >
+        <Image
+          src={`/image ${index + 2}.png`}
+          alt={feature.title}
+          width={1200}
+          height={800}
+          className="rounded-md shadow-lg ring-1 ring-muted/20"
+        />
+      </motion.div>
+    </motion.div>
+  );
+};
 
 
 export function LandingPage() {
@@ -80,7 +115,7 @@ export function LandingPage() {
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
-              <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
+               <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
                 <BlurText
                   text="Master Salesforce"
                   delay={100}
@@ -157,26 +192,16 @@ export function LandingPage() {
         {/* Features Section */}
         <section id="features" className="container mx-auto px-4 py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
-              Features designed to make you a Salesforce pro
+            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl font-headline">
+              A smarter way to practice Apex
             </h2>
             <p className="mt-6 text-lg text-muted-foreground">
               We've built a comprehensive platform to give you the tools and practice you need to excel.
             </p>
           </div>
-          <div className="mt-16 grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-3">
+          <div className="mt-20 space-y-24">
             {features.map((feature, index) => (
-              <Card key={index} className="bg-muted/20">
-                <CardHeader>
-                  <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                    {feature.icon}
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <h3 className="text-xl font-bold">{feature.title}</h3>
-                  <p className="mt-4 text-muted-foreground">{feature.description}</p>
-                </CardContent>
-              </Card>
+              <FeatureSection key={feature.title} feature={feature} index={index} />
             ))}
           </div>
         </section>
