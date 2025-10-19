@@ -273,7 +273,7 @@ export function LandingPage() {
                                             <AvatarImage src={avatar.src} alt={avatar.alt} />
                                             <AvatarFallback>{avatar.alt.substring(0, 2)}</AvatarFallback>
                                         </Avatar>
-                                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-primary text-primary-foreground rounded-full h-auto flex items-center justify-center text-xs font-bold border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-primary text-primary-foreground rounded-full h-auto flex items-center justify-center text-xs font-bold border-2 border-background transition-opacity duration-300">
                                           <div className="flex items-center gap-2">
                                             <div className="flex items-center gap-1">
                                               <Trophy className="h-3 w-3 text-yellow-300" />
