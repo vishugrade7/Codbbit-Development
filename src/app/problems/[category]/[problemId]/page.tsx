@@ -344,9 +344,9 @@ export default function ProblemSolvingPage() {
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> : <div className="w-4 h-4 flex-shrink-0" />}
                                                     <span className="font-medium truncate">{p.number}. {p.title}</span>
                                                 </div>
-                                                <span className={cn("text-sm font-medium flex-shrink-0", getDifficultyClass(p.difficulty))}>
+                                                <Badge variant="outline" className={cn("text-xs flex-shrink-0", getDifficultyClass(p.difficulty))}>
                                                     {p.difficulty}
-                                                </span>
+                                                </Badge>
                                             </div>
                                        </Link>
                                    ))}
