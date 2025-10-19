@@ -47,6 +47,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useTheme } from '@/components';
 import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
 
 const DEFAULT_FONT_SIZE = 14;
 
@@ -219,14 +220,19 @@ export default function ProblemSolvingPage() {
   const DifficultyFilterRadioGroup = ({ title, options, value, onValueChange }: { title: string, options: string[], value: string, onValueChange: (value: any) => void }) => (
     <div className="grid gap-2">
       <p className="font-medium text-sm">{title}</p>
-      {options.map(option => (
-        <button key={option} onClick={() => onValueChange(option)} className="flex items-center text-sm text-muted-foreground hover:text-foreground">
-          <div className="w-5 h-5 mr-2 flex items-center justify-center">
-            {value === option && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-          </div>
-          {option}
-        </button>
-      ))}
+      <div className="flex items-center gap-2">
+        {options.map(option => (
+          <Button
+            key={option}
+            variant={value === option ? 'secondary' : 'ghost'}
+            size="sm"
+            onClick={() => onValueChange(option)}
+            className="rounded-full h-8 px-3 text-xs"
+          >
+            {option}
+          </Button>
+        ))}
+      </div>
     </div>
   );
   
@@ -298,39 +304,28 @@ export default function ProblemSolvingPage() {
                                 <Menu className="h-4 w-4"/>
                               </Button>
                           </SheetTrigger>
-                           <SheetContent side="left" className="p-0">
+                           <SheetContent side="left" className="p-0 sm:max-w-md">
                              <SheetHeader className="sr-only">
                                 <SheetTitle>Problem List</SheetTitle>
                                 <SheetDescription>Navigate to other problems.</SheetDescription>
                               </SheetHeader>
-                             <div className="p-4 border-b">
+                             <div className="p-4 border-b space-y-4">
                                   <div className="flex items-center justify-between">
                                     <h3 className="font-semibold text-lg flex items-center">
                                       Problem List <ChevronRight className="h-5 w-5 text-muted-foreground" />
                                     </h3>
                                     <Badge variant="outline">{solvedInCategory}/{categoryProblems.length} Solved</Badge>
                                   </div>
-                                  <div className="flex items-center gap-2 mt-2">
-                                     <div className="relative flex-grow">
-                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                        <Input
-                                            placeholder="Search questions"
-                                            value={searchTerm}
-                                            onChange={(e) => setSearchTerm(e.target.value)}
-                                            className="pl-9"
-                                        />
-                                     </div>
-                                      <Popover>
-                                          <PopoverTrigger asChild>
-                                              <Button variant="outline" size="icon">
-                                                  <Filter className="h-4 w-4" />
-                                              </Button>
-                                          </PopoverTrigger>
-                                          <PopoverContent className="w-60">
-                                              <DifficultyFilterRadioGroup title="Difficulty" options={['All', 'Easy', 'Medium', 'Hard']} value={difficultyFilter} onValueChange={setDifficultyFilter} />
-                                          </PopoverContent>
-                                      </Popover>
+                                  <div className="relative flex-grow">
+                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                     <Input
+                                         placeholder="Search questions"
+                                         value={searchTerm}
+                                         onChange={(e) => setSearchTerm(e.target.value)}
+                                         className="pl-9"
+                                     />
                                   </div>
+                                  <DifficultyFilterRadioGroup title="Difficulty" options={['All', 'Easy', 'Medium', 'Hard']} value={difficultyFilter} onValueChange={setDifficultyFilter} />
                               </div>
                               <ScrollArea className="h-[calc(100vh-80px)]">
                                 <div className="p-2">
@@ -409,3 +404,4 @@ export default function ProblemSolvingPage() {
     </SidebarProvider>
   );
 }
+
