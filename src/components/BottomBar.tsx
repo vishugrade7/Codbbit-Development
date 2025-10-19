@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { doc } from "firebase/firestore";
 import { Check, Cloud, Code, GitBranch, Sparkles, X, Package, Loader2, Bug } from "lucide-react";
 import { AnonymousCodeRunner } from "./AnonymousCodeRunner";
-import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import type { UserProfile } from "@/lib/types";
@@ -92,6 +92,12 @@ export function BottomBar() {
             </Badge>
           </DialogTrigger>
           <DialogContent className="sm:max-w-2xl">
+            <DialogHeader>
+                <DialogTitle>Report a Bug</DialogTitle>
+                <DialogDescription>
+                    Describe the issue you're encountering. Your feedback is valuable in helping us improve the platform.
+                </DialogDescription>
+            </DialogHeader>
             <FeedbackForm />
           </DialogContent>
         </Dialog>
