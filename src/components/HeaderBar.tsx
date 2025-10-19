@@ -93,7 +93,7 @@ export function HeaderBar({ leftControls, onReset, children, fontSize, setFontSi
                         <TooltipTrigger asChild>
                             <PopoverTrigger asChild>
                                 <Button variant="ghost" size="icon" className="h-8 w-8">
-                                    <Code className="h-4 w-4" />
+                                    <SlidersHorizontal className="h-4 w-4" />
                                 </Button>
                             </PopoverTrigger>
                         </TooltipTrigger>
