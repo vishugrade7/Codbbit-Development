@@ -52,13 +52,13 @@ export function LandingPage() {
         ]
       },
       {
-        icon: <FileCode className="h-6 w-6 text-primary" />,
-        title: 'Custom Projects with System Instructions',
-        description: "Create unique projects with tailored system guidelines. Set 'Marketing Mode' or 'Code Review Mode' once, ensuring every AI interaction aligns with your project's specific context and goals.",
+        icon: <List className="h-6 w-6 text-primary" />,
+        title: 'Problem Categories & Difficulty',
+        description: "Choose from a wide range of categories like Apex Triggers, SOQL, and Asynchronous Apex. Filter problems by difficulty to match your skill level, from Easy to Hard.",
         points: [
-            "Tailor AI behavior with system-level instructions.",
-            "Maintain context across all interactions within a project.",
-            "Switch between modes like 'Marketing' or 'Code Review'.",
+            "Diverse categories for targeted practice.",
+            "Problems for all skill levels.",
+            "Master specific Salesforce development areas.",
         ],
         image: {
             light: getPlaceholderImage('features-light'),
@@ -80,13 +80,13 @@ export function LandingPage() {
         }
       },
       {
-        icon: <Trophy className="h-6 w-6 text-primary" />,
-        title: 'Competitive Leaderboards',
-        description: "See how you stack up against other Salesforce developers. Climb the ranks by solving problems and earning points. Compete globally or within your company.",
+        icon: <Bot className="h-6 w-6 text-primary" />,
+        title: 'AI-Powered Assistant',
+        description: "Get unstuck with Codbee, our AI tutor that provides hints and explains concepts without giving away the solution.",
         points: [
-            "Track your progress and ranking.",
-            "Compete with developers worldwide.",
-            "Filter leaderboards by country or company.",
+            "Get personalized hints based on your code.",
+            "Understand complex concepts with clear explanations.",
+            "Learn best practices and improve your coding style.",
         ],
         image: {
             light: getPlaceholderImage('features-light'),
