@@ -280,14 +280,16 @@ export default function HomePage() {
                           )
                       })}
                     </div>
-                    <div className="flex justify-center pt-4">
-                        <Button variant="outline" asChild>
-                          <Link href="/sheets">
-                            <ArrowDown className="mr-2 h-4 w-4" />
-                            View More
-                          </Link>
-                        </Button>
-                    </div>
+                    {sheets && sheets.length > 0 && (
+                      <div className="flex justify-center pt-4">
+                          <Button variant="outline" asChild>
+                            <Link href="/sheets">
+                              <ArrowDown className="mr-2 h-4 w-4" />
+                              View More
+                            </Link>
+                          </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -321,14 +323,16 @@ export default function HomePage() {
                         ))}
                       </div>
                     </ScrollArea>
-                    <div className="flex justify-center pt-4">
-                        <Button variant="outline" asChild>
-                          <Link href="/problems">
-                            <ArrowDown className="mr-2 h-4 w-4" />
-                            View More
-                          </Link>
-                        </Button>
-                    </div>
+                    {unsolvedProblems && unsolvedProblems.length > 0 && (
+                      <div className="flex justify-center pt-4">
+                          <Button variant="outline" asChild>
+                            <Link href="/problems">
+                              <ArrowDown className="mr-2 h-4 w-4" />
+                              View More
+                            </Link>
+                          </Button>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
                 <div className="grid grid-cols-1 gap-6 p-6 pt-0">
