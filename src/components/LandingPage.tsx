@@ -41,12 +41,12 @@ export function LandingPage() {
             "Filter leaderboards by country or company.",
         ],
         avatars: [
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-32 w-32 top-[20%] left-[5%]", rank: 4 },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704e", alt: "User 2", className: "h-36 w-36 top-[10%] left-[40%]", rank: 1 },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704f", alt: "User 3", className: "h-24 w-24 top-0 right-[15%]", rank: 3 },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705a", alt: "User 4", className: "h-32 w-32 bottom-0 right-[30%]", rank: 5 },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705b", alt: "User 5", className: "h-28 w-28 top-[45%] right-0", rank: 2 },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705c", alt: "User 6", className: "h-20 w-20 bottom-[10%] left-[20%]", rank: 6 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-32 w-32 top-[20%] left-[5%]", rank: 4, points: 1250 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704e", alt: "User 2", className: "h-36 w-36 top-[10%] left-[40%]", rank: 1, points: 2500 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704f", alt: "User 3", className: "h-24 w-24 top-0 right-[15%]", rank: 3, points: 1500 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705a", alt: "User 4", className: "h-32 w-32 bottom-0 right-[30%]", rank: 5, points: 1100 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705b", alt: "User 5", className: "h-28 w-28 top-[45%] right-0", rank: 2, points: 1800 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705c", alt: "User 6", className: "h-20 w-20 bottom-[10%] left-[20%]", rank: 6, points: 950 },
         ]
       },
       {
@@ -268,13 +268,20 @@ export function LandingPage() {
                                     transition={{ duration: 0.5, delay: 0.2 + avatarIndex * 0.1 }} 
                                     className={cn("absolute", avatar.className)}
                                 >
-                                    <div className="relative">
+                                    <div className="relative group">
                                         <Avatar className="h-full w-full border-4 border-background">
                                             <AvatarImage src={avatar.src} alt={avatar.alt} />
                                             <AvatarFallback>{avatar.alt.substring(0, 2)}</AvatarFallback>
                                         </Avatar>
-                                        <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center text-xs font-bold border-2 border-background">
-                                            <Trophy className="h-4 w-4" />
+                                        <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-max px-2 py-1 bg-primary text-primary-foreground rounded-full h-auto flex items-center justify-center text-xs font-bold border-2 border-background opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                          <div className="flex items-center gap-2">
+                                            <div className="flex items-center gap-1">
+                                              <Trophy className="h-3 w-3 text-yellow-300" />
+                                              <span>Rank {avatar.rank}</span>
+                                            </div>
+                                            <div className="h-3 w-px bg-primary-foreground/50"></div>
+                                            <span>{avatar.points}pts</span>
+                                          </div>
                                         </div>
                                     </div>
                                 </motion.div>
