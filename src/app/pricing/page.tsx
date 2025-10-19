@@ -5,7 +5,8 @@ import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
-import { Check, Star, ShieldCheck, Clock, Award, Sparkles, Loader2, X, Tag } from 'lucide-react';
+import { Check, Star, ShieldCheck, Clock, Award, Sparkles, X, Tag } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -198,7 +199,7 @@ export default function PricingPage() {
           </header>
           {isLoadingPrice ? (
             <div className="flex justify-center items-center h-64">
-                <Loader2 className="h-12 w-12 animate-spin" />
+                <HashLoader color="#456eff" />
             </div>
            ) : paymentsEnabled ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -268,7 +269,7 @@ export default function PricingPage() {
                                   disabled={isApplyingVoucher}
                                 />
                                 <Button variant="secondary" onClick={handleApplyVoucher} disabled={isApplyingVoucher}>
-                                    {isApplyingVoucher && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                    {isApplyingVoucher && <HashLoader color="#456eff" size={20} />}
                                     Apply
                                 </Button>
                             </div>

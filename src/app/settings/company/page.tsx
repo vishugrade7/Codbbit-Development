@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -12,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { CompanyAutocomplete } from '@/components/CompanyAutocomplete';
 
 const companySchema = z.object({
@@ -80,7 +81,7 @@ export default function CompanySettingsPage() {
   if (isProfileLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }
@@ -109,7 +110,7 @@ export default function CompanySettingsPage() {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSaving && <HashLoader color="#456eff" size={20} />}
             Save Changes
           </Button>
         </CardFooter>

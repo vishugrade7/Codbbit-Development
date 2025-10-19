@@ -7,7 +7,8 @@ import {
   SidebarProvider,
 } from '@/components';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
-import { Loader2, Menu } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
+import { Menu } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import type { UserProfile } from '@/lib/types';
@@ -45,7 +46,7 @@ export default function AdminLayout({
   if (isUserLoading || isProfileLoading || !userProfile) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }
@@ -53,7 +54,7 @@ export default function AdminLayout({
   if (!userProfile.isAdmin) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
         <p className="mt-4 text-muted-foreground">
           Access Denied. Redirecting...
         </p>

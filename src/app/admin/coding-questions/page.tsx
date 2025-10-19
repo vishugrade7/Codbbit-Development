@@ -3,7 +3,8 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { Download, Upload, Plus, Pencil, Loader2, Trash2, MoreHorizontal, Tag } from 'lucide-react';
+import { Download, Upload, Plus, Pencil, Trash2, MoreHorizontal, Tag } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import {
   Dialog,
   DialogContent,
@@ -385,7 +386,7 @@ export default function CodingQuestionsPage() {
                 className="w-64"
               />
               <Button onClick={handleSaveManagedPackage} disabled={isSavingPackage}>
-                {isSavingPackage && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                {isSavingPackage && <HashLoader color="#456eff" size={20} />}
                 Save
               </Button>
               <Button variant="ghost" onClick={() => setShowManagedPackageInput(false)}>Cancel</Button>
@@ -444,7 +445,7 @@ export default function CodingQuestionsPage() {
                    <DialogFooter>
                       <Button variant="outline" onClick={() => setIsEditingCategory(false)}>Cancel</Button>
                       <Button onClick={handleSaveCategory} disabled={isSavingCategory}>
-                        {isSavingCategory && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isSavingCategory && <HashLoader color="#456eff" size={20} />}
                         Save
                       </Button>
                     </DialogFooter>
@@ -455,7 +456,7 @@ export default function CodingQuestionsPage() {
                 <div className="space-y-2 pr-6">
                 {isLoadingCategories ? (
                   <div className="flex items-center justify-center p-8">
-                    <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                    <HashLoader color="#456eff" />
                   </div>
                 ) : (
                   categories?.map((category) => (
@@ -510,7 +511,7 @@ export default function CodingQuestionsPage() {
                         <SelectContent>
                           {isLoadingCategories ? (
                             <div className="flex items-center justify-center p-2">
-                              <Loader2 className="h-4 w-4 animate-spin text-muted-foreground" />
+                              <HashLoader color="#456eff" size={20} />
                             </div>
                           ) : (
                             categories?.map(cat => (
@@ -534,7 +535,7 @@ export default function CodingQuestionsPage() {
                 </div>
                 <DialogFooter>
                     <Button onClick={handleAddProblemFromJson} disabled={isSavingSample}>
-                        {isSavingSample && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                        {isSavingSample && <HashLoader color="#456eff" size={20} />}
                         Add Problem
                     </Button>
                 </DialogFooter>
@@ -564,7 +565,7 @@ export default function CodingQuestionsPage() {
         <CardContent>
           {isLoadingCategories ? (
             <div className="flex items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <HashLoader color="#456eff" />
             </div>
           ) : (
             <Table>

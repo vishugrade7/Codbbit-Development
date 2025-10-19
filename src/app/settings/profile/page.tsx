@@ -11,7 +11,8 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase, useStorage } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2, Pencil, Upload } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
+import { Pencil, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
@@ -260,7 +261,7 @@ export default function EditProfilePage() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }
@@ -312,7 +313,7 @@ export default function EditProfilePage() {
           </CardContent>
           <CardFooter className="flex justify-end">
               <Button type="submit" disabled={isSaving}>
-              {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              {isSaving && <HashLoader color="#456eff" size={20} />}
               Save Changes
               </Button>
           </CardFooter>
@@ -359,7 +360,7 @@ export default function EditProfilePage() {
         </CardContent>
         <CardFooter className="flex justify-end">
             <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSaving && <HashLoader color="#456eff" size={20} />}
             Save Editor Settings
             </Button>
         </CardFooter>
@@ -435,7 +436,7 @@ export default function EditProfilePage() {
                 setSelectedFile(null);
             }} disabled={isUploading}>Cancel</Button>
             <Button type="button" onClick={handleUploadAvatar} disabled={isUploading || !selectedFile}>
-              {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+              {isUploading ? <HashLoader color="#456eff" size={20} /> : null}
               {isUploading ? 'Uploading...' : 'Save'}
             </Button>
           </DialogFooter>

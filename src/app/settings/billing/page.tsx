@@ -6,7 +6,8 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile, PriceConfig } from '@/lib/types';
-import { Loader2, CreditCard } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
+import { CreditCard } from 'lucide-react';
 import Link from 'next/link';
 
 export default function BillingPage() {
@@ -32,7 +33,7 @@ export default function BillingPage() {
   if (isProfileLoading || isPriceLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }

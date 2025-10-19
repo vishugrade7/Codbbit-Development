@@ -5,7 +5,8 @@ import { useState, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Loader2, Plus, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Download, Plus, MoreHorizontal, Trash2 } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Question } from '@/lib/types';
 import { collection, doc, writeBatch } from 'firebase/firestore';
@@ -116,7 +117,7 @@ export default function ManageProblemsPage() {
             Add Problem
           </Button>
            <Button variant="outline" onClick={handleSeedData} disabled={isSeeding}>
-            {isSeeding ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Download className="mr-2 h-4 w-4" />}
+            {isSeeding ? <HashLoader color="#456eff" size={20} /> : <Download className="mr-2 h-4 w-4" />}
             Seed Problems
           </Button>
         </div>
@@ -130,7 +131,7 @@ export default function ManageProblemsPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <HashLoader color="#456eff" />
             </div>
           ) : (
             <Table>

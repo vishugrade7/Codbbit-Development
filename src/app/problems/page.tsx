@@ -5,7 +5,7 @@ import { useMemo } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser, useDoc } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2 } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CategoryCard } from '@/components/CategoryCard';
 
@@ -66,7 +66,7 @@ export default function PracticeProblemsPage() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }

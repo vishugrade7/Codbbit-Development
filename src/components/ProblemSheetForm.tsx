@@ -30,7 +30,8 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FilePlus2, Loader2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, FilePlus2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2 } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -311,13 +312,13 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                     {isLoading ? (
                       <TableRow>
                         <TableCell colSpan={4} className="h-24 text-center">
-                          <Loader2 className="mx-auto h-8 w-8 animate-spin text-muted-foreground" />
+                          <HashLoader color="#456eff" />
                         </TableCell>
                       </TableRow>
                     ) : (
                       filteredProblems.map(problem => (
                         <TableRow
-                          key={problem.id}
+                          key={problem.id || `${problem.title}-${problem.category}`}
                           className="cursor-pointer"
                           onClick={() => handleSelectProblem(problem)}
                         >
@@ -391,7 +392,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                   onClick={handleSaveSheet} 
                   disabled={saveState !== 'idle'}
                 >
-                  {saveState === 'saving' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {saveState === 'saving' && <HashLoader color="#456eff" size={20} />}
                   {saveState === 'saved' && <Check className="mr-2 h-4 w-4"/>}
                   {saveState === 'idle' && (isEditMode ? 'Update Sheet' : 'Save Sheet')}
                   {saveState === 'saving' && 'Saving...'}

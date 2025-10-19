@@ -7,7 +7,8 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
+import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -195,7 +196,7 @@ export default function ProblemSolvingPage() {
   if (isLoading || !problem || isLoadingProblems) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }
@@ -251,7 +252,7 @@ export default function ProblemSolvingPage() {
             ))}
             {isSyncing && (
                 <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader2 className="h-4 w-4 animate-spin" />
+                    <HashLoader color="#456eff" size={20} />
                     <span>Processing...</span>
                 </div>
             )}

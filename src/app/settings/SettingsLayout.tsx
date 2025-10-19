@@ -11,7 +11,8 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
-import { Loader2, Settings, User, KeyRound, Share2, Briefcase, Mail, CreditCard, Trash2, Link as LinkIcon, Star, Github, ShieldCheck } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
+import { Settings, User, KeyRound, Share2, Briefcase, Mail, CreditCard, Trash2, Link as LinkIcon, Star, Github, ShieldCheck } from 'lucide-react';
 
 const getInitials = (name: string | null | undefined) => {
   if (!name) return 'U';
@@ -58,7 +59,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
   if (isUserLoading || isProfileLoading || isPriceLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }

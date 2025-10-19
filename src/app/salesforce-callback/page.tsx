@@ -4,7 +4,7 @@
 import { useEffect, Suspense } from 'react';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useUser } from '@/firebase';
-import { Loader2 } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { useToast } from '@/hooks/use-toast';
 
 function SalesforceCallback() {
@@ -98,7 +98,7 @@ function SalesforceCallback() {
 
   return (
     <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
-      <Loader2 className="h-12 w-12 animate-spin" />
+      <HashLoader color="#456eff" />
       <p className="text-muted-foreground">Connecting to Salesforce, please wait...</p>
     </div>
   );

@@ -3,13 +3,13 @@
 
 import { ReactNode, Suspense } from 'react';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
-import { Loader2 } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { SettingsLayout } from './SettingsLayout';
 
 function SettingsLoadingFallback() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <Loader2 className="h-12 w-12 animate-spin" />
+      <HashLoader color="#456eff" />
     </div>
   );
 }

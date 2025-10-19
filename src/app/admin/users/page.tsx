@@ -5,7 +5,8 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-import { Download, Loader2, ListFilter, Upload } from 'lucide-react';
+import { Download, ListFilter, Upload } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 import { collection } from 'firebase/firestore';
@@ -193,7 +194,7 @@ export default function ManageUsersPage() {
 
             <Button onClick={handleExportToExcel} disabled={isLoading || isExporting}>
               {isExporting ? (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <HashLoader color="#456eff" size={20} />
               ) : (
                 <Download className="mr-2 h-4 w-4" />
               )}
@@ -201,7 +202,7 @@ export default function ManageUsersPage() {
             </Button>
              <Button onClick={handleBackup} disabled={isLoading || isBackingUp}>
                 {isBackingUp ? (
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <HashLoader color="#456eff" size={20} />
                 ) : (
                     <Upload className="mr-2 h-4 w-4" />
                 )}
@@ -218,7 +219,7 @@ export default function ManageUsersPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
-              <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+              <HashLoader color="#456eff" />
             </div>
           ) : (
             <Table>

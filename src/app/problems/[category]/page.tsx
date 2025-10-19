@@ -6,7 +6,8 @@ import { useParams, useRouter, notFound } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, CheckCircle, Circle } from 'lucide-react';
+import { ArrowLeft, CheckCircle, Circle } from 'lucide-react';
+import { HashLoader } from 'react-spinners';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -84,7 +85,7 @@ export default function CategoryPage() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader2 className="h-12 w-12 animate-spin" />
+        <HashLoader color="#456eff" />
       </div>
     );
   }
