@@ -160,8 +160,6 @@ export function LandingPage() {
                 >
                   Master Salesforce{' '}
                   <RotatingText texts={['SOQL', 'Apex', 'LWC']} />
-                  <br />
-                  <span className="text-primary">One Platform</span>
                 </motion.h1>
 
                 <motion.p 
