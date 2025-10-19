@@ -454,7 +454,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                               <FormItem>
                                 <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
-                                  <Input placeholder="e.g. Tim Cook" {...field} />
+                                  <Input placeholder="e.g. Codbee" {...field} />
                                 </FormControl>
                                 <FormMessage />
                               </FormItem>
@@ -468,7 +468,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                                 <FormLabel>Username <span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
                                   <div className="relative">
-                                    <Input placeholder="e.g. tim_cook" {...field} />
+                                    <Input placeholder="e.g. codbee" {...field} />
                                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
                                         {usernameStatus === 'checking' && <ArrowPathIcon className="h-4 w-4 animate-spin text-muted-foreground" />}
                                         {usernameStatus === 'unique' && <CheckIcon className="h-4 w-4 text-green-500" />}
