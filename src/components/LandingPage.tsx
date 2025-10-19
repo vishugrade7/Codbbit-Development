@@ -170,7 +170,7 @@ export function LandingPage() {
                   priority
                 />
                  <div className="absolute -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
-                   <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg" />
+                   <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg animate-wiggle" />
                  </div>
               </div>
             </motion.div>
