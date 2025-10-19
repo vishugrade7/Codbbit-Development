@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown } from 'lucide-react';
+import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
@@ -216,7 +216,7 @@ export default function HomePage() {
           </header>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-2 space-y-6">
+            <div className="lg:col-span-2 space-y-6 flex flex-col">
               <div className="w-full">
                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   <StatCard
@@ -251,14 +251,14 @@ export default function HomePage() {
                   />
                 </div>
               </div>
-              <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
+              <Card className="animate-fade-in-up flex-grow flex flex-col" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
                   <CardDescription>Curated lists to sharpen your skills.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col">
-                    <div className="space-y-2">
+                <CardContent className="flex-grow">
+                  <div className="flex flex-col h-full">
+                    <div className="space-y-2 flex-grow">
                       {sheets && sheets.map((sheet, index) => {
                           const colorClasses = getCategoryColorClasses(index);
                           return (
@@ -282,12 +282,20 @@ export default function HomePage() {
                     </div>
                     {sheets && sheets.length > 0 && (
                       <div className="flex justify-center pt-4">
-                          <Button variant="outline" asChild>
-                            <Link href="/sheets">
-                              <ArrowDown className="mr-2 h-4 w-4" />
-                              View More
-                            </Link>
-                          </Button>
+                        <TooltipProvider>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button asChild variant="outline" size="icon" className="rounded-full h-10 w-10 flex-shrink-0">
+                                <Link href="/sheets">
+                                  <ArrowDown className="h-4 w-4" />
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View All Sheets</p>
+                            </TooltipContent>
+                          </Tooltip>
+                        </TooltipProvider>
                       </div>
                     )}
                   </div>
@@ -295,42 +303,53 @@ export default function HomePage() {
               </Card>
             </div>
             <div className="lg:col-span-3 space-y-6">
-              <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
+              <Card className="animate-fade-in-up flex flex-col" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="flex flex-col">
-                    <ScrollArea className="h-auto">
-                      <div className="pr-4">
-                        {unsolvedProblems.map((problem, index) => (
-                          <Fragment key={problem.id || problem.title}>
-                            <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
-                              <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                                <p className="font-semibold">{problem.title}</p>
-                                <div className="flex items-center gap-4">
-                                  <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                    {problem.difficulty}
-                                  </Badge>
-                                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                <CardContent className="flex-grow">
+                  <div className="flex flex-col h-full">
+                    <div className="flex-grow">
+                      <ScrollArea className="h-auto">
+                        <div className="pr-4">
+                          {unsolvedProblems.map((problem, index) => (
+                            <Fragment key={problem.id || problem.title}>
+                              <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
+                                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
+                                  <p className="font-semibold">{problem.title}</p>
+                                  <div className="flex items-center gap-4">
+                                    <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                      <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                      {problem.difficulty}
+                                    </Badge>
+                                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                  </div>
                                 </div>
-                              </div>
-                            </Link>
-                            {index < unsolvedProblems.length - 1 && <Separator />}
-                          </Fragment>
-                        ))}
-                      </div>
-                    </ScrollArea>
+                              </Link>
+                              {index < unsolvedProblems.length - 1 && <Separator />}
+                            </Fragment>
+                          ))}
+                        </div>
+                      </ScrollArea>
+                    </div>
                     {unsolvedProblems && unsolvedProblems.length > 0 && (
-                      <div className="flex justify-center pt-4">
-                          <Button variant="outline" asChild>
-                            <Link href="/problems">
-                              <ArrowDown className="mr-2 h-4 w-4" />
-                              View More
-                            </Link>
-                          </Button>
+                       <div className="flex justify-center pt-4">
+                        <TooltipProvider>
+                            <Tooltip>
+                                <TooltipTrigger asChild>
+                                    <Button asChild variant="outline" className="gap-2">
+                                        <Link href="/problems">
+                                            <ArrowDown className="h-4 w-4" />
+                                            View More
+                                        </Link>
+                                    </Button>
+                                </TooltipTrigger>
+                                <TooltipContent>
+                                    <p>View All Problems</p>
+                                </TooltipContent>
+                            </Tooltip>
+                        </TooltipProvider>
                       </div>
                     )}
                   </div>
