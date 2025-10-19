@@ -6,13 +6,12 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check } from "lucide-react";
+import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check, Sheet as SheetIcon } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
-import ShinyText from "./ui/ShinyText";
 import RotatingText from "./ui/RotatingText";
 import './ui/RotatingText.css';
 import { cn } from "@/lib/utils";
