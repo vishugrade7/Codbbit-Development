@@ -24,7 +24,6 @@ type ManagedPackage = {
 export function BottomBar() {
   const firestore = useFirestore();
   const { user } = useUser();
-  const { toast } = useToast();
   
   const [isInstalling, setIsInstalling] = useState(false);
 
@@ -104,7 +103,7 @@ export function BottomBar() {
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
-                <p>Install Package</p>
+                <p>Get new questions</p>
               </TooltipContent>
             </Tooltip>
         </TooltipProvider>
