@@ -120,11 +120,6 @@ export function LandingPage() {
         answer:
           "Yes, you will need to connect your own free Salesforce Developer Edition org. This allows you to execute code in a real, live environment, which is the best way to practice. Codbbit securely deploys and runs code using the Tooling API.",
       },
-      {
-        question: "How are my solutions evaluated?",
-        answer:
-          "For each problem, we provide a complete Apex test class. When you submit your solution, we deploy both your code and our test class to your org and run the tests. You get immediate feedback on whether your solution passed.",
-      },
        {
         question: "Is Codbbit free to use?",
         answer:
