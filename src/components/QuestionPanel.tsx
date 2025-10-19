@@ -85,7 +85,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
                     {question.examples.map((ex, index) => (
                         <div key={index}>
                             <h3 className="font-semibold text-base">Example {index + 1}:</h3>
-                            <div className="bg-muted p-4 rounded-lg mt-2">
+                            <div className="bg-muted p-4 rounded-lg mt-2 inline-block">
                             <pre className="font-code text-xs whitespace-pre-wrap leading-relaxed text-foreground">
                                 <div><strong className="font-semibold select-none">Input:</strong> {typeof ex.input === 'string' ? ex.input : JSON.stringify(ex.input)}</div>
                                 <div><strong className="font-semibold select-none">Output:</strong> {typeof ex.output === 'string' ? ex.output : JSON.stringify(ex.output)}</div>
