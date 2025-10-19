@@ -45,9 +45,9 @@ import { HeaderBar } from '@/components/HeaderBar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
+import { useTheme } from '@/components';
 
 const DEFAULT_FONT_SIZE = 14;
-const DEFAULT_EDITOR_THEME = 'vs-dark';
 
 export default function ProblemSolvingPage() {
   const params = useParams();
@@ -55,6 +55,7 @@ export default function ProblemSolvingPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
+  const { theme } = useTheme();
   
   const categoryUrlParam = params.category as string;
   const problemId = params.problemId as string;
@@ -67,7 +68,7 @@ export default function ProblemSolvingPage() {
   const [isQuestionPanelVisible, setIsQuestionPanelVisible] = useState(true);
 
   const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
-  const [editorTheme, setEditorTheme] = useState(DEFAULT_EDITOR_THEME);
+  const [editorTheme, setEditorTheme] = useState(theme === 'dark' ? 'vs-dark' : 'light');
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
   
@@ -121,15 +122,20 @@ export default function ProblemSolvingPage() {
   useEffect(() => {
     try {
       const storedFontSize = localStorage.getItem('editor_font_size');
-      const storedTheme = localStorage.getItem('editor_theme');
-      
       if (storedFontSize) setFontSize(Number(storedFontSize));
-      if (storedTheme) setEditorTheme(storedTheme);
+
+      const storedTheme = localStorage.getItem('editor_theme');
+      if (storedTheme) {
+        setEditorTheme(storedTheme)
+      } else {
+        setEditorTheme(theme === 'dark' ? 'vs-dark' : 'light')
+      }
       
     } catch (error) {
       console.warn("Could not access localStorage for editor settings.");
+      setEditorTheme(theme === 'dark' ? 'vs-dark' : 'light');
     }
-  }, []);
+  }, [theme]);
 
 
   useEffect(() => {
