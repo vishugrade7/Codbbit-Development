@@ -7,16 +7,16 @@ import type { Attachment } from 'nodemailer/lib/mailer';
 export async function sendFeedbackEmail(
   formData: FormData
 ): Promise<{ success: boolean; error?: string }> {
-  const { ZOHO_SMTP_HOST, ZOHO_SMTP_PORT, ZOHO_SMTP_USER, ZOHO_SMTP_PASS } =
+  const { ZEPTOMAIL_HOST, ZEPTOMAIL_PORT, ZEPTOMAIL_USER, ZEPTOMAIL_PASS } =
     process.env;
 
   if (
-    !ZOHO_SMTP_HOST ||
-    !ZOHO_SMTP_PORT ||
-    !ZOHO_SMTP_USER ||
-    !ZOHO_SMTP_PASS
+    !ZEPTOMAIL_HOST ||
+    !ZEPTOMAIL_PORT ||
+    !ZEPTOMAIL_USER ||
+    !ZEPTOMAIL_PASS
   ) {
-    console.error('Zoho Mail environment variables not set');
+    console.error('Zeptomail environment variables not set');
     return {
       success: false,
       error: 'Server email configuration is incomplete.',
@@ -34,11 +34,11 @@ export async function sendFeedbackEmail(
   }
 
   const transport = nodemailer.createTransport({
-    host: ZOHO_SMTP_HOST,
-    port: parseInt(ZOHO_SMTP_PORT, 10),
+    host: ZEPTOMAIL_HOST,
+    port: parseInt(ZEPTOMAIL_PORT, 10),
     auth: {
-      user: ZOHO_SMTP_USER,
-      pass: ZOHO_SMTP_PASS,
+      user: ZEPTOMAIL_USER,
+      pass: ZEPTOMAIL_PASS,
     },
   });
   
