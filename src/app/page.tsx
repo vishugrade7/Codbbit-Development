@@ -291,7 +291,7 @@ export default function HomePage() {
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-[300px]">
+                  <ScrollArea className="h-[400px]">
                     <div className="pr-4">
                       {unsolvedProblems.map((problem, index) => (
                         <Fragment key={problem.id || problem.title}>
