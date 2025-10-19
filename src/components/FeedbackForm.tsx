@@ -163,83 +163,81 @@ export function FeedbackForm() {
         </p>
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
-        <Card>
-          <CardContent className="space-y-6">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <div className="space-y-2">
-                <Label htmlFor="name">Name</Label>
-                <Input
-                  id="name"
-                  {...register('name')}
-                  readOnly
-                  className="bg-muted/50"
-                />
-              </div>
-              <div className="space-y-2">
-                <Label htmlFor="email">Email address</Label>
-                <Input
-                  id="email"
-                  {...register('email')}
-                  readOnly
-                  className="bg-muted/50"
-                />
-              </div>
+        <div className="space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="name">Name</Label>
+              <Input
+                id="name"
+                {...register('name')}
+                readOnly
+                className="bg-muted/50"
+              />
             </div>
             <div className="space-y-2">
-              <Label htmlFor="subject">Subject</Label>
-              <Controller
-                name="subject"
-                control={control}
-                render={({ field }) => (
-                  <Select
-                    onValueChange={field.onChange}
-                    value={field.value}
-                    disabled={isSubmitting}
-                  >
-                    <SelectTrigger id="subject">
-                      <SelectValue placeholder="Select a subject..." />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="profile-tracker"><Activity className="mr-2 h-4 w-4" />Profile Tracker</SelectItem>
-                      <SelectItem value="bug-report"><Bug className="mr-2 h-4 w-4" />Bug Report</SelectItem>
-                      <SelectItem value="feature-request"><Lightbulb className="mr-2 h-4 w-4" />Feature Request</SelectItem>
-                      <SelectItem value="general-question"><HelpCircle className="mr-2 h-4 w-4" />General Question</SelectItem>
-                      <SelectItem value="other"><MoreHorizontal className="mr-2 h-4 w-4" />Other</SelectItem>
-                    </SelectContent>
-                  </Select>
-                )}
+              <Label htmlFor="email">Email address</Label>
+              <Input
+                id="email"
+                {...register('email')}
+                readOnly
+                className="bg-muted/50"
               />
-              {errors.subject && <p className="text-sm text-red-500">{errors.subject.message}</p>}
             </div>
-            <div className="space-y-2">
-              <Label htmlFor="message">Message</Label>
-              <Textarea
-                id="message"
-                {...register('message')}
-                placeholder="Type your message here..."
-                rows={6}
-                disabled={isSubmitting}
-              />
-              {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
-            </div>
-             <div className="space-y-2">
-                <Label htmlFor="attachments" className="flex items-center gap-2">
-                    <Paperclip className="h-4 w-4" />
-                    Attachments (Optional)
-                </Label>
-                 <Input id="attachments" type="file" {...register("attachments")} multiple />
-                {errors.attachments && <p className="text-sm text-red-500">{errors.attachments.message as string}</p>}
-            </div>
-          </CardContent>
-          <CardFooter className="justify-end">
-            <Button type="submit" disabled={isSubmitting}>
-              {isSubmitting && (
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="subject">Subject</Label>
+            <Controller
+              name="subject"
+              control={control}
+              render={({ field }) => (
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                  disabled={isSubmitting}
+                >
+                  <SelectTrigger id="subject">
+                    <SelectValue placeholder="Select a subject..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="profile-tracker"><Activity className="mr-2 h-4 w-4" />Profile Tracker</SelectItem>
+                    <SelectItem value="bug-report"><Bug className="mr-2 h-4 w-4" />Bug Report</SelectItem>
+                    <SelectItem value="feature-request"><Lightbulb className="mr-2 h-4 w-4" />Feature Request</SelectItem>
+                    <SelectItem value="general-question"><HelpCircle className="mr-2 h-4 w-4" />General Question</SelectItem>
+                    <SelectItem value="other"><MoreHorizontal className="mr-2 h-4 w-4" />Other</SelectItem>
+                  </SelectContent>
+                </Select>
               )}
-              Submit
-            </Button>
-          </CardFooter>
-        </Card>
+            />
+            {errors.subject && <p className="text-sm text-red-500">{errors.subject.message}</p>}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="message">Message</Label>
+            <Textarea
+              id="message"
+              {...register('message')}
+              placeholder="Type your message here..."
+              rows={6}
+              disabled={isSubmitting}
+            />
+            {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
+          </div>
+           <div className="space-y-2">
+              <Label htmlFor="attachments" className="flex items-center gap-2">
+                  <Paperclip className="h-4 w-4" />
+                  Attachments (Optional)
+              </Label>
+               <Input id="attachments" type="file" {...register("attachments")} multiple />
+              {errors.attachments && <p className="text-sm text-red-500">{errors.attachments.message as string}</p>}
+          </div>
+        </div>
+        <div className="flex justify-end mt-6">
+          <Button type="submit" disabled={isSubmitting}>
+            {isSubmitting && (
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            )}
+            Submit
+          </Button>
+        </div>
       </form>
     </div>
   );
