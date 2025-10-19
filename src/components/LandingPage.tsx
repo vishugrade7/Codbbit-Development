@@ -85,6 +85,9 @@ export function LandingPage() {
           { name: 'Top 50 Apex Questions', count: 50 },
           { name: 'Salesforce Interview Prep', count: 75 },
           { name: 'Async Apex Mastery', count: 25 },
+          { name: 'SOQL Zero to Hero', count: 30 },
+          { name: 'Trigger Frameworks', count: 20 },
+          { name: 'LWC Best Practices', count: 40 },
         ]
       }
     ];
@@ -150,8 +153,8 @@ export function LandingPage() {
           <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="absolute inset-0 -z-10 [mask-image:radial-gradient(farthest-side,white,transparent)] bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22hsl(var(--border))%22%3E%3Cpath%20d%3D%22M0%20.5%20L32%20.5%20M.5%200%20L.5%2032%22%2F%3E%3C%2Fsvg%3E')]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
-            <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
-              <div className="max-w-xl text-center md:text-left lg:col-span-2">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+              <div className="max-w-xl text-center md:text-left">
                  <BlurText
                     text="Master Salesforce"
                     className="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl"
@@ -190,7 +193,7 @@ export function LandingPage() {
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
-                className="relative flow-root lg:col-span-3"
+                className="relative flow-root"
               >
                 <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
                   {heroImageLight && (
@@ -393,3 +396,5 @@ export function LandingPage() {
     </div>
   );
 }
+
+    
