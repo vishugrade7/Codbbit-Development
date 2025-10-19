@@ -137,6 +137,10 @@
 }
 
 @layer utilities {
+  .dotted-bg {
+    background-image: radial-gradient(circle at 1px 1px, hsl(var(--muted-foreground) / 0.3) 1px, transparent 0);
+    background-size: 1.5rem 1.5rem;
+  }
   @keyframes aurora {
     from {
       background-position: 50% 50%, 50% 50%;
@@ -155,5 +159,18 @@
         transparent 30%
       ),
       radial-gradient(circle at 0 100%, hsl(280 90% 60% / 0.2), transparent 30%);
+  }
+
+  .scroll-stack-container {
+    padding-bottom: 20rem;
+  }
+  .scroll-stack-inner {
+      padding-top: 5rem;
+      padding-bottom: 0;
+  }
+  .scroll-stack-card {
+      position: sticky;
+      top: 5rem;
+      transform-origin: center top;
   }
 }

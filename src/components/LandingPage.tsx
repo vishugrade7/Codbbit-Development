@@ -6,7 +6,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send } from "lucide-react";
+import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
@@ -18,90 +18,57 @@ import './ui/RotatingText.css';
 import { cn } from "@/lib/utils";
 import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
-import ScrollStack, { ScrollStackItem } from "./ui/ScrollStack";
-import "./ui/ScrollStack.css";
 import { getPlaceholderImage } from "@/lib/placeholder-images";
 import { useTheme } from "@/components/ThemeProvider";
 import { ScrollFloat } from "@/components/ui/ScrollFloat";
-
-const FeatureSection = ({ feature, index }: { feature: any; index: number }) => {
-  const isOdd = index % 2 !== 0;
-  const { theme } = useTheme();
-  const featureImage = theme === 'dark' ? getPlaceholderImage('features-dark') : getPlaceholderImage('features-light');
-
-  return (
-    <motion.div
-      initial={{ opacity: 0, y: 50 }}
-      whileInView={{ opacity: 1, y: 0 }}
-      viewport={{ once: true, amount: 0.3 }}
-      transition={{ duration: 0.6 }}
-      className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center"
-    >
-      <div className={cn("space-y-4", isOdd && "md:order-2")}>
-        <div className="inline-flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                {feature.icon}
-            </div>
-            <h3 className="text-2xl font-bold font-headline">{feature.title}</h3>
-        </div>
-        <p className="text-lg text-muted-foreground">{feature.description}</p>
-      </div>
-      <motion.div 
-        className={cn("rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:p-4", isOdd && "md:order-1")}
-        initial={{ opacity: 0, x: isOdd ? -100 : 100 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true, amount: 0.5 }}
-        transition={{ duration: 0.6, type: 'spring', stiffness: 90, damping: 20 }}
-      >
-        <Image
-          src={featureImage?.imageUrl || `/image-${index + 2}.png`}
-          alt={feature.title}
-          width={1200}
-          height={800}
-          className="rounded-md shadow-lg ring-1 ring-muted/20"
-          data-ai-hint={featureImage?.imageHint}
-        />
-      </motion.div>
-    </motion.div>
-  );
-};
 
 
 export function LandingPage() {
   const { theme } = useTheme();
   const heroImageLight = getPlaceholderImage('hero-light');
   const heroImageDark = getPlaceholderImage('hero-dark');
+  const ref = useRef(null);
+  const { scrollYProgress } = useScroll({
+    target: ref,
+    offset: ["start start", "end end"],
+  });
 
   const features = [
       {
-        icon: <Code className="h-8 w-8 text-primary" />,
-        title: 'Real-time Code Execution',
+        icon: <Users className="h-6 w-6 text-primary" />,
+        title: 'Avatars - Build your Expert Team',
         description:
-          'Execute Apex code against a real Salesforce org and get immediate feedback, just like in a real-world scenario.',
+          "Introducing a brand-new feature: Avatars. With Avatars, you can choose who you want to interact with — whether it's legendary figures from history or a team of dedicated expert advisors tailored to your personal needs.",
+        points: [
+            "Engage with historical figures.",
+            "Build a personalized expert team.",
+            "Get tailored advice and insights.",
+        ],
+        avatars: [
+            { src: "https://i.pravatar.cc/150?u=einstein", alt: "Einstein", className: "h-32 w-32 top-[20%] left-[5%]" },
+            { src: "https://i.pravatar.cc/150?u=socrates", alt: "Socrates", className: "h-36 w-36 top-[10%] left-[40%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-24 w-24 top-0 right-[15%]" },
+            { src: "https://i.pravatar.cc/150?u=gandhi", alt: "Gandhi", className: "h-32 w-32 bottom-0 right-[30%]" },
+            { src: "https://i.pravatar.cc/150?u=trainer", alt: "Fitness Trainer", className: "h-28 w-28 top-[45%] right-0" },
+            { src: "https://i.pravatar.cc/150?u=doctor", alt: "Doctor", className: "h-20 w-20 bottom-[10%] left-[20%]" },
+        ]
       },
       {
-        icon: <Bot className="h-8 w-8 text-primary" />,
-        title: 'AI-Powered Assistant',
-        description: 'Get unstuck with Codbee, our AI tutor that provides hints and explains concepts without giving away the solution.',
-      },
-      {
-        icon: <List className="h-8 w-8 text-primary" />,
-        title: 'Curated Problem Sheets',
-        description: 'Practice with targeted problem lists for interview prep, specific topics like SOQL, or Triggers.',
-      },
-      {
-        icon: <Trophy className="h-8 w-8 text-primary" />,
-        title: 'Competitive Leaderboards',
-        description: 'See how you stack up against other Salesforce developers and climb the ranks by solving problems.',
-      },
-      {
-        icon: <Users className="h-8 w-8 text-primary" />,
-        title: 'Realistic Interview Prep',
-        description:
-          'Solve problems that mirror what you\'ll face in technical interviews for Salesforce developer roles.',
+        icon: <FileCode className="h-6 w-6 text-primary" />,
+        title: 'Custom Projects with System Instructions',
+        description: "Create unique projects with tailored system guidelines. Set 'Marketing Mode' or 'Code Review Mode' once, ensuring every AI interaction aligns with your project's specific context and goals.",
+        points: [
+            "Tailor AI behavior with system-level instructions.",
+            "Maintain context across all interactions within a project.",
+            "Switch between modes like 'Marketing' or 'Code Review'.",
+        ],
+        image: {
+            light: getPlaceholderImage('features-light'),
+            dark: getPlaceholderImage('features-dark'),
+        }
       },
     ];
-
+    
     const testimonials = [
         { name: "John Doe", title: "Salesforce Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d", text: "Codbbit has been a game-changer for my interview prep. The problems are realistic and the real-time execution environment is invaluable." },
         { name: "Jane Smith", title: "Senior Apex Developer", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704e", text: "The AI assistant is amazing. It helps me understand concepts without just giving me the answer. My coding has improved so much." },
@@ -141,17 +108,18 @@ export function LandingPage() {
           "Yes, Codbbit offers a generous free tier that includes access to a wide range of problems and core features. We also have a Premium plan with advanced features like the AI assistant and exclusive problem sets.",
       },
     ];
-
-    const featuresRef = useRef(null);
-    const { scrollYProgress } = useScroll({
-        target: featuresRef,
-        offset: ["start center", "end center"],
-    });
-
-    const springyPathLength = useSpring(scrollYProgress, {
-      stiffness: 400,
-      damping: 90,
-    });
+    
+  const scale = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [1, 0.8]
+  );
+  
+  const rotate = useTransform(
+    scrollYProgress,
+    [0, 1],
+    [0, -5]
+  );
 
 
   return (
@@ -244,25 +212,85 @@ export function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section id="features" className="container mx-auto px-4 py-20">
-          <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
-              A smarter way to practice Apex
-            </h2>
-            <p className="mt-6 text-lg text-muted-foreground">
-              We've built a comprehensive platform to give you the tools and practice you need to excel.
-            </p>
-          </div>
-          <div className="mt-20">
-            <ScrollStack useWindowScroll>
-              {features.map((feature, index) => (
-                <ScrollStackItem key={feature.title}>
-                  <FeatureSection feature={feature} index={index} />
-                </ScrollStackItem>
-              ))}
-            </ScrollStack>
-          </div>
-        </section>
+        <div ref={ref} className="relative z-10">
+          {features.map((feature, i) => {
+            const targetScale = 1 - ((features.length - i) * 0.05);
+            return (
+              <motion.div
+                key={i}
+                className="sticky top-0"
+                style={{
+                  scale,
+                  rotate,
+                  top: `${i * 2.5}rem`,
+                }}
+              >
+                 <div className="relative h-[80vh] rounded-2xl border border-border/20 bg-card p-8 md:p-12 overflow-hidden dotted-bg">
+                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-background via-background/80 to-background" />
+                    <div className="grid md:grid-cols-2 gap-12">
+                        <div className="space-y-6">
+                            <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
+                                {feature.icon}
+                            </div>
+                            <h2 className="text-3xl md:text-4xl font-bold font-headline">{feature.title}</h2>
+                            <p className="text-muted-foreground text-lg">
+                                {feature.description}
+                            </p>
+                            <ul className="space-y-4">
+                                {feature.points.map((text, i) => (
+                                    <li key={i} className="flex items-center gap-3">
+                                        <Check className="h-5 w-5 text-primary bg-primary/10 rounded-full p-1" />
+                                        <span className="text-foreground">{text}</span>
+                                    </li>
+                                ))}
+                            </ul>
+                        </div>
+                        <div className="relative min-h-[300px]">
+                            {feature.avatars && feature.avatars.map((avatar, avatarIndex) => (
+                                <motion.div 
+                                    key={avatarIndex}
+                                    initial={{ scale: 0.8, opacity: 0 }} 
+                                    whileInView={{ scale: 1, opacity: 1 }} 
+                                    transition={{ duration: 0.5, delay: 0.2 + avatarIndex * 0.1 }} 
+                                    className={cn("absolute", avatar.className)}
+                                >
+                                    <Avatar className="h-full w-full border-4 border-background">
+                                        <AvatarImage src={avatar.src} alt={avatar.alt} />
+                                        <AvatarFallback>{avatar.alt.substring(0, 2)}</AvatarFallback>
+                                    </Avatar>
+                                </motion.div>
+                            ))}
+                            {feature.image && (
+                                <>
+                                    {feature.image.light && (
+                                        <Image
+                                        src={feature.image.light.imageUrl}
+                                        alt={feature.image.light.description}
+                                        width={600}
+                                        height={400}
+                                        className={cn("rounded-md shadow-2xl ring-1 ring-muted/20", theme === 'dark' && 'hidden')}
+                                        data-ai-hint={feature.image.light.imageHint}
+                                        />
+                                    )}
+                                    {feature.image.dark && (
+                                        <Image
+                                        src={feature.image.dark.imageUrl}
+                                        alt={feature.image.dark.description}
+                                        width={600}
+                                        height={400}
+                                        className={cn("rounded-md shadow-2xl ring-1 ring-muted/20", theme === 'light' && 'hidden')}
+                                        data-ai-hint={feature.image.dark.imageHint}
+                                        />
+                                    )}
+                                </>
+                            )}
+                        </div>
+                    </div>
+                </div>
+              </motion.div>
+            );
+          })}
+        </div>
 
 
         {/* Testimonials Section */}
