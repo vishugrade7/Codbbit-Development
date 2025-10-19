@@ -161,12 +161,20 @@ export function LandingPage() {
               className="relative mt-16 flow-root sm:mt-24 max-w-5xl mx-auto"
             >
               <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
-                <Image
+                 <Image
                   src="/image 1.png"
-                  alt="App screenshot"
+                  alt="App screenshot light mode"
                   width={2432}
                   height={1442}
-                  className="rounded-md shadow-2xl ring-1 ring-muted/20"
+                  className="rounded-md shadow-2xl ring-1 ring-muted/20 dark:hidden"
+                  priority
+                />
+                 <Image
+                  src="/image-dark.png"
+                  alt="App screenshot dark mode"
+                  width={2432}
+                  height={1442}
+                  className="rounded-md shadow-2xl ring-1 ring-muted/20 hidden dark:block"
                   priority
                 />
                  <div className="absolute -z-10 -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
