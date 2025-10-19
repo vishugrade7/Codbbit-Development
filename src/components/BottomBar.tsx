@@ -25,9 +25,7 @@ export function BottomBar() {
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
-
-  const [isInstallDialogOpen, setIsInstallDialogOpen] = useState(false);
-  const [packageUrl, setPackageUrl] = useState('');
+  
   const [isInstalling, setIsInstalling] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
@@ -44,15 +42,11 @@ export function BottomBar() {
 
   const { data: managedPackage } = useDoc<ManagedPackage>(packageDocRef);
 
-  useEffect(() => {
-    if (managedPackage?.url) {
-      setPackageUrl(managedPackage.url);
-    }
-  }, [managedPackage]);
-
   const handleInstallPackage = async () => {
-    if (!packageUrl) {
-      toast({ title: "Error", description: "Please enter a package URL.", variant: "destructive" });
+    if (isInstalling) return;
+
+    if (!managedPackage?.url) {
+      toast({ title: "Error", description: "No package URL is configured in the system.", variant: "destructive" });
       return;
     }
      if (!userProfile?.sfdcAuth || !userProfile.uid) {
@@ -61,7 +55,7 @@ export function BottomBar() {
     }
 
     try {
-        const url = new URL(packageUrl);
+        const url = new URL(managedPackage.url);
         const packageVersionKey = url.searchParams.get('p0');
 
         if (!packageVersionKey) {
@@ -70,7 +64,6 @@ export function BottomBar() {
         
         setIsInstalling(true);
         toast({ title: "Installation Started", description: "Package installation is in progress. This may take several minutes." });
-        setIsInstallDialogOpen(false);
 
         const result = await installSalesforcePackage(userProfile.sfdcAuth, packageVersionKey, userProfile.uid);
 
@@ -84,7 +77,6 @@ export function BottomBar() {
          toast({ title: "Installation Failed", description: error.message, variant: "destructive" });
     } finally {
         setIsInstalling(false);
-        // Do not clear packageUrl on close
     }
   }
 
@@ -105,51 +97,18 @@ export function BottomBar() {
                 <AnonymousCodeRunner />
             </DialogContent>
         </Dialog>
-        <Dialog open={isInstallDialogOpen} onOpenChange={setIsInstallDialogOpen}>
-          <TooltipProvider>
+        <TooltipProvider>
             <Tooltip>
               <TooltipTrigger asChild>
-                <DialogTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-6 w-6">
-                      <Package size={16} className={isInstalling ? "animate-pulse" : ""} />
-                    </Button>
-                </DialogTrigger>
+                <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleInstallPackage} disabled={isInstalling}>
+                  {isInstalling ? <Loader2 size={16} className="animate-spin" /> : <Package size={16} />}
+                </Button>
               </TooltipTrigger>
               <TooltipContent>
                 <p>Install Package</p>
               </TooltipContent>
             </Tooltip>
-          </TooltipProvider>
-            <DialogContent>
-                <DialogHeader>
-                    <DialogTitle>Install a Managed Package</DialogTitle>
-                    <DialogDescription>
-                        Enter the installation URL for a managed package to install it in your connected Salesforce org.
-                    </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                    <div className="grid grid-cols-4 items-center gap-4">
-                        <Label htmlFor="package-url" className="text-right">
-                        URL
-                        </Label>
-                        <Input
-                        id="package-url"
-                        value={packageUrl}
-                        onChange={(e) => setPackageUrl(e.target.value)}
-                        className="col-span-3"
-                        placeholder="https://login.salesforce.com/packaging/installPackage.apexp?p0=..."
-                        />
-                    </div>
-                </div>
-                <DialogFooter>
-                    <Button variant="outline" onClick={() => setIsInstallDialogOpen(false)}>Cancel</Button>
-                    <Button onClick={handleInstallPackage} disabled={isInstalling}>
-                        {isInstalling && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                        Install
-                    </Button>
-                </DialogFooter>
-            </DialogContent>
-        </Dialog>
+        </TooltipProvider>
       </div>
     </footer>
   );
