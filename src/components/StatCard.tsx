@@ -36,28 +36,28 @@ export function StatCard({
         "rounded-2xl",
         variant === 'primary' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-card'
     )}>
-      <CardContent className="p-5">
+      <CardContent className="p-4">
         {isLoading ? (
           <div className="space-y-2">
-            <Skeleton className="h-6 w-24" />
-            <Skeleton className="h-10 w-32" />
-            <Skeleton className="h-4 w-28" />
+            <Skeleton className="h-5 w-20" />
+            <Skeleton className="h-8 w-28" />
+            <Skeleton className="h-4 w-24" />
           </div>
         ) : (
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-sm font-medium" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
-              <div className={cn("flex h-8 w-8 items-center justify-center rounded-full",
+          <div className="space-y-2">
+            <div className="flex items-center gap-2 text-xs font-medium" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
+              <div className={cn("flex h-6 w-6 items-center justify-center rounded-full",
                 variant === 'primary' ? 'bg-white/20' : 'bg-muted'
               )}>
-                <Icon className="h-4 w-4" style={{color: variant === 'primary' ? 'white' : 'hsl(var(--foreground))'}}/>
+                <Icon className="h-3 w-3" style={{color: variant === 'primary' ? 'white' : 'hsl(var(--foreground))'}}/>
               </div>
               <span>{title}</span>
             </div>
-            <div className="text-4xl font-bold">{value}</div>
-            <div className="flex items-center gap-1 text-sm" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
+            <div className="text-2xl font-bold">{value}</div>
+            <div className="flex items-center gap-1 text-xs" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
               {changeType !== 'neutral' && changeValue !== undefined && (
                 <div className={cn("flex items-center gap-1 font-semibold", changeType === 'positive' ? 'text-emerald-400' : 'text-red-400')}>
-                  <ChangeIcon className="h-4 w-4" />
+                  <ChangeIcon className="h-3 w-3" />
                   {changeType === 'positive' ? `+${changeValue}` : changeValue}%
                 </div>
               )}
