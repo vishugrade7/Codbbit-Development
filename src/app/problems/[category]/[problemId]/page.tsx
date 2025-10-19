@@ -48,6 +48,8 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { useTheme } from '@/components';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
 
 const DEFAULT_FONT_SIZE = 14;
 
@@ -215,29 +217,6 @@ export default function ProblemSolvingPage() {
       });
     }
   };
-
-
-  const DifficultyFilterRadioGroup = ({ title, options, value, onValueChange }: { title: string, options: string[], value: string, onValueChange: (value: any) => void }) => (
-    <div className="grid gap-2">
-      <p className="font-medium text-sm flex items-center gap-2 text-muted-foreground">
-        <BarChartHorizontal className="h-4 w-4" />
-        {title}
-      </p>
-      <div className="flex items-center gap-2">
-        {options.map(option => (
-          <Button
-            key={option}
-            variant={value === option ? 'secondary' : 'ghost'}
-            size="sm"
-            onClick={() => onValueChange(option)}
-            className="rounded-full h-8 px-3 text-xs"
-          >
-            {option}
-          </Button>
-        ))}
-      </div>
-    </div>
-  );
   
   const isProblemActive = (p: Partial<Question>) => problemId === (p.id || p.title);
 
@@ -328,19 +307,27 @@ export default function ProblemSolvingPage() {
                                          className="pl-9"
                                      />
                                   </div>
-                                  <DifficultyFilterRadioGroup title="Difficulty" options={['All', 'Easy', 'Medium', 'Hard']} value={difficultyFilter} onValueChange={setDifficultyFilter} />
+                                  <RadioGroup value={difficultyFilter} onValueChange={(value) => setDifficultyFilter(value as any)} className="flex items-center gap-2">
+                                     <Label className="text-sm">Difficulty:</Label>
+                                    {['All', 'Easy', 'Medium', 'Hard'].map(option => (
+                                        <div key={option} className="flex items-center space-x-2">
+                                            <RadioGroupItem value={option} id={`diff-${option}`} />
+                                            <Label htmlFor={`diff-${option}`} className="text-sm font-normal">{option}</Label>
+                                        </div>
+                                    ))}
+                                  </RadioGroup>
                               </div>
                               <ScrollArea className="h-[calc(100vh-80px)]">
                                 <div className="p-2">
                                    {categoryProblems.map(p => (
                                        <Link key={p.id} href={`/problems/${p.category}/${p.id || p.title}`}>
                                           <div className={cn(
-                                                "group flex items-start justify-between p-3 rounded-md hover:bg-muted h-12 hover:h-auto transition-all",
+                                                "flex items-start justify-between p-3 rounded-md hover:bg-muted",
                                                 isProblemActive(p) && "bg-muted"
                                             )}>
                                                 <div className="flex items-start gap-3 overflow-hidden text-sm">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" /> : <div className="w-4 h-4 flex-shrink-0" />}
-                                                    <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis group-hover:whitespace-normal">{p.number}. {p.title}</span>
+                                                    <span className="font-medium">{p.number}. {p.title}</span>
                                                 </div>
                                                 <Badge variant="outline" className={cn("text-xs w-20 justify-center flex-shrink-0", getDifficultyClass(p.difficulty))}>
                                                     {p.difficulty}
