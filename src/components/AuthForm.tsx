@@ -445,60 +445,21 @@ function AuthFormComponent({ type }: AuthFormProps) {
                       </div>
                   </TabsContent>
                   <TabsContent value="profile" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                       <div className="space-y-4">
-                          <FormField
-                            control={form.control}
-                            name="fullName"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
-                                <FormControl>
-                                  <Input placeholder="e.g. Codbee" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="username"
-                            render={({ field }) => (
-                              <FormItem>
-                                <FormLabel>Username <span className="text-destructive">*</span></FormLabel>
-                                <FormControl>
-                                  <div className="relative">
-                                    <Input placeholder="e.g. codbee" {...field} />
-                                    <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                        {usernameStatus === 'checking' && <ArrowPathIcon className="h-4 w-4 animate-spin text-muted-foreground" />}
-                                        {usernameStatus === 'unique' && <CheckIcon className="h-4 w-4 text-green-500" />}
-                                        {usernameStatus === 'taken' && <XMarkIcon className="h-4 w-4 text-red-500" />}
-                                    </div>
-                                  </div>
-                                </FormControl>
-                                <FormMessage />
-                              </FormItem>
-                            )}
-                          />
-                          <FormField
-                            control={form.control}
-                            name="company"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Company / College (Optional)</FormLabel>
-                                <FormControl>
-                                    <CompanyAutocomplete
-                                      value={field.value || ''}
-                                      onValueChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                            />
-                       </div>
-                       <div className="space-y-4">
-                          <FormField
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                        <FormField
+                        control={form.control}
+                        name="fullName"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
+                            <FormControl>
+                                <Input placeholder="e.g. Codbee" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
                             control={form.control}
                             name="country"
                             render={({ field }) => (
@@ -514,21 +475,56 @@ function AuthFormComponent({ type }: AuthFormProps) {
                                 <FormMessage />
                                 </FormItem>
                             )}
-                          />
-                          <FormField
+                        />
+                        <FormField
+                        control={form.control}
+                        name="username"
+                        render={({ field }) => (
+                            <FormItem>
+                            <FormLabel>Username <span className="text-destructive">*</span></FormLabel>
+                            <FormControl>
+                                <div className="relative">
+                                <Input placeholder="e.g. codbee" {...field} />
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                    {usernameStatus === 'checking' && <ArrowPathIcon className="h-4 w-4 animate-spin text-muted-foreground" />}
+                                    {usernameStatus === 'unique' && <CheckIcon className="h-4 w-4 text-green-500" />}
+                                    {usernameStatus === 'taken' && <XMarkIcon className="h-4 w-4 text-red-500" />}
+                                </div>
+                                </div>
+                            </FormControl>
+                            <FormMessage />
+                            </FormItem>
+                        )}
+                        />
+                        <FormField
                             control={form.control}
                             name="referralCode"
                             render={({ field }) => (
-                              <FormItem>
+                                <FormItem>
                                 <FormLabel>Referral Code (Optional)</FormLabel>
                                 <FormControl>
-                                  <Input placeholder="Enter referral code" {...field} />
+                                    <Input placeholder="Enter referral code" {...field} />
                                 </FormControl>
                                 <FormMessage />
-                              </FormItem>
+                                </FormItem>
                             )}
-                          />
-                       </div>
+                        />
+                        <FormField
+                            control={form.control}
+                            name="company"
+                            render={({ field }) => (
+                                <FormItem className="md:col-span-2">
+                                <FormLabel>Company / College (Optional)</FormLabel>
+                                <FormControl>
+                                    <CompanyAutocomplete
+                                    value={field.value || ''}
+                                    onValueChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                        />
                     </div>
                      <div className="flex flex-col-reverse sm:flex-row gap-2 mt-4">
                         <Button type="button" variant="outline" className="w-full" onClick={() => setActiveTab('account')}>
