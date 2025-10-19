@@ -214,8 +214,8 @@ export default function HomePage() {
             </p>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <div className="space-y-8">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <div className="space-y-6">
               <div className="w-full">
                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   <StatCard
@@ -284,7 +284,7 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="space-y-8">
+            <div className="space-y-6">
               <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
@@ -316,7 +316,7 @@ export default function HomePage() {
                      <Link href="/problems">View All Problems</Link>
                   </Button>
                 </CardContent>
-                <div className="grid grid-cols-1 gap-8 p-6 pt-0">
+                <div className="grid grid-cols-1 gap-6 p-6 pt-0">
                     {problemOfTheDay && (
                         <Card className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
                         <CardHeader>
@@ -367,5 +367,3 @@ export default function HomePage() {
     </SidebarProvider>
   );
 }
-
-    
