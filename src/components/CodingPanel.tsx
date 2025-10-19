@@ -205,10 +205,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             return;
         }
 
-        const isMinimized = resultsPanelSize < 10;
-        if (isMinimized && panelGroupRef.current) {
-            panelGroupRef.current.setLayout([65, 35]);
-        }
+        toggleResultsPanel(true);
         
         setOutput(null);
         
