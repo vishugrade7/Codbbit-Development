@@ -92,6 +92,11 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
   useEffect(() => {
     fetchSuggestions(debouncedSearchTerm);
   }, [debouncedSearchTerm, fetchSuggestions]);
+  
+   useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
 
   const handleSelect = (companyName: string) => {
     onValueChange(companyName);
@@ -113,7 +118,6 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
           value={inputValue}
           onChange={handleInputChange}
           onFocus={() => setOpen(true)}
-          onBlur={() => setTimeout(() => setOpen(false), 150)}
           placeholder="e.g., Salesforce"
           className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         />
@@ -141,7 +145,7 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
   }
 
   return (
-    <div className="relative w-full">
+    <div className="relative w-full" onBlurCapture={() => setTimeout(() => setOpen(false), 150)}>
       {triggerInput}
       {open && (suggestions.length > 0 || isLoading) && (
         <div className="absolute z-10 w-full mt-1 bg-popover border rounded-md shadow-lg">

@@ -272,7 +272,6 @@ function AuthFormComponent({ type }: AuthFormProps) {
             email: user.email,
             name: signupValues.fullName,
             username: signupValues.username,
-            username_lowercase: signupValues.username.toLowerCase(),
             company: signupValues.company || '',
             country: signupValues.country,
             emailVerified: user.emailVerified,
@@ -459,7 +458,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                             </FormItem>
                         )}
                         />
-                        <FormField
+                         <FormField
                             control={form.control}
                             name="country"
                             render={({ field }) => (

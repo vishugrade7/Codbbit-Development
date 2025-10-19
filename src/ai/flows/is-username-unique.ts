@@ -40,15 +40,19 @@ const isUsernameUniqueFlow = ai.defineFlow(
 
     try {
       const usersRef = firestore.collection('users');
-      // Perform a case-insensitive check by querying a lowercase version of the username
-      const q = usersRef.where('username_lowercase', '==', username.toLowerCase()).limit(1);
-      const querySnapshot = await q.get();
+      // Query for an exact, case-insensitive match.
+      const querySnapshot = await usersRef.where('username', '==', username).get();
+      
+      // Also query for the lowercase version for broader checking, just in case.
+      const lowerCaseQuerySnapshot = await usersRef.where('username_lowercase', '==', username.toLowerCase()).get();
 
-      if (querySnapshot.empty) {
+      if (querySnapshot.empty && lowerCaseQuerySnapshot.empty) {
         return { isUnique: true };
       }
       
-      const existingUser = querySnapshot.docs[0].data();
+      const existingUserDoc = querySnapshot.docs[0] || lowerCaseQuerySnapshot.docs[0];
+      const existingUser = existingUserDoc.data();
+
       return { 
           isUnique: false, 
           existingUserName: 
