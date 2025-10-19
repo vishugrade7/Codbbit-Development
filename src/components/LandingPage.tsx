@@ -167,7 +167,7 @@ export function LandingPage() {
                 <h1
                   className="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl"
                 >
-                   <ShinyText text="SOQL, Apex, & LWC" />
+                   <RotatingText texts={['SOQL', 'Apex', 'LWC']} />
                 </h1>
 
                 <motion.p 
