@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Button } from './button';
 import { Badge } from './badge';
@@ -43,7 +43,7 @@ const getPosition = (index: number, total: number) => {
     const cardHeight = 40; // height of a card in pixels
     const gap = 12; // gap between cards in pixels
     const totalHeight = total * cardHeight + (total - 1) * gap;
-    const yOffset = (300 - totalHeight) / 2; // 300 is the grid height
+    const yOffset = (450 - totalHeight) / 2; // 450 is the grid height
 
     return { 
         x: '50%',
@@ -54,6 +54,20 @@ const getPosition = (index: number, total: number) => {
 
 export function SortingAnimation() {
   const [sortBy, setSortBy] = useState<Difficulty | 'All'>('All');
+  const filters: (Difficulty | 'All')[] = ['All', 'Easy', 'Medium', 'Hard'];
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setSortBy(prevSortBy => {
+        const currentIndex = filters.indexOf(prevSortBy);
+        const nextIndex = (currentIndex + 1) % filters.length;
+        return filters[nextIndex];
+      });
+    }, 2000); // Change filter every 2 seconds
+
+    return () => clearInterval(interval);
+  }, []);
+
 
   const sortedProblems = useMemo(() => {
     if (sortBy === 'All') {
@@ -77,7 +91,7 @@ export function SortingAnimation() {
         <div className="problem-grid">
             <AnimatePresence>
             {sortedProblems.map((problem, index) => {
-                const isFiltered = sortBy !== 'All' && problem.difficulty !== sortBy;
+                const isFilteredOut = sortBy !== 'All' && problem.difficulty !== sortBy;
                 const { x, y } = getPosition(index, sortedProblems.length);
                 
                 return (
@@ -85,7 +99,7 @@ export function SortingAnimation() {
                         key={problem.id}
                         layout
                         initial={{ opacity: 0, scale: 0.5, x: '50%' }}
-                        animate={{ opacity: isFiltered ? 0.2 : 1, scale: 1, x, y }}
+                        animate={{ opacity: isFilteredOut ? 0.3 : 1, scale: 1, x, y }}
                         exit={{ opacity: 0, scale: 0.5 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                         className="problem-card-wrapper"
