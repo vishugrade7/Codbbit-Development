@@ -9,7 +9,7 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion, useScroll, useTransform, useSpring } from "framer-motion";
 import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
 import ShinyText from "./ui/ShinyText";
@@ -135,6 +135,10 @@ export function LandingPage() {
     });
 
     const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
+    const springyPathLength = useSpring(pathLength, {
+      stiffness: 400,
+      damping: 90,
+    });
 
 
   return (
@@ -235,9 +239,7 @@ export function LandingPage() {
                  <motion.div
                     className="absolute left-1/2 top-0 -translate-x-1/2 -ml-px h-full w-px bg-primary"
                     style={{
-                        pathLength,
-                        height: pathLength.toSpring(),
-                        scaleY: pathLength.toSpring(),
+                        scaleY: springyPathLength,
                         transformOrigin: 'top',
                     }}
                  />
