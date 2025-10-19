@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare } from 'lucide-react';
+import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
@@ -141,7 +141,7 @@ export function AppSidebar() {
                 <TooltipTrigger asChild>
                     <Link href="/settings">
                         <Button variant={pathname.startsWith('/settings') ? "secondary" : "ghost"} size="icon" className="h-10 w-10">
-                             <Settings size={20}/>
+                             <Settings2 size={20}/>
                         </Button>
                     </Link>
                 </TooltipTrigger>
