@@ -292,8 +292,8 @@ export default function HomePage() {
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="flex justify-between items-start">
-                    <ScrollArea className="h-auto flex-grow">
+                  <div className="flex flex-col">
+                    <ScrollArea className="h-auto">
                       <div className="pr-4">
                         {unsolvedProblems.map((problem, index) => (
                           <Fragment key={problem.id || problem.title}>
@@ -314,18 +314,20 @@ export default function HomePage() {
                         ))}
                       </div>
                     </ScrollArea>
-                    <TooltipProvider>
-                      <Tooltip>
-                        <TooltipTrigger asChild>
-                          <Button variant="outline" size="icon" className="rounded-full flex-shrink-0" asChild>
-                            <Link href="/problems"><ArrowRight /></Link>
-                          </Button>
-                        </TooltipTrigger>
-                        <TooltipContent>
-                          <p>View All Problems</p>
-                        </TooltipContent>
-                      </Tooltip>
-                    </TooltipProvider>
+                    <div className="flex justify-center pt-4">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="rounded-full flex-shrink-0" asChild>
+                              <Link href="/problems"><ArrowRight /></Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View All Problems</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
                 </CardContent>
                 <div className="grid grid-cols-1 gap-6 p-6 pt-0">
