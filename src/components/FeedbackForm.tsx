@@ -28,7 +28,7 @@ import {
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader2, Paperclip } from 'lucide-react';
+import { Loader2, Paperclip, Activity, Bug, Lightbulb, HelpCircle, MoreHorizontal } from 'lucide-react';
 import { sendFeedbackEmail } from '@/lib/mail';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
@@ -194,11 +194,11 @@ export function FeedbackForm() {
                       <SelectValue placeholder="Select a subject..." />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="profile-tracker">Profile Tracker</SelectItem>
-                      <SelectItem value="bug-report">Bug Report</SelectItem>
-                      <SelectItem value="feature-request">Feature Request</SelectItem>
-                      <SelectItem value="general-question">General Question</SelectItem>
-                      <SelectItem value="other">Other</SelectItem>
+                      <SelectItem value="profile-tracker"><Activity className="mr-2 h-4 w-4" />Profile Tracker</SelectItem>
+                      <SelectItem value="bug-report"><Bug className="mr-2 h-4 w-4" />Bug Report</SelectItem>
+                      <SelectItem value="feature-request"><Lightbulb className="mr-2 h-4 w-4" />Feature Request</SelectItem>
+                      <SelectItem value="general-question"><HelpCircle className="mr-2 h-4 w-4" />General Question</SelectItem>
+                      <SelectItem value="other"><MoreHorizontal className="mr-2 h-4 w-4" />Other</SelectItem>
                     </SelectContent>
                   </Select>
                 )}
