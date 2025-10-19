@@ -16,6 +16,7 @@ import { cn } from '@/lib/utils';
 import { ProblemFilter } from '@/components/ProblemFilter';
 import type { FilterState } from '@/components/ProblemFilter';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface CategoryDoc {
     Questions: Partial<Question>[];
@@ -120,42 +121,46 @@ export default function CategoryPage() {
           </header>
 
           <Card>
-            <Table>
-                <TableHeader>
-                    <TableRow>
-                        <TableHead className="w-[50px]">Status</TableHead>
-                        <TableHead>Title</TableHead>
-                        <TableHead>Difficulty</TableHead>
-                    </TableRow>
-                </TableHeader>
-                <TableBody>
-                     {filteredQuestions?.map((question) => {
-                        const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
-                        return (
-                            <TableRow key={question.id || question.title}>
-                                <TableCell className="text-center">
-                                    {isSolved ? (
-                                        <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
-                                    ) : (
-                                        <Circle className="h-5 w-5 text-muted-foreground/20 mx-auto" />
-                                    )}
-                                </TableCell>
-                                <TableCell>
-                                    <Link href={`/problems/${encodeURIComponent(categoryName)}/${question.id || question.title}`} className="font-medium hover:underline">
-                                        {question.title}
-                                    </Link>
-                                </TableCell>
-                                <TableCell>
-                                    <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                      <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
-                                      {question.difficulty}
-                                    </Badge>
-                                </TableCell>
-                            </TableRow>
-                        )
-                    })}
-                </TableBody>
-            </Table>
+            <CardContent className="p-0">
+              <ScrollArea className="h-[calc(100vh-250px)]">
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead className="w-[50px]">Status</TableHead>
+                            <TableHead>Title</TableHead>
+                            <TableHead>Difficulty</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {filteredQuestions?.map((question) => {
+                            const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
+                            return (
+                                <TableRow key={question.id || question.title}>
+                                    <TableCell className="text-center">
+                                        {isSolved ? (
+                                            <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                                        ) : (
+                                            <Circle className="h-5 w-5 text-muted-foreground/20 mx-auto" />
+                                        )}
+                                    </TableCell>
+                                    <TableCell>
+                                        <Link href={`/problems/${encodeURIComponent(categoryName)}/${question.id || question.title}`} className="font-medium hover:underline">
+                                            {question.title}
+                                        </Link>
+                                    </TableCell>
+                                    <TableCell>
+                                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                        <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
+                                        {question.difficulty}
+                                        </Badge>
+                                    </TableCell>
+                                </TableRow>
+                            )
+                        })}
+                    </TableBody>
+                </Table>
+              </ScrollArea>
+            </CardContent>
           </Card>
 
         </main>
