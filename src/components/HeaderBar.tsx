@@ -3,7 +3,7 @@
 'use client';
 import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
-import { Settings, Code, Info, RefreshCw, SlidersHorizontal, Award, Sparkles } from 'lucide-react';
+import { Settings, Code, Info, RefreshCw, SlidersHorizontal, Award, Sparkles, Shield } from 'lucide-react';
 import Link from 'next/link';
 import { ThemeToggle } from './ThemeToggle';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
@@ -171,7 +171,7 @@ export function HeaderBar({ leftControls, onReset, children, fontSize, setFontSi
                       <Tooltip>
                           <TooltipTrigger asChild>
                               <DialogTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8"><Info className="h-4 w-4"/></Button>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8"><Shield className="h-4 w-4"/></Button>
                               </DialogTrigger>
                           </TooltipTrigger>
                           <TooltipContent>
