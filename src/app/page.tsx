@@ -281,18 +281,12 @@ export default function HomePage() {
                       })}
                     </div>
                     <div className="flex justify-center pt-4">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button variant="outline" size="icon" className="rounded-full flex-shrink-0" asChild>
-                              <Link href="/sheets"><ArrowDown /></Link>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View All Sheets</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                        <Button variant="outline" asChild>
+                          <Link href="/sheets">
+                            <ArrowDown className="mr-2 h-4 w-4" />
+                            View More
+                          </Link>
+                        </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -328,18 +322,12 @@ export default function HomePage() {
                       </div>
                     </ScrollArea>
                     <div className="flex justify-center pt-4">
-                      <TooltipProvider>
-                        <Tooltip>
-                          <TooltipTrigger asChild>
-                            <Button variant="outline" size="icon" className="rounded-full flex-shrink-0" asChild>
-                              <Link href="/problems"><ArrowDown /></Link>
-                            </Button>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                            <p>View All Problems</p>
-                          </TooltipContent>
-                        </Tooltip>
-                      </TooltipProvider>
+                        <Button variant="outline" asChild>
+                          <Link href="/problems">
+                            <ArrowDown className="mr-2 h-4 w-4" />
+                            View More
+                          </Link>
+                        </Button>
                     </div>
                   </div>
                 </CardContent>
