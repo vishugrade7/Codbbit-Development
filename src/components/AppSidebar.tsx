@@ -24,6 +24,8 @@ import Image from 'next/image';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
+import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import { FeedbackForm } from './FeedbackForm';
 
 
 export function AppSidebar() {
@@ -99,7 +101,7 @@ export function AppSidebar() {
         </Link>
       </SidebarHeader>
 
-      <SidebarContent className="p-0">
+      <SidebarContent className="flex flex-col items-center p-0">
         <SidebarMenu>
           <TooltipProvider delayDuration={0}>
             {navItems.map((item) => (
@@ -118,18 +120,23 @@ export function AppSidebar() {
       <SidebarFooter className="mt-auto flex flex-col items-center gap-2 p-2">
         <ThemeToggle />
          <TooltipProvider delayDuration={0}>
-            <Tooltip>
-                <TooltipTrigger asChild>
-                    <Link href="/feedback">
-                        <Button variant={pathname.startsWith('/feedback') ? "secondary" : "ghost"} size="icon" className="h-10 w-10">
-                             <MessageSquare size={20}/>
-                        </Button>
-                    </Link>
-                </TooltipTrigger>
-                <TooltipContent side="right" className="px-2 py-1 text-xs">
-                    Feedback
-                </TooltipContent>
-            </Tooltip>
+            <Dialog>
+              <Tooltip>
+                  <TooltipTrigger asChild>
+                    <DialogTrigger asChild>
+                      <Button variant="ghost" size="icon" className="h-10 w-10">
+                            <MessageSquare size={20}/>
+                      </Button>
+                    </DialogTrigger>
+                  </TooltipTrigger>
+                  <TooltipContent side="right" className="px-2 py-1 text-xs">
+                      Feedback
+                  </TooltipContent>
+              </Tooltip>
+              <DialogContent className="sm:max-w-2xl">
+                  <FeedbackForm />
+              </DialogContent>
+            </Dialog>
             <Tooltip>
                 <TooltipTrigger asChild>
                     <Link href="/settings">
