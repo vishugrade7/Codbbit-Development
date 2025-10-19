@@ -5,41 +5,65 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
+import { TrendingUp, TrendingDown } from 'lucide-react';
 
 interface StatCardProps {
   title: string;
   value: number | string;
   icon: LucideIcon;
+  changeText?: string;
+  changeValue?: number;
+  changeType?: 'positive' | 'negative' | 'neutral';
   isLoading?: boolean;
-  color?: 'pink' | 'green' | 'blue' | 'purple' | 'light-blue' | 'red';
+  variant?: 'default' | 'primary';
 }
 
-export function StatCard({ title, value, icon: Icon, isLoading, color }: StatCardProps) {
-  const colorClasses = {
-    pink: 'from-pink-100 to-pink-50',
-    green: 'from-green-100 to-green-50',
-    blue: 'from-blue-100 to-blue-50',
-    purple: 'from-purple-100 to-purple-50',
-    'light-blue': 'from-sky-100 to-sky-50',
-    red: 'from-red-100 to-red-50',
-  };
+export function StatCard({ 
+  title, 
+  value, 
+  icon: Icon, 
+  isLoading, 
+  changeText,
+  changeValue,
+  changeType = 'neutral',
+  variant = 'default'
+}: StatCardProps) {
+  
+  const ChangeIcon = changeType === 'positive' ? TrendingUp : TrendingDown;
 
   return (
-    <Card className={cn('overflow-hidden border-none shadow-md', isLoading ? 'bg-gray-100' : `bg-gradient-to-br ${colorClasses[color || 'pink']}`)}>
-      <CardContent className="p-4">
+    <Card className={cn(
+        "rounded-2xl",
+        variant === 'primary' ? 'bg-blue-500 text-white' : 'bg-white dark:bg-card'
+    )}>
+      <CardContent className="p-5">
         {isLoading ? (
-          <>
-            <Skeleton className="h-8 w-16 mb-2" />
-            <Skeleton className="h-5 w-24" />
-          </>
+          <div className="space-y-2">
+            <Skeleton className="h-6 w-24" />
+            <Skeleton className="h-10 w-32" />
+            <Skeleton className="h-4 w-28" />
+          </div>
         ) : (
-          <>
-            <div className="flex items-center justify-between">
-                <div className="text-3xl font-bold text-gray-800">{value}</div>
-                <Icon className="h-6 w-6 text-gray-500" />
+          <div className="space-y-4">
+            <div className="flex items-center gap-2 text-sm font-medium" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
+              <div className={cn("flex h-8 w-8 items-center justify-center rounded-full",
+                variant === 'primary' ? 'bg-white/20' : 'bg-muted'
+              )}>
+                <Icon className="h-4 w-4" style={{color: variant === 'primary' ? 'white' : 'hsl(var(--foreground))'}}/>
+              </div>
+              <span>{title}</span>
             </div>
-            <p className="text-sm font-medium text-gray-600 mt-1">{title}</p>
-          </>
+            <div className="text-4xl font-bold">{value}</div>
+            <div className="flex items-center gap-1 text-sm" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
+              {changeType !== 'neutral' && changeValue !== undefined && (
+                <div className={cn("flex items-center gap-1 font-semibold", changeType === 'positive' ? 'text-emerald-400' : 'text-red-400')}>
+                  <ChangeIcon className="h-4 w-4" />
+                  {changeType === 'positive' ? `+${changeValue}` : changeValue}%
+                </div>
+              )}
+              <span>{changeText}</span>
+            </div>
+          </div>
         )}
       </CardContent>
     </Card>
