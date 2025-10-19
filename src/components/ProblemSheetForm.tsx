@@ -84,7 +84,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
       (cat.Questions || []).map(q => ({
         ...q,
         category: cat.id,
-        id: q.id || q.title, // Ensure a unique ID
+        id: q.id || `${cat.id}-${q.title}`, // Ensure a unique ID
       }))
     );
   }, [categoriesData]);
