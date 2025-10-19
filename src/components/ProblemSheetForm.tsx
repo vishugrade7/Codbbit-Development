@@ -296,8 +296,8 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
         {/* Left Column */}
         <div className="lg:col-span-2">
           <Card>
-            <CardContent className="p-4">
-              <div className="border rounded-md">
+            <CardContent className="p-0">
+              <ScrollArea className="h-[calc(100vh-300px)]">
                 <Table>
                   <TableHeader>
                     <TableRow>
@@ -342,7 +342,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                     )}
                   </TableBody>
                 </Table>
-              </div>
+              </ScrollArea>
             </CardContent>
           </Card>
         </div>
