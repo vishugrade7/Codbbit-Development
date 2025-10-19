@@ -135,8 +135,7 @@ export function LandingPage() {
         offset: ["start center", "end center"],
     });
 
-    const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
-    const springyPathLength = useSpring(pathLength, {
+    const springyPathLength = useSpring(scrollYProgress, {
       stiffness: 400,
       damping: 90,
     });
