@@ -45,6 +45,15 @@ import { Timeline, TimelineContent, TimelineDate, TimelineHeader, TimelineIndica
 import { ScrollArea } from './ui/scroll-area';
 
 
+const getColor = (count: number) => {
+  if (count === -1) return "bg-transparent"; // For null days
+  if (count === 0) return "bg-gray-200 dark:bg-[#161b22]";
+  if (count <= 2) return "bg-blue-200 dark:bg-blue-900";
+  if (count <= 5) return "bg-blue-400 dark:bg-blue-700";
+  if (count <= 10) return "bg-blue-600 dark:bg-blue-500";
+  return "bg-blue-800 dark:bg-blue-300";
+};
+
 const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Record<string, number>, currentStreak: number, maxStreak: number }) => {
     const today = new Date();
     const endDate = new Date(today);
