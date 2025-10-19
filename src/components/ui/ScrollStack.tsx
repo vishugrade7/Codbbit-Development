@@ -187,7 +187,6 @@ const ScrollStack = ({
     baseScale,
     rotationAmount,
     blurAmount,
-    useWindowScroll,
     onStackComplete,
     calculateProgress,
     parsePercentage,
@@ -222,6 +221,7 @@ const ScrollStack = ({
         lenis.raf(time);
         animationFrameRef.current = requestAnimationFrame(raf);
       };
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = requestAnimationFrame(raf);
 
       lenisRef.current = lenis;
@@ -253,6 +253,7 @@ const ScrollStack = ({
         lenis.raf(time);
         animationFrameRef.current = requestAnimationFrame(raf);
       };
+      if (animationFrameRef.current) cancelAnimationFrame(animationFrameRef.current);
       animationFrameRef.current = requestAnimationFrame(raf);
 
       lenisRef.current = lenis;
@@ -286,28 +287,23 @@ const ScrollStack = ({
       card.style.webkitPerspective = '1000px';
     });
 
-    setupLenis();
+    const lenisInstance = setupLenis();
 
     updateCardTransforms();
 
     return () => {
       if (animationFrameRef.current) {
         cancelAnimationFrame(animationFrameRef.current);
+        animationFrameRef.current = null;
       }
-      if (lenisRef.current) {
-        lenisRef.current.destroy();
-      }
+      lenisInstance?.destroy();
+      lenisRef.current = null;
       stackCompletedRef.current = false;
       cardsRef.current = [];
       transformsCache.clear();
       isUpdatingRef.current = false;
     };
-  }, [
-    itemDistance,
-    useWindowScroll,
-    setupLenis,
-    updateCardTransforms
-  ]);
+  }, [itemDistance, useWindowScroll, setupLenis, updateCardTransforms]);
 
   return (
     <div className={`scroll-stack-scroller ${className}`.trim()} ref={scrollerRef}>
