@@ -305,7 +305,7 @@ export default function HomePage() {
             <div className="lg:col-span-3 space-y-6">
               <Card className="animate-fade-in-up flex flex-col" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-primary"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
