@@ -215,7 +215,7 @@ export default function HomePage() {
           </header>
 
           <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="space-y-6 lg:col-span-2">
+            <div className="lg:col-span-2 space-y-6">
               <div className="w-full">
                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   <StatCard
@@ -284,7 +284,7 @@ export default function HomePage() {
                 </CardContent>
               </Card>
             </div>
-            <div className="space-y-6 lg:col-span-3">
+            <div className="lg:col-span-3 space-y-6">
               <Card className="animate-fade-in-up" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
