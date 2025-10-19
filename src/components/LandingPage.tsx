@@ -260,29 +260,31 @@ export function LandingPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="container mx-auto px-8 py-20 md:py-32">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
-                    Frequently Asked Questions
-                </h2>
-                <p className="text-lg text-muted-foreground">
-                    Explore quick answers to common questions about Codbbit, our AI-powered platform for Salesforce developers.
-                </p>
-                 <Button asChild size="lg">
-                  <Link href="/signup">
-                    Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
-                  </Link>
-                </Button>
+        <section className="bg-blue-50/50 dark:bg-blue-900/10 py-20">
+          <div className="container mx-auto px-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+              <div className="space-y-6">
+                  <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
+                      Frequently Asked Questions
+                  </h2>
+                  <p className="text-lg text-muted-foreground">
+                      Explore quick answers to common questions about Codbbit, our AI-powered platform for Salesforce developers.
+                  </p>
+                  <Button asChild size="lg">
+                    <Link href="/signup">
+                      Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                    </Link>
+                  </Button>
+              </div>
+              <Accordion type="single" collapsible className="w-full">
+                  {faqs.map((faq, index) => (
+                    <AccordionItem key={index} value={`item-${index}`}>
+                      <AccordionTrigger>{faq.question}</AccordionTrigger>
+                      <AccordionContent>{faq.answer}</AccordionContent>
+                    </AccordionItem>
+                  ))}
+                </Accordion>
             </div>
-             <Accordion type="single" collapsible className="w-full">
-                {faqs.map((faq, index) => (
-                  <AccordionItem key={index} value={`item-${index}`}>
-                    <AccordionTrigger>{faq.question}</AccordionTrigger>
-                    <AccordionContent>{faq.answer}</AccordionContent>
-                  </AccordionItem>
-                ))}
-              </Accordion>
           </div>
         </section>
       </main>
