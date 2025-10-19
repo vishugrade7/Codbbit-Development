@@ -13,6 +13,7 @@ import {
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Question } from '@/lib/types';
+import { getProblemsFromDB, saveProblemsToDB } from '@/lib/indexed-db';
 
 /** Utility type to add an 'id' field to a given type T. */
 export type WithId<T> = T & { id: string };
@@ -85,6 +86,8 @@ export function useCollection<T = any>(
   const [data, setData] = useState<StateDataType>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [error, setError] = useState<FirestoreError | Error | null>(null);
+  
+  const isProblemsCollection = memoizedTargetRefOrQuery?.type === 'collection' && (memoizedTargetRefOrQuery as CollectionReference).path === 'problems';
 
   const fetchData = () => {
     if (!memoizedTargetRefOrQuery) {
@@ -93,9 +96,6 @@ export function useCollection<T = any>(
       setError(null);
       return () => {}; // Return an empty unsubscribe function
     }
-
-    setIsLoading(true);
-    setError(null);
 
     const unsubscribe = onSnapshot(
       memoizedTargetRefOrQuery,
@@ -111,6 +111,10 @@ export function useCollection<T = any>(
         setData(results);
         setError(null);
         setIsLoading(false);
+
+        if (isProblemsCollection) {
+            saveProblemsToDB(results);
+        }
       },
       (error: FirestoreError) => {
         if (error.code === 'permission-denied') {
@@ -138,7 +142,23 @@ export function useCollection<T = any>(
   }
 
   useEffect(() => {
-    const unsubscribe = fetchData();
+    let unsubscribe = () => {};
+    
+    async function loadData() {
+        if (isProblemsCollection) {
+            setIsLoading(true);
+            const cachedProblems = await getProblemsFromDB();
+            if (cachedProblems) {
+                setData(cachedProblems as StateDataType);
+                setIsLoading(false);
+            }
+        }
+        // Always subscribe to Firestore for real-time updates
+        unsubscribe = fetchData();
+    }
+    
+    loadData();
+
     return () => unsubscribe();
   }, [memoizedTargetRefOrQuery]);
 
