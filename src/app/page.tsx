@@ -205,7 +205,7 @@ export default function HomePage() {
           <header className="mb-8 animate-fade-in-up">
             <BlurText
                 text={`Welcome back, ${userProfile?.name || 'Coder'}!`}
-                className="text-3xl font-bold font-headline tracking-tight"
+                className="text-4xl font-bold font-handwritten tracking-tight"
                 delay={100}
                 animateBy="words"
             />

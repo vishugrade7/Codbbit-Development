@@ -26,6 +26,7 @@ export default {
         body: ['"Helvetica Neue"', 'sans-serif'],
         headline: ['"Helvetica Neue"', 'sans-serif'],
         code: ['"Helvetica Neue"', 'monospace'],
+        handwritten: ['var(--font-caveat)', 'cursive'],
       },
       colors: {
         background: 'hsl(var(--background))',

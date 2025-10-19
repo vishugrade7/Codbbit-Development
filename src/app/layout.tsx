@@ -6,6 +6,14 @@ import { ThemeProvider } from '@/components/ThemeProvider';
 import Script from 'next/script';
 import { AuthGuard } from '@/components/AuthGuard';
 import { AppLayout } from '@/components/AppLayout';
+import { Caveat } from 'next/font/google';
+
+const caveat = Caveat({
+  subsets: ['latin'],
+  display: 'swap',
+  variable: '--font-caveat',
+});
+
 
 export default function RootLayout({
   children,
@@ -13,7 +21,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" suppressHydrationWarning className={caveat.variable}>
       <head>
           <title>codbbit 💻</title>
           <meta name="description" content="A playground for Salesforce Apex coding challenges." />
