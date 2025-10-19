@@ -223,7 +223,10 @@ export function FeedbackForm() {
               {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
             </div>
              <div className="space-y-2">
-                <Label htmlFor="attachments">Attachments (Optional)</Label>
+                <Label htmlFor="attachments" className="flex items-center gap-2">
+                    <Paperclip className="h-4 w-4" />
+                    Attachments (Optional)
+                </Label>
                  <Input id="attachments" type="file" {...register("attachments")} multiple />
                 {errors.attachments && <p className="text-sm text-red-500">{errors.attachments.message as string}</p>}
             </div>
