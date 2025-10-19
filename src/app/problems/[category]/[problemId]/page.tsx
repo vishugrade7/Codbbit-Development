@@ -330,7 +330,7 @@ export default function ProblemSolvingPage() {
                               <ScrollArea className="h-[calc(100vh-80px)]">
                                 <div className="p-2">
                                    {categoryProblems.map(p => (
-                                       <Link key={p.id} href={`/problems/${p.category}/${p.id}`}>
+                                       <Link key={p.id} href={`/problems/${p.category}/${p.id || p.title}`}>
                                             <div className={cn(
                                                 "flex items-center justify-between p-3 rounded-md hover:bg-muted",
                                                 isProblemActive(p) && "bg-muted"
@@ -338,10 +338,10 @@ export default function ProblemSolvingPage() {
                                                 <div className="flex items-center gap-3 overflow-hidden text-sm">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> : <div className="w-4 h-4 flex-shrink-0" />}
                                                     <span className="font-medium truncate">{p.number}. {p.title?.substring(0, 30)}{p.title && p.title.length > 30 ? '...' : ''}</span>
-                                                    <Badge variant="outline" className={cn("text-xs flex-shrink-0", getDifficultyClass(p.difficulty))}>
-                                                        {p.difficulty}
-                                                    </Badge>
                                                 </div>
+                                                <Badge variant="outline" className={cn("text-xs w-20 justify-center", getDifficultyClass(p.difficulty))}>
+                                                    {p.difficulty}
+                                                </Badge>
                                             </div>
                                        </Link>
                                    ))}
@@ -404,3 +404,4 @@ export default function ProblemSolvingPage() {
     </SidebarProvider>
   );
 }
+
