@@ -1,5 +1,4 @@
 
-
 'use client';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -59,10 +58,7 @@ export function LandingPage() {
             "Problems for all skill levels.",
             "Master specific Salesforce development areas.",
         ],
-        image: {
-            light: getPlaceholderImage('features-light'),
-            dark: getPlaceholderImage('features-dark'),
-        }
+        imageSrc: "/problems.png"
       },
       {
         icon: <Code className="h-6 w-6 text-primary" />,
@@ -278,6 +274,15 @@ export function LandingPage() {
                                     </Avatar>
                                 </motion.div>
                             ))}
+                             {feature.imageSrc && (
+                                <Image
+                                    src={feature.imageSrc}
+                                    alt={feature.title}
+                                    width={600}
+                                    height={400}
+                                    className="rounded-md shadow-2xl ring-1 ring-muted/20"
+                                />
+                            )}
                             {feature.image && (
                                 <>
                                     {feature.image.light && (
