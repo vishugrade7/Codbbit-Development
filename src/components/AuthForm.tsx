@@ -32,6 +32,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog"
 import Link from 'next/link';
 import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import {
@@ -48,7 +57,7 @@ import {
   XMarkIcon,
   PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
-import { updateProfile, sendEmailVerification, type User, onIdTokenChanged } from 'firebase/auth';
+import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { PasswordStrength } from './PasswordStrength';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -60,6 +69,7 @@ import { handleReferral } from '@/ai/flows/handle-referral';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
 import Image from 'next/image';
+import { Label } from './ui/label';
 
 const loginSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -98,6 +108,9 @@ function AuthFormComponent({ type }: AuthFormProps) {
   const [showVerifyEmailDialog, setShowVerifyEmailDialog] = useState(false);
   const [unverifiedUser, setUnverifiedUser] = useState<User | null>(null);
   const [isResending, setIsResending] = useState(false);
+  const [isForgotPasswordOpen, setIsForgotPasswordOpen] = useState(false);
+  const [forgotPasswordEmail, setForgotPasswordEmail] = useState('');
+  const [isSendingReset, setIsSendingReset] = useState(false);
 
   const referralCodeFromUrl = searchParams.get('ref') || '';
 
@@ -195,6 +208,28 @@ function AuthFormComponent({ type }: AuthFormProps) {
       });
     } finally {
       setIsResending(false);
+    }
+  }
+
+  const handleForgotPassword = async () => {
+    if (!forgotPasswordEmail) {
+      toast({ title: 'Email required', description: 'Please enter your email address.', variant: 'destructive'});
+      return;
+    }
+    setIsSendingReset(true);
+    try {
+      await sendPasswordResetEmail(auth, forgotPasswordEmail);
+      toast({ title: 'Password Reset Email Sent', description: 'Check your inbox for a link to reset your password.'});
+      setIsForgotPasswordOpen(false);
+      setForgotPasswordEmail('');
+    } catch (error: any) {
+      let message = 'Failed to send password reset email.';
+      if (error.code === 'auth/user-not-found') {
+        message = 'No user found with this email address.';
+      }
+      toast({ title: 'Error', description: message, variant: 'destructive'});
+    } finally {
+      setIsSendingReset(false);
     }
   }
 
@@ -338,7 +373,12 @@ function AuthFormComponent({ type }: AuthFormProps) {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Password</FormLabel>
+                        <div className="flex justify-between items-center">
+                            <FormLabel>Password</FormLabel>
+                            <DialogTrigger asChild>
+                                <Button variant="link" size="sm" className="p-0 h-auto" type="button" onClick={() => setIsForgotPasswordOpen(true)}>Forgot Password?</Button>
+                            </DialogTrigger>
+                        </div>
                         <FormControl>
                           <Input type="password" placeholder="••••••••" {...field} />
                         </FormControl>
@@ -543,6 +583,35 @@ function AuthFormComponent({ type }: AuthFormProps) {
             </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Forgot Password</DialogTitle>
+            <DialogDescription>
+              Enter your email address and we'll send you a link to reset your password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="forgot-password-email">Email</Label>
+                <Input
+                  id="forgot-password-email"
+                  type="email"
+                  placeholder="name@example.com"
+                  value={forgotPasswordEmail}
+                  onChange={(e) => setForgotPasswordEmail(e.target.value)}
+                />
+              </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setIsForgotPasswordOpen(false)}>Cancel</Button>
+            <Button onClick={handleForgotPassword} disabled={isSendingReset}>
+              {isSendingReset && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
+              Send Reset Link
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </>
   );
 }
