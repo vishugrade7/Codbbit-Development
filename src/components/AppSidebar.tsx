@@ -6,6 +6,9 @@ import {
   SidebarHeader,
   SidebarFooter,
   useSidebar,
+  SidebarMenu,
+  SidebarMenuItem,
+  SidebarMenuButton,
 } from '@/components/ui/sidebar';
 import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -97,26 +100,19 @@ export function AppSidebar() {
       </SidebarHeader>
 
       <SidebarContent className="p-0">
-        <Tabs value={getActiveTab()} orientation="vertical" className="w-full">
-            <TabsList className="flex-col h-auto bg-transparent p-2">
-                <TooltipProvider delayDuration={0}>
-                  {navItems.map((item) => (
-                    <Tooltip key={item.value}>
-                      <TooltipTrigger asChild>
-                         <Link href={item.href}>
-                            <TabsTrigger value={item.value} className="py-3 h-12 w-12 data-[state=active]:bg-primary/10 data-[state=active]:text-primary data-[state=active]:rounded-full">
-                                <item.icon size={20} aria-hidden="true" />
-                            </TabsTrigger>
-                        </Link>
-                      </TooltipTrigger>
-                      <TooltipContent side="right" className="px-2 py-1 text-xs">
-                        {item.label}
-                      </TooltipContent>
-                    </Tooltip>
-                  ))}
-                </TooltipProvider>
-            </TabsList>
-        </Tabs>
+        <SidebarMenu>
+          <TooltipProvider delayDuration={0}>
+            {navItems.map((item) => (
+              <SidebarMenuItem key={item.value}>
+                  <Link href={item.href}>
+                      <SidebarMenuButton tooltip={item.label} size="lg" isActive={getActiveTab() === item.value}>
+                          <item.icon size={20} aria-hidden="true" />
+                      </SidebarMenuButton>
+                  </Link>
+              </SidebarMenuItem>
+            ))}
+          </TooltipProvider>
+        </SidebarMenu>
       </SidebarContent>
 
       <SidebarFooter className="mt-auto flex flex-col items-center gap-2 p-2">
