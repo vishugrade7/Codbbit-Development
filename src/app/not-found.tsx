@@ -16,24 +16,13 @@ export default function NotFound() {
         transition={{ duration: 0.5 }}
         className="flex flex-col items-center"
       >
-        <motion.div
-          animate={{
-            y: [0, -10, 0],
-          }}
-          transition={{
-            duration: 3,
-            repeat: Infinity,
-            ease: 'easeInOut',
-          }}
-        >
-          <Image
+        <Image
             src="/logo.png"
             alt="Codbbit Owl Mascot looking lost"
             width={200}
             height={200}
             className="drop-shadow-lg"
-          />
-        </motion.div>
+        />
         <h1 className="mt-8 text-8xl font-bold font-headline text-primary animate-pulse">
           404
         </h1>
