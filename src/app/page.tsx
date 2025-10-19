@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
@@ -319,7 +319,7 @@ export default function HomePage() {
                         <Tooltip>
                           <TooltipTrigger asChild>
                             <Button variant="outline" size="icon" className="rounded-full flex-shrink-0" asChild>
-                              <Link href="/problems"><ArrowRight /></Link>
+                              <Link href="/problems"><ArrowDown /></Link>
                             </Button>
                           </TooltipTrigger>
                           <TooltipContent>
