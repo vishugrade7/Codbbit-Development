@@ -154,14 +154,6 @@ export function FeedbackForm() {
   }
 
   return (
-    <div className="container mx-auto max-w-2xl">
-      <header className="text-center mb-8">
-        <h1 className="text-4xl font-bold font-headline">Feedback</h1>
-        <p className="text-muted-foreground mt-2">
-          We value your feedback and are here to assist you. Please use the form below to
-          drop your reviews, suggestions, or to ask for support.
-        </p>
-      </header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -239,6 +231,5 @@ export function FeedbackForm() {
           </Button>
         </div>
       </form>
-    </div>
   );
 }

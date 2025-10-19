@@ -24,7 +24,7 @@ import Image from 'next/image';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
-import { Dialog, DialogContent, DialogTrigger } from './ui/dialog';
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { FeedbackForm } from './FeedbackForm';
 
 
@@ -134,6 +134,13 @@ export function AppSidebar() {
                   </TooltipContent>
               </Tooltip>
               <DialogContent className="sm:max-w-2xl">
+                  <DialogHeader>
+                    <DialogTitle>Provide Feedback</DialogTitle>
+                    <DialogDescription>
+                        We value your feedback and are here to assist you. Please use the form below to
+                        drop your reviews, suggestions, or to ask for support.
+                    </DialogDescription>
+                  </DialogHeader>
                   <FeedbackForm />
               </DialogContent>
             </Dialog>
