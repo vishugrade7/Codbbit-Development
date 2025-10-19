@@ -1,20 +1,30 @@
 .scrolling-testimonials-container {
   overflow: hidden;
-  -webkit-mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 20%,
-    black 80%,
-    transparent
-  );
-  mask-image: linear-gradient(
-    to right,
-    transparent,
-    black 20%,
-    black 80%,
-    transparent
-  );
+  position: relative;
+  width: 100%;
 }
+
+.scrolling-testimonials-container::before,
+.scrolling-testimonials-container::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 5rem; /* Adjust width of the fade effect */
+  z-index: 2;
+  pointer-events: none;
+}
+
+.scrolling-testimonials-container::before {
+  left: 0;
+  background: linear-gradient(to right, hsl(var(--muted) / 0.2) 0%, transparent 100%);
+}
+
+.scrolling-testimonials-container::after {
+  right: 0;
+  background: linear-gradient(to left, hsl(var(--muted) / 0.2) 0%, transparent 100%);
+}
+
 
 .scrolling-testimonials {
   display: flex;

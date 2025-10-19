@@ -108,20 +108,20 @@ export function LandingPage() {
     <div className="bg-background text-foreground antialiased">
       <main>
         {/* Hero Section */}
-        <section className="relative overflow-hidden bg-background py-20 md:py-32">
+        <section className="relative overflow-x-clip bg-background py-20 md:py-32">
           <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
-               <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
+               <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
                 <BlurText
                   text="Master Salesforce"
                   delay={100}
                   animateBy="words"
-                  className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-6xl"
+                  className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl"
                 />
                  <RotatingText
                     texts={['Apex', 'SOQL', 'LWC']}
-                    mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-primary-foreground overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg text-4xl sm:text-6xl"
+                    mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-primary-foreground overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg text-4xl sm:text-5xl md:text-6xl"
                     staggerFrom={"last"}
                     initial={{ y: "100%" }}
                     animate={{ y: 0 }}
@@ -175,7 +175,7 @@ export function LandingPage() {
                     />
                 </motion.div>
                  <motion.div 
-                    className="absolute -left-12 -top-12 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10"
+                    className="absolute -left-4 -top-8 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10"
                     animate={{ y: [0, -15, 0], rotate: [10, 5, 10] }}
                     transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
                  >
@@ -189,7 +189,7 @@ export function LandingPage() {
         {/* Features Section */}
         <section id="features" className="container mx-auto px-4 py-20">
           <div className="mx-auto max-w-3xl text-center">
-            <h2 className="text-4xl font-bold tracking-tight sm:text-5xl font-headline">
+            <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
               A smarter way to practice Apex
             </h2>
             <p className="mt-6 text-lg text-muted-foreground">
@@ -208,7 +208,7 @@ export function LandingPage() {
         <section className="bg-muted/20 py-20">
             <div className="container mx-auto px-4">
                 <div className="mx-auto max-w-3xl text-center">
-                    <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">What developers are saying</h2>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">What developers are saying</h2>
                     <p className="mt-6 text-lg text-muted-foreground">
                         Thousands of developers use Codbbit to sharpen their Apex skills.
                     </p>
