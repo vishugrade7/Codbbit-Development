@@ -164,7 +164,7 @@ export function FeedbackForm() {
       </header>
       <form onSubmit={handleSubmit(onSubmit)}>
         <Card>
-          <CardContent className="p-6 space-y-6">
+          <CardContent className="space-y-6">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div className="space-y-2">
                 <Label htmlFor="name">Name</Label>
