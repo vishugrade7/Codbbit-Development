@@ -84,7 +84,7 @@ export function Header() {
       "fixed top-0 left-0 right-0 z-50 border-b bg-background/5 px-4 backdrop-blur-xl",
        user && "md:hidden" // Hide header on medium and larger screens if user is logged in
     )}>
-      <div className="flex h-16 items-center justify-between gap-4">
+      <div className="container mx-auto flex h-16 items-center justify-between gap-4">
         {/* Left side */}
         <div className="flex items-center gap-6">
            <Link href="/" className="flex items-center gap-2 text-primary hover:text-primary/90">
