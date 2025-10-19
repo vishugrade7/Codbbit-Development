@@ -26,6 +26,7 @@ import {
   Loader2,
   Upload,
   Tag,
+  ChevronRight,
 } from 'lucide-react';
 import { collection, doc } from 'firebase/firestore';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogDescription } from '@/components/ui/dialog';
@@ -95,15 +96,6 @@ const ContributionGraph = ({ heatmap, currentStreak, maxStreak }: { heatmap: Rec
 
     }, [startDate, dates, heatmap]);
 
-
-    const getColor = (count: number) => {
-        if (count < 0) return 'bg-transparent'; // For null days
-        if (count === 0) return 'bg-gray-200 dark:bg-[#161b22]';
-        if (count <= 2) return 'bg-blue-200 dark:bg-blue-900';
-        if (count <= 4) return 'bg-blue-400 dark:bg-blue-700';
-        if (count <= 6) return 'bg-blue-600 dark:bg-blue-500';
-        return 'bg-blue-800 dark:bg-blue-300';
-    };
 
     const monthNames = useMemo(() => ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"], []);
     
@@ -351,7 +343,7 @@ export function ProfilePageClient({ profile }: { profile: UserProfile | null }) 
 
   const getCompanyLogoUrl = (companyName?: string) => {
     if (!companyName) return '';
-    const domain = companyName.toLowerCase().replace(/ /g, '').replace(/,/g, '').replace(/\./g, '') + '.com';
+    const domain = companyName.toLowerCase().replace(/ /g, '').replace(/,/g, '') + '.com';
     return `https://img.logo.dev/${domain}`;
   };
 
