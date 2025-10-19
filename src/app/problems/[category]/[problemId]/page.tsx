@@ -363,7 +363,6 @@ export default function ProblemSolvingPage() {
                     </>
                 }
              >
-                <Badge variant="secondary">Problems Test</Badge>
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsQuestionPanelVisible(!isQuestionPanelVisible)}>
                     <PanelLeftClose className="h-4 w-4" />
                 </Button>
@@ -398,3 +397,6 @@ export default function ProblemSolvingPage() {
   );
 }
 
+
+
+    
