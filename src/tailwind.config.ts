@@ -22,9 +22,9 @@ export default {
         xl: '20px',
       },
       fontFamily: {
-        sans: ['"Helvetica Neue"', 'sans-serif'],
-        body: ['"Helvetica Neue"', 'sans-serif'],
-        headline: ['"Helvetica Neue"', 'sans-serif'],
+        sans: ['var(--font-inter)', 'sans-serif'],
+        body: ['var(--font-inter)', 'sans-serif'],
+        headline: ['var(--font-space-grotesk)', 'sans-serif'],
         code: ['"Helvetica Neue"', 'monospace'],
         handwritten: ['var(--font-caveat)', 'cursive'],
       },

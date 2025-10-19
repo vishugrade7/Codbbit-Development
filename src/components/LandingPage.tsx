@@ -20,7 +20,6 @@ import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
 import { getPlaceholderImage } from "@/lib/placeholder-images";
 import { useTheme } from "@/components/ThemeProvider";
-import { ScrollFloat } from "@/components/ui/ScrollFloat";
 
 
 export function LandingPage() {
@@ -160,23 +159,16 @@ export function LandingPage() {
           <div className="container mx-auto px-4 z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="max-w-xl text-center md:text-left">
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
-                >
-                  <ScrollFloat textClassName="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
-                    Master Salesforce
-                  </ScrollFloat>
-                </motion.div>
-                <motion.h1
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: 0.1 }}
+                 <BlurText
+                    text="Master Salesforce"
+                    className="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl"
+                    delay={0.1}
+                />
+                <h1
                   className="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl"
                 >
-                  <RotatingText texts={['SOQL', 'Apex', 'LWC']} />
-                </motion.h1>
+                   <ShinyText text="SOQL, Apex, & LWC" />
+                </h1>
 
                 <motion.p 
                   initial={{ opacity: 0, y: 20 }}
