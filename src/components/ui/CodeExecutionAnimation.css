@@ -60,6 +60,8 @@
     font-size: 14px;
     line-height: 1.5;
     color: #d4d4d4;
+    scrollbar-width: thin;
+    scrollbar-color: #555 #333;
 }
 
 .code-line {
@@ -74,11 +76,17 @@
     user-select: none;
 }
 
-.code-line pre {
-    margin: 0;
+.code-content {
     white-space: pre;
-    overflow-x: visible;
 }
+
+.token-keyword { color: #c586c0; } /* magenta */
+.token-type { color: #4ec9b0; } /* teal */
+.token-method { color: #dcdcaa; } /* yellow */
+.token-comment { color: #6a9955; } /* green */
+.token-string { color: #ce9178; } /* orange */
+.token-number { color: #b5cea8; } /* light green */
+.token-default { color: #d4d4d4; } /* default text */
 
 .code-line pre.typing {
     animation: typing 0.5s steps(40, end), blink-caret .75s step-end infinite;
@@ -97,4 +105,5 @@
     from, to { border-color: transparent }
     50% { border-color: orange; }
 }
+
 
