@@ -155,33 +155,25 @@ export function LandingPage() {
               </motion.div>
             </div>
             <motion.div 
-              initial={{ opacity: 0, y: 100 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 0.3, type: 'spring' }}
+              initial={{ opacity: 0, scale: 0.5 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.5, delay: 0.3, type: 'spring' }}
               className="relative mt-16 flow-root sm:mt-24 max-w-5xl mx-auto"
             >
               <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
-                <motion.div
-                    animate={{ scale: [1, 1.02, 1] }}
-                    transition={{ duration: 5, repeat: Infinity, ease: 'easeInOut' }}
-                >
-                    <Image
-                    src="/image 1.png"
-                    alt="App screenshot"
-                    width={2432}
-                    height={1442}
-                    className="rounded-md shadow-2xl ring-1 ring-muted/20"
-                    priority
-                    />
-                </motion.div>
-                 <motion.div 
-                    className="absolute -right-4 -top-8 sm:-right-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10"
-                    initial={{ opacity: 0, scale: 0.5, rotate: -30 }}
-                    animate={{ opacity: 1, scale: 1, rotate: 10, y: [0, -15, 0] }}
-                    transition={{ delay: 0.8, duration: 0.6, type: 'spring', repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
+                <Image
+                  src="/image 1.png"
+                  alt="App screenshot"
+                  width={2432}
+                  height={1442}
+                  className="rounded-md shadow-2xl ring-1 ring-muted/20"
+                  priority
+                />
+                 <div 
+                    className="absolute -right-4 -bottom-4 sm:-right-8 sm:-bottom-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48"
                  >
                    <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg" />
-                 </motion.div>
+                 </div>
               </div>
             </motion.div>
           </div>
@@ -206,10 +198,10 @@ export function LandingPage() {
 
 
         {/* Testimonials Section */}
-        <section className="bg-muted/20 py-20">
+        <section className="bg-muted/20 py-20 md:py-32">
             <div className="container mx-auto px-4">
                 <div className="mx-auto max-w-3xl text-center">
-                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl">What developers are saying</h2>
+                    <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">What developers are saying</h2>
                     <p className="mt-6 text-lg text-muted-foreground">
                         Thousands of developers use Codbbit to sharpen their Apex skills.
                     </p>
