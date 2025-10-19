@@ -130,7 +130,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                 </div>
                             </TableCell>
                             <TableCell className="text-right">
-                                <div className="inline-flex items-center justify-center rounded-full h-8 w-8 font-bold bg-gradient-to-br from-yellow-300 to-yellow-500 text-yellow-900 border-2 border-yellow-600 shadow-md">
+                                <div className="inline-flex items-center justify-center rounded-full h-8 w-8 font-bold bg-gradient-to-br from-blue-300 to-blue-500 text-white border-2 border-blue-600 shadow-md">
                                     {user.points}
                                 </div>
                             </TableCell>
@@ -311,4 +311,3 @@ export function LeaderboardClient() {
     </div>
   );
 }
-
