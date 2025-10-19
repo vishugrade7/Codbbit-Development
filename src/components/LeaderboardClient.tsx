@@ -221,83 +221,90 @@ export function LeaderboardClient() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-      <header className="mb-8 flex items-start justify-between">
-        <div>
-          <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
-          <p className="text-muted-foreground mt-1 max-w-lg">
-            See how you rank against the top developers. Keep solving problems to climb up the ranks!
-          </p>
-        </div>
-        {currentUserRank && (
-             <Card className="bg-muted/30 overflow-hidden">
-                <CardContent className="p-0 flex items-center">
-                    <div className="p-3 flex items-center gap-4">
-                        <Avatar className="h-12 w-12">
-                            <AvatarImage src={currentUserRank.avatarUrl} />
-                            <AvatarFallback>{getInitials(currentUserRank.name)}</AvatarFallback>
-                        </Avatar>
-                        <div>
-                            <p className="font-semibold">{currentUserRank.name}</p>
+        <header className="mb-8">
+            <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
+            <p className="text-muted-foreground mt-1 max-w-lg">
+                See how you rank against the top developers. Keep solving problems to climb up the ranks!
+            </p>
+        </header>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1">
+                {currentUserRank && (
+                    <Card className="bg-muted/30 overflow-hidden sticky top-24">
+                        <CardHeader>
+                            <CardTitle>Your Rank</CardTitle>
+                        </CardHeader>
+                        <CardContent className="p-4 flex flex-col items-center text-center">
+                            <div className="relative">
+                                <Avatar className="h-24 w-24 mb-4">
+                                    <AvatarImage src={currentUserRank.avatarUrl} />
+                                    <AvatarFallback>{getInitials(currentUserRank.name)}</AvatarFallback>
+                                </Avatar>
+                                 <Image src="/leaderboardcodbbit.png" alt="Leaderboard mascot" width={80} height={80} className="absolute -bottom-4 -right-8" />
+                            </div>
+                            <p className="font-semibold text-xl">{currentUserRank.name}</p>
                             <p className="text-sm text-muted-foreground">@{currentUserRank.username}</p>
-                        </div>
-                        <div className="text-center px-2">
-                            <p className="text-2xl font-bold">{currentUserRank.rank}</p>
-                            <p className="text-xs text-muted-foreground">Rank</p>
-                        </div>
-                        <div className="text-center px-2">
-                            <p className="text-2xl font-bold">{currentUserRank.points}</p>
-                            <p className="text-xs text-muted-foreground">Points</p>
-                        </div>
-                    </div>
-                    <div className="h-full">
-                        <Image src="/leaderboardcodbbit.png" alt="Leaderboard mascot" width={100} height={100} className="object-cover h-full" />
-                    </div>
-                </CardContent>
-            </Card>
-        )}
-      </header>
-      
-      <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <div className="flex justify-between items-center mb-4">
-            <TabsList>
-                <TabsTrigger value="global">Global</TabsTrigger>
-                <TabsTrigger value="country">By Country</TabsTrigger>
-                <TabsTrigger value="company">By Company</TabsTrigger>
-            </TabsList>
-            <div className="w-64">
-                {activeTab === 'country' && (
-                    <Combobox 
-                        options={countries}
-                        value={countryFilter}
-                        onValueChange={setCountryFilter}
-                        placeholder="Select a country..."
-                        searchPlaceholder="Search countries..."
-                    />
-                )}
-                 {activeTab === 'company' && (
-                   <CompanyAutocomplete 
-                        value={companyFilter}
-                        onValueChange={setCompanyFilter}
-                   />
+                            
+                            <div className="flex items-center gap-8 mt-6">
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold">{currentUserRank.rank}</p>
+                                    <p className="text-xs text-muted-foreground">Rank</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold">{currentUserRank.points}</p>
+                                    <p className="text-xs text-muted-foreground">Points</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
                 )}
             </div>
+
+            <div className="lg:col-span-2">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <div className="flex justify-between items-center mb-4">
+                        <TabsList>
+                            <TabsTrigger value="global">Global</TabsTrigger>
+                            <TabsTrigger value="country">By Country</TabsTrigger>
+                            <TabsTrigger value="company">By Company</TabsTrigger>
+                        </TabsList>
+                        <div className="w-64">
+                            {activeTab === 'country' && (
+                                <Combobox 
+                                    options={countries}
+                                    value={countryFilter}
+                                    onValueChange={setCountryFilter}
+                                    placeholder="Select a country..."
+                                    searchPlaceholder="Search countries..."
+                                />
+                            )}
+                            {activeTab === 'company' && (
+                            <CompanyAutocomplete 
+                                    value={companyFilter}
+                                    onValueChange={setCompanyFilter}
+                            />
+                            )}
+                        </div>
+                    </div>
+                    <div className="relative min-h-[400px]">
+                        {isLoading && (
+                            <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+                                <Loader2 className="h-8 w-8 animate-spin"/>
+                            </div>
+                        )}
+                        <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
+                    </div>
+                    <div className="mt-4 flex justify-center">
+                        <PaginationComponent 
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                </Tabs>
+            </div>
         </div>
-        <div className="relative min-h-[400px]">
-            {isLoading && (
-                <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
-                    <Loader2 className="h-8 w-8 animate-spin"/>
-                </div>
-            )}
-            <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
-        </div>
-          <div className="mt-4 flex justify-center">
-            <PaginationComponent 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-            />
-          </div>
-      </Tabs>
     </div>
   );
 }
