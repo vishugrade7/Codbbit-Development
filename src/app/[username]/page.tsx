@@ -7,12 +7,10 @@ import { notFound } from 'next/navigation';
 import React from 'react';
 
 export default async function ProfilePage({
-  params,
+  params: { username },
 }: {
   params: { username: string };
 }) {
-  const { username } = params;
-
   const userProfile = await getUserProfileByUsername({ username });
 
   if (!userProfile) {
