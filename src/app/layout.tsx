@@ -23,9 +23,8 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning className={caveat.variable}>
       <head>
-          <title>codbbit 💻</title>
+          <title>Codbbit</title>
           <meta name="description" content="A playground for Salesforce Apex coding challenges." />
-          <link rel="icon" href="/logo.png" />
       </head>
       <body className="font-sans antialiased bg-background text-foreground">
         <ThemeProvider
