@@ -48,7 +48,7 @@ const FeatureSection = ({ feature, index }: { feature: any; index: number }) => 
         transition={{ duration: 0.6, type: 'spring', stiffness: 90, damping: 20 }}
       >
         <Image
-          src={`/image ${index + 2}.png`}
+          src={`/image-${index + 2}.png`}
           alt={feature.title}
           width={1200}
           height={800}
@@ -238,7 +238,7 @@ export function LandingPage() {
                       className="rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:p-4"
                     >
                       <Image
-                        src={`/image ${index + 2}.png`}
+                        src={`/image-${index + 2}.png`}
                         alt={feature.title}
                         width={1200}
                         height={800}
