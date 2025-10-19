@@ -291,7 +291,7 @@ export default function HomePage() {
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <ScrollArea className="h-[500px]">
+                  <ScrollArea className="h-auto">
                     <div className="pr-4">
                       {unsolvedProblems.map((problem, index) => (
                         <Fragment key={problem.id || problem.title}>
@@ -316,50 +316,49 @@ export default function HomePage() {
                      <Link href="/problems">View All Problems</Link>
                   </Button>
                 </CardContent>
+                <div className="grid grid-cols-1 gap-8 p-6 pt-0">
+                    {problemOfTheDay && (
+                        <Card className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary"/> Problem of the Day</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="font-semibold text-lg">{problemOfTheDay.title}</p>
+                            <p className="text-muted-foreground text-sm mt-1 mb-4">A new challenge, every single day. Can you solve it?</p>
+                            <div className="flex items-center justify-between">
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheDay.difficulty))} aria-hidden="true"></span>
+                                  {problemOfTheDay.difficulty}
+                                </Badge>
+                                 <Button asChild>
+                                    <Link href={`/problems/${problemOfTheDay.category}/${problemOfTheDay.id || problemOfTheDay.title}`}>Solve Now</Link>
+                                 </Button>
+                            </div>
+                        </CardContent>
+                        </Card>
+                    )}
+                     {problemOfTheWeek && (
+                        <Card className="bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
+                        <CardHeader>
+                            <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-purple-500"/> Problem of the Week</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="font-semibold text-lg">{problemOfTheWeek.title}</p>
+                            <p className="text-muted-foreground text-sm mt-1 mb-4">A hand-picked problem to test your skills this week.</p>
+                             <div className="flex items-center justify-between">
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheWeek.difficulty))} aria-hidden="true"></span>
+                                  {problemOfTheWeek.difficulty}
+                                </Badge>
+                                 <Button asChild>
+                                    <Link href={`/problems/${problemOfTheWeek.category}/${problemOfTheWeek.id || problemOfTheWeek.title}`}>Take the Challenge</Link>
+                                 </Button>
+                            </div>
+                        </CardContent>
+                        </Card>
+                    )}
+                  </div>
               </Card>
-
-              <div className="grid grid-cols-1 gap-8">
-                {problemOfTheDay && (
-                    <Card className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50 animate-fade-in-up" style={{ animationDelay: '0.4s' }}>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary"/> Problem of the Day</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="font-semibold text-lg">{problemOfTheDay.title}</p>
-                        <p className="text-muted-foreground text-sm mt-1 mb-4">A new challenge, every single day. Can you solve it?</p>
-                        <div className="flex items-center justify-between">
-                            <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                              <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheDay.difficulty))} aria-hidden="true"></span>
-                              {problemOfTheDay.difficulty}
-                            </Badge>
-                             <Button asChild>
-                                <Link href={`/problems/${problemOfTheDay.category}/${problemOfTheDay.id || problemOfTheDay.title}`}>Solve Now</Link>
-                             </Button>
-                        </div>
-                    </CardContent>
-                    </Card>
-                )}
-                 {problemOfTheWeek && (
-                    <Card className="bg-gradient-to-br from-purple-100 to-pink-200 dark:from-purple-900/50 dark:to-pink-900/50 animate-fade-in-up" style={{ animationDelay: '0.5s' }}>
-                    <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><Star className="h-5 w-5 text-purple-500"/> Problem of the Week</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <p className="font-semibold text-lg">{problemOfTheWeek.title}</p>
-                        <p className="text-muted-foreground text-sm mt-1 mb-4">A hand-picked problem to test your skills this week.</p>
-                         <div className="flex items-center justify-between">
-                            <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                              <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problemOfTheWeek.difficulty))} aria-hidden="true"></span>
-                              {problemOfTheWeek.difficulty}
-                            </Badge>
-                             <Button asChild>
-                                <Link href={`/problems/${problemOfTheWeek.category}/${problemOfTheWeek.id || problemOfTheWeek.title}`}>Take the Challenge</Link>
-                             </Button>
-                        </div>
-                    </CardContent>
-                    </Card>
-                )}
-              </div>
             </div>
           </div>
 
@@ -368,3 +367,5 @@ export default function HomePage() {
     </SidebarProvider>
   );
 }
+
+    
