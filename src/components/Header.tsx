@@ -99,12 +99,12 @@ export function Header() {
            {!isUserLoading && !user && (
             <>
               <div className="hidden md:flex items-center gap-2">
-                <Tabs value={pathname} className="w-[200px]">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="/login" asChild><Link href="/login">Login</Link></TabsTrigger>
-                    <TabsTrigger value="/signup" asChild><Link href="/signup">Sign Up</Link></TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                  <Button asChild variant="ghost">
+                      <Link href="/login">Sign In</Link>
+                  </Button>
+                  <Button asChild>
+                      <Link href="/signup">Get Started <ArrowRight className="h-4 w-4" /></Link>
+                  </Button>
               </div>
             </>
            )}
