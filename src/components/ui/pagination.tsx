@@ -35,15 +35,15 @@ export function PaginationComponent({
 
   return (
     <Pagination>
-      <PaginationContent className="inline-flex gap-0 -space-x-px rounded-md shadow-xs rtl:space-x-reverse">
+      <PaginationContent>
         {/* Previous page button */}
-        <PaginationItem className="[&:first-child>a]:rounded-s-md [&:last-child>a]:rounded-e-md">
+        <PaginationItem>
           <PaginationLink
             className={cn(
               buttonVariants({
                 variant: "outline",
               }),
-              "rounded-none shadow-none focus-visible:z-10 aria-disabled:pointer-events-none [&[aria-disabled]>svg]:opacity-50"
+              "rounded-full shadow-none focus-visible:z-10 aria-disabled:pointer-events-none [&[aria-disabled]>svg]:opacity-50"
             )}
             onClick={() => onPageChange(currentPage - 1)}
             aria-label="Go to previous page"
@@ -55,7 +55,7 @@ export function PaginationComponent({
 
         {/* Left ellipsis (...) */}
         {showLeftEllipsis && (
-          <PaginationItem className="[&:first-child>a]:rounded-s-md [&:last-child>a]:rounded-e-md">
+          <PaginationItem>
             <PaginationEllipsis />
           </PaginationItem>
         )}
@@ -68,7 +68,7 @@ export function PaginationComponent({
                 buttonVariants({
                   variant: "outline",
                 }),
-                "rounded-none shadow-none focus-visible:z-10",
+                "rounded-full shadow-none focus-visible:z-10",
                 page === currentPage && "bg-accent"
               )}
               onClick={() => onPageChange(page)}
@@ -81,26 +81,26 @@ export function PaginationComponent({
 
         {/* Right ellipsis (...) */}
         {showRightEllipsis && (
-          <PaginationItem className="[&:first-child>a]:rounded-s-md [&:last-child>a]:rounded-e-md">
+          <PaginationItem>
             <PaginationEllipsis
               className={cn(
                 buttonVariants({
                   variant: "outline",
                 }),
-                "pointer-events-none rounded-none shadow-none"
+                "pointer-events-none rounded-full shadow-none"
               )}
             />
           </PaginationItem>
         )}
 
         {/* Next page button */}
-        <PaginationItem className="[&:first-child>a]:rounded-s-md [&:last-child>a]:rounded-e-md">
+        <PaginationItem>
           <PaginationLink
             className={cn(
               buttonVariants({
                 variant: "outline",
               }),
-              "rounded-none shadow-none focus-visible:z-10 aria-disabled:pointer-events-none [&[aria-disabled]>svg]:opacity-50"
+              "rounded-full shadow-none focus-visible:z-10 aria-disabled:pointer-events-none [&[aria-disabled]>svg]:opacity-50"
             )}
             onClick={() => onPageChange(currentPage + 1)}
             aria-label="Go to next page"
