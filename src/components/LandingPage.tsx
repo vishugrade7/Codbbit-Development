@@ -18,6 +18,8 @@ import './ui/RotatingText.css';
 import { cn } from "@/lib/utils";
 import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
+import ScrollStack, { ScrollStackItem } from "./ui/ScrollStack";
+import "./ui/ScrollStack.css";
 
 const FeatureSection = ({ feature, index }: { feature: any; index: number }) => {
   const isOdd = index % 2 !== 0;
@@ -218,20 +220,35 @@ export function LandingPage() {
               We've built a comprehensive platform to give you the tools and practice you need to excel.
             </p>
           </div>
-          <div className="mt-20 space-y-24">
-            <div ref={featuresRef} className="relative">
-                <div className="absolute left-1/2 top-0 -translate-x-1/2 -ml-px h-full w-px bg-border -z-10" />
-                 <motion.div
-                    className="absolute left-1/2 top-0 -translate-x-1/2 -ml-px h-full w-px bg-primary"
-                    style={{
-                        scaleY: springyPathLength,
-                        transformOrigin: 'top',
-                    }}
-                 />
-                {features.map((feature, index) => (
-                    <FeatureSection key={feature.title} feature={feature} index={index} />
-                ))}
-            </div>
+          <div className="mt-20">
+            <ScrollStack useWindowScroll>
+              {features.map((feature, index) => (
+                <ScrollStackItem key={feature.title}>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center h-full">
+                    <div className="space-y-4">
+                      <div className="inline-flex items-center gap-3">
+                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
+                              {feature.icon}
+                          </div>
+                          <h3 className="text-2xl font-bold font-headline">{feature.title}</h3>
+                      </div>
+                      <p className="text-lg text-muted-foreground">{feature.description}</p>
+                    </div>
+                    <motion.div 
+                      className="rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:p-4"
+                    >
+                      <Image
+                        src={`/image ${index + 2}.png`}
+                        alt={feature.title}
+                        width={1200}
+                        height={800}
+                        className="rounded-md shadow-lg ring-1 ring-muted/20"
+                      />
+                    </motion.div>
+                  </div>
+                </ScrollStackItem>
+              ))}
+            </ScrollStack>
           </div>
         </section>
 
