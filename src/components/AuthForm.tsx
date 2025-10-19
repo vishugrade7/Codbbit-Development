@@ -354,44 +354,46 @@ function AuthFormComponent({ type }: AuthFormProps) {
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
               {isLogin ? (
-                <>
-                  <FormField
-                    control={form.control}
-                    name="email"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Email</FormLabel>
-                        <FormControl>
-                          <Input placeholder="name@example.com" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  <FormField
-                    control={form.control}
-                    name="password"
-                    render={({ field }) => (
-                      <FormItem>
-                        <div className="flex justify-between items-center">
-                            <FormLabel>Password</FormLabel>
-                            <DialogTrigger asChild>
-                                <Button variant="link" size="sm" className="p-0 h-auto" type="button" onClick={() => setIsForgotPasswordOpen(true)}>Forgot Password?</Button>
-                            </DialogTrigger>
-                        </div>
-                        <FormControl>
-                          <Input type="password" placeholder="••••••••" {...field} />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
-                  {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-                  <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    {isSubmitting && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
-                    Login
-                  </Button>
-                </>
+                 <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+                  <div className="space-y-4">
+                    <FormField
+                      control={form.control}
+                      name="email"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Email</FormLabel>
+                          <FormControl>
+                            <Input placeholder="name@example.com" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    <FormField
+                      control={form.control}
+                      name="password"
+                      render={({ field }) => (
+                        <FormItem>
+                          <div className="flex justify-between items-center">
+                              <FormLabel>Password</FormLabel>
+                                <DialogTrigger asChild>
+                                  <Button variant="link" size="sm" className="p-0 h-auto" type="button">Forgot Password?</Button>
+                                </DialogTrigger>
+                          </div>
+                          <FormControl>
+                            <Input type="password" placeholder="••••••••" {...field} />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                    {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
+                    <Button type="submit" className="w-full" disabled={isSubmitting}>
+                      {isSubmitting && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
+                      Login
+                    </Button>
+                  </div>
+                 </Dialog>
               ) : (
                 <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
                   <TabsList className="grid w-full grid-cols-2">
