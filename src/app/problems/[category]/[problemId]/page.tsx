@@ -7,7 +7,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles } from 'lucide-react';
+import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -46,6 +46,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useTheme } from '@/components';
+import { Badge } from '@/components/ui/badge';
 
 const DEFAULT_FONT_SIZE = 14;
 
@@ -95,28 +96,31 @@ export default function ProblemSolvingPage() {
   const { data: categoriesData, isLoading: isLoadingProblems } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
 
 
-  const groupedProblems = useMemo(() => {
+  const categoryProblems = useMemo(() => {
     if (!categoriesData) return [];
     
     const solvedProblemIds = new Set(userProfile?.solvedProblems ? Object.keys(userProfile.solvedProblems) : []);
+    const category = categoriesData.find(cat => cat.id === categoryUrlParam);
 
-    return categoriesData.map(cat => ({
-      category: cat.id,
-      questions: (cat.Questions || [])
-        .map(q => ({
-          ...q,
-          id: q.id || q.title,
-          category: cat.id,
-          isSolved: solvedProblemIds.has(q.id!) || solvedProblemIds.has(q.title!)
-        }))
-        .filter(q => {
-          const matchesSearch = !searchTerm || q.title?.toLowerCase().includes(searchTerm.toLowerCase());
-          const matchesDifficulty = difficultyFilter === 'All' || q.difficulty === difficultyFilter;
-          return matchesSearch && matchesDifficulty;
-        })
-    })).filter(group => group.questions.length > 0);
+    if (!category) return [];
 
-  }, [categoriesData, searchTerm, difficultyFilter, userProfile]);
+    return (category.Questions || [])
+      .map((q, index) => ({
+        ...q,
+        id: q.id || q.title,
+        category: category.id,
+        isSolved: solvedProblemIds.has(q.id!) || solvedProblemIds.has(q.title!),
+        number: index + 1
+      }))
+      .filter(q => {
+        const matchesSearch = !searchTerm || q.title?.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesDifficulty = difficultyFilter === 'All' || q.difficulty === difficultyFilter;
+        return matchesSearch && matchesDifficulty;
+      })
+
+  }, [categoriesData, searchTerm, difficultyFilter, userProfile, categoryUrlParam]);
+  
+  const solvedInCategory = useMemo(() => categoryProblems.filter(p => p.isSolved).length, [categoryProblems]);
   
   // Effect to load editor settings from localStorage
   useEffect(() => {
@@ -228,6 +232,14 @@ export default function ProblemSolvingPage() {
   
   const isProblemActive = (p: Partial<Question>) => problemId === (p.id || p.title);
 
+  const getDifficultyClass = (difficulty?: 'Easy' | 'Medium' | 'Hard') => {
+    switch (difficulty) {
+        case 'Easy': return 'text-green-500';
+        case 'Medium': return 'text-yellow-500';
+        case 'Hard': return 'text-red-500';
+        default: return 'text-muted-foreground';
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -293,10 +305,24 @@ export default function ProblemSolvingPage() {
                               </SheetHeader>
                              <div className="p-4 border-b">
                                   <div className="flex items-center justify-between">
-                                      <h3 className="font-semibold">Problems</h3>
+                                    <h3 className="font-semibold text-lg flex items-center">
+                                      Problem List <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                    </h3>
+                                    <Badge variant="outline">{solvedInCategory}/{categoryProblems.length} Solved</Badge>
+                                  </div>
+                                  <div className="flex items-center gap-2 mt-2">
+                                     <div className="relative flex-grow">
+                                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                        <Input
+                                            placeholder="Search questions"
+                                            value={searchTerm}
+                                            onChange={(e) => setSearchTerm(e.target.value)}
+                                            className="pl-9"
+                                        />
+                                     </div>
                                       <Popover>
                                           <PopoverTrigger asChild>
-                                              <Button variant="ghost" size="icon" className="h-8 w-8">
+                                              <Button variant="outline" size="icon">
                                                   <Filter className="h-4 w-4" />
                                               </Button>
                                           </PopoverTrigger>
@@ -305,35 +331,25 @@ export default function ProblemSolvingPage() {
                                           </PopoverContent>
                                       </Popover>
                                   </div>
-                                  <Input
-                                      placeholder="Search..."
-                                      value={searchTerm}
-                                      onChange={(e) => setSearchTerm(e.target.value)}
-                                      className="mt-2"
-                                  />
                               </div>
                               <ScrollArea className="h-[calc(100vh-80px)]">
                                 <div className="p-2">
-                                  {groupedProblems.map(group => (
-                                    <div key={group.category} className="mb-2">
-                                      <h4 className="font-semibold text-sm px-2 py-1">{group.category}</h4>
-                                      <div className="flex flex-col gap-1">
-                                        {group.questions.map(p => (
-                                           <Link key={p.id} href={`/problems/${p.category}/${p.id}`}>
-                                              <Button
-                                                variant={isProblemActive(p) ? "secondary" : "ghost"}
-                                                className="w-full justify-start h-auto py-2"
-                                              >
-                                                <div className="flex items-center gap-2">
-                                                  {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500" /> : <Circle className="h-4 w-4 text-muted-foreground/50" />}
-                                                  <span className="truncate">{p.title}</span>
+                                   {categoryProblems.map(p => (
+                                       <Link key={p.id} href={`/problems/${p.category}/${p.id}`}>
+                                            <div className={cn(
+                                                "flex items-center justify-between p-3 rounded-md hover:bg-muted",
+                                                isProblemActive(p) && "bg-muted"
+                                            )}>
+                                                <div className="flex items-center gap-3">
+                                                    {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500" /> : <div className="w-4 h-4" />}
+                                                    <span className="font-medium">{p.number}. {p.title}</span>
                                                 </div>
-                                              </Button>
-                                          </Link>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  ))}
+                                                <span className={cn("text-sm font-medium", getDifficultyClass(p.difficulty))}>
+                                                    {p.difficulty}
+                                                </span>
+                                            </div>
+                                       </Link>
+                                   ))}
                                 </div>
                               </ScrollArea>
                            </SheetContent>
