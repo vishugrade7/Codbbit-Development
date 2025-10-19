@@ -21,9 +21,10 @@ import { doc } from 'firebase/firestore';
 import { Skeleton } from './ui/skeleton';
 import { Avatar, AvatarImage, AvatarFallback } from './ui/avatar';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from './ui/dropdown-menu';
-import { useRouter } from 'next/navigation';
+import { useRouter, usePathname } from 'next/navigation';
 import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsList, TabsTrigger } from './ui/tabs';
 
 
 const navigationLinks: { href: string, label: string, ariaLabel?: string, icon: React.ElementType }[] = [
@@ -48,6 +49,7 @@ export function Header() {
   const auth = useAuth();
   const firestore = useFirestore();
   const router = useRouter();
+  const pathname = usePathname();
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -97,15 +99,12 @@ export function Header() {
            {!isUserLoading && !user && (
             <>
               <div className="hidden md:flex items-center gap-2">
-                <Button variant="ghost" asChild>
-                  <Link href="/login">Login</Link>
-                </Button>
-                <Button asChild className="group">
-                  <Link href="/signup">
-                    Get Started
-                     <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                  </Link>
-                </Button>
+                <Tabs value={pathname} className="w-[200px]">
+                  <TabsList className="grid w-full grid-cols-2">
+                    <TabsTrigger value="/login" asChild><Link href="/login">Login</Link></TabsTrigger>
+                    <TabsTrigger value="/signup" asChild><Link href="/signup">Sign Up</Link></TabsTrigger>
+                  </TabsList>
+                </Tabs>
               </div>
             </>
            )}
@@ -167,11 +166,8 @@ export function Header() {
                             </div>
                           ) : (
                             <>
-                              <Button asChild className="w-full group">
-                                <Link href="/signup" onClick={() => setIsSheetOpen(false)}>
-                                  Get Started
-                                  <ArrowRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-                                </Link>
+                              <Button asChild className="w-full">
+                                <Link href="/signup" onClick={() => setIsSheetOpen(false)}>Sign Up</Link>
                               </Button>
                               <Button asChild variant="outline" className="w-full">
                                 <Link href="/login" onClick={() => setIsSheetOpen(false)}>Sign In</Link>
