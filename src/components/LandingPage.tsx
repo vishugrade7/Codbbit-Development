@@ -22,6 +22,7 @@ import ScrollStack, { ScrollStackItem } from "./ui/ScrollStack";
 import "./ui/ScrollStack.css";
 import { getPlaceholderImage } from "@/lib/placeholder-images";
 import { useTheme } from "@/components/ThemeProvider";
+import { ScrollFloat } from "@/components/ui/ScrollFloat";
 
 const FeatureSection = ({ feature, index }: { feature: any; index: number }) => {
   const isOdd = index % 2 !== 0;
