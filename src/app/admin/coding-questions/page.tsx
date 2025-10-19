@@ -401,7 +401,7 @@ export default function CodingQuestionsPage() {
         <Dialog open={isCategoryDialogOpen} onOpenChange={(isOpen) => { setIsCategoryDialogOpen(isOpen); setIsEditingCategory(false); }}>
           <DialogTrigger asChild>
             <Button variant="outline">
-              <Pencil />
+              <Tag />
               Manage Categories
             </Button>
           </DialogTrigger>
