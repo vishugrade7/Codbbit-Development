@@ -72,6 +72,7 @@ export interface UserProfile {
   email: string;
   name: string;
   username: string;
+  username_lowercase?: string;
   company: string;
   country: string;
   createdAt?: string; // Add createdAt for sorting recent users

@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -11,6 +12,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 import { firestore } from '@/firebase/server-init';
 import type { UserProfile } from '@/lib/types';
+import { Query } from 'firebase-admin/firestore';
 
 const GetUserProfileByUsernameInputSchema = z.object({
   username: z.string().describe('The username of the user to fetch.'),
@@ -43,14 +45,27 @@ const getUserProfileByUsernameFlow = ai.defineFlow(
 
     try {
       const usersRef = firestore.collection('users');
-      const q = usersRef.where('username', '==', username).limit(1);
-      const querySnapshot = await q.get();
+      
+      // Create two queries: one for the exact match and one for the lowercase match.
+      const exactMatchQuery = usersRef.where('username', '==', username).limit(1);
+      const lowerCaseQuery = usersRef.where('username_lowercase', '==', username.toLowerCase()).limit(1);
 
-      if (querySnapshot.empty) {
+      // Execute both queries
+      const [exactMatchSnapshot, lowerCaseSnapshot] = await Promise.all([
+        exactMatchQuery.get(),
+        lowerCaseQuery.get()
+      ]);
+
+      let userDoc;
+
+      if (!exactMatchSnapshot.empty) {
+        userDoc = exactMatchSnapshot.docs[0];
+      } else if (!lowerCaseSnapshot.empty) {
+        userDoc = lowerCaseSnapshot.docs[0];
+      } else {
         return null;
       }
-
-      const userDoc = querySnapshot.docs[0];
+      
       return { ...userDoc.data(), uid: userDoc.id } as UserProfile;
     } catch (error) {
       console.error('Error fetching user by username:', String(error));
