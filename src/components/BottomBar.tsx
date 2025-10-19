@@ -81,6 +81,9 @@ export function BottomBar() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-8 items-center justify-between border-t bg-background/95 px-4 text-sm text-muted-foreground backdrop-blur-sm md:left-[60px]">
       <div className="flex items-center gap-4">
+        {/* Placeholder for future left-aligned items */}
+      </div>
+      <div className="flex items-center gap-4">
         <Dialog>
           <DialogTrigger asChild>
              <Badge variant="destructive" className="cursor-pointer hover:bg-destructive/80">
@@ -92,8 +95,6 @@ export function BottomBar() {
             <FeedbackForm />
           </DialogContent>
         </Dialog>
-      </div>
-      <div className="flex items-center gap-4">
         <Dialog>
             <DialogTrigger asChild>
                  <button className="flex items-center gap-1.5 hover:text-foreground">
