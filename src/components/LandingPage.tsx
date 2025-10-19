@@ -155,10 +155,10 @@ export function LandingPage() {
               </motion.div>
             </div>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 100 }}
+              animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.8, delay: 0.3, type: 'spring' }}
-              className="relative mt-16 flow-root sm:mt-24 max-w-4xl mx-auto"
+              className="relative mt-16 flow-root sm:mt-24 max-w-5xl mx-auto"
             >
               <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
                 <motion.div
@@ -175,9 +175,10 @@ export function LandingPage() {
                     />
                 </motion.div>
                  <motion.div 
-                    className="absolute -left-4 -top-8 sm:-left-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10"
-                    animate={{ y: [0, -15, 0], rotate: [10, 5, 10] }}
-                    transition={{ duration: 4, repeat: Infinity, ease: 'easeInOut' }}
+                    className="absolute -right-4 -top-8 sm:-right-12 sm:-top-24 w-24 h-24 md:w-48 md:h-48 -z-10"
+                    initial={{ opacity: 0, scale: 0.5, rotate: -30 }}
+                    animate={{ opacity: 1, scale: 1, rotate: 10, y: [0, -15, 0] }}
+                    transition={{ delay: 0.8, duration: 0.6, type: 'spring', repeat: Infinity, repeatType: 'reverse', ease: 'easeInOut' }}
                  >
                    <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg" />
                  </motion.div>
