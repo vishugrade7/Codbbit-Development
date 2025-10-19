@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check, Sheet } from "lucide-react";
+import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check, Sheet, BookOpen, Flame, ArrowDown, TrendingUp } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
@@ -21,6 +21,8 @@ import { useTheme } from "@/components/ThemeProvider";
 import { CodeExecutionAnimation } from "./ui/CodeExecutionAnimation";
 import { Badge } from "./ui/badge";
 import { SortingAnimation } from "./ui/SortingAnimation";
+import { StatCard } from "./StatCard";
+import { Separator } from "./ui/separator";
 
 
 export function LandingPage() {
@@ -149,13 +151,33 @@ export function LandingPage() {
     [0, -5]
   );
 
+  const sampleUnsolvedProblems = [
+    { title: "Create a Map<Id, Account> and print Account Name and Industry for each record queried from Salesforce", difficulty: "Easy" },
+    { title: "Write a method that accepts a Map<String, Integer> and returns the highest value key", difficulty: "Easy" },
+    { title: "Merge two Maps of type Map<Id, Account> where conflicting keys should retain the most recently modified Account", difficulty: "Medium" },
+    { title: "Write code to check if a given key exists in a Map; if not, insert a default value", difficulty: "Easy" },
+    { title: "Remove all Map entries where the value's field (e.g., IsActive__c) is false", difficulty: "Medium" }
+  ];
+
+  const getDifficultyDotClass = (difficulty: string | undefined) => {
+    switch (difficulty) {
+      case 'Easy':
+        return 'bg-green-500';
+      case 'Medium':
+        return 'bg-yellow-500';
+      case 'Hard':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-400';
+    }
+  };
+
 
   return (
     <div className="bg-background text-foreground antialiased">
       <main>
         {/* Hero Section */}
         <section className="relative overflow-x-clip bg-background py-20 md:py-32">
-          <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           
           <div className="container mx-auto px-4 z-10">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
@@ -200,32 +222,105 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
                 className="relative flow-root lg:col-span-2"
               >
-                <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
-                  {heroImageLight && (
-                    <Image
-                      src={heroImageLight.imageUrl}
-                      alt={heroImageLight.description}
-                      width={1200}
-                      height={800}
-                      className={cn("rounded-md shadow-2xl ring-1 ring-muted/20", theme === 'dark' && 'hidden')}
-                      priority
-                      data-ai-hint={heroImageLight.imageHint}
-                    />
-                  )}
-                  {heroImageDark && (
-                    <Image
-                      src={heroImageDark.imageUrl}
-                      alt={heroImageDark.description}
-                      width={1200}
-                      height={800}
-                      className={cn("rounded-md shadow-2xl ring-1 ring-muted/20", theme === 'light' && 'hidden')}
-                      priority
-                      data-ai-hint={heroImageDark.imageHint}
-                    />
-                  )}
-                  <div className="absolute -z-10 -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
-                    <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg animate-wiggle" />
-                  </div>
+                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 p-6 rounded-2xl bg-muted/30">
+                    <div className="lg:col-span-2 space-y-6 flex flex-col">
+                    <div className="w-full">
+                        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+                        <StatCard
+                            title="Rank"
+                            value="#1"
+                            icon={Award}
+                            changeText="Your position"
+                            variant="primary"
+                            changeType="neutral"
+                        />
+                        <StatCard
+                            title="Total Points"
+                            value={4000}
+                            icon={BarChart}
+                            changeText="Keep solving"
+                            changeType="neutral"
+                        />
+                        <StatCard
+                            title="Current Streak"
+                            value="1 day"
+                            icon={Flame}
+                            changeText="vs last month"
+                            changeValue={5}
+                            changeType="positive"
+                        />
+                        <StatCard
+                            title="Max Streak"
+                            value="2 days"
+                            icon={TrendingUp}
+                            changeText="All time high"
+                            changeType="neutral"
+                        />
+                        </div>
+                    </div>
+                    <Card className="flex-grow flex flex-col">
+                        <CardHeader>
+                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                        <div className="flex flex-col h-full">
+                            <div className="space-y-2 flex-grow">
+                            <div className='flex items-center justify-between p-4 rounded-lg transition-all bg-category-green-bg border-category-green-border text-category-green-fg'>
+                                <div className="flex items-center gap-3">
+                                <div className="p-2 rounded-md bg-category-green-fg/10 text-category-green-fg">
+                                    <FileText className="h-5 w-5" />
+                                </div>
+                                <div>
+                                    <p className="font-semibold">Apex Crash Sheet</p>
+                                    <p className="text-xs opacity-70">24 problems</p>
+                                </div>
+                                </div>
+                            </div>
+                            </div>
+                            <div className="flex justify-center pt-4">
+                            <Button variant="outline" size="icon" className="rounded-full h-10 w-10 flex-shrink-0">
+                                <ArrowDown className="h-4 w-4" />
+                            </Button>
+                            </div>
+                        </div>
+                        </CardContent>
+                    </Card>
+                    </div>
+                    <div className="lg:col-span-3 space-y-6">
+                    <Card className="flex flex-col">
+                        <CardHeader>
+                        <CardTitle className="flex items-center gap-2 text-primary"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex-grow">
+                        <div className="flex flex-col h-full">
+                            <div>
+                                <div className="pr-4">
+                                {sampleUnsolvedProblems.map((problem, index) => (
+                                    <>
+                                    <div className="flex items-center justify-between p-3 rounded-lg">
+                                        <p className="font-semibold text-sm">{problem.title}</p>
+                                        <div className="flex items-center gap-4">
+                                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                            {problem.difficulty}
+                                        </Badge>
+                                        </div>
+                                    </div>
+                                    {index < sampleUnsolvedProblems.length - 1 && <Separator />}
+                                    </>
+                                ))}
+                                </div>
+                            </div>
+                            <div className="flex justify-center pt-4">
+                            <Button variant="outline" className="gap-2">
+                                <ArrowDown className="h-4 w-4" />
+                                View More
+                            </Button>
+                            </div>
+                        </div>
+                        </CardContent>
+                    </Card>
+                    </div>
                 </div>
               </motion.div>
             </div>
@@ -401,3 +496,5 @@ export function LandingPage() {
     </div>
   );
 }
+
+    
