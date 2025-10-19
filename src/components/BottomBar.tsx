@@ -4,18 +4,18 @@
 import { useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { cn } from "@/lib/utils";
 import { doc } from "firebase/firestore";
-import { Check, Cloud, Code, GitBranch, Sparkles, X, Package, Loader2 } from "lucide-react";
+import { Check, Cloud, Code, GitBranch, Sparkles, X, Package, Loader2, Bug } from "lucide-react";
 import { AnonymousCodeRunner } from "./AnonymousCodeRunner";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
+import { Dialog, DialogContent, DialogTrigger } from "./ui/dialog";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import type { UserProfile } from "@/lib/types";
 import { useState, useEffect } from "react";
 import { Button } from "./ui/button";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { useToast } from "@/hooks/use-toast";
 import { installSalesforcePackage } from "@/lib/actions";
+import { Badge } from "./ui/badge";
+import { FeedbackForm } from "./FeedbackForm";
+
 
 type ManagedPackage = {
   url: string;
@@ -81,7 +81,17 @@ export function BottomBar() {
   return (
     <footer className="fixed bottom-0 left-0 right-0 z-40 flex h-8 items-center justify-between border-t bg-background/95 px-4 text-sm text-muted-foreground backdrop-blur-sm md:left-[60px]">
       <div className="flex items-center gap-4">
-        {/* Removed Salesforce and main branch indicators */}
+        <Dialog>
+          <DialogTrigger asChild>
+             <Badge variant="destructive" className="cursor-pointer hover:bg-destructive/80">
+              <Bug className="mr-1 h-3 w-3" />
+              Report a bug
+            </Badge>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-2xl">
+            <FeedbackForm />
+          </DialogContent>
+        </Dialog>
       </div>
       <div className="flex items-center gap-4">
         <Dialog>
