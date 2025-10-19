@@ -41,12 +41,12 @@ export function LandingPage() {
             "Filter leaderboards by country or company.",
         ],
         avatars: [
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-32 w-32 top-[20%] left-[5%]" },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704e", alt: "User 2", className: "h-36 w-36 top-[10%] left-[40%]" },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704f", alt: "User 3", className: "h-24 w-24 top-0 right-[15%]" },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705a", alt: "User 4", className: "h-32 w-32 bottom-0 right-[30%]" },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705b", alt: "User 5", className: "h-28 w-28 top-[45%] right-0" },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705c", alt: "User 6", className: "h-20 w-20 bottom-[10%] left-[20%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-32 w-32 top-[20%] left-[5%]", rank: 4 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704e", alt: "User 2", className: "h-36 w-36 top-[10%] left-[40%]", rank: 1 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704f", alt: "User 3", className: "h-24 w-24 top-0 right-[15%]", rank: 3 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705a", alt: "User 4", className: "h-32 w-32 bottom-0 right-[30%]", rank: 5 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705b", alt: "User 5", className: "h-28 w-28 top-[45%] right-0", rank: 2 },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705c", alt: "User 6", className: "h-20 w-20 bottom-[10%] left-[20%]", rank: 6 },
         ]
       },
       {
@@ -236,7 +236,7 @@ export function LandingPage() {
                 style={{
                   scale,
                   rotate,
-                  top: `${i * 2.5}rem`,
+                  top: `${'i * 2.5'}rem`,
                 }}
               >
                  <div className="relative h-[80vh] rounded-2xl border border-border/20 bg-card p-8 md:p-12 overflow-hidden dotted-bg">
@@ -268,10 +268,15 @@ export function LandingPage() {
                                     transition={{ duration: 0.5, delay: 0.2 + avatarIndex * 0.1 }} 
                                     className={cn("absolute", avatar.className)}
                                 >
-                                    <Avatar className="h-full w-full border-4 border-background">
-                                        <AvatarImage src={avatar.src} alt={avatar.alt} />
-                                        <AvatarFallback>{avatar.alt.substring(0, 2)}</AvatarFallback>
-                                    </Avatar>
+                                    <div className="relative">
+                                        <Avatar className="h-full w-full border-4 border-background">
+                                            <AvatarImage src={avatar.src} alt={avatar.alt} />
+                                            <AvatarFallback>{avatar.alt.substring(0, 2)}</AvatarFallback>
+                                        </Avatar>
+                                        <div className="absolute -bottom-2 -right-2 bg-primary text-primary-foreground rounded-full h-8 w-8 flex items-center justify-center text-xs font-bold border-2 border-background">
+                                            {avatar.rank}
+                                        </div>
+                                    </div>
                                 </motion.div>
                             ))}
                              {feature.imageSrc && (
