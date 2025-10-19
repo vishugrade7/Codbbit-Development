@@ -82,12 +82,6 @@ export function SortingAnimation() {
 
   return (
     <div className="sorting-animation-container">
-        <div className="sorting-controls">
-            <Button size="sm" variant={sortBy === 'All' ? 'default' : 'outline'} onClick={() => setSortBy('All')}>All</Button>
-            <Button size="sm" variant={sortBy === 'Easy' ? 'default' : 'outline'} onClick={() => setSortBy('Easy')}>Easy</Button>
-            <Button size="sm" variant={sortBy === 'Medium' ? 'default' : 'outline'} onClick={() => setSortBy('Medium')}>Medium</Button>
-            <Button size="sm" variant={sortBy === 'Hard' ? 'default' : 'outline'} onClick={() => setSortBy('Hard')}>Hard</Button>
-        </div>
         <div className="problem-grid">
             <AnimatePresence>
             {sortedProblems.map((problem, index) => {
