@@ -322,12 +322,14 @@ export default function ProblemSolvingPage() {
                                    {categoryProblems.map(p => (
                                        <Link key={p.id} href={`/problems/${p.category}/${p.id || p.title}`}>
                                           <div className={cn(
-                                                "flex items-start justify-between p-3 rounded-md hover:bg-muted",
+                                                "flex items-start justify-between p-3 rounded-md hover:bg-muted text-sm",
                                                 isProblemActive(p) && "bg-muted"
                                             )}>
-                                                <div className="flex items-start gap-3 overflow-hidden text-sm">
+                                                <div className="flex items-start gap-3 overflow-hidden">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" /> : <div className="w-4 h-4 flex-shrink-0" />}
-                                                    <span className="font-medium">{p.number}. {p.title}</span>
+                                                    <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis group-hover:whitespace-normal">
+                                                        {p.number}. {p.title.length > 35 ? `${p.title.substring(0, 35)}...` : p.title}
+                                                    </span>
                                                 </div>
                                                 <Badge variant="outline" className={cn("text-xs w-20 justify-center flex-shrink-0", getDifficultyClass(p.difficulty))}>
                                                     {p.difficulty}
@@ -361,6 +363,7 @@ export default function ProblemSolvingPage() {
                     </>
                 }
              >
+                <Badge variant="secondary">Problems Test</Badge>
                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsQuestionPanelVisible(!isQuestionPanelVisible)}>
                     <PanelLeftClose className="h-4 w-4" />
                 </Button>
@@ -394,3 +397,4 @@ export default function ProblemSolvingPage() {
     </SidebarProvider>
   );
 }
+
