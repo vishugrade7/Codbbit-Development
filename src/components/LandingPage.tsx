@@ -18,6 +18,7 @@ import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
 import { getPlaceholderImage } from "@/lib/placeholder-images";
 import { useTheme } from "@/components/ThemeProvider";
+import { CodeExecutionAnimation } from "./ui/CodeExecutionAnimation";
 
 
 export function LandingPage() {
@@ -69,10 +70,7 @@ export function LandingPage() {
             "Connect securely to any Salesforce org.",
             "Get real-time results and debug logs.",
         ],
-        image: {
-            light: getPlaceholderImage('hero-light'),
-            dark: getPlaceholderImage('hero-dark'),
-        }
+        animation: <CodeExecutionAnimation />,
       },
       {
         icon: <Sheet className="h-6 w-6 text-primary" />,
@@ -191,7 +189,7 @@ export function LandingPage() {
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
-                className="relative flow-root"
+                className="relative flow-root lg:col-span-1"
               >
                 <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
                   {heroImageLight && (
@@ -294,6 +292,9 @@ export function LandingPage() {
                                     height={400}
                                     className="rounded-md shadow-2xl ring-1 ring-muted/20"
                                 />
+                            )}
+                            {feature.animation && (
+                              feature.animation
                             )}
                             {feature.image && (
                                 <>
