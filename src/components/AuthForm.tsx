@@ -445,8 +445,8 @@ function AuthFormComponent({ type }: AuthFormProps) {
                       </div>
                   </TabsContent>
                   <TabsContent value="profile" className="mt-4">
-                    <div className="space-y-4">
-                      <div className="space-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                       <div className="space-y-4">
                           <FormField
                             control={form.control}
                             name="fullName"
@@ -480,40 +480,40 @@ function AuthFormComponent({ type }: AuthFormProps) {
                               </FormItem>
                             )}
                           />
-                      </div>
-                      <div className="space-y-4">
                           <FormField
-                              control={form.control}
-                              name="company"
-                              render={({ field }) => (
-                                  <FormItem>
-                                  <FormLabel>Company / College (Optional)</FormLabel>
-                                  <FormControl>
-                                     <CompanyAutocomplete
-                                        value={field.value || ''}
-                                        onValueChange={field.onChange}
-                                      />
-                                  </FormControl>
-                                  <FormMessage />
-                                  </FormItem>
-                              )}
-                              />
+                            control={form.control}
+                            name="company"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Company / College (Optional)</FormLabel>
+                                <FormControl>
+                                    <CompanyAutocomplete
+                                      value={field.value || ''}
+                                      onValueChange={field.onChange}
+                                    />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
+                            />
+                       </div>
+                       <div className="space-y-4">
                           <FormField
-                          control={form.control}
-                          name="country"
-                          render={({ field }) => (
-                              <FormItem className="flex flex-col">
-                              <FormLabel>Country <span className="text-destructive">*</span></FormLabel>
-                              <Combobox
-                                  options={countries}
-                                  value={field.value}
-                                  onValueChange={field.onChange}
-                                  placeholder="Select country..."
-                                  searchPlaceholder="Search countries..."
-                              />
-                              <FormMessage />
-                              </FormItem>
-                          )}
+                            control={form.control}
+                            name="country"
+                            render={({ field }) => (
+                                <FormItem className="flex flex-col">
+                                <FormLabel>Country <span className="text-destructive">*</span></FormLabel>
+                                <Combobox
+                                    options={countries}
+                                    value={field.value}
+                                    onValueChange={field.onChange}
+                                    placeholder="Select country..."
+                                    searchPlaceholder="Search countries..."
+                                />
+                                <FormMessage />
+                                </FormItem>
+                            )}
                           />
                           <FormField
                             control={form.control}
@@ -528,9 +528,9 @@ function AuthFormComponent({ type }: AuthFormProps) {
                               </FormItem>
                             )}
                           />
-                      </div>
-                      {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-                      <div className="flex gap-2">
+                       </div>
+                    </div>
+                     <div className="flex flex-col-reverse sm:flex-row gap-2 mt-4">
                         <Button type="button" variant="outline" className="w-full" onClick={() => setActiveTab('account')}>
                           Back
                         </Button>
@@ -539,7 +539,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                           Create Account
                         </Button>
                       </div>
-                    </div>
+                      {errors.root && <FormMessage className="mt-4 text-center">{errors.root.message}</FormMessage>}
                   </TabsContent>
                 </Tabs>
               )}
