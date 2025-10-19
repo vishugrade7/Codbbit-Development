@@ -3,7 +3,7 @@ import { AuthForm } from '@/components/AuthForm';
 
 export default function SignupPage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-start md:justify-center bg-background p-4 pt-20">
+    <div className="flex min-h-screen flex-col items-center justify-start md:justify-center bg-background p-4 pt-16">
       <AuthForm type="signup" />
     </div>
   );
