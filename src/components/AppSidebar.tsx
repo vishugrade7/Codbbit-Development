@@ -125,7 +125,7 @@ export function AppSidebar() {
                   <TooltipTrigger asChild>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-10 w-10">
-                            <Settings size={20}/>
+                            <MessageSquare size={20}/>
                       </Button>
                     </DialogTrigger>
                   </TooltipTrigger>
