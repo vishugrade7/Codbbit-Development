@@ -77,6 +77,7 @@ export default function CodingQuestionsPage() {
     status: 'All',
     difficulty: 'All',
     search: '',
+    category: 'All',
   });
 
   const [showManagedPackageInput, setShowManagedPackageInput] = useState(false);
@@ -108,8 +109,9 @@ export default function CodingQuestionsPage() {
       const statusMatch = filters.status === 'All' ||
         (filters.status === 'Solved' && solvedProblemIds.has(problem.id!)) ||
         (filters.status === 'Unsolved' && !solvedProblemIds.has(problem.id!));
+      const categoryMatch = filters.category === 'All' || problem.category === filters.category;
         
-      return searchMatch && difficultyMatch && statusMatch;
+      return searchMatch && difficultyMatch && statusMatch && categoryMatch;
     });
   }, [allProblems, filters]);
 
@@ -551,7 +553,7 @@ export default function CodingQuestionsPage() {
       </div>
       
       <div className="mb-8">
-        <ProblemFilter onFilterChange={setFilters} />
+        <ProblemFilter onFilterChange={setFilters} categories={categories?.map(c => c.id) || []} />
       </div>
 
       <Card>
