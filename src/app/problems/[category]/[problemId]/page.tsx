@@ -7,7 +7,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight } from 'lucide-react';
+import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -219,7 +219,10 @@ export default function ProblemSolvingPage() {
 
   const DifficultyFilterRadioGroup = ({ title, options, value, onValueChange }: { title: string, options: string[], value: string, onValueChange: (value: any) => void }) => (
     <div className="grid gap-2">
-      <p className="font-medium text-sm">{title}</p>
+      <p className="font-medium text-sm flex items-center gap-2 text-muted-foreground">
+        <BarChartHorizontal className="h-4 w-4" />
+        {title}
+      </p>
       <div className="flex items-center gap-2">
         {options.map(option => (
           <Button
@@ -337,7 +340,7 @@ export default function ProblemSolvingPage() {
                                             )}>
                                                 <div className="flex items-center gap-3 overflow-hidden text-sm">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> : <div className="w-4 h-4 flex-shrink-0" />}
-                                                    <span className="font-medium truncate">{p.number}. {p.title?.substring(0, 30)}{p.title && p.title.length > 30 ? '...' : ''}</span>
+                                                    <span className="font-medium truncate">{p.number}. {p.title?.substring(0, 35)}{p.title && p.title.length > 35 ? '...' : ''}</span>
                                                 </div>
                                                 <Badge variant="outline" className={cn("text-xs w-20 justify-center", getDifficultyClass(p.difficulty))}>
                                                     {p.difficulty}
@@ -404,4 +407,3 @@ export default function ProblemSolvingPage() {
     </SidebarProvider>
   );
 }
-
