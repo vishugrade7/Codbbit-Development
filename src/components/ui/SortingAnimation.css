@@ -1,0 +1,59 @@
+
+.sorting-animation-container {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 1rem;
+}
+
+.sorting-controls {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 1rem;
+}
+
+.problem-grid {
+    position: relative;
+    width: 100%;
+    max-width: 500px;
+    height: 300px;
+}
+
+.problem-card-wrapper {
+    position: absolute;
+    will-change: transform;
+}
+
+.problem-card {
+    padding: 0.75rem 1rem;
+    border-radius: 0.5rem;
+    font-size: 0.875rem;
+    font-weight: 500;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1);
+    white-space: nowrap;
+}
+
+.problem-card-easy {
+    background-color: hsl(var(--category-green-bg));
+    border: 1px solid hsl(var(--category-green-border));
+    color: hsl(var(--category-green-fg));
+}
+
+.problem-card-medium {
+    background-color: hsl(var(--category-yellow-bg));
+    border: 1px solid hsl(var(--category-yellow-border));
+    color: hsl(var(--category-yellow-fg));
+}
+
+.problem-card-hard {
+    background-color: hsl(var(--category-red-bg));
+    border: 1px solid hsl(var(--category-red-border));
+    color: hsl(var(--category-red-fg));
+}

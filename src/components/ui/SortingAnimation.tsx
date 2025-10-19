@@ -1,0 +1,99 @@
+
+'use client';
+
+import { useState, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { Button } from './button';
+import { Badge } from './badge';
+import { cn } from '@/lib/utils';
+import './SortingAnimation.css';
+
+type Difficulty = 'Easy' | 'Medium' | 'Hard';
+
+interface Problem {
+  id: number;
+  title: string;
+  difficulty: Difficulty;
+}
+
+const sampleProblems: Problem[] = [
+  { id: 1, title: "Two Sum", difficulty: 'Easy' },
+  { id: 2, title: "Validate Subsequence", difficulty: 'Easy' },
+  { id: 3, title: "Three Number Sum", difficulty: 'Medium' },
+  { id: 4, title: "Water Area", difficulty: 'Hard' },
+  { id: 5, title: "Move Element To End", difficulty: 'Medium' },
+  { id: 6, title: "First Duplicate Value", difficulty: 'Medium' },
+  { id: 7, title: "Staircase Traversal", difficulty: 'Easy' },
+  { id: 8, title: "Min Height BST", difficulty: 'Medium' },
+  { id: 9, title: "Invert Binary Tree", difficulty: 'Easy' },
+  { id: 10, title: "Max Subset Sum", difficulty: 'Hard' },
+  { id: 11, title: "Branch Sums", difficulty: 'Easy' },
+  { id: 12, title: "Four Number Sum", difficulty: 'Hard' },
+];
+
+const getDifficultyClass = (difficulty: Difficulty) => {
+    switch (difficulty) {
+        case 'Easy': return 'problem-card-easy';
+        case 'Medium': return 'problem-card-medium';
+        case 'Hard': return 'problem-card-hard';
+    }
+}
+
+const getPosition = (index: number, total: number, columns = 3) => {
+    const col = index % columns;
+    const row = Math.floor(index / columns);
+    const x = (col / (columns - 1)) * 80 + 10; // 10% to 90%
+    const y = (row / (Math.ceil(total / columns) - 1)) * 80 + 10; // 10% to 90%
+    return { x: `${x}%`, y: `${y}%` };
+};
+
+export function SortingAnimation() {
+  const [sortBy, setSortBy] = useState<Difficulty | 'All'>('All');
+
+  const sortedProblems = useMemo(() => {
+    if (sortBy === 'All') {
+      return [...sampleProblems].sort((a, b) => a.id - b.id);
+    }
+    return [...sampleProblems].sort((a, b) => {
+      if (a.difficulty === sortBy && b.difficulty !== sortBy) return -1;
+      if (a.difficulty !== sortBy && b.difficulty === sortBy) return 1;
+      return a.id - b.id;
+    });
+  }, [sortBy]);
+
+  return (
+    <div className="sorting-animation-container">
+        <div className="sorting-controls">
+            <Button size="sm" variant={sortBy === 'All' ? 'default' : 'outline'} onClick={() => setSortBy('All')}>All</Button>
+            <Button size="sm" variant={sortBy === 'Easy' ? 'default' : 'outline'} onClick={() => setSortBy('Easy')}>Easy</Button>
+            <Button size="sm" variant={sortBy === 'Medium' ? 'default' : 'outline'} onClick={() => setSortBy('Medium')}>Medium</Button>
+            <Button size="sm" variant={sortBy === 'Hard' ? 'default' : 'outline'} onClick={() => setSortBy('Hard')}>Hard</Button>
+        </div>
+        <div className="problem-grid">
+            <AnimatePresence>
+            {sortedProblems.map((problem, index) => {
+                const isFiltered = sortBy !== 'All' && problem.difficulty !== sortBy;
+                const { x, y } = getPosition(index, sortedProblems.length, 3);
+                
+                return (
+                    <motion.div
+                        key={problem.id}
+                        layout
+                        initial={{ opacity: 0, scale: 0.5 }}
+                        animate={{ opacity: isFiltered ? 0.2 : 1, scale: 1, x, y }}
+                        exit={{ opacity: 0, scale: 0.5 }}
+                        transition={{ type: 'spring', stiffness: 300, damping: 25 }}
+                        className="problem-card-wrapper"
+                    >
+                        <div className={cn("problem-card", getDifficultyClass(problem.difficulty))}>
+                            <span>{problem.title}</span>
+                            <Badge variant="outline" className="border-current/50">{problem.difficulty}</Badge>
+                        </div>
+                    </motion.div>
+                );
+            })}
+            </AnimatePresence>
+        </div>
+    </div>
+  );
+}
