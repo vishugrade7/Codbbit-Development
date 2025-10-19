@@ -342,7 +342,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
 
   return (
     <>
-      <Card className="w-full max-w-md">
+      <Card className="w-full max-w-md md:max-w-2xl">
         <CardHeader className="items-center text-center">
           <Image src="/logo.png" alt="Codbbit Logo" width={96} height={96} className="mb-4" />
           <CardTitle className="pt-4 font-headline">{isLogin ? 'Welcome Back!' : 'Create an account'}</CardTitle>
