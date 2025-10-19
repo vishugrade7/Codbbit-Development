@@ -241,7 +241,6 @@ export function LeaderboardClient() {
                                     <AvatarImage src={currentUserRank.avatarUrl} />
                                     <AvatarFallback>{getInitials(currentUserRank.name)}</AvatarFallback>
                                 </Avatar>
-                                 <Image src="/leaderboardcodbbit.png" alt="Leaderboard mascot" width={80} height={80} className="absolute -bottom-4 -right-8" />
                             </div>
                             <p className="font-semibold text-xl">{currentUserRank.name}</p>
                             <p className="text-sm text-muted-foreground">@{currentUserRank.username}</p>
