@@ -67,6 +67,34 @@ export function LandingPage() {
             dark: getPlaceholderImage('features-dark'),
         }
       },
+      {
+        icon: <Code className="h-6 w-6 text-primary" />,
+        title: 'Real-time Code Execution',
+        description: "Execute Apex code against a real Salesforce org and get immediate feedback, just like in a real-world scenario. No more waiting, just coding.",
+        points: [
+            "Instantly run Apex code.",
+            "Connect securely to any Salesforce org.",
+            "Get real-time results and debug logs.",
+        ],
+        image: {
+            light: getPlaceholderImage('hero-light'),
+            dark: getPlaceholderImage('hero-dark'),
+        }
+      },
+      {
+        icon: <Trophy className="h-6 w-6 text-primary" />,
+        title: 'Competitive Leaderboards',
+        description: "See how you stack up against other Salesforce developers. Climb the ranks by solving problems and earning points. Compete globally or within your company.",
+        points: [
+            "Track your progress and ranking.",
+            "Compete with developers worldwide.",
+            "Filter leaderboards by country or company.",
+        ],
+        image: {
+            light: getPlaceholderImage('features-light'),
+            dark: getPlaceholderImage('features-dark'),
+        }
+      }
     ];
     
     const testimonials = [
