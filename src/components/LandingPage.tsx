@@ -19,6 +19,7 @@ import { useRef } from "react";
 import { getPlaceholderImage } from "@/lib/placeholder-images";
 import { useTheme } from "@/components/ThemeProvider";
 import { CodeExecutionAnimation } from "./ui/CodeExecutionAnimation";
+import { Badge } from "./ui/badge";
 
 
 export function LandingPage() {
@@ -70,7 +71,52 @@ export function LandingPage() {
             "Connect securely to any Salesforce org.",
             "Get real-time results and debug logs.",
         ],
-        animation: <CodeExecutionAnimation />,
+        animation: (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 h-full">
+            <Card className="flex flex-col">
+              <CardHeader>
+                <CardTitle className="text-lg">Find Duplicate Characters</CardTitle>
+                <div className="flex gap-2 pt-2">
+                  <Badge variant="outline">Easy</Badge>
+                  <Badge variant="secondary">String</Badge>
+                </div>
+              </CardHeader>
+              <CardContent className="text-sm text-muted-foreground flex-grow">
+                <p>Write an Apex method to find all duplicate characters in a given string.</p>
+                <div className="mt-4 bg-muted/50 p-3 rounded-md">
+                  <p className="font-mono text-xs"><strong>Input:</strong> 'hello world'</p>
+                  <p className="font-mono text-xs"><strong>Output:</strong> ['l', 'o']</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="bg-[#1e1e1e] text-white font-code text-sm flex flex-col">
+               <CardHeader className="flex-row items-center gap-2 p-3 bg-black/20">
+                  <div className="flex gap-1.5">
+                    <div className="h-3 w-3 rounded-full bg-red-500"></div>
+                    <div className="h-3 w-3 rounded-full bg-yellow-500"></div>
+                    <div className="h-3 w-3 rounded-full bg-green-500"></div>
+                  </div>
+                  <p className="text-xs text-neutral-400">Solution.cls</p>
+               </CardHeader>
+               <CardContent className="p-4 text-xs flex-grow">
+                  <pre>
+                    <code>
+                      <span className="text-purple-400">public</span> <span className="text-purple-400">class</span> <span className="text-yellow-300">Solution</span> &#123;
+                      {'\n'}
+                      {'  '}<span className="text-purple-400">public</span> <span className="text-purple-400">static</span> List&lt;String&gt; findDuplicates(String input) &#123;
+                      {'\n'}
+                      {'    '}Map&lt;String, Integer&gt; charCount = <span className="text-blue-400">new</span> Map&lt;String, Integer&gt;();
+                      {'\n'}
+                      {'    '}List&lt;String&gt; duplicates = <span className="text-blue-400">new</span> List&lt;String&gt;();
+                      {'\n'}
+                      {'  '}&#125;
+                      {'\n'}&#125;
+                    </code>
+                  </pre>
+               </CardContent>
+            </Card>
+          </div>
+        ),
       },
       {
         icon: <Sheet className="h-6 w-6 text-primary" />,
@@ -193,7 +239,7 @@ export function LandingPage() {
                 initial={{ opacity: 0, y: 50, scale: 0.9 }}
                 animate={{ opacity: 1, y: 0, scale: 1 }}
                 transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
-                className="relative flow-root"
+                className="relative flow-root lg:col-span-1"
               >
                 <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
                   {heroImageLight && (
@@ -398,3 +444,5 @@ export function LandingPage() {
 }
 
     
+
+      
