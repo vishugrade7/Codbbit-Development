@@ -39,13 +39,18 @@ const getDifficultyClass = (difficulty: Difficulty) => {
     }
 }
 
-const getPosition = (index: number, total: number, columns = 3) => {
-    const col = index % columns;
-    const row = Math.floor(index / columns);
-    const x = (col / (columns - 1)) * 80 + 10; // 10% to 90%
-    const y = (row / (Math.ceil(total / columns) - 1)) * 80 + 10; // 10% to 90%
-    return { x: `${x}%`, y: `${y}%` };
+const getPosition = (index: number, total: number) => {
+    const cardHeight = 40; // height of a card in pixels
+    const gap = 12; // gap between cards in pixels
+    const totalHeight = total * cardHeight + (total - 1) * gap;
+    const yOffset = (300 - totalHeight) / 2; // 300 is the grid height
+
+    return { 
+        x: '50%',
+        y: yOffset + index * (cardHeight + gap)
+    };
 };
+
 
 export function SortingAnimation() {
   const [sortBy, setSortBy] = useState<Difficulty | 'All'>('All');
@@ -73,17 +78,20 @@ export function SortingAnimation() {
             <AnimatePresence>
             {sortedProblems.map((problem, index) => {
                 const isFiltered = sortBy !== 'All' && problem.difficulty !== sortBy;
-                const { x, y } = getPosition(index, sortedProblems.length, 3);
+                const { x, y } = getPosition(index, sortedProblems.length);
                 
                 return (
                     <motion.div
                         key={problem.id}
                         layout
-                        initial={{ opacity: 0, scale: 0.5 }}
+                        initial={{ opacity: 0, scale: 0.5, x: '50%' }}
                         animate={{ opacity: isFiltered ? 0.2 : 1, scale: 1, x, y }}
                         exit={{ opacity: 0, scale: 0.5 }}
                         transition={{ type: 'spring', stiffness: 300, damping: 25 }}
                         className="problem-card-wrapper"
+                        style={{
+                            transform: 'translateX(-50%)' // Center horizontally
+                        }}
                     >
                         <div className={cn("problem-card", getDifficultyClass(problem.difficulty))}>
                             <span>{problem.title}</span>
