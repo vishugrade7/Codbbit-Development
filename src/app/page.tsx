@@ -257,30 +257,43 @@ export default function HomePage() {
                   <CardDescription>Curated lists to sharpen your skills.</CardDescription>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-2">
-                    {sheets && sheets.map((sheet, index) => {
-                        const colorClasses = getCategoryColorClasses(index);
-                        return (
-                          <Link href={`/sheets/${sheet.id}`} key={sheet.id} className={cn(
-                            'flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
-                            colorClasses.card
-                          )}>
-                              <div className="flex items-center gap-3">
-                                 <div className={cn("p-2 rounded-md", colorClasses.button)}>
-                                   <FileText className="h-5 w-5" />
-                                 </div>
-                                 <div>
-                                    <p className="font-semibold">{sheet.name}</p>
-                                    <p className="text-xs opacity-70">{sheet.questionIds.length} problems</p>
-                                 </div>
-                              </div>
-                              <ChevronRight className="h-5 w-5 opacity-70" />
-                          </Link>
-                        )
-                    })}
-                    <Button variant="outline" className="w-full !mt-4" asChild>
-                       <Link href="/sheets">View All Sheets</Link>
-                    </Button>
+                  <div className="flex flex-col">
+                    <div className="space-y-2">
+                      {sheets && sheets.map((sheet, index) => {
+                          const colorClasses = getCategoryColorClasses(index);
+                          return (
+                            <Link href={`/sheets/${sheet.id}`} key={sheet.id} className={cn(
+                              'flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
+                              colorClasses.card
+                            )}>
+                                <div className="flex items-center gap-3">
+                                   <div className={cn("p-2 rounded-md", colorClasses.button)}>
+                                     <FileText className="h-5 w-5" />
+                                   </div>
+                                   <div>
+                                      <p className="font-semibold">{sheet.name}</p>
+                                      <p className="text-xs opacity-70">{sheet.questionIds.length} problems</p>
+                                   </div>
+                                </div>
+                                <ChevronRight className="h-5 w-5 opacity-70" />
+                            </Link>
+                          )
+                      })}
+                    </div>
+                    <div className="flex justify-center pt-4">
+                      <TooltipProvider>
+                        <Tooltip>
+                          <TooltipTrigger asChild>
+                            <Button variant="outline" size="icon" className="rounded-full flex-shrink-0" asChild>
+                              <Link href="/sheets"><ArrowDown /></Link>
+                            </Button>
+                          </TooltipTrigger>
+                          <TooltipContent>
+                            <p>View All Sheets</p>
+                          </TooltipContent>
+                        </Tooltip>
+                      </TooltipProvider>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
