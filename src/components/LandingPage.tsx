@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
@@ -227,7 +228,7 @@ export function LandingPage() {
 
 
         {/* Testimonials Section */}
-        <section className="bg-muted/20 py-20 md:py-32">
+        <section className="bg-muted/20 py-16 md:py-24">
             <div className="container mx-auto px-4">
                 <div className="mx-auto max-w-3xl text-center">
                     <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">What developers are saying</h2>
@@ -260,7 +261,7 @@ export function LandingPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="bg-blue-50/50 dark:bg-blue-900/10 py-20">
+        <section className="bg-blue-50/50 dark:bg-blue-900/10 py-16">
           <div className="container mx-auto px-8">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
               <div className="space-y-6">
