@@ -28,12 +28,13 @@ export default function CategoryPage() {
   const firestore = useFirestore();
   const { user } = useUser();
   const params = useParams();
-  const categoryName = decodeURIComponent(params.category as string);
+  const categoryUrlParam = params.category as string;
 
   const categoryDocRef = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !categoryUrlParam) return null;
+    const categoryName = decodeURIComponent(categoryUrlParam);
     return doc(firestore, 'problems', categoryName);
-  }, [firestore, categoryName]);
+  }, [firestore, categoryUrlParam]);
 
   const { data: categoryDoc, isLoading } = useDoc<CategoryDoc>(categoryDocRef);
   
@@ -109,10 +110,10 @@ export default function CategoryPage() {
                 </Button>
               <div>
                 <h1 className="text-3xl font-bold font-headline tracking-tight">
-                  {categoryName}
+                  {decodeURIComponent(categoryUrlParam)}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  A list of problems in the {categoryName} category.
+                  A list of problems in the {decodeURIComponent(categoryUrlParam)} category.
                 </p>
               </div>
             </div>
@@ -145,7 +146,7 @@ export default function CategoryPage() {
                                         )}
                                     </TableCell>
                                     <TableCell>
-                                        <Link href={`/problems/${encodeURIComponent(categoryName)}/${question.id || question.title}`} className="font-medium hover:underline">
+                                        <Link href={`/problems/${categoryUrlParam}/${question.id || question.title}`} className="font-medium hover:underline">
                                             {question.title}
                                         </Link>
                                     </TableCell>
