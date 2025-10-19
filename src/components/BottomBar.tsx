@@ -150,10 +150,6 @@ export function BottomBar() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
-        <button className="flex items-center gap-1.5 hover:text-foreground">
-            <Sparkles size={16} className="text-purple-500" />
-            <span>AI</span>
-        </button>
       </div>
     </footer>
   );
