@@ -156,7 +156,7 @@ export function LandingPage() {
         {/* Hero Section */}
         <section className="relative overflow-x-clip bg-background py-20 md:py-32">
           <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
-          <div className="absolute inset-0 -z-10 [mask-image:radial-gradient(farthest-side,white,transparent)] bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22hsl(var(--border))%22%3E%3Cpath%20d%3D%22M0%20.5%20L32%20.5%20M.5%200%20L.5%2032%22%2F%3E%3C%2Fsvg%3E')]" aria-hidden="true"></div>
+          
           <div className="container mx-auto px-4 z-10">
             <div className="grid grid-cols-1 lg:grid-cols-5 gap-8 items-center">
               <div className="max-w-xl text-center md:text-left lg:col-span-3">
