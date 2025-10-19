@@ -37,7 +37,7 @@ const FeatureSection = ({ feature, index }: { feature: any; index: number }) => 
       </div>
       <motion.div 
         className={cn("rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:p-4", isOdd && "md:order-1")}
-        initial={{ opacity: 0, x: -100 }}
+        initial={{ opacity: 0, x: isOdd ? -100 : 100 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true, amount: 0.5 }}
         transition={{ duration: 0.6, type: 'spring', stiffness: 90, damping: 20 }}
