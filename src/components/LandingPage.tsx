@@ -9,13 +9,14 @@ import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
 import ShinyText from "./ui/ShinyText";
 import RotatingText from "./ui/RotatingText";
 import { cn } from "@/lib/utils";
 import './ui/ScrollingTestimonials.css';
+import { useRef } from "react";
 
 const FeatureSection = ({ feature, index }: { feature: any; index: number }) => {
   const isOdd = index % 2 !== 0;
@@ -102,7 +103,6 @@ export function LandingPage() {
         { name: "Sophia Orange", title: "Certified Technical Architect", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026706c", text: "This is the platform I wish I had when I was starting my CTA journey. It's simply brilliant." },
     ];
     
-    // Duplicate testimonials for a seamless loop
     const duplicatedTestimonials = [...testimonials, ...testimonials];
 
     const faqs = [
@@ -128,12 +128,22 @@ export function LandingPage() {
       },
     ];
 
+    const featuresRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: featuresRef,
+        offset: ["start center", "end center"],
+    });
+
+    const pathLength = useTransform(scrollYProgress, [0, 1], [0, 1]);
+
+
   return (
     <div className="bg-background text-foreground antialiased">
       <main>
         {/* Hero Section */}
         <section className="relative overflow-x-clip bg-background py-20 md:py-32">
-          <div className="absolute inset-0 -z-10 bg-[radial-gradient(45rem_45rem_at_50%_100%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
+          <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
+          <div className="absolute inset-0 -z-10 [mask-image:radial-gradient(farthest-side,white,transparent)] bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22hsl(var(--border))%22%3E%3Cpath%20d%3D%22M0%20.5%20L32%20.5%20M.5%200%20L.5%2032%22%2F%3E%3C%2Fsvg%3E')]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
             <div className="mx-auto max-w-3xl text-center">
                <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
@@ -220,9 +230,21 @@ export function LandingPage() {
             </p>
           </div>
           <div className="mt-20 space-y-24">
-            {features.map((feature, index) => (
-              <FeatureSection key={feature.title} feature={feature} index={index} />
-            ))}
+            <div ref={featuresRef} className="relative">
+                <div className="absolute left-1/2 top-0 -translate-x-1/2 -ml-px h-full w-px bg-border -z-10" />
+                 <motion.div
+                    className="absolute left-1/2 top-0 -translate-x-1/2 -ml-px h-full w-px bg-primary"
+                    style={{
+                        pathLength,
+                        height: pathLength.toSpring(),
+                        scaleY: pathLength.toSpring(),
+                        transformOrigin: 'top',
+                    }}
+                 />
+                {features.map((feature, index) => (
+                    <FeatureSection key={feature.title} feature={feature} index={index} />
+                ))}
+            </div>
           </div>
         </section>
 
