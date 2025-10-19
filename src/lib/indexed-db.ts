@@ -1,3 +1,4 @@
+
 import { openDB, type DBSchema, type IDBPDatabase } from 'idb';
 
 const DB_NAME = 'codbbitDB';
@@ -15,9 +16,9 @@ interface CodbbitDB extends DBSchema {
 let dbPromise: Promise<IDBPDatabase<CodbbitDB>> | null = null;
 
 const getDbPromise = () => {
+  // This check ensures that IndexedDB code only runs on the client
   if (typeof window === 'undefined') {
-    // Return a promise that never resolves on the server
-    return new Promise<IDBPDatabase<CodbbitDB>>(() => {});
+    return null;
   }
   if (!dbPromise) {
     dbPromise = openDB<CodbbitDB>(DB_NAME, DB_VERSION, {
@@ -33,10 +34,11 @@ const getDbPromise = () => {
 
 
 export async function getProblemsFromDB(): Promise<any[] | null> {
-  if (typeof window === 'undefined') return null;
+  const db = getDbPromise();
+  if (!db) return null;
+  
   try {
-    const db = await getDbPromise();
-    const problems = await db.get(PROBLEMS_STORE_NAME, PROBLEMS_KEY);
+    const problems = await (await db).get(PROBLEMS_STORE_NAME, PROBLEMS_KEY);
     return problems || null;
   } catch (error) {
     console.error("Failed to get problems from IndexedDB:", error);
@@ -45,10 +47,11 @@ export async function getProblemsFromDB(): Promise<any[] | null> {
 }
 
 export async function saveProblemsToDB(problems: any[]): Promise<void> {
-  if (typeof window === 'undefined') return;
+  const db = getDbPromise();
+  if (!db) return;
+
   try {
-    const db = await getDbPromise();
-    await db.put(PROBLEMS_STORE_NAME, problems, PROBLEMS_KEY);
+    await (await db).put(PROBLEMS_STORE_NAME, problems, PROBLEMS_KEY);
   } catch (error) {
     console.error("Failed to save problems to IndexedDB:", error);
   }
