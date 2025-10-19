@@ -57,6 +57,7 @@ import {
   XMarkIcon,
   PaperAirplaneIcon,
 } from '@heroicons/react/24/outline';
+import { ArrowRight } from 'lucide-react';
 import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { PasswordStrength } from './PasswordStrength';
@@ -409,7 +410,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                       </TabsTrigger>
                   </TabsList>
                   <TabsContent value="account" className="mt-4">
-                      <div className="space-y-4">
+                      <div className="space-y-4 relative">
                           <FormField
                               control={form.control}
                               name="email"
@@ -438,25 +439,30 @@ function AuthFormComponent({ type }: AuthFormProps) {
                               </FormItem>
                               )}
                           />
-                          <Button type="button" className="w-full" onClick={handleNext}>
-                              Next
+                          <Button
+                              type="button"
+                              className="absolute -right-4 -bottom-4 rounded-full h-12 w-12"
+                              size="icon"
+                              onClick={handleNext}
+                          >
+                              <ArrowRight className="h-5 w-5" />
                           </Button>
                       </div>
                   </TabsContent>
                   <TabsContent value="profile" className="mt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
-                        <FormField
-                        control={form.control}
-                        name="fullName"
-                        render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
-                            <FormControl>
-                                <Input placeholder="e.g. Codbee" {...field} />
-                            </FormControl>
-                            <FormMessage />
-                            </FormItem>
-                        )}
+                         <FormField
+                            control={form.control}
+                            name="fullName"
+                            render={({ field }) => (
+                                <FormItem>
+                                <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
+                                <FormControl>
+                                    <Input placeholder="e.g. Codbee" {...field} />
+                                </FormControl>
+                                <FormMessage />
+                                </FormItem>
+                            )}
                         />
                          <FormField
                             control={form.control}
