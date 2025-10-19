@@ -10,7 +10,7 @@ import { doc, collection, query, limit } from 'firebase/firestore';
 import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { Fragment, useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ProblemSheetCard } from '@/components/ProblemSheetCard';
 import { cn, getCategoryColorClasses } from '@/lib/utils';
@@ -22,6 +22,8 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import BlurText from '@/components/ui/BlurText';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
+import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
+import Autoplay from 'embla-carousel-autoplay';
 
 
 export default function HomePage() {
@@ -32,6 +34,7 @@ export default function HomePage() {
 
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
   const [userRank, setUserRank] = useState<number | null>(null);
+  const plugin = useRef(Autoplay({ delay: 1000, stopOnInteraction: true }));
 
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -214,8 +217,8 @@ export default function HomePage() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             <div className="space-y-8">
               <div className="w-full">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                  <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                <div className="md:grid md:grid-cols-3 md:gap-6 hidden">
+                   <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
                     <CardHeader className="flex flex-row items-center justify-between space-y-0 p-3 md:p-6 md:pb-2">
                       <CardTitle className="text-sm font-medium">Rank</CardTitle>
                       <Award className="h-4 w-4 text-muted-foreground" />
@@ -246,6 +249,51 @@ export default function HomePage() {
                     </CardContent>
                   </Card>
                 </div>
+                 <Carousel
+                  plugins={[plugin.current]}
+                  className="w-full md:hidden"
+                  onMouseEnter={plugin.current.stop}
+                  onMouseLeave={plugin.current.reset}
+                >
+                    <CarouselContent>
+                        <CarouselItem>
+                           <Card className="animate-fade-in-up" style={{ animationDelay: '0.1s' }}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                              <CardTitle className="text-sm font-medium">Rank</CardTitle>
+                              <Award className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent className="p-4 pt-0">
+                              <div className="text-2xl font-bold">#{userRank || 'N/A'}</div>
+                              <p className="text-xs text-muted-foreground">Your position on the leaderboard</p>
+                            </CardContent>
+                          </Card>
+                        </CarouselItem>
+                        <CarouselItem>
+                           <Card className="animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                              <CardTitle className="text-sm font-medium">Total Points</CardTitle>
+                              <BarChart className="h-4 w-4 text-muted-foreground" />
+                            </CardHeader>
+                            <CardContent className="p-4 pt-0">
+                              <div className="text-2xl font-bold">{userProfile?.points || 0}</div>
+                              <p className="text-xs text-muted-foreground">Keep solving to earn more</p>
+                            </CardContent>
+                          </Card>
+                        </CarouselItem>
+                        <CarouselItem>
+                           <Card className="animate-fade-in-up" style={{ animationDelay: '0.3s' }}>
+                            <CardHeader className="flex flex-row items-center justify-between space-y-0 p-4 pb-2">
+                              <CardTitle className="text-sm font-medium">Current Streak</CardTitle>
+                               <Flame className={cn("h-4 w-4 text-muted-foreground", (userProfile?.currentStreak || 0) > 0 && "text-orange-400 animate-pulse")} />
+                            </CardHeader>
+                            <CardContent className="p-4 pt-0">
+                              <div className="text-2xl font-bold">{userProfile?.currentStreak || 0} days</div>
+                              <p className="text-xs text-muted-foreground">Keep the flame alive!</p>
+                            </CardContent>
+                          </Card>
+                        </CarouselItem>
+                    </CarouselContent>
+                 </Carousel>
               </div>
               <Card className="animate-fade-in-up" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
