@@ -7,7 +7,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal } from 'lucide-react';
+import { Loader2, ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -283,7 +283,7 @@ export default function ProblemSolvingPage() {
                         <Sheet>
                           <SheetTrigger asChild>
                              <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <Menu className="h-4 w-4"/>
+                                <List className="h-4 w-4"/>
                               </Button>
                           </SheetTrigger>
                            <SheetContent side="left" className="p-0 sm:max-w-md">
@@ -327,7 +327,7 @@ export default function ProblemSolvingPage() {
                                             )}>
                                                 <div className="flex items-start gap-3 overflow-hidden">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" /> : <div className="w-4 h-4 flex-shrink-0" />}
-                                                    <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis group-hover:whitespace-normal">
+                                                     <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">
                                                         {p.number}. {p.title.length > 35 ? `${p.title.substring(0, 35)}...` : p.title}
                                                     </span>
                                                 </div>
