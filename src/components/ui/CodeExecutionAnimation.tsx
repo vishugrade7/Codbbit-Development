@@ -5,6 +5,7 @@ import { useEffect, useState, useRef } from 'react';
 import './CodeExecutionAnimation.css';
 import { cn } from '@/lib/utils';
 import { Confetti } from '../Confetti';
+import { useInView } from 'framer-motion';
 
 const apexCode = `
 public class MergeSort {
@@ -94,9 +95,14 @@ export function CodeExecutionAnimation() {
     const [lines, setLines] = useState<string[]>([]);
     const [currentLine, setCurrentLine] = useState(0);
     const [showConfetti, setShowConfetti] = useState(false);
+    const containerRef = useRef<HTMLDivElement>(null);
     const codeBodyRef = useRef<HTMLDivElement>(null);
+    const isInView = useInView(containerRef, { once: true, amount: 0.5 });
+
 
     useEffect(() => {
+        if (!isInView) return;
+        
         const typingInterval = setInterval(() => {
             if (currentLine < apexCode.length) {
                 setLines(prev => [...prev, apexCode[currentLine]]);
@@ -113,7 +119,7 @@ export function CodeExecutionAnimation() {
         }, 100);
 
         return () => clearInterval(typingInterval);
-    }, [currentLine]);
+    }, [currentLine, isInView]);
 
     useEffect(() => {
         if (codeBodyRef.current) {
@@ -122,7 +128,7 @@ export function CodeExecutionAnimation() {
     }, [lines]);
     
     return (
-        <div className="code-animation-container">
+        <div className="code-animation-container" ref={containerRef}>
             {showConfetti && <Confetti />}
             <div className="code-editor">
                 <div className="code-header">
