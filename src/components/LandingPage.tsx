@@ -14,6 +14,7 @@ import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
 import ShinyText from "./ui/ShinyText";
 import RotatingText from "./ui/RotatingText";
+import './ui/RotatingText.css';
 import { cn } from "@/lib/utils";
 import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
@@ -157,7 +158,9 @@ export function LandingPage() {
                   transition={{ duration: 0.5, delay: 0.1 }}
                   className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl"
                 >
-                  Master Salesforce Apex.
+                  Master Salesforce{' '}
+                  <RotatingText texts={['SOQL', 'Apex', 'LWC']} />
+                  .
                   <br />
                   <span className="text-primary">One Platform.</span>
                 </motion.h1>
