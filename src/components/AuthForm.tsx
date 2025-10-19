@@ -56,8 +56,9 @@ import {
   CheckIcon,
   XMarkIcon,
   PaperAirplaneIcon,
+  ArrowRightIcon,
+  ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
-import { ArrowRight } from 'lucide-react';
 import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { PasswordStrength } from './PasswordStrength';
@@ -445,13 +446,13 @@ function AuthFormComponent({ type }: AuthFormProps) {
                               size="icon"
                               onClick={handleNext}
                           >
-                              <ArrowRight className="h-5 w-5" />
+                              <ArrowRightIcon className="h-5 w-5" />
                           </Button>
                       </div>
                   </TabsContent>
                   <TabsContent value="profile" className="mt-4">
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
-                         <FormField
+                        <FormField
                             control={form.control}
                             name="fullName"
                             render={({ field }) => (
@@ -531,13 +532,12 @@ function AuthFormComponent({ type }: AuthFormProps) {
                             )}
                         />
                     </div>
-                     <div className="flex flex-col-reverse sm:flex-row gap-2 mt-4">
-                        <Button type="button" variant="outline" className="w-full" onClick={() => setActiveTab('account')}>
-                          Back
+                     <div className="flex justify-between items-center mt-4">
+                        <Button type="button" variant="outline" size="icon" className="rounded-full h-12 w-12" onClick={() => setActiveTab('account')}>
+                          <ArrowLeftIcon className="h-5 w-5" />
                         </Button>
-                        <Button type="submit" className="w-full" disabled={isSubmitting || usernameStatus !== 'unique'}>
-                          {isSubmitting && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
-                          Create Account
+                        <Button type="submit" size="icon" className="rounded-full h-12 w-12" disabled={isSubmitting || usernameStatus !== 'unique'}>
+                          {isSubmitting ? <ArrowPathIcon className="h-5 w-5 animate-spin" /> : <CheckIcon className="h-5 w-5" />}
                         </Button>
                       </div>
                       {errors.root && <FormMessage className="mt-4 text-center">{errors.root.message}</FormMessage>}
