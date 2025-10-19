@@ -2,27 +2,27 @@
   "placeholderImages": [
     {
       "id": "hero-light",
-      "description": "App screenshot for light mode",
-      "imageUrl": "https://images.unsplash.com/photo-1632505084024-f6bc3021fcce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhcHAlMjBzY3JlZW5zaG90fGVufDB8fHx8MTc2MDg2NzA3M3ww&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "app screenshot"
+      "description": "A clean and modern workspace with a laptop showing code, representing a developer's environment.",
+      "imageUrl": "https://images.unsplash.com/photo-1555066931-4365d14bab8c?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb2Rpbmd8ZW58MHx8fHwxNzYwODk1MjM3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "coding workspace"
     },
     {
       "id": "hero-dark",
-      "description": "App screenshot for dark mode",
-      "imageUrl": "https://images.unsplash.com/photo-1584289282981-daee13c1eb1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxhcHAlMjBzY3JlZW5zaG90JTIwZGFya3xlbnwwfHx8fDE3NjA4Njc3MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "app screenshot dark"
+      "description": "A dark-themed coding environment on a laptop screen, conveying a focused and professional atmosphere.",
+      "imageUrl": "https://images.unsplash.com/photo-1517694712202-14dd9538aa97?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb2Rpbmd8ZW58MHx8fHwxNzYwODk1MjM3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "dark code"
     },
     {
       "id": "features-light",
-      "description": "Feature section image for light mode",
-      "imageUrl": "https://images.unsplash.com/photo-1706535849689-59e888460d10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmZWF0dXJlJTIwZGlhZ3JhbXxlbnwwfHx8fDE3NjA4Njc3MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "feature diagram"
+      "description": "A diagram illustrating a workflow or feature, suitable for a light-themed background.",
+      "imageUrl": "https://images.unsplash.com/photo-1542626991-a2f5752b4129?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHx3b3JrZmxvdyUyMGRpYWdyYW18ZW58MHx8fHwxNzYwODk1MzUxfDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "workflow diagram"
     },
     {
       "id": "features-dark",
-      "description": "Feature section image for dark mode",
-      "imageUrl": "https://images.unsplash.com/photo-1751699413631-bf89bc43f54d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmZWF0dXJlJTIwZGlhZ3JhbSUyMGRhcmt8ZW58MHx8fHwxNzYwODY3NzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
-      "imageHint": "feature diagram dark"
+      "description": "A futuristic and abstract representation of data and connections, suitable for a dark-themed background.",
+      "imageUrl": "https://images.unsplash.com/photo-1534723452862-4c874018d66d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxhYnN0cmFjdCUyMGRhdGElMjBkYXJrfGVufDB8fHx8MTc2MDg5NTM5Nnww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "abstract data"
     }
   ]
 }
