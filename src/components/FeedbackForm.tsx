@@ -32,21 +32,18 @@ import { Loader2, Paperclip, Activity, Bug, Lightbulb, HelpCircle, MoreHorizonta
 import { sendFeedbackEmail } from '@/lib/mail';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
-const ACCEPTED_IMAGE_TYPES = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
 
 const feedbackSchema = z.object({
   name: z.string().min(1, 'Name is required.'),
   email: z.string().email('Invalid email address.'),
   subject: z.string().min(1, 'Please select a subject.'),
   message: z.string().min(10, 'Message must be at least 10 characters long.'),
-  attachment: z
+  attachments: z
     .custom<FileList>()
     .optional()
-    .transform(file => file && file.length > 0 ? file[0] : null)
-    .refine(file => !file || file.size <= MAX_FILE_SIZE, `Max file size is 5MB.`)
     .refine(
-      file => !file || ACCEPTED_IMAGE_TYPES.includes(file.type),
-      "Only .jpg, .jpeg, .png and .webp formats are supported."
+      (files) => !files || Array.from(files).every((file) => file.size <= MAX_FILE_SIZE),
+      `Each file must be 5MB or less.`
     ),
 });
 
@@ -80,19 +77,23 @@ export function FeedbackForm() {
       email: '',
       subject: '',
       message: '',
-      attachment: undefined,
+      attachments: undefined,
     },
   });
 
-  const attachment = watch("attachment");
+  const attachments = watch("attachments");
 
   useEffect(() => {
-    if (attachment) {
-      setAttachmentName(attachment.name);
+    if (attachments && attachments.length > 0) {
+      if (attachments.length === 1) {
+        setAttachmentName(attachments[0].name);
+      } else {
+        setAttachmentName(`${attachments.length} files selected`);
+      }
     } else {
       setAttachmentName(null);
     }
-  }, [attachment]);
+  }, [attachments]);
 
   useEffect(() => {
     if (userProfile) {
@@ -108,11 +109,16 @@ export function FeedbackForm() {
   const onSubmit = async (data: FeedbackFormData) => {
     setIsSubmitting(true);
     const formData = new FormData();
-    Object.entries(data).forEach(([key, value]) => {
-        if (value) {
-            formData.append(key, value);
-        }
-    });
+    formData.append('name', data.name);
+    formData.append('email', data.email);
+    formData.append('subject', data.subject);
+    formData.append('message', data.message);
+
+    if (data.attachments) {
+      Array.from(data.attachments).forEach(file => {
+        formData.append('attachments', file);
+      });
+    }
 
     try {
       const result = await sendFeedbackEmail(formData);
@@ -217,9 +223,9 @@ export function FeedbackForm() {
               {errors.message && <p className="text-sm text-red-500">{errors.message.message}</p>}
             </div>
              <div className="space-y-2">
-                <Label htmlFor="attachment">Attachment (Optional)</Label>
-                 <Input id="attachment" type="file" {...register("attachment")} accept="image/*" />
-                {errors.attachment && <p className="text-sm text-red-500">{errors.attachment.message as string}</p>}
+                <Label htmlFor="attachments">Attachments (Optional)</Label>
+                 <Input id="attachments" type="file" {...register("attachments")} multiple />
+                {errors.attachments && <p className="text-sm text-red-500">{errors.attachments.message as string}</p>}
             </div>
           </CardContent>
           <CardFooter className="justify-end">

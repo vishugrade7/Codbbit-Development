@@ -27,7 +27,7 @@ export async function sendFeedbackEmail(
   const email = formData.get('email') as string;
   const subject = formData.get('subject') as string;
   const message = formData.get('message') as string;
-  const attachmentFile = formData.get('attachment') as File | null;
+  const attachmentFiles = formData.getAll('attachments') as File[];
   
   if (!name || !email || !subject || !message) {
     return { success: false, error: 'Missing required fields.' };
@@ -43,13 +43,17 @@ export async function sendFeedbackEmail(
   });
   
   const attachments: Attachment[] = [];
-  if (attachmentFile && attachmentFile.size > 0) {
-      const buffer = Buffer.from(await attachmentFile.arrayBuffer());
-      attachments.push({
-          filename: attachmentFile.name,
-          content: buffer,
-          contentType: attachmentFile.type,
-      });
+  if (attachmentFiles && attachmentFiles.length > 0) {
+    for (const file of attachmentFiles) {
+      if (file.size > 0) {
+        const buffer = Buffer.from(await file.arrayBuffer());
+        attachments.push({
+            filename: file.name,
+            content: buffer,
+            contentType: file.type,
+        });
+      }
+    }
   }
 
   const mailOptions = {
