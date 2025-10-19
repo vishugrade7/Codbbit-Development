@@ -1,3 +1,28 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "hero-light",
+      "description": "App screenshot for light mode",
+      "imageUrl": "https://images.unsplash.com/photo-1632505084024-f6bc3021fcce?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxhcHAlMjBzY3JlZW5zaG90fGVufDB8fHx8MTc2MDg2NzA3M3ww&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "app screenshot"
+    },
+    {
+      "id": "hero-dark",
+      "description": "App screenshot for dark mode",
+      "imageUrl": "https://images.unsplash.com/photo-1584289282981-daee13c1eb1b?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw1fHxhcHAlMjBzY3JlZW5zaG90JTIwZGFya3xlbnwwfHx8fDE3NjA4Njc3MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "app screenshot dark"
+    },
+    {
+      "id": "features-light",
+      "description": "Feature section image for light mode",
+      "imageUrl": "https://images.unsplash.com/photo-1706535849689-59e888460d10?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxmZWF0dXJlJTIwZGlhZ3JhbXxlbnwwfHx8fDE3NjA4Njc3MDd8MA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "feature diagram"
+    },
+    {
+      "id": "features-dark",
+      "description": "Feature section image for dark mode",
+      "imageUrl": "https://images.unsplash.com/photo-1751699413631-bf89bc43f54d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxmZWF0dXJlJTIwZGlhZ3JhbSUyMGRhcmt8ZW58MHx8fHwxNzYwODY3NzA3fDA&ixlib=rb-4.1.0&q=80&w=1080",
+      "imageHint": "feature diagram dark"
+    }
+  ]
 }

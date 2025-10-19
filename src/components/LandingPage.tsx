@@ -20,9 +20,14 @@ import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
 import ScrollStack, { ScrollStackItem } from "./ui/ScrollStack";
 import "./ui/ScrollStack.css";
+import { getPlaceholderImage } from "@/lib/placeholder-images";
+import { useTheme } from "@/components/ThemeProvider";
 
 const FeatureSection = ({ feature, index }: { feature: any; index: number }) => {
   const isOdd = index % 2 !== 0;
+  const { theme } = useTheme();
+  const featureImage = theme === 'dark' ? getPlaceholderImage('features-dark') : getPlaceholderImage('features-light');
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 50 }}
@@ -48,11 +53,12 @@ const FeatureSection = ({ feature, index }: { feature: any; index: number }) => 
         transition={{ duration: 0.6, type: 'spring', stiffness: 90, damping: 20 }}
       >
         <Image
-          src={`/image-${index + 2}.png`}
+          src={featureImage?.imageUrl || `/image-${index + 2}.png`}
           alt={feature.title}
           width={1200}
           height={800}
           className="rounded-md shadow-lg ring-1 ring-muted/20"
+          data-ai-hint={featureImage?.imageHint}
         />
       </motion.div>
     </motion.div>
@@ -61,6 +67,10 @@ const FeatureSection = ({ feature, index }: { feature: any; index: number }) => 
 
 
 export function LandingPage() {
+  const { theme } = useTheme();
+  const heroImageLight = getPlaceholderImage('hero-light');
+  const heroImageDark = getPlaceholderImage('hero-dark');
+
   const features = [
       {
         icon: <Code className="h-8 w-8 text-primary" />,
@@ -153,13 +163,21 @@ export function LandingPage() {
           <div className="container mx-auto px-4 z-10">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
               <div className="max-w-xl text-center md:text-left">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
+                >
+                  <ScrollFloat textClassName="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl">
+                    Master Salesforce
+                  </ScrollFloat>
+                </motion.div>
                 <motion.h1
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ duration: 0.5, delay: 0.1 }}
-                  className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl"
+                  className="font-headline text-3xl font-bold tracking-tight text-foreground sm:text-4xl md:text-5xl"
                 >
-                  Master Salesforce{' '}
                   <RotatingText texts={['SOQL', 'Apex', 'LWC']} />
                 </motion.h1>
 
@@ -193,14 +211,28 @@ export function LandingPage() {
                 className="relative flow-root"
               >
                 <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
-                  <Image
-                    src="/image-dark.png"
-                    alt="App screenshot dark mode"
-                    width={2432}
-                    height={1442}
-                    className="rounded-md shadow-2xl ring-1 ring-muted/20"
-                    priority
-                  />
+                  {heroImageLight && (
+                    <Image
+                      src={heroImageLight.imageUrl}
+                      alt={heroImageLight.description}
+                      width={1200}
+                      height={800}
+                      className={cn("rounded-md shadow-2xl ring-1 ring-muted/20", theme === 'dark' && 'hidden')}
+                      priority
+                      data-ai-hint={heroImageLight.imageHint}
+                    />
+                  )}
+                  {heroImageDark && (
+                    <Image
+                      src={heroImageDark.imageUrl}
+                      alt={heroImageDark.description}
+                      width={1200}
+                      height={800}
+                      className={cn("rounded-md shadow-2xl ring-1 ring-muted/20", theme === 'light' && 'hidden')}
+                      priority
+                      data-ai-hint={heroImageDark.imageHint}
+                    />
+                  )}
                   <div className="absolute -z-10 -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
                     <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg animate-wiggle" />
                   </div>
@@ -224,28 +256,7 @@ export function LandingPage() {
             <ScrollStack useWindowScroll>
               {features.map((feature, index) => (
                 <ScrollStackItem key={feature.title}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center h-full">
-                    <div className="space-y-4">
-                      <div className="inline-flex items-center gap-3">
-                          <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10">
-                              {feature.icon}
-                          </div>
-                          <h3 className="text-2xl font-bold font-headline">{feature.title}</h3>
-                      </div>
-                      <p className="text-lg text-muted-foreground">{feature.description}</p>
-                    </div>
-                    <motion.div 
-                      className="rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:p-4"
-                    >
-                      <Image
-                        src={`/image-${index + 2}.png`}
-                        alt={feature.title}
-                        width={1200}
-                        height={800}
-                        className="rounded-md shadow-lg ring-1 ring-muted/20"
-                      />
-                    </motion.div>
-                  </div>
+                  <FeatureSection feature={feature} index={index} />
                 </ScrollStackItem>
               ))}
             </ScrollStack>
