@@ -34,22 +34,21 @@ export function LandingPage() {
 
   const features = [
       {
-        icon: <Users className="h-6 w-6 text-primary" />,
-        title: 'Avatars - Build your Expert Team',
-        description:
-          "Introducing a brand-new feature: Avatars. With Avatars, you can choose who you want to interact with — whether it's legendary figures from history or a team of dedicated expert advisors tailored to your personal needs.",
+        icon: <Trophy className="h-6 w-6 text-primary" />,
+        title: 'Competitive Leaderboards',
+        description: "See how you stack up against other Salesforce developers. Climb the ranks by solving problems and earning points. Compete globally or within your company.",
         points: [
-            "Engage with historical figures.",
-            "Build a personalized expert team.",
-            "Get tailored advice and insights.",
+            "Track your progress and ranking.",
+            "Compete with developers worldwide.",
+            "Filter leaderboards by country or company.",
         ],
         avatars: [
-            { src: "https://i.pravatar.cc/150?u=einstein", alt: "Einstein", className: "h-32 w-32 top-[20%] left-[5%]" },
-            { src: "https://i.pravatar.cc/150?u=socrates", alt: "Socrates", className: "h-36 w-36 top-[10%] left-[40%]" },
-            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-24 w-24 top-0 right-[15%]" },
-            { src: "https://i.pravatar.cc/150?u=gandhi", alt: "Gandhi", className: "h-32 w-32 bottom-0 right-[30%]" },
-            { src: "https://i.pravatar.cc/150?u=trainer", alt: "Fitness Trainer", className: "h-28 w-28 top-[45%] right-0" },
-            { src: "https://i.pravatar.cc/150?u=doctor", alt: "Doctor", className: "h-20 w-20 bottom-[10%] left-[20%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704d", alt: "User 1", className: "h-32 w-32 top-[20%] left-[5%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704e", alt: "User 2", className: "h-36 w-36 top-[10%] left-[40%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026704f", alt: "User 3", className: "h-24 w-24 top-0 right-[15%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705a", alt: "User 4", className: "h-32 w-32 bottom-0 right-[30%]" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705b", alt: "User 5", className: "h-28 w-28 top-[45%] right-0" },
+            { src: "https://i.pravatar.cc/150?u=a042581f4e29026705c", alt: "User 6", className: "h-20 w-20 bottom-[10%] left-[20%]" },
         ]
       },
       {
