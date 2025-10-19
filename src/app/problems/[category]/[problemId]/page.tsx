@@ -337,7 +337,7 @@ export default function ProblemSolvingPage() {
                                             )}>
                                                 <div className="flex items-center gap-3 overflow-hidden text-sm">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0" /> : <div className="w-4 h-4 flex-shrink-0" />}
-                                                    <span className="font-medium truncate">{p.number}. {p.title}</span>
+                                                    <span className="font-medium truncate">{p.number}. {p.title?.substring(0, 30)}{p.title && p.title.length > 30 ? '...' : ''}</span>
                                                     <Badge variant="outline" className={cn("text-xs flex-shrink-0", getDifficultyClass(p.difficulty))}>
                                                         {p.difficulty}
                                                     </Badge>
@@ -404,4 +404,3 @@ export default function ProblemSolvingPage() {
     </SidebarProvider>
   );
 }
-
