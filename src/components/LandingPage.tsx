@@ -306,8 +306,8 @@ export function LandingPage() {
                                       whileInView={{ opacity: 1, x: 0 }}
                                       transition={{ duration: 0.5, delay: 0.2 + sheetIndex * 0.1 }}
                                     >
-                                      <Card className="bg-background/50 backdrop-blur-xl">
-                                        <CardHeader className="flex flex-row items-center justify-between p-4">
+                                      <Card className="bg-primary/10 backdrop-blur-xl">
+                                        <CardHeader className="flex flex-row items-center justify-between p-6">
                                           <CardTitle className="text-base font-semibold">{sheet.name}</CardTitle>
                                           <span className="text-sm font-medium text-muted-foreground">{sheet.count} Problems</span>
                                         </CardHeader>
