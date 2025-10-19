@@ -1,4 +1,3 @@
-
 'use client';
 
 import { Button } from '@/components/ui/button';
@@ -17,7 +16,7 @@ export default function NotFound() {
         className="flex flex-col items-center"
       >
         <Image
-            src="/logo.png"
+            src="/404.png"
             alt="Zyntra Owl Mascot looking lost"
             width={200}
             height={200}
