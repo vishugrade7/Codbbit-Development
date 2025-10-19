@@ -104,6 +104,34 @@ export function LandingPage() {
     // Duplicate testimonials for a seamless loop
     const duplicatedTestimonials = [...testimonials, ...testimonials];
 
+    const faqs = [
+      {
+        question: "What is Codbbit and who is it for?",
+        answer:
+          "Codbbit is a platform for Salesforce developers to practice and improve their Apex coding skills. It's for developers of all levels, from beginners learning Apex to experienced pros preparing for technical interviews and certifications.",
+      },
+      {
+        question: "How does the AI assistant help me?",
+        answer:
+          "Our AI assistant, Codbee, acts as your personal tutor. If you're stuck on a problem, you can ask for a hint. It will analyze your code and provide guidance to help you find the solution yourself, rather than just giving you the answer.",
+      },
+      {
+        question: "Do I need my own Salesforce Org?",
+        answer:
+          "Yes, you will need to connect your own free Salesforce Developer Edition org. This allows you to execute code in a real, live environment, which is the best way to practice. Codbbit securely deploys and runs code using the Tooling API.",
+      },
+      {
+        question: "How are my solutions evaluated?",
+        answer:
+          "For each problem, we provide a complete Apex test class. When you submit your solution, we deploy both your code and our test class to your org and run the tests. You get immediate feedback on whether your solution passed.",
+      },
+       {
+        question: "Is Codbbit free to use?",
+        answer:
+          "Yes, Codbbit offers a generous free tier that includes access to a wide range of problems and core features. We also have a Premium plan with advanced features like the AI assistant and exclusive problem sets.",
+      },
+    ];
+
   return (
     <div className="bg-background text-foreground antialiased">
       <main>
@@ -234,6 +262,33 @@ export function LandingPage() {
                     ))}
                 </div>
             </div>
+        </section>
+
+        {/* FAQ Section */}
+        <section className="container mx-auto px-4 py-20 md:py-32">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+            <div className="space-y-6">
+                <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
+                    Frequently Asked Questions
+                </h2>
+                <p className="text-lg text-muted-foreground">
+                    Explore quick answers to common questions about Codbbit, our AI-powered platform for Salesforce developers.
+                </p>
+                 <Button asChild size="lg">
+                  <Link href="/signup">
+                    Get Started Free <ArrowRight className="ml-2 h-4 w-4" />
+                  </Link>
+                </Button>
+            </div>
+             <Accordion type="single" collapsible className="w-full">
+                {faqs.map((faq, index) => (
+                  <AccordionItem key={index} value={`item-${index}`}>
+                    <AccordionTrigger>{faq.question}</AccordionTrigger>
+                    <AccordionContent>{faq.answer}</AccordionContent>
+                  </AccordionItem>
+                ))}
+              </Accordion>
+          </div>
         </section>
       </main>
     </div>
