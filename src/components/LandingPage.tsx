@@ -155,8 +155,8 @@ export function LandingPage() {
               </motion.div>
             </div>
             <motion.div 
-              initial={{ opacity: 0, scale: 0.5 }}
-              animate={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.9, y: 50 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
               transition={{ duration: 0.5, delay: 0.3, type: 'spring' }}
               className="relative mt-16 flow-root sm:mt-24 max-w-5xl mx-auto"
             >
@@ -169,9 +169,7 @@ export function LandingPage() {
                   className="rounded-md shadow-2xl ring-1 ring-muted/20"
                   priority
                 />
-                 <div 
-                    className="absolute -right-4 -bottom-4 sm:-right-8 sm:-bottom-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48"
-                 >
+                 <div className="absolute -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
                    <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg" />
                  </div>
               </div>
