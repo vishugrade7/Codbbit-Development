@@ -260,7 +260,7 @@ export function LandingPage() {
         </section>
 
         {/* FAQ Section */}
-        <section className="container mx-auto px-4 py-20 md:py-32">
+        <section className="container mx-auto px-8 py-20 md:py-32">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
             <div className="space-y-6">
                 <h2 className="text-3xl font-bold tracking-tight sm:text-4xl md:text-5xl font-headline">
