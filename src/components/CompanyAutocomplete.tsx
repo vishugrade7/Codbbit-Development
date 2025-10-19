@@ -90,7 +90,11 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
   }, []);
 
   useEffect(() => {
-    fetchSuggestions(debouncedSearchTerm);
+    if (debouncedSearchTerm) {
+        fetchSuggestions(debouncedSearchTerm);
+    } else {
+        setSuggestions([]);
+    }
   }, [debouncedSearchTerm, fetchSuggestions]);
   
    useEffect(() => {
@@ -105,8 +109,11 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-      setInputValue(e.target.value);
-      onValueChange(e.target.value);
+      const newValue = e.target.value;
+      setInputValue(newValue);
+      if (newValue === '') {
+        onValueChange(''); // Clear filter when input is cleared
+      }
       if (!open) setOpen(true);
   }
 
@@ -159,3 +166,5 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
     </div>
   );
 }
+
+    

@@ -151,7 +151,6 @@ export function LeaderboardClient() {
   
   const [countryFilter, setCountryFilter] = useState('');
   const [companyFilter, setCompanyFilter] = useState('');
-  const debouncedCompanyFilter = useDebounce(companyFilter, 500);
 
   const usersCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -163,7 +162,7 @@ export function LeaderboardClient() {
   useEffect(() => {
     // Reset page when filters change
     setCurrentPage(1);
-  }, [activeTab, countryFilter, debouncedCompanyFilter]);
+  }, [activeTab, countryFilter, companyFilter]);
 
   const filteredUsers = useMemo(() => {
     if (!allUsers) return [];
@@ -173,12 +172,12 @@ export function LeaderboardClient() {
     if (activeTab === 'country' && countryFilter) {
       users = users.filter(user => user.country === countryFilter);
     }
-    if (activeTab === 'company' && debouncedCompanyFilter) {
-      users = users.filter(user => user.company === debouncedCompanyFilter);
+    if (activeTab === 'company' && companyFilter) {
+      users = users.filter(user => user.company === companyFilter);
     }
     
     return users;
-  }, [allUsers, activeTab, countryFilter, debouncedCompanyFilter]);
+  }, [allUsers, activeTab, countryFilter, companyFilter]);
 
   const totalUsers = filteredUsers.length;
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
@@ -311,3 +310,5 @@ export function LeaderboardClient() {
     </div>
   );
 }
+
+    
