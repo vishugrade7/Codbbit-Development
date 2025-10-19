@@ -4,6 +4,7 @@
 import { useEffect, useState, useRef } from 'react';
 import './CodeExecutionAnimation.css';
 import { cn } from '@/lib/utils';
+import { Confetti } from '../Confetti';
 
 const apexCode = `
 public class MergeSort {
@@ -92,6 +93,7 @@ function highlightSyntax(line: string) {
 export function CodeExecutionAnimation() {
     const [lines, setLines] = useState<string[]>([]);
     const [currentLine, setCurrentLine] = useState(0);
+    const [showConfetti, setShowConfetti] = useState(false);
     const codeBodyRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -101,7 +103,9 @@ export function CodeExecutionAnimation() {
                 setCurrentLine(prev => prev + 1);
             } else {
                 clearInterval(typingInterval);
+                setShowConfetti(true);
                  setTimeout(() => {
+                    setShowConfetti(false);
                     setCurrentLine(0);
                     setLines([]);
                 }, 3000);
@@ -119,6 +123,7 @@ export function CodeExecutionAnimation() {
     
     return (
         <div className="code-animation-container">
+            {showConfetti && <Confetti />}
             <div className="code-editor">
                 <div className="code-header">
                     <div className="code-buttons">
