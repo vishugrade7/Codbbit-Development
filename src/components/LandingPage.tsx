@@ -5,7 +5,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check, Sheet, BookOpen, Flame, ArrowDown, TrendingUp, Award, FileText } from "lucide-react";
+import { ArrowRight, Trophy, Code, Bot, List, Shield, GitBranch, CheckSquare, BarChart, FileCode, Users, Search, Edit, Star, Send, Check, Sheet, BookOpen, Flame, ArrowDown, TrendingUp, Award, FileText, Calendar } from "lucide-react";
 import Image from 'next/image';
 import Link from 'next/link';
 import { motion, useScroll, useTransform, useSpring } from "framer-motion";
@@ -222,10 +222,8 @@ export function LandingPage() {
                 transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
                 className="relative flow-root lg:col-span-2"
               >
-                <div className="grid grid-cols-1 lg:grid-cols-5 gap-6 p-6 rounded-2xl bg-muted/30">
-                    <div className="lg:col-span-2 space-y-6 flex flex-col">
-                    <div className="w-full">
-                        <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
+                  <div className="p-6 rounded-2xl bg-muted/30">
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-4 mb-6">
                         <StatCard
                             title="Rank"
                             value="#1"
@@ -245,8 +243,7 @@ export function LandingPage() {
                             title="Current Streak"
                             value="1 day"
                             icon={Flame}
-                            changeText="vs last month"
-                            changeValue={5}
+                            changeText="+5% vs last month"
                             changeType="positive"
                         />
                         <StatCard
@@ -256,71 +253,25 @@ export function LandingPage() {
                             changeText="All time high"
                             changeType="neutral"
                         />
-                        </div>
                     </div>
-                    <Card className="flex-grow flex flex-col">
+                     <Card className="bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50">
                         <CardHeader>
-                        <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
+                            <CardTitle className="flex items-center gap-2"><Calendar className="h-5 w-5 text-primary"/> Problem of the Day</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex-grow">
-                        <div className="flex flex-col h-full">
-                            <div className="space-y-2 flex-grow">
-                            <div className='flex items-center justify-between p-4 rounded-lg transition-all bg-category-green-bg border-category-green-border text-category-green-fg'>
-                                <div className="flex items-center gap-3">
-                                <div className="p-2 rounded-md bg-category-green-fg/10 text-category-green-fg">
-                                    <FileText className="h-5 w-5" />
-                                </div>
-                                <div>
-                                    <p className="font-semibold">Apex Crash Sheet</p>
-                                    <p className="text-xs opacity-70">24 problems</p>
-                                </div>
-                                </div>
+                        <CardContent>
+                            <p className="font-semibold text-lg">Find Duplicate Characters</p>
+                            <p className="text-muted-foreground text-sm mt-1 mb-4">A new challenge, every single day. Can you solve it?</p>
+                            <div className="flex items-center justify-between">
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass('Easy'))} aria-hidden="true"></span>
+                                  Easy
+                                </Badge>
+                                 <Button asChild>
+                                    <Link href="/signup">Solve Now</Link>
+                                 </Button>
                             </div>
-                            </div>
-                            <div className="flex justify-center pt-4">
-                            <Button variant="outline" size="icon" className="rounded-full h-10 w-10 flex-shrink-0">
-                                <ArrowDown className="h-4 w-4" />
-                            </Button>
-                            </div>
-                        </div>
                         </CardContent>
-                    </Card>
-                    </div>
-                    <div className="lg:col-span-3 space-y-6">
-                    <Card className="flex flex-col">
-                        <CardHeader>
-                        <CardTitle className="flex items-center gap-2 text-primary"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
-                        </CardHeader>
-                        <CardContent className="flex-grow">
-                        <div className="flex flex-col h-full">
-                            <div>
-                                <div className="pr-4">
-                                {sampleUnsolvedProblems.map((problem, index) => (
-                                    <>
-                                    <div className="flex items-center justify-between p-3 rounded-lg">
-                                        <p className="font-semibold text-sm">{problem.title}</p>
-                                        <div className="flex items-center gap-4">
-                                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                            {problem.difficulty}
-                                        </Badge>
-                                        </div>
-                                    </div>
-                                    {index < sampleUnsolvedProblems.length - 1 && <Separator />}
-                                    </>
-                                ))}
-                                </div>
-                            </div>
-                            <div className="flex justify-center pt-4">
-                            <Button variant="outline" className="gap-2">
-                                <ArrowDown className="h-4 w-4" />
-                                View More
-                            </Button>
-                            </div>
-                        </div>
-                        </CardContent>
-                    </Card>
-                    </div>
+                     </Card>
                 </div>
               </motion.div>
             </div>
