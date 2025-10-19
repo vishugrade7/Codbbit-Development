@@ -13,7 +13,7 @@ import { Input } from "./ui/input";
 import BlurText from "./ui/BlurText";
 import RotatingText from "./ui/RotatingText";
 import './ui/RotatingText.css';
-import { cn } from "@/lib/utils";
+import { cn, getCategoryColorClasses } from "@/lib/utils";
 import './ui/ScrollingTestimonials.css';
 import { useRef } from "react";
 import { getPlaceholderImage } from "@/lib/placeholder-images";
@@ -299,21 +299,24 @@ export function LandingPage() {
                             )}
                             {feature.problemSheets && (
                                 <div className="space-y-4">
-                                  {feature.problemSheets.map((sheet, sheetIndex) => (
-                                    <motion.div
-                                      key={sheet.name}
-                                      initial={{ opacity: 0, x: 50 }}
-                                      whileInView={{ opacity: 1, x: 0 }}
-                                      transition={{ duration: 0.5, delay: 0.2 + sheetIndex * 0.1 }}
-                                    >
-                                      <Card className="bg-primary/10 backdrop-blur-xl">
-                                        <CardHeader className="flex flex-row items-center justify-between p-6">
-                                          <CardTitle className="text-base font-semibold">{sheet.name}</CardTitle>
-                                          <span className="text-sm font-medium text-muted-foreground">{sheet.count} Problems</span>
-                                        </CardHeader>
-                                      </Card>
-                                    </motion.div>
-                                  ))}
+                                  {feature.problemSheets.map((sheet, sheetIndex) => {
+                                      const colorClasses = getCategoryColorClasses(sheetIndex);
+                                      return (
+                                        <motion.div
+                                          key={sheet.name}
+                                          initial={{ opacity: 0, x: 50 }}
+                                          whileInView={{ opacity: 1, x: 0 }}
+                                          transition={{ duration: 0.5, delay: 0.2 + sheetIndex * 0.1 }}
+                                        >
+                                          <Card className={cn(colorClasses.card, "backdrop-blur-xl")}>
+                                            <CardHeader className="flex flex-row items-center justify-between p-6">
+                                              <CardTitle className="text-base font-semibold">{sheet.name}</CardTitle>
+                                              <span className="text-sm font-medium text-muted-foreground">{sheet.count} Problems</span>
+                                            </CardHeader>
+                                          </Card>
+                                        </motion.div>
+                                      );
+                                  })}
                                 </div>
                             )}
                         </div>
