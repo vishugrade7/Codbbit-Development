@@ -10,7 +10,7 @@ import { doc, collection, query, limit } from 'firebase/firestore';
 import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { ProblemSheetCard } from '@/components/ProblemSheetCard';
 import { cn, getCategoryColorClasses } from '@/lib/utils';
@@ -21,6 +21,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import BlurText from '@/components/ui/BlurText';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
 
 
 export default function HomePage() {
@@ -288,20 +289,23 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent>
                   <ScrollArea className="h-[300px]">
-                    <div className="space-y-4 pr-4">
-                      {unsolvedProblems.map(problem => (
-                         <Link href={`/problems/${problem.category}/${problem.id || problem.title}`} key={problem.id || problem.title}>
+                    <div className="pr-4">
+                      {unsolvedProblems.map((problem, index) => (
+                        <Fragment key={problem.id || problem.title}>
+                          <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
                             <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                               <p className="font-semibold">{problem.title}</p>
-                               <div className="flex items-center gap-4">
-                                  <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                    {problem.difficulty}
-                                  </Badge>
-                                  <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                               </div>
+                              <p className="font-semibold">{problem.title}</p>
+                              <div className="flex items-center gap-4">
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                  {problem.difficulty}
+                                </Badge>
+                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                              </div>
                             </div>
-                         </Link>
+                          </Link>
+                          {index < unsolvedProblems.length - 1 && <Separator />}
+                        </Fragment>
                       ))}
                     </div>
                   </ScrollArea>
