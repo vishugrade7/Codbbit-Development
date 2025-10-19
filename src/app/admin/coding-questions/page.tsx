@@ -94,7 +94,7 @@ export default function CodingQuestionsPage() {
   const allProblems = useMemo(() => {
     if (!categories) return [];
     return categories.flatMap(cat => 
-        (cat.Questions || []).map(q => ({...q, category: cat.id, id: q.id || (q.title! + cat.id) })) // Add category and a unique-ish ID
+        (cat.Questions || []).map(q => ({...q, category: cat.id, id: q.id || uuidv4() }))
     );
   }, [categories]);
 
