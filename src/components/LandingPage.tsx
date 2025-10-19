@@ -80,13 +80,13 @@ export function LandingPage() {
         }
       },
       {
-        icon: <Bot className="h-6 w-6 text-primary" />,
-        title: 'AI-Powered Assistant',
-        description: "Get unstuck with Codbee, our AI tutor that provides hints and explains concepts without giving away the solution.",
+        icon: <SheetIcon className="h-6 w-6 text-primary" />,
+        title: 'Curated Problem Sheets',
+        description: "Follow structured learning paths with curated problem sheets. These sheets group problems by topic or company-specific interview questions, helping you focus your practice.",
         points: [
-            "Get personalized hints based on your code.",
-            "Understand complex concepts with clear explanations.",
-            "Learn best practices and improve your coding style.",
+            "Follow sheets created by experts.",
+            "Track your progress through a sheet.",
+            "Prepare for specific company interviews.",
         ],
         image: {
             light: getPlaceholderImage('features-light'),
