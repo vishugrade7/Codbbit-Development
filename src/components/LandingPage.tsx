@@ -149,77 +149,63 @@ export function LandingPage() {
           <div className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_80%_60%_at_50%_-20%,hsl(var(--primary)/0.1),transparent)]" aria-hidden="true"></div>
           <div className="absolute inset-0 -z-10 [mask-image:radial-gradient(farthest-side,white,transparent)] bg-[url('data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2032%2032%22%20width%3D%2232%22%20height%3D%2232%22%20fill%3D%22none%22%20stroke%3D%22hsl(var(--border))%22%3E%3Cpath%20d%3D%22M0%20.5%20L32%20.5%20M.5%200%20L.5%2032%22%2F%3E%3C%2Fsvg%3E')]" aria-hidden="true"></div>
           <div className="container mx-auto px-4 z-10">
-            <div className="mx-auto max-w-3xl text-center">
-               <div className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl flex flex-wrap items-center justify-center gap-x-2 gap-y-0">
-                <BlurText
-                  text="Master Salesforce"
-                  delay={100}
-                  animateBy="words"
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-center">
+              <div className="max-w-xl text-center md:text-left">
+                <motion.h1
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.1 }}
                   className="font-headline text-4xl font-bold tracking-tight text-foreground sm:text-5xl md:text-6xl"
-                />
-                 <RotatingText
-                    texts={['Apex', 'SOQL', 'LWC']}
-                    mainClassName="px-2 sm:px-2 md:px-3 bg-primary text-primary-foreground overflow-hidden py-0.5 sm:py-1 md:py-2 justify-center rounded-lg text-4xl sm:text-5xl md:text-6xl"
-                    staggerFrom={"last"}
-                    initial={{ y: "100%" }}
-                    animate={{ y: 0 }}
-                    exit={{ y: "-120%" }}
-                    staggerDuration={0.025}
-                    splitLevelClassName="overflow-hidden pb-0.5 sm:pb-1 md:pb-1"
-                    transition={{ type: "spring", damping: 30, stiffness: 400 }}
-                    rotationInterval={2000}
-                  />
+                >
+                  Master Salesforce Apex.
+                  <br />
+                  <span className="text-primary">One Platform.</span>
+                </motion.h1>
+
+                <motion.p 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.2 }}
+                  className="mt-6 text-lg leading-8 text-muted-foreground"
+                >
+                  The ultimate platform for mastering Salesforce Apex. Sharpen your skills, compete on leaderboards, and prepare for certifications with real-world coding challenges and an AI-powered assistant.
+                </motion.p>
+                <motion.div 
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: 0.3 }}
+                  className="mt-10 flex items-center justify-center md:justify-start gap-x-6"
+                >
+                  <Button asChild className="h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
+                    <Link href="/signup">
+                      Get Started
+                      <ArrowRight className="h-4 w-4" />
+                    </Link>
+                  </Button>
+                </motion.div>
               </div>
-              <motion.p 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.1 }}
-                className="mt-6 text-lg leading-8 text-muted-foreground"
-              >
-                The ultimate platform for mastering Salesforce Apex. Sharpen your skills, compete on leaderboards, and prepare for certifications with real-world coding challenges.
-              </motion.p>
+
               <motion.div 
-                initial={{ opacity: 0, y: 20 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.5, delay: 0.2 }}
-                className="mt-10 flex items-center justify-center gap-x-6"
+                initial={{ opacity: 0, y: 50, scale: 0.9 }}
+                animate={{ opacity: 1, y: 0, scale: 1 }}
+                transition={{ duration: 0.5, delay: 0.4, type: 'spring' }}
+                className="relative flow-root"
               >
-                <Button asChild className="h-10 px-6 text-sm md:h-11 md:px-8 md:text-base">
-                  <Link href="/signup">
-                    Get Started
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </Button>
+                <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
+                  <Image
+                    src="/image-dark.png"
+                    alt="App screenshot dark mode"
+                    width={2432}
+                    height={1442}
+                    className="rounded-md shadow-2xl ring-1 ring-muted/20"
+                    priority
+                  />
+                  <div className="absolute -z-10 -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
+                    <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg animate-wiggle" />
+                  </div>
+                </div>
               </motion.div>
             </div>
-            <motion.div 
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.5, delay: 0.3, type: 'spring' }}
-              className="relative mt-16 flow-root sm:mt-24 max-w-5xl mx-auto"
-            >
-              <div className="relative -m-2 rounded-xl bg-muted/20 p-2 ring-1 ring-inset ring-muted/30 lg:-m-4 lg:rounded-2xl lg:p-4">
-                 <Image
-                  src="/image 1.png"
-                  alt="App screenshot light mode"
-                  width={2432}
-                  height={1442}
-                  className="rounded-md shadow-2xl ring-1 ring-muted/20 dark:hidden"
-                  priority
-                />
-                 <Image
-                  src="/image-dark.png"
-                  alt="App screenshot dark mode"
-                  width={2432}
-                  height={1442}
-                  className="rounded-md shadow-2xl ring-1 ring-muted/20 hidden dark:block"
-                  priority
-                />
-                 <div className="absolute -z-10 -left-4 -top-4 sm:-left-8 sm:-top-8 w-24 h-24 md:w-32 md:h-32 lg:w-48 lg:h-48">
-                   <Image src="/logo.png" alt="Codbbit Owl Mascot" width={200} height={200} className="drop-shadow-lg animate-wiggle" />
-                 </div>
-              </div>
-            </motion.div>
           </div>
         </section>
 
