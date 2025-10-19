@@ -9,7 +9,7 @@ import { motion } from 'framer-motion';
 
 export default function NotFound() {
   return (
-    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background text-center aurora-bg p-4">
+    <div className="flex min-h-screen w-full flex-col items-center justify-center bg-background text-center p-4">
       <motion.div
         initial={{ opacity: 0, y: -20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -18,7 +18,7 @@ export default function NotFound() {
       >
         <Image
             src="/logo.png"
-            alt="Codbbit Owl Mascot looking lost"
+            alt="Zyntra Owl Mascot looking lost"
             width={200}
             height={200}
             className="drop-shadow-lg"
