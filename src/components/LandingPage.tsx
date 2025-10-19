@@ -79,11 +79,6 @@ export function LandingPage() {
         description: 'See how you stack up against other Salesforce developers and climb the ranks by solving problems.',
       },
       {
-        icon: <Shield className="h-8 w-8 text-primary" />,
-        title: 'Secure Salesforce Integration',
-        description: 'Connect your Salesforce developer org securely using OAuth 2.0 to run code in a real environment.',
-      },
-      {
         icon: <Users className="h-8 w-8 text-primary" />,
         title: 'Realistic Interview Prep',
         description:
