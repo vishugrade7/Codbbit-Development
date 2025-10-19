@@ -183,7 +183,7 @@ export default function HomePage() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
-        <main className="p-2 sm:p-6 lg:p-8 bg-muted/20 min-h-screen pt-4 md:pt-8">
+        <main className="p-2 sm:p-6 lg:p-8 bg-muted/20 pt-4 md:pt-8">
           <Dialog open={showReconnectDialog} onOpenChange={setShowReconnectDialog}>
             <DialogContent>
               <DialogHeader>
