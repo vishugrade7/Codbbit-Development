@@ -27,8 +27,7 @@ import { Separator } from "./ui/separator";
 
 export function LandingPage() {
   const { theme } = useTheme();
-  const heroImageLight = getPlaceholderImage('hero-light');
-  const heroImageDark = getPlaceholderImage('hero-dark');
+  const heroImage = getPlaceholderImage('hero-light');
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({
     target: ref,
