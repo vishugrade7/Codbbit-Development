@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, Loader2, BookOpen, FileText, ChevronRight, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight } from 'lucide-react';
+import { Award, BarChart, Flame, Loader2, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight } from 'lucide-react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
@@ -275,7 +275,7 @@ export default function HomePage() {
                                       <p className="text-xs opacity-70">{sheet.questionIds.length} problems</p>
                                    </div>
                                 </div>
-                                <ChevronRight className="h-5 w-5 opacity-70" />
+                                
                             </Link>
                           )
                       })}
@@ -310,45 +310,42 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="flex flex-col h-full">
-                    <div className="flex-grow">
-                      <ScrollArea className="h-auto">
-                        <div className="pr-4">
-                          {unsolvedProblems.map((problem, index) => (
-                            <Fragment key={problem.id || problem.title}>
-                              <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
-                                <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                                  <p className="font-semibold">{problem.title}</p>
-                                  <div className="flex items-center gap-4">
-                                    <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                      <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                      {problem.difficulty}
-                                    </Badge>
-                                    <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                                  </div>
+                    <ScrollArea className="h-auto flex-grow">
+                      <div className="pr-4">
+                        {unsolvedProblems.map((problem, index) => (
+                          <Fragment key={problem.id || problem.title}>
+                            <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
+                              <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
+                                <p className="font-semibold">{problem.title}</p>
+                                <div className="flex items-center gap-4">
+                                  <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                    {problem.difficulty}
+                                  </Badge>
                                 </div>
-                              </Link>
-                              {index < unsolvedProblems.length - 1 && <Separator />}
-                            </Fragment>
-                          ))}
-                        </div>
-                      </ScrollArea>
-                    </div>
+                              </div>
+                            </Link>
+                            {index < unsolvedProblems.length - 1 && <Separator />}
+                          </Fragment>
+                        ))}
+                      </div>
+                    </ScrollArea>
                     {unsolvedProblems && unsolvedProblems.length > 0 && (
-                       <div className="flex justify-center pt-4">
+                      <div className="flex justify-center pt-4">
                         <TooltipProvider>
-                            <Tooltip>
-                                <TooltipTrigger asChild>
-                                    <Button asChild variant="outline" className="gap-2">
-                                        <Link href="/problems">
-                                            <ArrowDown className="h-4 w-4" />
-                                            View More
-                                        </Link>
-                                    </Button>
-                                </TooltipTrigger>
-                                <TooltipContent>
-                                    <p>View All Problems</p>
-                                </TooltipContent>
-                            </Tooltip>
+                          <Tooltip>
+                            <TooltipTrigger asChild>
+                              <Button asChild variant="outline" className="gap-2">
+                                <Link href="/problems">
+                                  <ArrowDown className="h-4 w-4" />
+                                  View More
+                                </Link>
+                              </Button>
+                            </TooltipTrigger>
+                            <TooltipContent>
+                              <p>View All Problems</p>
+                            </TooltipContent>
+                          </Tooltip>
                         </TooltipProvider>
                       </div>
                     )}
