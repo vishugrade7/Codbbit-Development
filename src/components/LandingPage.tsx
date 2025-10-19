@@ -155,8 +155,8 @@ export function LandingPage() {
               </motion.div>
             </div>
             <motion.div 
-              initial={{ opacity: 0, y: 50, scale: 0.95 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.8, delay: 0.3, type: 'spring' }}
               className="relative mt-16 flow-root sm:mt-24 max-w-4xl mx-auto"
             >
