@@ -4,7 +4,7 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Plus, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Plus, MoreHorizontal, Trash2, BookOpen } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AddCourseForm } from '@/components/AddCourseForm';
 import { useCollection, useFirestore, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
@@ -83,6 +83,16 @@ export default function CoursesPage() {
              </div>
           ) : courses && courses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+               <Link href="/soql-tutorial" className="block hover:shadow-lg transition-shadow rounded-lg">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /> SOQL Tutorial</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground line-clamp-2 h-10">A complete guide to mastering Salesforce Object Query Language, from basics to advanced techniques.</p>
+                        </CardContent>
+                    </Card>
+                </Link>
               {courses.map(course => (
                 <Link key={course.id} href={`/admin/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
                     <Card>
@@ -114,9 +124,21 @@ export default function CoursesPage() {
               ))}
             </div>
           ) : (
-            <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground border-2 border-dashed rounded-lg">
-              <h3 className="text-lg font-semibold">No Courses Yet</h3>
-              <p className="text-sm">Click "Create Course" to add your first course.</p>
+             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                 <Link href="/soql-tutorial" className="block hover:shadow-lg transition-shadow rounded-lg">
+                    <Card>
+                        <CardHeader>
+                            <CardTitle className="text-lg flex items-center gap-2"><BookOpen className="h-5 w-5 text-primary" /> SOQL Tutorial</CardTitle>
+                        </CardHeader>
+                        <CardContent>
+                            <p className="text-sm text-muted-foreground line-clamp-2 h-10">A complete guide to mastering Salesforce Object Query Language, from basics to advanced techniques.</p>
+                        </CardContent>
+                    </Card>
+                </Link>
+                <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground border-2 border-dashed rounded-lg md:col-span-2">
+                  <h3 className="text-lg font-semibold">No Custom Courses Yet</h3>
+                  <p className="text-sm">Click "Create Course" to add your first course.</p>
+                </div>
             </div>
           )}
         </CardContent>
