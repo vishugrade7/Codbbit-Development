@@ -67,6 +67,14 @@ export type SfdcAuth = {
     issuedAt: number;
 };
 
+export type Course = {
+  id: string;
+  title: string;
+  description: string;
+  problemIds: string[];
+  createdBy: string;
+};
+
 export interface UserProfile {
   uid: string;
   email: string;
