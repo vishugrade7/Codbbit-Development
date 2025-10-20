@@ -38,7 +38,7 @@ export default function CourseDetailPage() {
     if (!course || !categoriesData) return [];
     
     const allProblems = categoriesData.flatMap(cat => 
-        (cat.Questions || []).map(q => ({...q, category: cat.id, id: q.id || q.title }))
+        (cat.Questions || []).map((q, index) => ({...q, category: cat.id, id: q.id || `${cat.id}-${q.title}-${index}` }))
     );
 
     return course.problemIds.map(id => allProblems.find(p => p.id === id)).filter(Boolean) as (Partial<Question> & { category: string, id: string })[];
@@ -95,8 +95,8 @@ export default function CourseDetailPage() {
               </TableRow>
             </TableHeader>
             <TableBody>
-              {courseProblems.map((problem) => (
-                <TableRow key={problem.id}>
+              {courseProblems.map((problem, index) => (
+                <TableRow key={`${problem.id}-${index}`}>
                   <TableCell className="font-medium">
                      <Link href={`/problems/${problem.category}/${problem.id}`} className="hover:underline">
                         {problem.title}

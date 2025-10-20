@@ -69,10 +69,10 @@ export function AddCourseForm({ course, onFormSubmit }: AddCourseFormProps) {
   const allProblems = useMemo(() => {
     if (!categoriesData) return [];
     return categoriesData.flatMap(cat =>
-      (cat.Questions || []).map(q => ({
+      (cat.Questions || []).map((q, index) => ({
         ...q,
         category: cat.id,
-        id: q.id || `${cat.id}-${q.title}`,
+        id: q.id || `${cat.id}-${q.title}-${index}`,
       }))
     );
   }, [categoriesData]);
@@ -204,9 +204,9 @@ export function AddCourseForm({ course, onFormSubmit }: AddCourseFormProps) {
                         </TableCell>
                       </TableRow>
                     ) : (
-                      allProblems.map(problem => (
+                      allProblems.map((problem, index) => (
                         <TableRow
-                          key={`${problem.category}-${problem.id || problem.title}`}
+                          key={`${problem.id}-${index}`}
                           className="cursor-pointer"
                           onClick={() => handleSelectProblem(problem)}
                         >
