@@ -206,7 +206,7 @@ export function AddCourseForm({ course, onFormSubmit }: AddCourseFormProps) {
                     ) : (
                       allProblems.map(problem => (
                         <TableRow
-                          key={problem.id}
+                          key={`${problem.category}-${problem.id || problem.title}`}
                           className="cursor-pointer"
                           onClick={() => handleSelectProblem(problem)}
                         >
