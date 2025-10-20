@@ -18,6 +18,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 export default function CoursesPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -37,12 +38,16 @@ export default function CoursesPage() {
     setIsSheetOpen(true);
   };
 
-  const handleEditCourse = (course: Course) => {
+  const handleEditCourse = (e: React.MouseEvent, course: Course) => {
+    e.preventDefault();
+    e.stopPropagation();
     setEditingCourse(course);
     setIsSheetOpen(true);
   };
   
-  const handleDeleteCourse = async (courseId: string) => {
+  const handleDeleteCourse = async (e: React.MouseEvent, courseId: string) => {
+    e.preventDefault();
+    e.stopPropagation();
     if (!firestore) return;
     const courseDocRef = doc(firestore, 'courses', courseId);
     await deleteDocumentNonBlocking(courseDocRef);
@@ -79,31 +84,33 @@ export default function CoursesPage() {
           ) : courses && courses.length > 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {courses.map(course => (
-                <Card key={course.id}>
-                  <CardHeader className="flex flex-row items-center justify-between">
-                     <CardTitle className="text-lg">{course.title}</CardTitle>
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
-                            <MoreHorizontal className="h-4 w-4" />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end">
-                          <DropdownMenuItem onClick={() => handleEditCourse(course)}>
-                            Edit
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => handleDeleteCourse(course.id)} className="text-red-500">
-                             <Trash2 className="mr-2 h-4 w-4" />
-                            Delete
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
-                  </CardHeader>
-                  <CardContent>
-                    <p className="text-sm text-muted-foreground line-clamp-2 h-10">{course.description}</p>
-                  </CardContent>
-                </Card>
+                <Link key={course.id} href={`/admin/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
+                    <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                        <CardTitle className="text-lg">{course.title}</CardTitle>
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                            <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                <span className="sr-only">Open menu</span>
+                                <MoreHorizontal className="h-4 w-4" />
+                            </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                            <DropdownMenuItem onClick={(e) => handleEditCourse(e, course)}>
+                                Edit
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={(e) => handleDeleteCourse(e, course.id)} className="text-red-500">
+                                <Trash2 className="mr-2 h-4 w-4" />
+                                Delete
+                            </DropdownMenuItem>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </CardHeader>
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground line-clamp-2 h-10">{course.description}</p>
+                    </CardContent>
+                    </Card>
+                </Link>
               ))}
             </div>
           ) : (
