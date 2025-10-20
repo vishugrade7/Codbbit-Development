@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -7,7 +8,7 @@ import { Plus, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Sheet, SheetContent } from '@/components/ui/sheet';
 import { AddCourseForm } from '@/components/AddCourseForm';
 import { useCollection, useFirestore, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
-import { collection } from 'firebase/firestore';
+import { collection, doc } from 'firebase/firestore';
 import type { Course } from '@/lib/types';
 import { HashLoader } from 'react-spinners';
 import {
@@ -101,7 +102,6 @@ export default function CoursesPage() {
                   </CardHeader>
                   <CardContent>
                     <p className="text-sm text-muted-foreground line-clamp-2 h-10">{course.description}</p>
-                    <p className="text-sm font-medium mt-4">{course.problemIds.length} problems</p>
                   </CardContent>
                 </Card>
               ))}
