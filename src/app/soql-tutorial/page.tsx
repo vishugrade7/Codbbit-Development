@@ -55,12 +55,12 @@ export default function SOQLTutorialPage() {
             SOQL Course Index
         </h2>
         <Accordion type="single" collapsible defaultValue="intro" className="w-full">
-          {soqlTopics.map((topic) => (
-            <AccordionItem key={topic.id} value={topic.id}>
+          {soqlTopics.map(({ id, title, Icon }) => (
+            <AccordionItem key={id} value={id}>
               <AccordionTrigger className="text-sm font-semibold hover:no-underline">
-                <Link href={`#${topic.id}`} className="flex items-center gap-2">
-                    <topic.Icon className="h-4 w-4 text-primary" />
-                    {topic.title}
+                <Link href={`#${id}`} className="flex items-center gap-2">
+                    <Icon className="h-4 w-4 text-primary" />
+                    {title}
                 </Link>
               </AccordionTrigger>
             </AccordionItem>
