@@ -9,52 +9,40 @@ import {
 } from '@/components/ui/accordion';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import {
-  Briefcase,
-  Calendar,
-  ChevronDown,
-  Clock,
-  Code,
-  FileText,
-  Filter,
-  GitCommit,
-  GraduationCap,
-  Layers,
-  Link as LinkIcon,
-  List,
-  Target,
   BookOpen,
-  Search,
-  Database,
+  Code,
+  Filter,
   SlidersHorizontal,
-  FileJson,
+  GitCommit,
   Puzzle,
   Zap,
+  FileJson,
   Shield,
-  TestTube2,
   Telescope,
   Goal,
+  TestTube2,
   Award,
   Book,
+  Search,
 } from 'lucide-react';
 import Link from 'next/link';
 
 const soqlTopics = [
-    { id: 'intro', title: '1. Introduction to SOQL', icon: BookOpen },
-    { id: 'syntax', title: '2. Basic SOQL Syntax', icon: Code },
-    { id: 'filtering', title: '3. Filtering Records', icon: Filter },
-    { id: 'sorting', title: '4. Sorting and Pagination', icon: SlidersHorizontal },
-    { id: 'relationships', title: '5. Relationships in SOQL', icon: GitCommit },
-    { id: 'aggregate', title: '6. Aggregate Functions', icon: Puzzle },
-    { id: 'advanced', title: '7. Advanced SOQL', icon: Zap },
-    { id: 'apex', title: '8. SOQL in Apex', icon: FileJson },
-    { id: 'security', title: '9. Security and Permissions', icon: Shield },
-    { id: 'tools', title: '10. Tools & Debugging', icon: Telescope },
-    { id: 'optimization', title: '11. Best Practices & Optimization', icon: Goal },
-    { id: 'exercises', title: '12. Exercises & Real-World Scenarios', icon: TestTube2 },
-    { id: 'certification', title: '13. Certification Relevance', icon: Award },
-    { id: 'resources', title: '14. Resources', icon: Book },
+    { id: 'intro', title: '1. Introduction to SOQL', Icon: BookOpen },
+    { id: 'syntax', title: '2. Basic SOQL Syntax', Icon: Code },
+    { id: 'filtering', title: '3. Filtering Records', Icon: Filter },
+    { id: 'sorting', title: '4. Sorting and Pagination', Icon: SlidersHorizontal },
+    { id: 'relationships', title: '5. Relationships in SOQL', Icon: GitCommit },
+    { id: 'aggregate', title: '6. Aggregate Functions', Icon: Puzzle },
+    { id: 'advanced', title: '7. Advanced SOQL', Icon: Zap },
+    { id: 'apex', title: '8. SOQL in Apex', Icon: FileJson },
+    { id: 'security', title: '9. Security and Permissions', Icon: Shield },
+    { id: 'tools', title: '10. Tools & Debugging', Icon: Telescope },
+    { id: 'optimization', title: '11. Best Practices & Optimization', Icon: Goal },
+    { id: 'exercises', title: '12. Exercises & Real-World Scenarios', Icon: TestTube2 },
+    { id: 'certification', title: '13. Certification Relevance', Icon: Award },
+    { id: 'resources', title: '14. Resources', Icon: Book },
 ];
 
 
@@ -71,7 +59,7 @@ export default function SOQLTutorialPage() {
             <AccordionItem key={topic.id} value={topic.id}>
               <AccordionTrigger className="text-sm font-semibold hover:no-underline">
                 <Link href={`#${topic.id}`} className="flex items-center gap-2">
-                    <topic.icon className="h-4 w-4 text-primary" />
+                    <topic.Icon className="h-4 w-4 text-primary" />
                     {topic.title}
                 </Link>
               </AccordionTrigger>
