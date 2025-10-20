@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2 } from 'lucide-react';
+import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2, Search } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
@@ -80,6 +80,7 @@ export function AppSidebar() {
     if (pathname.startsWith('/sheets')) return 'sheets';
     if (pathname.startsWith('/settings')) return 'settings';
     if (pathname.startsWith('/feedback')) return 'feedback';
+    if (pathname.startsWith('/soql-tutorial')) return 'soql-tutorial';
     if (pathname === '/') return 'dashboard';
     if (userProfile && pathname.startsWith(`/${userProfile.username}`)) return 'profile';
     return '';
@@ -90,6 +91,7 @@ export function AppSidebar() {
     { value: 'problems', href: '/problems', icon: Code, label: 'Problems' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
+    { value: 'soql-tutorial', href: '/soql-tutorial', icon: Search, label: 'SOQL Tutorial' },
   ];
 
 
@@ -134,7 +136,7 @@ export function AppSidebar() {
                   </TooltipContent>
               </Tooltip>
               <DialogContent className="sm:max-w-2xl">
-                  <DialogHeader>
+                   <DialogHeader>
                     <DialogTitle>Provide Feedback</DialogTitle>
                     <DialogDescription>
                         We value your feedback and are here to assist you. Please use the form below to
