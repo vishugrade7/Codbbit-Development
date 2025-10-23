@@ -54,7 +54,7 @@ export default function WhatIsSoqlPage() {
                <Card>
                   <CardHeader>
                       <CardTitle className="text-lg">Object-Oriented</CardTitle>
-                  </Header>
+                  </CardHeader>
                   <CardContent>
                       <p className="text-sm text-muted-foreground">Instead of querying database tables, you query Salesforce Objects. This aligns with the object-oriented nature of Apex and the Salesforce platform.</p>
                   </CardContent>
