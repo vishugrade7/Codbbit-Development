@@ -29,7 +29,15 @@ export default function ChildToParentPage() {
             <CardDescription>Retrieve the Name of each Contact along with the Name of its associated Account.</CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock language="sql" code="SELECT Name, Account.Name FROM Contact" />
+            <CodeBlock 
+              language="sql" 
+              code="SELECT Name, Account.Name FROM Contact" 
+              tooltipContent={
+                <p>
+                  This query selects the <code className="font-bold">Name</code> field from the Contact object and uses dot notation (<code className="font-bold">Account.Name</code>) to access the <code className="font-bold">Name</code> field of the parent Account object.
+                </p>
+              }
+            />
             <h4 className="font-semibold my-4">Expected Result:</h4>
             <Table>
                 <TableHeader><TableRow><TableHead>Contact Name</TableHead><TableHead>Account Name</TableHead></TableRow></TableHeader>
@@ -50,7 +58,15 @@ export default function ChildToParentPage() {
           </CardHeader>
            <CardContent>
             <p className="text-muted-foreground mb-4">This query retrieves invoice details and the name of the associated project.</p>
-            <CodeBlock language="sql" code="SELECT Name, Amount__c, Project__r.Name FROM Invoice__c" />
+            <CodeBlock 
+              language="sql" 
+              code="SELECT Name, Amount__c, Project__r.Name FROM Invoice__c" 
+              tooltipContent={
+                 <p>
+                  The <code className="font-bold">__r</code> suffix denotes a custom relationship. This query traverses from the child <code className="font-bold">Invoice__c</code> object to the parent <code className="font-bold">Project__c</code> object to retrieve its name.
+                </p>
+              }
+            />
             <p className="text-muted-foreground mt-4">Notice the `__r` suffix. This is the standard notation for custom relationships.</p>
           </CardContent>
         </Card>
