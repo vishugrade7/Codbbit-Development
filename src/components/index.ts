@@ -38,3 +38,4 @@ export * from './BottomBar';
 export * from './ui/ScrollFloat';
 export * from './ui/SortingAnimation';
 export * from './AddCourseForm';
+export * from './CodeBlock';
