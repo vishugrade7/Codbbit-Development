@@ -68,6 +68,7 @@ export default function ComparisonOperatorsPage() {
   const operators = [
     { op: '=', description: 'Equal to' },
     { op: '!=', description: 'Not equal to' },
+    { op: '<>', description: 'Not equal to (alternative)' },
     { op: '<', description: 'Less than' },
     { op: '<=', description: 'Less than or equal to' },
     { op: '>', description: 'Greater than' },
@@ -83,7 +84,7 @@ export default function ComparisonOperatorsPage() {
         </h2>
 
         <p className="text-lg text-muted-foreground">
-          Comparison operators are used in the <code>WHERE</code> clause to compare a field's value to another value.
+          Comparison operators are used in the <code>WHERE</code> clause to compare a field's value to another value. They are the primary way to filter your data to get precisely the records you need.
         </p>
         <Table>
           <TableHeader>
@@ -104,8 +105,8 @@ export default function ComparisonOperatorsPage() {
 
         <Card>
             <CardHeader>
-                <CardTitle>Example Query</CardTitle>
-                <CardDescription>Find all accounts with an annual revenue greater than or equal to $5,000,000.</CardDescription>
+                <CardTitle>Example: Filtering by Revenue</CardTitle>
+                <CardDescription>Let's find all accounts with an annual revenue greater than or equal to $5,000,000 using the sample data below.</CardDescription>
             </CardHeader>
             <CardContent>
                 <CodeBlock language="sql" code="SELECT Name, AnnualRevenue FROM Account WHERE AnnualRevenue >= 5000000" />
@@ -142,7 +143,7 @@ export default function ComparisonOperatorsPage() {
         />
         {mcqResult !== null && (
             <div className={`p-4 rounded-md text-white ${mcqResult ? 'bg-green-600' : 'bg-red-600'}`}>
-                {mcqResult ? 'Correct! SOQL accepts both <> and != for "not equal to".' : 'Not quite. Both <> and != are valid "not equal to" operators in SOQL.'}
+                {mcqResult ? 'Correct! SOQL accepts both <> and != for "not equal to".' : 'Not quite. Remember, both <> and != are valid "not equal to" operators in SOQL.'}
             </div>
         )}
 

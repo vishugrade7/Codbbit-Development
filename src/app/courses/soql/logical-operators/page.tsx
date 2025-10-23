@@ -13,6 +13,8 @@ const sampleAccounts = [
     { Id: '002...', Name: 'SF Web Design', Industry: 'Technology', BillingState: 'CA' },
     { Id: '003...', Name: 'Global Finance', Industry: 'Finance', BillingState: 'NY' },
     { Id: '004...', Name: 'CA Healthcare', Industry: 'Healthcare', BillingState: 'CA' },
+    { Id: '005...', Name: 'NY Finance', Industry: 'Finance', BillingState: 'NY' },
+    { Id: '006...', Name: 'Boston Tech', Industry: 'Technology', BillingState: 'MA' },
 ];
 
 const MCQ = ({ question, options, correctAnswer, onAnswer }: { question: string, options: string[], correctAnswer: string, onAnswer: (isCorrect: boolean) => void }) => {
@@ -74,39 +76,54 @@ export default function LogicalOperatorsPage() {
         </h2>
 
         <p className="text-lg text-muted-foreground">
-          Logical operators like <code>AND</code>, <code>OR</code>, and <code>NOT</code> are used to combine multiple conditions in a <code>WHERE</code> clause.
+          Logical operators like <code>AND</code>, <code>OR</code>, and <code>NOT</code> are used to combine multiple conditions in a <code>WHERE</code> clause, allowing for more complex filtering logic.
         </p>
 
-        <div>
-          <h3 className="text-xl font-semibold mb-2">AND Operator</h3>
-          <p className="text-muted-foreground mb-4">
-            Returns records where both conditions are true.
-          </p>
-          <CodeBlock language="sql" code="SELECT Name FROM Account WHERE Industry = 'Technology' AND BillingState = 'CA'" />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>AND Operator</CardTitle>
+            <CardDescription>Returns records only when all conditions are true.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">This query finds accounts that are in the 'Technology' industry AND are located in 'CA'.</p>
+            <CodeBlock language="sql" code="SELECT Name FROM Account WHERE Industry = 'Technology' AND BillingState = 'CA'" />
+            <h4 className="font-semibold my-4">Expected Result:</h4>
+            <Table>
+                <TableHeader><TableRow><TableHead>Name</TableHead></TableRow></TableHeader>
+                <TableBody>
+                    {sampleAccounts.filter(acc => acc.Industry === 'Technology' && acc.BillingState === 'CA').map(acc => (
+                        <TableRow key={acc.Id}><TableCell>{acc.Name}</TableCell></TableRow>
+                    ))}
+                </TableBody>
+            </Table>
+          </CardContent>
+        </Card>
         
-        <div>
-          <h3 className="text-xl font-semibold mb-2">OR Operator</h3>
-          <p className="text-muted-foreground mb-4">
-            Returns records where at least one of the conditions is true.
-          </p>
-          <CodeBlock language="sql" code="SELECT Name FROM Contact WHERE LeadSource = 'Web' OR LeadSource = 'Partner Referral'" />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>OR Operator</CardTitle>
+            <CardDescription>Returns records where at least one of the conditions is true.</CardDescription>
+          </CardHeader>
+           <CardContent>
+            <p className="text-muted-foreground mb-4">This query finds all contacts whose lead source is either 'Web' or 'Partner Referral'.</p>
+            <CodeBlock language="sql" code="SELECT Name, LeadSource FROM Contact WHERE LeadSource = 'Web' OR LeadSource = 'Partner Referral'" />
+          </CardContent>
+        </Card>
 
         <MCQ
-          question="A query `WHERE Industry = 'Tech' OR Industry = 'Finance' AND BillingState = 'CA'` will return which records?"
+          question="A query `WHERE Industry = 'Technology' OR Industry = 'Finance' AND BillingState = 'CA'` will return which records?"
           options={[
-            "Tech and Finance accounts, but only if they are in CA.",
-            "All Tech accounts, and also all Finance accounts that are in CA.",
-            "All Tech accounts that are in CA, and all Finance accounts that are in CA.",
+            "Technology and Finance accounts, but only if they are in CA.",
+            "All Technology accounts, and also all Finance accounts that are in CA.",
+            "All Technology accounts that are in CA, and all Finance accounts that are in CA.",
             "Only accounts that are in CA.",
           ]}
-          correctAnswer="All Tech accounts, and also all Finance accounts that are in CA."
+          correctAnswer="All Technology accounts, and also all Finance accounts that are in CA."
           onAnswer={setMcqResult}
         />
         {mcqResult !== null && (
             <div className={`p-4 rounded-md text-white ${mcqResult ? 'bg-green-600' : 'bg-red-600'}`}>
-                {mcqResult ? 'Correct! `AND` has a higher precedence than `OR`, so it is evaluated first.' : 'Not quite. Remember that `AND` is evaluated before `OR`.'}
+                {mcqResult ? 'Correct! `AND` has a higher precedence than `OR`, so `(Industry = \'Finance\' AND BillingState = \'CA\')` is evaluated first.' : 'Not quite. Remember that `AND` is evaluated before `OR`. Use parentheses `()` to enforce a specific order of evaluation.'}
             </div>
         )}
       </section>

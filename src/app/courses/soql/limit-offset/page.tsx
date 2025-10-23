@@ -1,7 +1,9 @@
 'use client';
 
 import { CodeBlock } from '@/components/CodeBlock';
-import { Code } from 'lucide-react';
+import { Code, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function LimitOffsetPage() {
   return (
@@ -12,24 +14,41 @@ export default function LimitOffsetPage() {
         </h2>
 
         <p className="text-lg text-muted-foreground">
-          <code>LIMIT</code> and <code>OFFSET</code> are used for pagination, allowing you to retrieve a specific subset of records from a larger result set.
+          <code>LIMIT</code> and <code>OFFSET</code> are used for pagination, allowing you to retrieve a specific subset of records from a larger result set without fetching the entire collection at once.
         </p>
 
-        <div>
-          <h3 className="text-xl font-semibold mb-2">LIMIT Clause</h3>
-          <p className="text-muted-foreground mb-4">
-            <code>LIMIT</code> restricts the number of records returned. This is essential for avoiding governor limits.
-          </p>
-          <CodeBlock language="sql" code="SELECT Name FROM Account LIMIT 10" />
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>LIMIT Clause</CardTitle>
+                <CardDescription>
+                    <code>LIMIT</code> restricts the maximum number of records returned by the query. This is essential for performance and for staying within Salesforce's governor limits (SOQL queries can return a max of 50,000 records).
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground mb-4">This query retrieves only the 10 most recently created accounts.</p>
+                <CodeBlock language="sql" code="SELECT Name FROM Account ORDER BY CreatedDate DESC LIMIT 10" />
+            </CardContent>
+        </Card>
         
-        <div>
-          <h3 className="text-xl font-semibold mb-2">OFFSET Clause</h3>
-          <p className="text-muted-foreground mb-4">
-            <code>OFFSET</code> skips a specified number of rows before beginning to return rows. It's useful for building paginated interfaces. Note: <code>OFFSET</code> can have performance implications on large data sets.
-          </p>
-          <CodeBlock language="sql" code="-- Retrieve the 3rd page of 10 accounts\nSELECT Name FROM Account ORDER BY CreatedDate DESC LIMIT 10 OFFSET 20" />
-        </div>
+        <Card>
+            <CardHeader>
+                <CardTitle>OFFSET Clause</CardTitle>
+                <CardDescription>
+                    <code>OFFSET</code> skips a specified number of rows before beginning to return rows. It's typically used with <code>LIMIT</code> to build paginated interfaces (e.g., showing pages 2, 3, etc.).
+                </CardDescription>
+            </CardHeader>
+            <CardContent>
+                <p className="text-muted-foreground mb-4">This query retrieves the third page of accounts, assuming a page size of 10.</p>
+                <CodeBlock language="sql" code="-- To get page 3, we offset by (3 - 1) * 10 = 20 records\nSELECT Name FROM Account ORDER BY CreatedDate DESC LIMIT 10 OFFSET 20" />
+                <Alert variant="warning" className="mt-4">
+                    <AlertTriangle className="h-4 w-4" />
+                    <AlertTitle>Performance Warning</AlertTitle>
+                    <AlertDescription>
+                        Using a large <code>OFFSET</code> value can be very inefficient on large datasets, as the database still has to scan through all the skipped rows. For deep pagination, consider using keyset pagination (filtering based on the last seen value) instead.
+                    </AlertDescription>
+                </Alert>
+            </CardContent>
+        </Card>
       </section>
     </>
   );

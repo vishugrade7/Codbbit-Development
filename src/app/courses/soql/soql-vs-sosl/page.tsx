@@ -1,25 +1,27 @@
 'use client';
 
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { BookOpen } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { BookOpen, Search, Check, X } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { CodeBlock } from '@/components/CodeBlock';
+import { Badge } from '@/components/ui/badge';
 
 export default function SOQLvsSOSLPage() {
   return (
     <>
       <section className="space-y-8">
         <h2 className="text-3xl font-bold border-b pb-3 flex items-center gap-3 text-blue-700 dark:text-blue-400">
-          <BookOpen /> SOQL vs. SOSL
+          <Search /> SOQL vs. SOSL
         </h2>
 
         <p className="text-lg text-muted-foreground">
-          Salesforce provides two powerful query languages: SOQL and SOSL. While SOQL is used to retrieve records from a known object, SOSL (Salesforce Object Search Language) is used to perform text-based searches across multiple objects at once.
+          Salesforce provides two powerful query languages: SOQL and SOSL. While SOQL is used to retrieve records from a known object based on specific criteria, SOSL (Salesforce Object Search Language) is a full-text search language used to perform text-based searches across multiple objects at once.
         </p>
 
         <Card>
           <CardHeader>
             <CardTitle>When to Use Which</CardTitle>
+            <CardDescription>Choosing the right language depends on your specific needs.</CardDescription>
           </CardHeader>
           <CardContent>
             <Table>
@@ -32,24 +34,29 @@ export default function SOQLvsSOSLPage() {
                 </TableHeader>
                 <TableBody>
                     <TableRow>
-                        <TableCell className="font-semibold">Known Object</TableCell>
-                        <TableCell>✅ You know which object contains the data.</TableCell>
-                        <TableCell>❌</TableCell>
+                        <TableCell className="font-semibold">Retrieving Data from a Single Object</TableCell>
+                        <TableCell><Badge className="bg-green-500 hover:bg-green-600"><Check className="mr-1 h-3 w-3" /> Yes</Badge></TableCell>
+                        <TableCell><Badge variant="destructive"><X className="mr-1 h-3 w-3" /> No</Badge></TableCell>
                     </TableRow>
                     <TableRow>
-                        <TableCell className="font-semibold">Multi-Object Search</TableCell>
-                        <TableCell>❌</TableCell>
-                        <TableCell>✅ You need to find a term across many objects.</TableCell>
+                        <TableCell className="font-semibold">Searching for a Term Across Multiple Objects</TableCell>
+                        <TableCell><Badge variant="destructive"><X className="mr-1 h-3 w-3" /> No</Badge></TableCell>
+                        <TableCell><Badge className="bg-green-500 hover:bg-green-600"><Check className="mr-1 h-3 w-3" /> Yes</Badge></TableCell>
                     </TableRow>
                      <TableRow>
-                        <TableCell className="font-semibold">Specific Fields</TableCell>
-                        <TableCell>✅ You want to retrieve specific fields.</TableCell>
-                        <TableCell>❌ (Returns a list of sObjects)</TableCell>
+                        <TableCell className="font-semibold">Retrieving Specific Fields</TableCell>
+                        <TableCell><Badge className="bg-green-500 hover:bg-green-600"><Check className="mr-1 h-3 w-3" /> Yes</Badge></TableCell>
+                        <TableCell>Limited (returns a list of sObjects)</TableCell>
                     </TableRow>
                      <TableRow>
-                        <TableCell className="font-semibold">Text Search</TableCell>
-                        <TableCell>Limited (LIKE operator)</TableCell>
-                        <TableCell>✅ Optimized for full-text search.</TableCell>
+                        <TableCell className="font-semibold">Text Search in Unknown Fields</TableCell>
+                        <TableCell>Limited (LIKE operator on known fields)</TableCell>
+                        <TableCell><Badge className="bg-green-500 hover:bg-green-600"><Check className="mr-1 h-3 w-3" /> Yes</Badge> (Optimized for full-text search)</TableCell>
+                    </TableRow>
+                     <TableRow>
+                        <TableCell className="font-semibold">Querying on Number/Date/Checkbox Fields</TableCell>
+                        <TableCell><Badge className="bg-green-500 hover:bg-green-600"><Check className="mr-1 h-3 w-3" /> Yes</Badge></TableCell>
+                        <TableCell><Badge variant="destructive"><X className="mr-1 h-3 w-3" /> No</Badge></TableCell>
                     </TableRow>
                 </TableBody>
             </Table>
@@ -59,9 +66,9 @@ export default function SOQLvsSOSLPage() {
         <div>
           <h3 className="text-xl font-semibold mb-2">SOSL Query Example</h3>
           <p className="text-muted-foreground mb-4">
-            This query searches for the term 'SFDX' in the Name field of Account and the LastName field of Contact.
+            This Apex code snippet demonstrates a SOSL query searching for the term 'SFDX' in all text fields across the Account and Contact objects.
           </p>
-          <CodeBlock language="apex" code={`List<List<SObject>> searchList = [FIND 'SFDX' IN ALL FIELDS RETURNING Account(Name), Contact(LastName)];`} />
+          <CodeBlock language="apex" code={`// The FIND clause is the core of SOSL\nList<List<SObject>> searchList = [FIND 'SFDX' IN ALL FIELDS RETURNING Account(Name), Contact(LastName)];\n\n// The result is a list of lists, one for each object searched\nList<Account> foundAccounts = (List<Account>)searchList[0];\nList<Contact> foundContacts = (List<Contact>)searchList[1];`} />
         </div>
       </section>
     </>

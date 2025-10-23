@@ -1,7 +1,9 @@
 'use client';
 
 import { CodeBlock } from '@/components/CodeBlock';
-import { Code } from 'lucide-react';
+import { Code, AlertTriangle } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
 export default function SelectClausePage() {
   return (
@@ -12,24 +14,37 @@ export default function SelectClausePage() {
         </h2>
 
         <p className="text-lg text-muted-foreground">
-          The <code>SELECT</code> clause is the cornerstone of any SOQL query. It specifies the list of fields you want to retrieve from the specified object. Unlike SQL, you cannot use <code>SELECT *</code>. You must explicitly name each field.
+          The <code>SELECT</code> clause is the cornerstone of any SOQL query. It specifies the list of fields you want to retrieve from the specified object.
         </p>
 
-        <div>
-          <h3 className="text-xl font-semibold mb-2">Basic Field Selection</h3>
-          <p className="text-muted-foreground mb-4">
-            Retrieve the Name and Industry fields from all Account records.
-          </p>
-          <CodeBlock language="sql" code="SELECT Name, Industry FROM Account" />
-        </div>
+        <Alert variant="destructive">
+          <AlertTriangle className="h-4 w-4" />
+          <AlertTitle>Important Limitation</AlertTitle>
+          <AlertDescription>
+            Unlike standard SQL, you <strong>cannot</strong> use <code>SELECT *</code> in SOQL. You must explicitly name each field you want to retrieve.
+          </AlertDescription>
+        </Alert>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>Basic Field Selection</CardTitle>
+            <CardDescription>Retrieve the Name and Industry fields from all Account records.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <CodeBlock language="sql" code="SELECT Name, Industry FROM Account" />
+          </CardContent>
+        </Card>
         
-        <div>
-          <h3 className="text-xl font-semibold mb-2">Querying Custom Fields</h3>
-          <p className="text-muted-foreground mb-4">
-            Custom fields are identified by a <code>__c</code> suffix.
-          </p>
-          <CodeBlock language="sql" code="SELECT Name, Region__c FROM Account" />
-        </div>
+        <Card>
+          <CardHeader>
+            <CardTitle>Querying Custom Fields</CardTitle>
+            <CardDescription>Custom fields are identified by a <code>__c</code> suffix in their API name.</CardDescription>
+          </CardHeader>
+          <CardContent>
+            <p className="text-muted-foreground mb-4">This example retrieves a standard field (`Name`) and a custom field (`Region__c`) from the Account object.</p>
+            <CodeBlock language="sql" code="SELECT Name, Region__c FROM Account" />
+          </CardContent>
+        </Card>
       </section>
     </>
   );
