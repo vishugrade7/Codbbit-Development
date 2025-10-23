@@ -44,12 +44,11 @@ export default function SOQLTutorialPage() {
         </h2>
         <Accordion type="multiple" defaultValue={soqlTopics.map(t => t.id)} className="w-full">
           {soqlTopics.map(({ id, title, Icon, subtopics }) => {
-              const CurrentIcon = Icon;
               return (
               <AccordionItem key={id} value={id}>
                 <AccordionTrigger className="text-sm font-semibold hover:no-underline py-2">
                   <div className="flex items-center gap-3">
-                      <CurrentIcon className="h-4 w-4 text-muted-foreground" />
+                      <Icon className="h-4 w-4 text-muted-foreground" />
                       {title}
                   </div>
                 </AccordionTrigger>
