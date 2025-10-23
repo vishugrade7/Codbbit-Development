@@ -83,16 +83,15 @@ export default function CoursesPage() {
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {/* Static SOQL Tutorial Card */}
-              <Link href="/apex-tutorial" className="block hover:shadow-lg transition-shadow rounded-lg">
-                  <Card>
+              <Link href="/courses/soql" className="block hover:shadow-lg transition-shadow rounded-lg">
+                <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                       <CardTitle className="text-lg flex items-center gap-2"><Search className="h-5 w-5" /> SOQL Tutorial</CardTitle>
                   </CardHeader>
                   <CardContent>
                       <p className="text-sm text-muted-foreground line-clamp-2 h-10">A comprehensive guide to mastering Salesforce Object Query Language.</p>
                   </CardContent>
-                  </Card>
+                </Card>
               </Link>
               
               {courses && courses.map(course => (
