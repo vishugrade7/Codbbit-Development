@@ -80,7 +80,6 @@ export function AppSidebar() {
     if (pathname.startsWith('/sheets')) return 'sheets';
     if (pathname.startsWith('/settings')) return 'settings';
     if (pathname.startsWith('/feedback')) return 'feedback';
-    if (pathname.startsWith('/soql-tutorial')) return 'soql-tutorial';
     if (pathname.startsWith('/apex-tutorial')) return 'apex-tutorial';
     if (pathname === '/') return 'dashboard';
     if (userProfile && pathname.startsWith(`/${userProfile.username}`)) return 'profile';
@@ -92,7 +91,6 @@ export function AppSidebar() {
     { value: 'problems', href: '/problems', icon: Code, label: 'Problems' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
-    { value: 'soql-tutorial', href: '/soql-tutorial', icon: Search, label: 'SOQL Tutorial' },
     { value: 'apex-tutorial', href: '/apex-tutorial', icon: BookHeart, label: 'Apex Tutorial' },
   ];
 
