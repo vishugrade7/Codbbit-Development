@@ -139,11 +139,11 @@ export default function SOQLTutorialPage() {
 
             <div id="soql-vs-sosl">
               <h3 className="text-xl font-semibold mb-2">SOQL vs SOSL</h3>
-              <p className="text-muted-foreground">
+              <div className="text-muted-foreground">
                 Use <Badge variant="outline">SOQL</Badge> when you know which object contains your data.  
                 Use <Badge variant="secondary">SOSL</Badge> (Salesforce Object Search Language)
                 when you want to search across multiple objects and fields.
-              </p>
+              </div>
             </div>
 
             <div id="tools-for-soql">
