@@ -65,8 +65,15 @@ const getUserProfileByUsernameFlow = ai.defineFlow(
       } else {
         return null;
       }
+
+      const userProfile = { ...userDoc.data(), uid: userDoc.id } as UserProfile;
       
-      return { ...userDoc.data(), uid: userDoc.id } as UserProfile;
+      // Calculate rank
+      const rankQuery = await usersRef.where('points', '>', userProfile.points || 0).count().get();
+      userProfile.rank = rankQuery.data().count + 1;
+
+      return userProfile;
+      
     } catch (error) {
       console.error('Error fetching user by username:', String(error));
       // In a real app, you might want more robust error handling or logging.

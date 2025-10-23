@@ -35,7 +35,6 @@ export default function HomePage() {
   const { toast } = useToast();
 
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
-  const [userRank, setUserRank] = useState<number | null>(null);
   const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
 
   const userDocRef = useMemoFirebase(() => {
@@ -44,13 +43,6 @@ export default function HomePage() {
   }, [firestore, user?.uid]);
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
-  
-  const allUsersCollectionRef = useMemoFirebase(() => {
-      if (!firestore) return null;
-      return collection(firestore, 'users');
-  }, [firestore]);
-
-  const { data: allUsers, isLoading: isLoadingAllUsers } = useCollection<UserProfile>(allUsersCollectionRef);
 
   const sheetsCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
@@ -101,12 +93,6 @@ export default function HomePage() {
     }
   }, [userProfile]);
   
-  useEffect(() => {
-    if (userProfile?.points != null && allUsers) {
-      const rank = allUsers.filter(u => u.points > userProfile.points).length + 1;
-      setUserRank(rank);
-    }
-  }, [userProfile, allUsers]);
 
   const handleAuthWithSalesforce = async () => {
     // 1. Generate code verifier
@@ -135,7 +121,7 @@ export default function HomePage() {
     }
   };
 
-  const isLoading = isUserLoading || isProfileLoading || isLoadingSheets || isLoadingProblems || userRank === null || isLoadingAllUsers;
+  const isLoading = isUserLoading || isProfileLoading || isLoadingSheets || isLoadingProblems;
 
   if (isUserLoading) {
     return (
@@ -222,7 +208,7 @@ export default function HomePage() {
                  <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
                   <StatCard
                     title="Rank"
-                    value={`#${userRank || 'N/A'}`}
+                    value={`#${userProfile?.rank || 'N/A'}`}
                     icon={Award}
                     changeText="Your position"
                     variant="primary"
