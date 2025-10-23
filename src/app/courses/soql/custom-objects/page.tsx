@@ -1,3 +1,4 @@
+
 'use client';
 
 import { CodeBlock } from '@/components/CodeBlock';
@@ -39,7 +40,7 @@ export default function CustomObjectsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Child-to-Parent with Custom Relationship</CardTitle>
-            <CardDescription>An `Invoice__c` object has a custom lookup to an `Account` object. The relationship field is `Account__c` (and the relationship name is `Account__r`).</p>
+            <CardDescription>An `Invoice__c` object has a custom lookup to an `Account` object. The relationship field is `Account__c` (and the relationship name is `Account__r`).</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query gets invoice numbers and their corresponding Account names.</p>
@@ -50,7 +51,7 @@ export default function CustomObjectsPage() {
         <Card>
           <CardHeader>
             <CardTitle>Parent-to-Child with Custom Relationship</CardTitle>
-            <CardDescription>An `Account` has a master-detail relationship with a custom `Service_Contract__c` object. The child relationship name is `Service_Contracts__r`.</p>
+            <CardDescription>An `Account` has a master-detail relationship with a custom `Service_Contract__c` object. The child relationship name is `Service_Contracts__r`.</CardDescription>
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query retrieves accounts and all their related service contracts.</p>
