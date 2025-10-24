@@ -83,17 +83,6 @@ export default function CoursesPage() {
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <Link href="/courses/soql" className="block hover:shadow-lg transition-shadow rounded-lg">
-                <Card className="h-full bg-gradient-to-br from-blue-50 to-purple-50 dark:from-blue-900/20 dark:to-purple-900/20">
-                  <CardHeader className="flex flex-row items-center justify-between">
-                      <CardTitle className="text-lg flex items-center gap-2"><Search className="h-5 w-5 text-primary" /> SOQL Tutorial</CardTitle>
-                  </CardHeader>
-                  <CardContent>
-                      <p className="text-sm text-muted-foreground line-clamp-2 h-10">A comprehensive guide to mastering Salesforce Object Query Language.</p>
-                  </CardContent>
-                </Card>
-              </Link>
-              
               {courses && courses.map(course => (
                 <Link key={course.id} href={`/admin/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
                     <Card>
