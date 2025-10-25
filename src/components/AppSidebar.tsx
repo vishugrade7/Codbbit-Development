@@ -90,7 +90,7 @@ export function AppSidebar() {
   const navItems = [
     { value: 'dashboard', href: '/', icon: LayoutGrid, label: 'Dashboard' },
     { value: 'problems', href: '/problems', icon: Code, label: 'Problems' },
-    { value: 'courses', href: '/courses/soql', icon: BookOpen, label: 'Courses' },
+    { value: 'courses', href: '/courses', icon: BookOpen, label: 'Courses' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
     { value: 'apex-tutorial', href: '/apex-tutorial', icon: BookHeart, label: 'Apex Tutorial' },
