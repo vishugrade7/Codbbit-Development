@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Plus, MoreHorizontal, Trash2, BookOpen, Search } from 'lucide-react';
@@ -57,6 +57,13 @@ function AdminCoursesPage() {
     });
     refetch();
   }
+  
+  const allCourses = useMemo(() => {
+      const staticCourses = [
+        { id: 'soql', title: 'SOQL Tutorial', description: 'A comprehensive guide to mastering Salesforce Object Query Language.', problemIds: [], createdBy: 'system' }
+      ];
+      return [...staticCourses, ...(courses || [])];
+  }, [courses]);
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
@@ -83,28 +90,30 @@ function AdminCoursesPage() {
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {courses && courses.map(course => (
+              {allCourses && allCourses.map(course => (
                 <Link key={course.id} href={`/admin/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
                     <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-lg">{course.title}</CardTitle>
-                        <DropdownMenu>
-                            <DropdownMenuTrigger asChild>
-                            <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
-                                <span className="sr-only">Open menu</span>
-                                <MoreHorizontal className="h-4 w-4" />
-                            </Button>
-                            </DropdownMenuTrigger>
-                            <DropdownMenuContent align="end">
-                            <DropdownMenuItem onClick={(e) => handleEditCourse(e, course)}>
-                                Edit
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={(e) => handleDeleteCourse(e, course.id)} className="text-red-500">
-                                <Trash2 className="mr-2 h-4 w-4" />
-                                Delete
-                            </DropdownMenuItem>
-                            </DropdownMenuContent>
-                        </DropdownMenu>
+                        {course.createdBy !== 'system' && (
+                            <DropdownMenu>
+                                <DropdownMenuTrigger asChild>
+                                <Button variant="ghost" className="h-8 w-8 p-0" onClick={(e) => { e.preventDefault(); e.stopPropagation(); }}>
+                                    <span className="sr-only">Open menu</span>
+                                    <MoreHorizontal className="h-4 w-4" />
+                                </Button>
+                                </DropdownMenuTrigger>
+                                <DropdownMenuContent align="end">
+                                <DropdownMenuItem onClick={(e) => handleEditCourse(e, course)}>
+                                    Edit
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={(e) => handleDeleteCourse(e, course.id)} className="text-red-500">
+                                    <Trash2 className="mr-2 h-4 w-4" />
+                                    Delete
+                                </DropdownMenuItem>
+                                </DropdownMenuContent>
+                            </DropdownMenu>
+                        )}
                     </CardHeader>
                     <CardContent>
                         <p className="text-sm text-muted-foreground line-clamp-2 h-10">{course.description}</p>
@@ -113,9 +122,9 @@ function AdminCoursesPage() {
                 </Link>
               ))}
               
-              {(!courses || courses.length === 0) && (
+              {(!allCourses || allCourses.length === 0) && (
                   <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
-                    <h3 className="text-lg font-semibold">No Dynamic Courses Yet</h3>
+                    <h3 className="text-lg font-semibold">No Courses Yet</h3>
                     <p className="text-sm">Click "Create Course" to add your first course.</p>
                   </div>
               )}
