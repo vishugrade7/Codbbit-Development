@@ -20,7 +20,7 @@ import {
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 
-export default function CoursesPage() {
+function AdminCoursesPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingCourse, setEditingCourse] = useState<Course | null>(null);
   const firestore = useFirestore();
@@ -137,3 +137,5 @@ export default function CoursesPage() {
     </div>
   );
 }
+
+export default AdminCoursesPage;
