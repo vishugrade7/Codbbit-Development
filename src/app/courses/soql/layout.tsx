@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -12,6 +13,7 @@ import {
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
+import { AppSidebar, Sidebar, SidebarInset, SidebarProvider } from '@/components';
 
 const soqlTopics = [
   { 
@@ -138,49 +140,56 @@ export default function SOQLLayout({
   const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
-      <aside className="w-80 border-r border-slate-200 bg-background p-6 hidden lg:block sticky top-0 h-screen overflow-y-auto">
-        <h2 className="text-lg font-bold mb-4 font-headline flex items-center gap-2 text-slate-700 dark:text-slate-200">
-          <Link href="/courses/soql" className="flex items-center gap-2">
-            <Search className="h-5 w-5 text-blue-500" />
-            SOQL Course Index
-          </Link>
-        </h2>
-        <Accordion type="multiple" defaultValue={soqlTopics.map(t => t.id)} className="w-full">
-          {soqlTopics.map(({ id, title, Icon, subtopics }) => (
-            <AccordionItem key={id} value={id}>
-              <AccordionTrigger className="text-sm font-semibold py-2 hover:text-blue-600 dark:hover:text-blue-400">
-                <div className="flex items-center gap-3">
-                  <Icon className="h-4 w-4 text-muted-foreground" />
-                  {title}
-                </div>
-              </AccordionTrigger>
-              <AccordionContent>
-                <div className="pl-6 border-l ml-4 border-slate-200 dark:border-slate-700 flex flex-col gap-1">
-                  {subtopics.map(sub => (
-                    <Link
-                      key={sub.slug}
-                      href={`/courses/soql/${sub.slug}`}
-                      className={cn(
-                        "py-1.5 hover:text-primary text-xs font-medium",
-                        pathname === `/courses/soql/${sub.slug}` ? 'text-primary font-bold' : 'text-muted-foreground'
-                      )}
-                    >
-                      {sub.title}
-                    </Link>
-                  ))}
-                </div>
-              </AccordionContent>
-            </AccordionItem>
-          ))}
-        </Accordion>
-      </aside>
+    <SidebarProvider>
+      <Sidebar>
+        <AppSidebar />
+      </Sidebar>
+      <SidebarInset>
+        <div className="flex min-h-screen bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-800">
+          <aside className="w-80 border-r border-slate-200 bg-background p-6 hidden lg:block sticky top-0 h-screen overflow-y-auto">
+            <h2 className="text-lg font-bold mb-4 font-headline flex items-center gap-2 text-slate-700 dark:text-slate-200">
+              <Link href="/courses/soql" className="flex items-center gap-2">
+                <Search className="h-5 w-5 text-blue-500" />
+                SOQL Course Index
+              </Link>
+            </h2>
+            <Accordion type="multiple" defaultValue={soqlTopics.map(t => t.id)} className="w-full">
+              {soqlTopics.map(({ id, title, Icon, subtopics }) => (
+                <AccordionItem key={id} value={id}>
+                  <AccordionTrigger className="text-sm font-semibold py-2 hover:text-blue-600 dark:hover:text-blue-400">
+                    <div className="flex items-center gap-3">
+                      <Icon className="h-4 w-4 text-muted-foreground" />
+                      {title}
+                    </div>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <div className="pl-6 border-l ml-4 border-slate-200 dark:border-slate-700 flex flex-col gap-1">
+                      {subtopics.map(sub => (
+                        <Link
+                          key={sub.slug}
+                          href={`/courses/soql/${sub.slug}`}
+                          className={cn(
+                            "py-1.5 hover:text-primary text-xs font-medium",
+                            pathname === `/courses/soql/${sub.slug}` ? 'text-primary font-bold' : 'text-muted-foreground'
+                          )}
+                        >
+                          {sub.title}
+                        </Link>
+                      ))}
+                    </div>
+                  </AccordionContent>
+                </AccordionItem>
+              ))}
+            </Accordion>
+          </aside>
 
-      <main className="flex-1 p-8 md:p-12 overflow-y-auto">
-        <div className="max-w-5xl mx-auto space-y-16">
-          {children}
+          <main className="flex-1 p-8 md:p-12 overflow-y-auto">
+            <div className="max-w-5xl mx-auto space-y-16">
+              {children}
+            </div>
+          </main>
         </div>
-      </main>
-    </div>
+      </SidebarInset>
+    </SidebarProvider>
   )
 }
