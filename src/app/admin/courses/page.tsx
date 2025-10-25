@@ -90,8 +90,11 @@ function AdminCoursesPage() {
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {allCourses && allCourses.map(course => (
-                <Link key={course.id} href={`/admin/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
+              {allCourses && allCourses.map(course => {
+                const isAdminOnlyCourse = course.createdBy !== 'system';
+                const courseUrl = isAdminOnlyCourse ? `/admin/courses/${course.id}` : `/courses/${course.id}`;
+                return (
+                <Link key={course.id} href={courseUrl} className="block hover:shadow-lg transition-shadow rounded-lg">
                     <Card>
                     <CardHeader className="flex flex-row items-center justify-between">
                         <CardTitle className="text-lg">{course.title}</CardTitle>
@@ -120,7 +123,8 @@ function AdminCoursesPage() {
                     </CardContent>
                     </Card>
                 </Link>
-              ))}
+                )
+              })}
               
               {(!allCourses || allCourses.length === 0) && (
                   <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground border-2 border-dashed rounded-lg md:col-span-2 lg:col-span-3">
