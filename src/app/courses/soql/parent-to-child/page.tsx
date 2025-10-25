@@ -1,3 +1,4 @@
+
 'use client';
 
 import { CodeBlock } from '@/components/CodeBlock';
@@ -34,7 +35,7 @@ export default function ParentToChildPage() {
           <CardContent>
             <CodeBlock language="sql" code="SELECT Name, (SELECT Name, Email FROM Contacts) FROM Account" />
             <h4 className="font-semibold my-4">How it works:</h4>
-            <p className="text-muted-foreground">The result of this query is a list of `Account` sObjects. Each `Account` object will have a nested `Contacts` property which is a `List<Contact>` containing the related contacts.</p>
+            <p className="text-muted-foreground">The result of this query is a list of `Account` sObjects. Each `Account` object will have a nested `Contacts` property which is a `List&lt;Contact&gt;` containing the related contacts.</p>
           </CardContent>
         </Card>
         
