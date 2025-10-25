@@ -54,7 +54,7 @@ export default function CoursesPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {allCourses.map(course => (
                             <Link key={course.id} href={`/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
-                                <Card className="h-full bg-gradient-to-br from-blue-100 to-indigo-200 dark:from-blue-900/50 dark:to-indigo-900/50">
+                                <Card className="h-full transition-colors duration-300 ease-in-out hover:bg-gradient-to-br hover:from-blue-100 hover:to-indigo-200 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50">
                                 <CardHeader className="flex flex-row items-center justify-between p-4">
                                     <CardTitle className="text-lg flex items-center gap-2"><Search className="h-5 w-5 text-primary" /> {course.title}</CardTitle>
                                 </CardHeader>
