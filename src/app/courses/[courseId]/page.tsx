@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
 import { doc, collection } from 'firebase/firestore';
@@ -62,6 +62,10 @@ export default function CourseDetailPage() {
   useEffect(() => {
     if (courseId === 'soql') {
       router.replace('/courses/soql');
+    }
+    // Redirect away from the old, removed apex page
+    if (courseId === 'apex') {
+      router.replace('/courses');
     }
   }, [courseId, router]);
   
