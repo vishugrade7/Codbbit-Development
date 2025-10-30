@@ -26,7 +26,9 @@ export function CodeBlock({ code, language, className, tooltipContent }: CodeBlo
   const [hasCopied, setHasCopied] = useState(false);
 
   const copyToClipboard = () => {
-    navigator.clipboard.writeText(code).then(() => {
+    // Strip HTML tags for clipboard
+    const plainTextCode = code.replace(/<[^>]*>?/gm, '');
+    navigator.clipboard.writeText(plainTextCode).then(() => {
       setHasCopied(true);
       toast({ title: 'Copied!', description: 'Code copied to clipboard.' });
       setTimeout(() => setHasCopied(false), 2000);
@@ -49,7 +51,7 @@ export function CodeBlock({ code, language, className, tooltipContent }: CodeBlo
               <Copy className="h-4 w-4" />
             )}
           </Button>
-          <pre><code className={`language-${language}`}>{code}</code></pre>
+          <pre><code className={`language-${language}`} dangerouslySetInnerHTML={{ __html: code }} /></pre>
         </div>
       </div>
   )

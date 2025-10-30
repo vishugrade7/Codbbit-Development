@@ -36,7 +36,7 @@ export default function LikeOperatorPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query finds all accounts whose name starts with 'United'.</p>
-            <CodeBlock language="sql" code="SELECT Name FROM Account WHERE Name LIKE 'United%'" />
+            <CodeBlock language="sql" code={`SELECT Name FROM Account WHERE Name <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">LIKE</span> 'United%'`} />
             <h4 className="font-semibold my-4">Expected Result from Sample Data:</h4>
             <Table>
                 <TableHeader><TableRow><TableHead>Name</TableHead></TableRow></TableHeader>
@@ -56,7 +56,7 @@ export default function LikeOperatorPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query finds contacts with a 5-digit postal code starting with '941'.</p>
-            <CodeBlock language="sql" code="SELECT Name, MailingPostalCode FROM Contact WHERE MailingPostalCode LIKE '941__'" />
+            <CodeBlock language="sql" code={`SELECT Name, MailingPostalCode FROM Contact WHERE MailingPostalCode <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">LIKE</span> '941__'`} />
             <h4 className="font-semibold my-4">Expected Result from Sample Data:</h4>
             <Table>
                 <TableHeader><TableRow><TableHead>Name</TableHead><TableHead>PostalCode</TableHead></TableRow></TableHeader>

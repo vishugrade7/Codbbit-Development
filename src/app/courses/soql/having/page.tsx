@@ -39,7 +39,7 @@ export default function HavingPage() {
                 <CardDescription>Retrieve a list of accounts that have more than 3 contacts.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CodeBlock language="sql" code="SELECT AccountId, COUNT(Id) FROM Contact GROUP BY AccountId HAVING COUNT(Id) > 3" />
+                <CodeBlock language="sql" code={`SELECT AccountId, COUNT(Id) FROM Contact GROUP BY AccountId <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">HAVING</span> COUNT(Id) > 3`} />
                 <h4 className="font-semibold my-4">How it works:</h4>
                 <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
                     <li><code>GROUP BY AccountId</code> first groups all contacts by their parent account.</li>
@@ -55,7 +55,7 @@ export default function HavingPage() {
                 <CardDescription>Find opportunity stages where the total amount is greater than $1,000,000.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CodeBlock language="sql" code="SELECT StageName, SUM(Amount) FROM Opportunity GROUP BY StageName HAVING SUM(Amount) > 1000000" />
+                <CodeBlock language="sql" code={`SELECT StageName, SUM(Amount) FROM Opportunity GROUP BY StageName <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">HAVING</span> SUM(Amount) > 1000000`} />
             </CardContent>
         </Card>
       </section>
