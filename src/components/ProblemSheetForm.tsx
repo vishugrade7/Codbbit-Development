@@ -88,7 +88,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
       (cat.Questions || []).map(q => ({
         ...q,
         category: cat.id,
-        id: q.id || `${cat.id}-${q.title}`, // Ensure a unique ID
+        id: q.id || `${cat.id}-${q.title}-${uuidv4()}`, // Ensure a unique ID
       }))
     );
   }, [categoriesData]);
@@ -333,7 +333,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                     ) : (
                       filteredProblems.map(problem => (
                         <TableRow
-                          key={problem.id || `${problem.title}-${problem.category}`}
+                          key={problem.id}
                           className="cursor-pointer"
                           onClick={() => handleSelectProblem(problem)}
                         >
