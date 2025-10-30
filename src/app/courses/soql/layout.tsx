@@ -8,7 +8,7 @@ import {
   AccordionTrigger,
 } from '@/components/ui/accordion';
 import {
-  BookOpen, Code, Filter, GitBranch, Search, BarChart, Zap, Goal, Telescope, Award, Book
+  BookOpen, Code, Filter, GitBranch, Search, BarChart, Zap, Goal, Telescope
 } from 'lucide-react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
@@ -97,17 +97,6 @@ const soqlTopics = [
       { slug: 'large-data-sets', title: 'Large Datasets' }
     ] 
   },
-  { 
-    id: 'tools-debugging', 
-    title: 'Tools & Debugging', 
-    Icon: Telescope, 
-    subtopics: [
-      { slug: 'developer-console', title: 'Developer Console' },
-      { slug: 'workbench', title: 'Workbench' },
-      { slug: 'salesforce-inspector', title: 'Salesforce Inspector' },
-      { slug: 'vs-code-extensions', title: 'VS Code Extensions' }
-    ] 
-  }
 ];
 
 
