@@ -107,28 +107,7 @@ const soqlTopics = [
       { slug: 'salesforce-inspector', title: 'Salesforce Inspector' },
       { slug: 'vs-code-extensions', title: 'VS Code Extensions' }
     ] 
-  },
-  { 
-    id: 'certification', 
-    title: 'Certification Relevance', 
-    Icon: Award, 
-    subtopics: [
-      { slug: 'admin-exam', title: 'Administrator Exam' },
-      { slug: 'pd1-pd2-exams', title: 'Platform Developer I & II' },
-      { slug: 'practice-questions', title: 'Practice Questions' }
-    ] 
-  },
-  { 
-    id: 'resources', 
-    title: 'Resources', 
-    Icon: Book, 
-    subtopics: [
-      { slug: 'trailhead', title: 'Trailhead' },
-      { slug: 'developer-docs', title: 'Developer Docs' },
-      { slug: 'github-repos', title: 'GitHub Repos' },
-      { slug: 'apex-recipes', title: 'Apex Recipes' }
-    ] 
-  },
+  }
 ];
 
 
