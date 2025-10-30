@@ -68,7 +68,11 @@ export default function DateLiteralsPage() {
           <p className="text-muted-foreground mb-4">
             Find all opportunities created in the current calendar quarter. This query automatically adjusts based on when it's run.
           </p>
-          <CodeBlock language="sql" code="SELECT Name, CreatedDate FROM Opportunity WHERE CreatedDate = THIS_QUARTER" />
+          <CodeBlock 
+            language="sql" 
+            code={`SELECT Name, CreatedDate FROM Opportunity WHERE CreatedDate = <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>THIS_QUARTER</span>`}
+            tooltipContent="Date literals like THIS_QUARTER are keywords that represent a specific date range."
+          />
         </div>
         
         <Card>
@@ -101,7 +105,11 @@ export default function DateLiteralsPage() {
           <p className="text-muted-foreground mb-4">
             Find all accounts modified in the last 7 days.
           </p>
-          <CodeBlock language="sql" code="SELECT Name, LastModifiedDate FROM Account WHERE LastModifiedDate > N_DAYS_AGO:7" />
+          <CodeBlock 
+            language="sql" 
+            code={`SELECT Name, LastModifiedDate FROM Account WHERE LastModifiedDate > <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>N_DAYS_AGO:7</span>`}
+            tooltipContent="Literals like N_DAYS_AGO:n allow for dynamic, rolling date ranges where 'n' is an integer."
+          />
         </div>
       </section>
     </>

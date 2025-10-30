@@ -29,7 +29,11 @@ export default function WhereClausePage() {
             <CardDescription>Retrieve only the Accounts that are in the 'Technology' industry.</CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock language="sql" code="SELECT Name, Industry FROM Account WHERE Industry = 'Technology'" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, Industry FROM Account <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>WHERE</span> Industry = 'Technology'`}
+              tooltipContent="The WHERE clause filters records based on specified conditions."
+            />
             <h4 className="font-semibold my-4">Expected Result from Sample Data:</h4>
             <Table>
                 <TableHeader>
@@ -57,7 +61,11 @@ export default function WhereClausePage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query finds accounts that are in the 'Technology' industry AND have revenue over $1,000,000.</p>
-            <CodeBlock language="sql" code="SELECT Name, AnnualRevenue FROM Account WHERE Industry = 'Technology' AND AnnualRevenue > 1000000" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, AnnualRevenue FROM Account <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>WHERE</span> Industry = 'Technology' AND AnnualRevenue > 1000000`}
+              tooltipContent="The WHERE clause filters records based on specified conditions."
+            />
              <h4 className="font-semibold my-4">Expected Result from Sample Data:</h4>
             <Table>
                 <TableHeader>

@@ -33,9 +33,17 @@ export default function OrderByPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query gets the 10 most recently created accounts.</p>
-            <CodeBlock language="sql" code="-- Get the 10 most recently created accounts\nSELECT Name, CreatedDate FROM Account ORDER BY CreatedDate DESC LIMIT 10" />
+            <CodeBlock 
+              language="sql" 
+              code={`-- Get the 10 most recently created accounts\nSELECT Name, CreatedDate FROM Account <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>ORDER BY</span> CreatedDate DESC LIMIT 10`}
+              tooltipContent="ORDER BY sorts the query results. DESC specifies descending order."
+            />
             <p className="text-muted-foreground my-4">This query gets accounts sorted alphabetically by name.</p>
-            <CodeBlock language="sql" code="-- Sort by name from A to Z\nSELECT Name FROM Account ORDER BY Name ASC" />
+            <CodeBlock 
+              language="sql" 
+              code={`-- Sort by name from A to Z\nSELECT Name FROM Account <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>ORDER BY</span> Name ASC`}
+              tooltipContent="ASC specifies ascending order (A-Z, 1-9), and is the default if not specified."
+            />
           </CardContent>
         </Card>
         
@@ -48,7 +56,11 @@ export default function OrderByPage() {
           </CardHeader>
            <CardContent>
             <p className="text-muted-foreground mb-4">This query orders accounts by revenue from highest to lowest, but places accounts with no revenue at the very end of the list.</p>
-            <CodeBlock language="sql" code="SELECT Name, AnnualRevenue FROM Account ORDER BY AnnualRevenue DESC NULLS LAST" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, AnnualRevenue FROM Account <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>ORDER BY</span> AnnualRevenue DESC NULLS LAST`}
+              tooltipContent="NULLS LAST places all records with a NULL value for the sorted field at the end of the results."
+            />
             <h4 className="font-semibold my-4">Expected Result:</h4>
             <Table>
               <TableHeader>

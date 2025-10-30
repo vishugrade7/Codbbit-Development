@@ -25,7 +25,11 @@ export default function FromClausePage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query retrieves the first and last names from the standard <code>Contact</code> object.</p>
-            <CodeBlock language="sql" code="SELECT FirstName, LastName FROM Contact" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT FirstName, LastName <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>FROM</span> Contact`}
+              tooltipContent="The FROM clause specifies the primary object you are querying."
+            />
           </CardContent>
         </Card>
 
@@ -38,7 +42,11 @@ export default function FromClausePage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query retrieves the Name and Status from a custom object named <code>My_Custom_Object__c</code>.</p>
-            <CodeBlock language="sql" code="SELECT Name, Status__c FROM My_Custom_Object__c" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, Status__c <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>FROM</span> My_Custom_Object__c`}
+              tooltipContent="The FROM clause specifies the primary object you are querying."
+            />
           </CardContent>
         </Card>
       </section>

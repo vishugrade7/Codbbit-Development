@@ -40,7 +40,11 @@ export default function GroupByPage() {
                 <CardDescription>Get a count of how many opportunities are in each stage.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CodeBlock language="sql" code="SELECT StageName, COUNT(Id) FROM Opportunity GROUP BY StageName" />
+                <CodeBlock 
+                  language="sql" 
+                  code={`SELECT StageName, COUNT(Id) FROM Opportunity <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>GROUP BY</span> StageName`}
+                  tooltipContent="GROUP BY clause combines records with identical values in specified fields into a single record."
+                />
                 <h4 className="font-semibold my-4">Expected Result:</h4>
                 <Table>
                   <TableHeader>
@@ -67,7 +71,11 @@ export default function GroupByPage() {
                 <CardDescription>Calculate the total value of won opportunities, grouped by how they were sourced.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CodeBlock language="sql" code="SELECT LeadSource, SUM(Amount) FROM Opportunity WHERE StageName = 'Closed Won' GROUP BY LeadSource" />
+                <CodeBlock 
+                  language="sql" 
+                  code={`SELECT LeadSource, SUM(Amount) FROM Opportunity WHERE StageName = 'Closed Won' <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>GROUP BY</span> LeadSource`}
+                  tooltipContent="GROUP BY can be used with a WHERE clause to first filter records and then group them."
+                />
                 <p className="text-muted-foreground mt-4">This query first filters for only 'Closed Won' opportunities and then groups the results by the `LeadSource` field, calculating the sum of the `Amount` for each source.</p>
             </CardContent>
         </Card>

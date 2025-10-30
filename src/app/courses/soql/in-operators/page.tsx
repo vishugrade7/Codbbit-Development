@@ -31,7 +31,11 @@ export default function InOperatorsPage() {
             <CardDescription>Retrieves records where a field value matches any value in a specified list. Let's find all Accounts in the 'Technology' or 'Finance' industries.</CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock language="sql" code="SELECT Name, Industry FROM Account WHERE Industry IN ('Technology', 'Finance')" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, Industry FROM Account WHERE Industry <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>IN</span> ('Technology', 'Finance')`}
+              tooltipContent="The IN operator checks if a field's value is present in a given list of values."
+            />
              <h4 className="font-semibold my-4">Expected Result:</h4>
             <Table>
                 <TableHeader>
@@ -58,7 +62,11 @@ export default function InOperatorsPage() {
             <CardDescription>Retrieves records where a field value does not match any value in a specified list. Let's find all Opportunities that are not yet closed.</CardDescription>
           </CardHeader>
            <CardContent>
-            <CodeBlock language="sql" code="SELECT Name, StageName FROM Opportunity WHERE StageName NOT IN ('Closed Won', 'Closed Lost')" />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, StageName FROM Opportunity WHERE StageName <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>NOT IN</span> ('Closed Won', 'Closed Lost')`}
+              tooltipContent="The NOT IN operator excludes records where a field's value is in a given list."
+            />
           </CardContent>
         </Card>
       </section>

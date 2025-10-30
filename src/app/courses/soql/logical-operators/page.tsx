@@ -86,7 +86,11 @@ export default function LogicalOperatorsPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query finds accounts that are in the 'Technology' industry AND are located in 'CA'.</p>
-            <CodeBlock language="sql" code={`SELECT Name FROM Account WHERE Industry = 'Technology' <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">AND</span> BillingState = 'CA'`} />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name FROM Account WHERE Industry = 'Technology' <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>AND</span> BillingState = 'CA'`}
+              tooltipContent="The AND operator requires all conditions to be true."
+            />
             <h4 className="font-semibold my-4">Expected Result:</h4>
             <Table>
                 <TableHeader><TableRow><TableHead>Name</TableHead></TableRow></TableHeader>
@@ -106,7 +110,11 @@ export default function LogicalOperatorsPage() {
           </CardHeader>
            <CardContent>
             <p className="text-muted-foreground mb-4">This query finds all contacts whose lead source is either 'Web' or 'Partner Referral'.</p>
-            <CodeBlock language="sql" code={`SELECT Name, LeadSource FROM Contact WHERE LeadSource = 'Web' <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">OR</span> LeadSource = 'Partner Referral'`} />
+            <CodeBlock 
+              language="sql" 
+              code={`SELECT Name, LeadSource FROM Contact WHERE LeadSource = 'Web' <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>OR</span> LeadSource = 'Partner Referral'`}
+              tooltipContent="The OR operator requires at least one of the conditions to be true."
+            />
           </CardContent>
         </Card>
 

@@ -26,7 +26,11 @@ export default function LimitOffsetPage() {
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground mb-4">This query retrieves only the 10 most recently created accounts.</p>
-                <CodeBlock language="sql" code="SELECT Name FROM Account ORDER BY CreatedDate DESC LIMIT 10" />
+                <CodeBlock 
+                  language="sql" 
+                  code={`SELECT Name FROM Account ORDER BY CreatedDate DESC <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>LIMIT</span> 10`}
+                  tooltipContent="LIMIT restricts the maximum number of records returned by the query."
+                />
             </CardContent>
         </Card>
         
@@ -39,7 +43,11 @@ export default function LimitOffsetPage() {
             </CardHeader>
             <CardContent>
                 <p className="text-muted-foreground mb-4">This query retrieves the third page of accounts, assuming a page size of 10.</p>
-                <CodeBlock language="sql" code="-- To get page 3, we offset by (3 - 1) * 10 = 20 records\nSELECT Name FROM Account ORDER BY CreatedDate DESC LIMIT 10 OFFSET 20" />
+                <CodeBlock 
+                  language="sql" 
+                  code={`-- To get page 3, we offset by (3 - 1) * 10 = 20 records\nSELECT Name FROM Account ORDER BY CreatedDate DESC <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>LIMIT</span> 10 <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>OFFSET</span> 20`}
+                  tooltipContent="OFFSET skips a specified number of rows before returning results."
+                />
                 <Alert variant="warning" className="mt-4">
                     <AlertTriangle className="h-4 w-4" />
                     <AlertTitle>Performance Warning</AlertTitle>

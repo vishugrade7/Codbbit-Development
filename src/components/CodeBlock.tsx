@@ -1,3 +1,4 @@
+
 'use client';
 
 import { Check, Copy, Info } from 'lucide-react';
@@ -36,8 +37,7 @@ export function CodeBlock({ code, language, className, tooltipContent }: CodeBlo
   };
 
   const CodeContent = (
-     <div className={cn('relative my-4 rounded-lg bg-muted/50 p-4 font-code text-sm group', className)}>
-        <div className="absolute -inset-px rounded-lg bg-gradient-to-r from-blue-500/50 to-purple-500/50 opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
+     <div className={cn('relative my-4 rounded-lg bg-muted/50 p-4 font-code text-sm inline-block', className)}>
         <div className="relative">
           <Button
             size="icon"
@@ -58,7 +58,7 @@ export function CodeBlock({ code, language, className, tooltipContent }: CodeBlo
 
   if (tooltipContent) {
     return (
-      <TooltipProvider>
+      <TooltipProvider delayDuration={100}>
         <Tooltip>
           <TooltipTrigger asChild>
             {CodeContent}
