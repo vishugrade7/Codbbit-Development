@@ -50,7 +50,11 @@ const feedbackSchema = z.object({
 
 type FeedbackFormData = z.infer<typeof feedbackSchema>;
 
-export function FeedbackForm() {
+interface FeedbackFormProps {
+    onFormSubmit?: () => void;
+}
+
+export function FeedbackForm({ onFormSubmit }: FeedbackFormProps) {
   const { toast } = useToast();
   const firestore = useFirestore();
   const { user, isUserLoading } = useUser();
@@ -132,7 +136,12 @@ export function FeedbackForm() {
         });
         reset();
         setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 5000);
+        setTimeout(() => {
+            setShowConfetti(false);
+            if (onFormSubmit) {
+                onFormSubmit();
+            }
+        }, 3000);
       } else {
         throw new Error(result.error || 'An unknown error occurred.');
       }

@@ -26,6 +26,7 @@ import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
 import { FeedbackForm } from './FeedbackForm';
+import { useState } from 'react';
 
 
 export function AppSidebar() {
@@ -35,6 +36,7 @@ export function AppSidebar() {
   const { state, setOpen, isMobile } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
+  const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
   
   const userDocRef = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
@@ -122,7 +124,7 @@ export function AppSidebar() {
       <SidebarFooter className="mt-auto flex flex-col items-center gap-2 p-2">
         <ThemeToggle />
          <TooltipProvider delayDuration={0}>
-            <Dialog>
+            <Dialog open={isFeedbackDialogOpen} onOpenChange={setIsFeedbackDialogOpen}>
               <Tooltip>
                   <TooltipTrigger asChild>
                     <DialogTrigger asChild>
@@ -143,7 +145,7 @@ export function AppSidebar() {
                         drop your reviews, suggestions, or to ask for support.
                     </DialogDescription>
                   </DialogHeader>
-                  <FeedbackForm />
+                  <FeedbackForm onFormSubmit={() => setIsFeedbackDialogOpen(false)} />
               </DialogContent>
             </Dialog>
             <Tooltip>
