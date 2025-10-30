@@ -1,75 +1,70 @@
 'use client';
 
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import { motion } from 'framer-motion';
 
-const SoqlKeyword = ({ children, tooltip }: { children: React.ReactNode, tooltip: string }) => (
-  <TooltipProvider delayDuration={100}>
-    <Tooltip>
-      <TooltipTrigger asChild>
-        <span className="bg-primary/10 text-primary-foreground px-3 py-1 rounded-md font-mono font-bold cursor-pointer hover:bg-primary/20 transition-colors">{children}</span>
-      </TooltipTrigger>
-      <TooltipContent>
-        <p className="max-w-xs">{tooltip}</p>
-      </TooltipContent>
-    </Tooltip>
-  </TooltipProvider>
+const keywords = [
+  { name: 'SELECT', tooltip: 'Specifies the fields to retrieve.', color: 'bg-purple-500' },
+  { name: 'FROM', tooltip: 'Specifies the object to query.', color: 'bg-blue-500' },
+  { name: 'WHERE', tooltip: 'Filters records based on conditions.', color: 'bg-teal-500' },
+  { name: 'LIMIT', tooltip: 'Restricts the number of records returned.', color: 'bg-green-500' },
+  { name: 'ORDER BY', tooltip: 'Sorts the results.', color: 'bg-yellow-500' },
+  { name: 'GROUP BY', tooltip: 'Groups rows that have the same values.', color: 'bg-orange-500' },
+  { name: 'HAVING', tooltip: 'Filters results of aggregate functions.', color: 'bg-red-500' },
+];
+
+const SoqlKeyword = ({ name, tooltip, color, angle }: { name: string, tooltip: string, color: string, angle: number }) => (
+  <motion.div
+    className="absolute"
+    initial={{ opacity: 0, scale: 0 }}
+    animate={{
+      opacity: 1,
+      scale: 1,
+      x: 200 * Math.cos(angle),
+      y: 200 * Math.sin(angle),
+    }}
+    transition={{ type: 'spring', stiffness: 100, damping: 12, delay: angle / 2 }}
+    style={{
+        transformOrigin: 'center'
+    }}
+  >
+    <TooltipProvider delayDuration={100}>
+      <Tooltip>
+        <TooltipTrigger asChild>
+          <motion.div
+             whileHover={{ scale: 1.1, y: -5, boxShadow: '0px 10px 20px rgba(0,0,0,0.1)' }}
+             className={`w-28 h-28 ${color} rounded-full flex items-center justify-center text-white font-bold text-lg cursor-pointer shadow-lg`}
+          >
+            {name}
+          </motion.div>
+        </TooltipTrigger>
+        <TooltipContent>
+          <p className="max-w-xs">{tooltip}</p>
+        </TooltipContent>
+      </Tooltip>
+    </TooltipProvider>
+  </motion.div>
 );
-
-const SoqlField = ({ children }: { children: React.ReactNode }) => (
-  <span className="bg-green-500/10 text-green-700 dark:text-green-300 px-3 py-1 rounded-md font-mono">{children}</span>
-);
-
-const SoqlValue = ({ children }: { children: React.ReactNode }) => (
-    <span className="bg-red-500/10 text-red-700 dark:text-red-300 px-3 py-1 rounded-md font-mono">{children}</span>
-);
-
 
 export function InteractiveSoqlQuery() {
   return (
-    <div className="bg-muted/30 p-8 rounded-xl border border-border/50 shadow-lg">
-      <h2 className="text-2xl font-bold font-headline mb-6 text-center">Anatomy of a SOQL Query</h2>
-      <div className="flex flex-col gap-3 text-lg font-mono">
-        <div className="flex flex-wrap items-center gap-3">
-          <SoqlKeyword tooltip="The SELECT clause specifies the fields (columns) you want to retrieve from the database.">SELECT</SoqlKeyword>
-          <SoqlField>Id</SoqlField>
-          <span>,</span>
-          <SoqlField>Name</SoqlField>
-           <span>,</span>
-          <SoqlField>AnnualRevenue</SoqlField>
-           <span>,</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-3 pl-8">
-            <span>(</span>
-            <SoqlKeyword tooltip="A subquery, or parent-to-child query, retrieves child records related to the parent records in the main query.">SELECT</SoqlKeyword>
-            <SoqlField>LastName</SoqlField>
-            <SoqlKeyword tooltip="The FROM clause in a subquery specifies the child relationship name (e.g., Contacts, Opportunities).">FROM</SoqlKeyword>
-            <SoqlField>Contacts</SoqlField>
-            <span>)</span>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-            <SoqlKeyword tooltip="The FROM clause specifies the primary object you are querying.">FROM</SoqlKeyword>
-            <SoqlField>Account</SoqlField>
-        </div>
-         <div className="flex flex-wrap items-center gap-3">
-            <SoqlKeyword tooltip="The WHERE clause filters the records returned by the query based on one or more conditions.">WHERE</SoqlKeyword>
-            <SoqlField>Industry</SoqlField>
-            <span>=</span>
-            <SoqlValue>'Technology'</SoqlValue>
-            <SoqlKeyword tooltip="The AND operator combines multiple conditions, requiring all to be true.">AND</SoqlKeyword>
-            <SoqlField>AnnualRevenue</SoqlField>
-            <span>&gt;</span>
-            <SoqlValue>1000000</SoqlValue>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-            <SoqlKeyword tooltip="The ORDER BY clause sorts the results of your query based on one or more fields.">ORDER BY</SoqlKeyword>
-            <SoqlField>Name</SoqlField>
-            <SoqlKeyword tooltip="DESC sorts the results in descending order (Z-A, 9-1).">DESC</SoqlKeyword>
-        </div>
-        <div className="flex flex-wrap items-center gap-3">
-            <SoqlKeyword tooltip="LIMIT restricts the maximum number of records returned by the query.">LIMIT</SoqlKeyword>
-            <SoqlValue>10</SoqlValue>
-        </div>
-      </div>
+    <div className="relative w-full h-[500px] flex items-center justify-center bg-transparent">
+        <motion.div 
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 1, duration: 0.5 }}
+            className="text-center"
+        >
+            <h2 className="text-4xl font-bold font-headline text-foreground">Different parts</h2>
+            <p className="text-2xl text-muted-foreground">of a SOQL query</p>
+        </motion.div>
+      {keywords.map((keyword, index) => (
+        <SoqlKeyword
+          key={keyword.name}
+          {...keyword}
+          angle={(index * 2 * Math.PI) / keywords.length - Math.PI / 2}
+        />
+      ))}
     </div>
   );
 }
