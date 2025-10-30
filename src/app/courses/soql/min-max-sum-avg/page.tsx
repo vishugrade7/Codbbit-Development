@@ -109,7 +109,7 @@ export default function AggregateFunctionsPage() {
                 <CardContent>
                     <CodeBlock language="sql" code="SELECT MIN(Price) FROM Products;" />
                     <div className="mt-2 text-center text-sm font-semibold text-muted-foreground">Result: $10.00</div>
-                    <Button className="mt-4 w-full" variant="secondary">Try it Yourself &raquo;</Button>
+                    
                 </CardContent>
             </Card>
              <Card className="bg-muted/30">
@@ -120,7 +120,7 @@ export default function AggregateFunctionsPage() {
                 <CardContent>
                     <CodeBlock language="sql" code="SELECT MAX(Price) FROM Products;" />
                     <div className="mt-2 text-center text-sm font-semibold text-muted-foreground">Result: $22.00</div>
-                    <Button className="mt-4 w-full" variant="secondary">Try it Yourself &raquo;</Button>
+                    
                 </CardContent>
             </Card>
              <Card className="bg-muted/30">
@@ -131,7 +131,7 @@ export default function AggregateFunctionsPage() {
                 <CardContent>
                     <CodeBlock language="sql" code="SELECT SUM(Price) FROM Products WHERE SupplierID = 1;" />
                     <div className="mt-2 text-center text-sm font-semibold text-muted-foreground">Result: $47.00</div>
-                    <Button className="mt-4 w-full" variant="secondary">Try it Yourself &raquo;</Button>
+                    
                 </CardContent>
             </Card>
              <Card className="bg-muted/30">
@@ -142,7 +142,7 @@ export default function AggregateFunctionsPage() {
                 <CardContent>
                     <CodeBlock language="sql" code="SELECT AVG(Price) FROM Products;" />
                     <div className="mt-2 text-center text-sm font-semibold text-muted-foreground">Result: $18.27</div>
-                    <Button className="mt-4 w-full" variant="secondary">Try it Yourself &raquo;</Button>
+                    
                 </CardContent>
             </Card>
         </div>
