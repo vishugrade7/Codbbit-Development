@@ -30,6 +30,7 @@ import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 import { Loader2, Paperclip, Activity, Bug, Lightbulb, HelpCircle, MoreHorizontal } from 'lucide-react';
 import { sendFeedbackEmail } from '@/lib/mail';
+import { Confetti } from './Confetti';
 
 const MAX_FILE_SIZE = 5 * 1024 * 1024; // 5MB
 
@@ -62,6 +63,7 @@ export function FeedbackForm() {
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [attachmentName, setAttachmentName] = useState<string | null>(null);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   const {
     control,
@@ -129,6 +131,8 @@ export function FeedbackForm() {
           variant: 'success',
         });
         reset();
+        setShowConfetti(true);
+        setTimeout(() => setShowConfetti(false), 5000);
       } else {
         throw new Error(result.error || 'An unknown error occurred.');
       }
@@ -155,6 +159,7 @@ export function FeedbackForm() {
 
   return (
       <form onSubmit={handleSubmit(onSubmit)}>
+        {showConfetti && <Confetti />}
         <div className="space-y-6">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
             <div className="space-y-2">
