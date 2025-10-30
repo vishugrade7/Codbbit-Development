@@ -31,7 +31,11 @@ export default function SelectClausePage() {
             <CardDescription>Retrieve the Name and Industry fields from all Account records.</CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock language="sql" code={`<span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">SELECT</span> Name, Industry FROM Account`} />
+            <CodeBlock 
+              language="sql" 
+              code={`<span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">SELECT</span> Name, Industry FROM Account`}
+              tooltipContent="The SELECT clause specifies the fields (columns) you want to retrieve from the database."
+            />
           </CardContent>
         </Card>
         
@@ -42,7 +46,11 @@ export default function SelectClausePage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This example retrieves a standard field (`Name`) and a custom field (`Region__c`) from the Account object.</p>
-            <CodeBlock language="sql" code={`<span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">SELECT</span> Name, Region__c FROM Account`} />
+            <CodeBlock 
+              language="sql" 
+              code={`<span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">SELECT</span> Name, Region__c FROM Account`}
+              tooltipContent="You must explicitly name each field you want to retrieve, including custom fields."
+            />
           </CardContent>
         </Card>
       </section>

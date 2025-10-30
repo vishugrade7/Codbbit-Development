@@ -33,7 +33,11 @@ export default function ParentToChildPage() {
             <CardDescription>Retrieve all Accounts and, for each account, list the Name and Email of all its related Contacts.</CardDescription>
           </CardHeader>
           <CardContent>
-            <CodeBlock language="sql" code="SELECT Name, (SELECT Name, Email FROM Contacts) FROM Account" />
+            <CodeBlock 
+              language="sql" 
+              code="SELECT Name, <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1'>(SELECT Name, Email FROM Contacts)</span> FROM Account"
+              tooltipContent="This subquery, enclosed in parentheses, fetches the Name and Email for all child Contact records related to each Account in the main query."
+            />
             <h4 className="font-semibold my-4">How it works:</h4>
             <p className="text-muted-foreground">The result of this query is a list of `Account` sObjects. Each `Account` object will have a nested `Contacts` property which is a `List&lt;Contact&gt;` containing the related contacts.</p>
           </CardContent>
@@ -46,7 +50,11 @@ export default function ParentToChildPage() {
           </CardHeader>
           <CardContent>
             <p className="text-muted-foreground mb-4">This query finds all accounts and their related projects that are not yet completed.</p>
-            <CodeBlock language="sql" code="SELECT Name, (SELECT Name, Status__c FROM Projects__r WHERE Status__c != 'Completed') FROM Account" />
+            <CodeBlock 
+              language="sql" 
+              code="SELECT Name, <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1'>(SELECT Name, Status__c FROM Projects__r WHERE Status__c != 'Completed')</span> FROM Account"
+              tooltipContent="This subquery uses the custom child relationship name `Projects__r` and includes its own WHERE clause to filter the child records."
+            />
           </CardContent>
         </Card>
       </section>

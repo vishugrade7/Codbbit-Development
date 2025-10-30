@@ -31,7 +31,7 @@ export default function ChildToParentPage() {
           <CardContent>
             <CodeBlock 
               language="sql" 
-              code="SELECT Name, Account.Name FROM Contact" 
+              code="SELECT Name, <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1'>Account.Name</span> FROM Contact" 
               tooltipContent={
                 <p>
                   This query selects the <code className="font-bold">Name</code> field from the Contact object and uses dot notation (<code className="font-bold">Account.Name</code>) to access the <code className="font-bold">Name</code> field of the parent Account object.
@@ -60,7 +60,7 @@ export default function ChildToParentPage() {
             <p className="text-muted-foreground mb-4">This query retrieves invoice details and the name of the associated project.</p>
             <CodeBlock 
               language="sql" 
-              code="SELECT Name, Amount__c, Project__r.Name FROM Invoice__c" 
+              code="SELECT Name, Amount__c, <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1'>Project__r.Name</span> FROM Invoice__c" 
               tooltipContent={
                  <p>
                   The <code className="font-bold">__r</code> suffix denotes a custom relationship. This query traverses from the child <code className="font-bold">Invoice__c</code> object to the parent <code className="font-bold">Project__c</code> object to retrieve its name.
