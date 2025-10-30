@@ -114,31 +114,49 @@ export default function SOQLvsSQLPage() {
           </CardContent>
         </Card>
 
-        <div>
-          <h3 className="text-xl font-semibold mb-2">Querying Related Data: The SOQL Way</h3>
-          <p className="text-muted-foreground mb-4">
-            Instead of complex JOINs, SOQL uses dot notation to easily navigate relationships.
-          </p>
-          <h4 className="font-medium mb-2">Child-to-Parent Relationship</h4>
-          <p className="text-sm text-muted-foreground mb-4">
-            This query retrieves the Name from the Contact and the Name from its related Account.
-          </p>
-          <CodeBlock language="sql" code="SELECT Name, Account.Name FROM Contact" />
+        <Card>
+          <CardHeader>
+            <CardTitle>Querying Related Data: The SOQL Way</CardTitle>
+            <CardDescription>
+              Instead of complex JOINs, SOQL uses dot notation to easily navigate relationships.
+            </CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div>
+              <h4 className="font-medium mb-2">Child-to-Parent Relationship</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                This query retrieves the Name from the Contact and the Name from its related Account.
+              </p>
+              <CodeBlock language="sql" code="SELECT Name, Account.Name FROM Contact" />
+            </div>
 
-           <h4 className="font-medium mb-2 mt-6">Parent-to-Child Relationship</h4>
-          <p className="text-sm text-muted-foreground mb-4">
-            This query retrieves the Name from each Account and a sub-list of all related Contacts for each Account. Note the plural name for the child relationship (`Contacts`).
-          </p>
-          <CodeBlock language="sql" code="SELECT Name, (SELECT Name, Email FROM Contacts) FROM Account" />
-        </div>
+            <div>
+               <h4 className="font-medium mb-2">Parent-to-Child Relationship</h4>
+              <p className="text-sm text-muted-foreground mb-4">
+                This query retrieves the Name from each Account and a sub-list of all related Contacts for each Account. Note the plural name for the child relationship (`Contacts`).
+              </p>
+              <CodeBlock language="sql" code="SELECT Name, (SELECT Name, Email FROM Contacts) FROM Account" />
+            </div>
+          </CardContent>
+        </Card>
         
-         <div>
-          <h3 className="text-xl font-semibold mb-2">Querying Related Data: The SQL Way</h3>
-          <p className="text-muted-foreground mb-4">
-            SQL requires an explicit <code>JOIN</code> clause to connect the `contacts` and `accounts` tables.
-          </p>
-          <CodeBlock language="sql" code={`SELECT\n  c.name AS contact_name,\n  a.name AS account_name\nFROM\n  contacts c\nINNER JOIN\n  accounts a ON c.account_id = a.id;`} />
-        </div>
+         <Card>
+            <CardHeader>
+              <CardTitle>Querying Related Data: The SQL Way</CardTitle>
+              <CardDescription>
+                SQL requires an explicit <code>JOIN</code> clause to connect the `contacts` and `accounts` tables.
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <CodeBlock language="sql" code={`SELECT
+  c.name AS contact_name,
+  a.name AS account_name
+FROM
+  contacts c
+INNER JOIN
+  accounts a ON c.account_id = a.id;`} />
+            </CardContent>
+         </Card>
 
         <MCQ
           question="What is the main difference between how SOQL and SQL handle joins?"
