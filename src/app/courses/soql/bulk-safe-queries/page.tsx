@@ -27,9 +27,11 @@ List<Account> parentAccounts = new List<Account>();
 
 // BAD PRACTICE: Query inside a loop
 for (Contact c : contacts) {
-    Account acc = [SELECT Id, Name FROM Account WHERE Id = :c.AccountId];
+    <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>Account acc = [SELECT Id, Name FROM Account WHERE Id = :c.AccountId];</span>
     parentAccounts.add(acc);
-}`} />
+}`} 
+                tooltipContent="Placing a SOQL query inside a loop executes the query for every iteration, quickly consuming governor limits."
+                />
             </CardContent>
         </Card>
         

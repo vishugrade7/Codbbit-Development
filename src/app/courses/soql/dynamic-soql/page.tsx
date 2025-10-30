@@ -44,11 +44,13 @@ String queryString = 'SELECT Id, ' + fieldName +
                    ' WHERE ' + fieldName + ' = \\'' + sanitizedFilter + '\\'';
 
 // Execute the query
-List<sObject> records = Database.query(queryString);
+<span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>List<sObject> records = Database.query(queryString);</span>
 
 for (sObject rec : records) {
     System.debug('Found record with Id: ' + rec.Id);
-}`} />
+}`} 
+                tooltipContent="The Database.query() method executes a SOQL query string that is built at runtime."
+                />
             </CardContent>
         </Card>
       </section>

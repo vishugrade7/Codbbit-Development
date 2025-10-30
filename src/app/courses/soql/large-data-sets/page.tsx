@@ -24,14 +24,16 @@ export default function LargeDataSetsPage() {
             <CardContent>
                 <CodeBlock language="apex" code={`Integer totalRecords = 0;
 
-for (List<Account> accountBatch : [SELECT Id FROM Account]) {
+<span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>for (List<Account> accountBatch : [SELECT Id FROM Account]) {</span>
     for (Account acc : accountBatch) {
         // Process each record
         totalRecords++;
     }
 }
 
-System.debug('Processed ' + totalRecords + ' accounts.');`} />
+System.debug('Processed ' + totalRecords + ' accounts.');`}
+                tooltipContent="A SOQL For Loop iterates over the records returned by a SOQL query, retrieving them in batches to conserve memory."
+                 />
             </CardContent>
         </Card>
         

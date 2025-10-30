@@ -23,11 +23,13 @@ export default function QueryingCollectionsPage() {
                 <CardDescription>This is the most common use case. The query result is a `List` of sObjects.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CodeBlock language="apex" code={`List<Account> accounts = [SELECT Id, Name, Industry FROM Account];
+                <CodeBlock language="apex" code={`<span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>List<Account> accounts = [SELECT Id, Name, Industry FROM Account];</span>
 
 for (Account acc : accounts) {
     System.debug('Account Name: ' + acc.Name);
-}`} />
+}`} 
+                tooltipContent="A SOQL query can be directly assigned to a List of sObjects."
+                />
             </CardContent>
         </Card>
         
@@ -38,14 +40,16 @@ for (Account acc : accounts) {
             </CardHeader>
             <CardContent>
                 <CodeBlock language="apex" code={`// The query populates a Map where the key is the sObject's Id
-Map<Id, Account> accountMap = new Map<Id, Account>([SELECT Id, Name FROM Account WHERE Active__c = 'Yes']);
+<span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>Map<Id, Account> accountMap = new Map<Id, Account>([SELECT Id, Name FROM Account WHERE Active__c = 'Yes']);</span>
 
 // Now you can access an account directly if you have its Id
 Id anAccountId = '0015g00000kGABCXYZ'; 
 if (accountMap.containsKey(anAccountId)) {
     Account myAccount = accountMap.get(anAccountId);
     System.debug('Found Account: ' + myAccount.Name);
-}`} />
+}`} 
+                tooltipContent="A SOQL query can be used to construct a Map directly, where the map keys are the Ids of the queried sObjects."
+                />
                  <Alert variant="default" className="mt-4">
                   <Lightbulb className="h-4 w-4" />
                   <AlertTitle>Pro Tip</AlertTitle>

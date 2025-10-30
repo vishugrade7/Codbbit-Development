@@ -23,13 +23,15 @@ export default function EmbeddingSoqlPage() {
             </CardHeader>
             <CardContent>
                 <CodeBlock language="apex" code={`// Query for a list of records
-List<Account> accounts = [SELECT Id, Name FROM Account WHERE Industry = 'Technology'];
+<span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>List<Account> accounts = [SELECT Id, Name FROM Account WHERE Industry = 'Technology'];</span>
 
 // Query for a single record (throws an error if no records or more than one are found)
 Account singleAccount = [SELECT Id, Name FROM Account WHERE Name = 'Acme Corp' LIMIT 1];
 
 // You can also get an integer count directly
-Integer numberOfAccounts = [SELECT COUNT() FROM Account];`} />
+Integer numberOfAccounts = [SELECT COUNT() FROM Account];`} 
+                tooltipContent="Static SOQL queries are embedded directly in Apex code using square brackets []."
+                />
             </CardContent>
         </Card>
         
@@ -40,10 +42,12 @@ Integer numberOfAccounts = [SELECT COUNT() FROM Account];`} />
             </CardHeader>
             <CardContent>
                 <CodeBlock language="apex" code={`String industry = 'Energy';
-List<Account> energyAccounts = [SELECT Id, Name FROM Account WHERE Industry = :industry];
+List<Account> energyAccounts = [SELECT Id, Name FROM Account WHERE Industry = <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>:industry</span>];
 
 Set<Id> accountIds = new Set<Id>{'001...', '002...'};
-List<Contact> contacts = [SELECT Id, Name FROM Contact WHERE AccountId IN :accountIds];`} />
+List<Contact> contacts = [SELECT Id, Name FROM Contact WHERE AccountId IN <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>:accountIds</span>];`} 
+                tooltipContent="A bind variable is an Apex variable prefixed with a colon (:) used within a SOQL query to pass a value."
+                />
             </CardContent>
         </Card>
       </section>

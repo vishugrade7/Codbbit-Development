@@ -37,14 +37,16 @@ for (Account acc : accounts) {
             </CardHeader>
             <CardContent>
                  <CodeBlock language="apex" code={`// One query fetches all accounts and their related contacts
-List<Account> accountsWithContacts = [SELECT Name, (SELECT Name FROM Contacts) FROM Account LIMIT 10];
+<span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>List<Account> accountsWithContacts = [SELECT Name, (SELECT Name FROM Contacts) FROM Account LIMIT 10];</span>
 
 for (Account acc : accountsWithContacts) {
     System.debug('Account: ' + acc.Name);
     for (Contact c : acc.Contacts) {
         System.debug('  - Contact: ' + c.Name);
     }
-}`} />
+}`} 
+                tooltipContent="Using a subquery allows you to fetch related child records in a single, efficient database round-trip."
+                 />
             </CardContent>
         </Card>
       </section>
