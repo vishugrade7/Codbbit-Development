@@ -109,7 +109,11 @@ export default function ComparisonOperatorsPage() {
                 <CardDescription>Let's find all accounts with an annual revenue greater than or equal to $5,000,000 using the sample data below.</CardDescription>
             </CardHeader>
             <CardContent>
-                <CodeBlock language="sql" code="SELECT Name, AnnualRevenue FROM Account WHERE AnnualRevenue >= 5000000" />
+                <CodeBlock 
+                    language="sql" 
+                    code="SELECT Name, AnnualRevenue FROM Account WHERE AnnualRevenue <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>>=</span> 5000000"
+                    tooltipContent="Comparison operators like >= are used to filter records based on a condition."
+                />
                 <h4 className="font-semibold my-4">Expected Result:</h4>
                 <Table>
                     <TableHeader>

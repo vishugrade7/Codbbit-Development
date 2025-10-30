@@ -33,7 +33,7 @@ export default function InOperatorsPage() {
           <CardContent>
             <CodeBlock 
               language="sql" 
-              code={`SELECT Name, Industry FROM Account WHERE Industry <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>IN</span> ('Technology', 'Finance')`}
+              code="SELECT Name, Industry FROM Account WHERE Industry <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>IN</span> ('Technology', 'Finance')"
               tooltipContent="The IN operator checks if a field's value is present in a given list of values."
             />
              <h4 className="font-semibold my-4">Expected Result:</h4>
@@ -64,7 +64,7 @@ export default function InOperatorsPage() {
            <CardContent>
             <CodeBlock 
               language="sql" 
-              code={`SELECT Name, StageName FROM Opportunity WHERE StageName <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>NOT IN</span> ('Closed Won', 'Closed Lost')`}
+              code="SELECT Name, StageName FROM Opportunity WHERE StageName <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>NOT IN</span> ('Closed Won', 'Closed Lost')"
               tooltipContent="The NOT IN operator excludes records where a field's value is in a given list."
             />
           </CardContent>

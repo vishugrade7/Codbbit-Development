@@ -33,7 +33,7 @@ export default function NullValuesPage() {
             <p className="text-muted-foreground mb-4">This query finds all contacts that do not have an assigned account (i.e., they are private contacts or have not been associated with an Account record).</p>
             <CodeBlock 
               language="sql" 
-              code={`SELECT Name FROM Contact WHERE AccountId = <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>null</span>`}
+              code="SELECT Name FROM Contact WHERE AccountId = <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>null</span>"
               tooltipContent="Comparing a field to 'null' checks for the absence of a value."
             />
             <h4 className="font-semibold my-4">Expected Result from Sample Data:</h4>
@@ -57,7 +57,7 @@ export default function NullValuesPage() {
             <p className="text-muted-foreground mb-4">This query finds all opportunities that have a "Next Step" defined, helping sales reps focus on actionable items.</p>
             <CodeBlock 
               language="sql" 
-              code={`SELECT Name, NextStep FROM Opportunity WHERE NextStep != <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>null</span>`}
+              code="SELECT Name, NextStep FROM Opportunity WHERE NextStep != <span class='bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1'>null</span>"
               tooltipContent="Using '!= null' finds records where the field is populated."
             />
           </CardContent>
