@@ -114,6 +114,7 @@
         "id": { "type": "string" },
         "name": { "type": "string" },
         "description": { "type": "string" },
+        "isPublic": { "type": "boolean", "description": "Whether the sheet is visible to other users." },
         "questionIds": { "type": "array", "items": { "type": "string" } },
         "createdBy": { "type": "string", "description": "The UID of the user who created the sheet." },
         "followers": { "type": "number", "description": "Number of users following this sheet." }

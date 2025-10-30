@@ -51,7 +51,7 @@ export default function ProblemSheetsPage() {
 
     const my = allFilteredSheets.filter(sheet => sheet.createdBy === user?.uid);
     
-    const discover = allFilteredSheets.filter(sheet => !followedSheetIds.has(sheet.id) && sheet.createdBy !== user?.uid);
+    const discover = allFilteredSheets.filter(sheet => sheet.isPublic && !followedSheetIds.has(sheet.id) && sheet.createdBy !== user?.uid);
 
     return { mySheets: my, discoverSheets: discover };
 

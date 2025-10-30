@@ -33,6 +33,7 @@ export type ProblemSheet = {
   questionIds: string[];
   createdBy: string; // User ID
   followers: number;
+  isPublic?: boolean;
   // Not a stored field, dynamically calculated
   questions?: number;
 };

@@ -30,7 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FilePlus2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2 } from 'lucide-react';
+import { ArrowLeft, FilePlus2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2, Eye, EyeOff } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -38,6 +38,8 @@ import { v4 as uuidv4 } from 'uuid';
 import { ScrollArea } from './ui/scroll-area';
 import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Separator } from './ui/separator';
+import { Switch } from './ui/switch';
+import { Label } from './ui/label';
 
 type Category = {
   id: string;
@@ -61,6 +63,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
   const [difficultyFilter, setDifficultyFilter] = useState('All');
   const [selectedProblems, setSelectedProblems] = useState<Partial<Question>[]>([]);
   const [saveState, setSaveState] = useState<'idle' | 'saving' | 'saved'>('idle');
+  const [isPublic, setIsPublic] = useState(true);
 
   const isEditMode = useMemo(() => !!sheetId, [sheetId]);
 
@@ -94,6 +97,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
   useEffect(() => {
     if (isEditMode && existingSheet && allProblems.length > 0) {
         setSheetName(existingSheet.name);
+        setIsPublic(existingSheet.isPublic || false);
         const preselectedProblems = existingSheet.questionIds.map(id => 
             allProblems.find(p => (p.id || p.title) === id)
         ).filter((p): p is Partial<Question> => !!p);
@@ -142,6 +146,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
             const updatedSheet = {
                 ...existingSheet,
                 name: sheetName,
+                isPublic,
                 questionIds: selectedProblems.map(p => p.id as string),
             };
             setDocumentNonBlocking(sheetDocRef, updatedSheet, {});
@@ -151,6 +156,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
             const newSheet: ProblemSheet = {
                 id: newSheetId,
                 name: sheetName,
+                isPublic,
                 questionIds: selectedProblems.map(p => p.id as string),
                 createdBy: user.uid,
                 followers: 0,
@@ -282,12 +288,21 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                   )}
               </div>
         </div>
-        <Input
-            placeholder="Enter sheet name..."
-            className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-4xl font-bold font-headline tracking-tight p-0 h-auto"
-            value={sheetName}
-            onChange={e => setSheetName(e.target.value)}
-        />
+        <div className="flex items-center gap-4">
+          <Input
+              placeholder="Enter sheet name..."
+              className="border-0 focus-visible:ring-0 focus-visible:ring-offset-0 bg-transparent text-4xl font-bold font-headline tracking-tight p-0 h-auto"
+              value={sheetName}
+              onChange={e => setSheetName(e.target.value)}
+          />
+          <div className="flex items-center space-x-2">
+            <Switch id="is-public" checked={isPublic} onCheckedChange={setIsPublic} />
+            <Label htmlFor="is-public" className="flex items-center gap-2 cursor-pointer">
+              {isPublic ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
+              {isPublic ? 'Public' : 'Private'}
+            </Label>
+          </div>
+        </div>
         <p className="text-muted-foreground mt-1">
           {isEditMode ? 'Modify your custom problem sheet.' : 'Build a custom problem sheet to share with friends, for interviews, or for targeted practice.'}
         </p>
