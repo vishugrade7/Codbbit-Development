@@ -1,3 +1,4 @@
+
 'use client';
 
 import {
@@ -128,7 +129,7 @@ export default function SOQLLayout({
             <h2 className="text-lg font-bold mb-4 font-headline flex items-center gap-2 text-slate-700 dark:text-slate-200">
               <Link href="/courses/soql" className="flex items-center gap-2">
                 <Search className="h-5 w-5 text-blue-500" />
-                SOQL Course Index
+                SOQL crash course
               </Link>
             </h2>
             <Accordion type="multiple" defaultValue={soqlTopics.map(t => t.id)} className="w-full">
