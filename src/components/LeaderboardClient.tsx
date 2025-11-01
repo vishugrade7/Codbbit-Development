@@ -264,7 +264,7 @@ export function LeaderboardClient() {
 
             <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-end items-center mb-4 gap-4">
                         <TabsList>
                             <TabsTrigger value="global">Global</TabsTrigger>
                             <TabsTrigger value="country">By Country</TabsTrigger>
