@@ -264,28 +264,31 @@ export function LeaderboardClient() {
 
             <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="flex justify-end items-center mb-4 gap-4">
-                        <TabsList>
-                            <TabsTrigger value="global">Global</TabsTrigger>
-                            <TabsTrigger value="country">By Country</TabsTrigger>
-                            <TabsTrigger value="company">By Company</TabsTrigger>
-                        </TabsList>
-                        <div className="w-64">
-                            {activeTab === 'country' && (
-                                <Combobox 
-                                    options={countries}
-                                    value={countryFilter}
-                                    onValueChange={setCountryFilter}
-                                    placeholder="Select a country..."
-                                    searchPlaceholder="Search countries..."
+                    <div className="flex justify-between items-center mb-4">
+                        <div />
+                        <div className="flex items-center gap-4">
+                            <TabsList>
+                                <TabsTrigger value="global">Global</TabsTrigger>
+                                <TabsTrigger value="country">By Country</TabsTrigger>
+                                <TabsTrigger value="company">By Company</TabsTrigger>
+                            </TabsList>
+                            <div className="w-64">
+                                {activeTab === 'country' && (
+                                    <Combobox 
+                                        options={countries}
+                                        value={countryFilter}
+                                        onValueChange={setCountryFilter}
+                                        placeholder="Select a country..."
+                                        searchPlaceholder="Search countries..."
+                                    />
+                                )}
+                                {activeTab === 'company' && (
+                                <CompanyAutocomplete 
+                                        value={companyFilter}
+                                        onValueChange={setCompanyFilter}
                                 />
-                            )}
-                            {activeTab === 'company' && (
-                            <CompanyAutocomplete 
-                                    value={companyFilter}
-                                    onValueChange={setCompanyFilter}
-                            />
-                            )}
+                                )}
+                            </div>
                         </div>
                     </div>
                     <div className="relative min-h-[400px]">
