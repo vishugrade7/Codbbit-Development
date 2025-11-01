@@ -200,7 +200,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
 
   const handleSubmitCode = () => {
     startTransition(async () => {
-        if (!user || !userProfile?.sfdcAuth?.connected) {
+        if (!user || !userProfile?.sfdcAuth) {
             setShowAuthDialog(true);
             return;
         }

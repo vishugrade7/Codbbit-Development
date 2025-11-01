@@ -201,6 +201,10 @@ async function sfdcFetch(auth: SfdcAuth, path: string, options: RequestInit = {}
             errorMessage = 'An unknown Salesforce API error occurred.';
         }
         
+        if (response.status === 401) {
+            errorMessage = "Your Salesforce session has expired. Please reconnect.";
+        }
+
         throw new Error(errorMessage);
     }
     if (response.status === 204 || response.headers.get('Content-Length') === '0') {
@@ -518,7 +522,7 @@ async function salesforceExecuteTestClass(
 }
 
 export async function executeSalesforceCode(
-    auth: SfdcAuth,
+    initialAuth: SfdcAuth,
     code: string,
     executionType: 'anonymous' | 'class' | 'soql' | 'test class',
     testCode?: string,
@@ -526,7 +530,10 @@ export async function executeSalesforceCode(
     problem?: Partial<Question>
 ): Promise<{ success: boolean; result?: any; logs: string; error?: string; }> {
     try {
-        if (!auth || !auth.instanceUrl || !auth.accessToken) {
+        let auth = initialAuth;
+        if (userId) {
+            auth = await getSfdcConnection(userId);
+        } else if (!auth || !auth.instanceUrl || !auth.accessToken) {
              throw new Error('Salesforce credentials are not configured or are invalid.');
         }
 
