@@ -2,7 +2,6 @@
 
 'use server';
 
-import { doc, getDoc, updateDoc, deleteDoc } from 'firebase-admin/firestore';
 import { firestore } from '@/firebase/server-init';
 import type { UserProfile, SfdcAuth, Question } from '@/lib/types';
 import { getAuth } from 'firebase-admin/auth';
@@ -119,8 +118,8 @@ export async function initiateLinkedInOAuth(userId: string) {
 
 async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     const db = firestore;
-    const userDocRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userDocRef);
+    const userDocRef = db.doc(`users/${userId}`);
+    const userDoc = await userDocRef.get();
     const userData = userDoc.data() as UserProfile | undefined;
 
     if (!userDoc.exists() || !userData?.sfdcAuth?.refreshToken) {
@@ -155,7 +154,7 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
         if (!response.ok) {
             console.error("Failed to refresh Salesforce token, marking as disconnected.", data.error_description);
-            await updateDoc(userDocRef, { "sfdcAuth.connected": false });
+            await userDocRef.update({ "sfdcAuth.connected": false });
             throw new Error('Failed to refresh Salesforce token. Please reconnect.');
         }
         
@@ -167,7 +166,7 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
             ...(data.refresh_token && { refreshToken: data.refresh_token }),
         };
 
-        await updateDoc(userDocRef, { sfdcAuth: { ...auth, ...newAuth } });
+        await userDocRef.update({ sfdcAuth: { ...auth, ...newAuth } });
         auth = { ...auth, ...newAuth } as SfdcAuth;
     }
     
@@ -606,8 +605,8 @@ export async function deleteUserAccount(userId: string): Promise<{ success: bool
         await getAuth().deleteUser(userId);
 
         // Delete user document from Firestore
-        const userDocRef = firestore.collection('users').doc(userId);
-        await deleteDoc(userDocRef);
+        const userDocRef = firestore.doc(`users/${userId}`);
+        await userDocRef.delete();
 
         // Revalidate paths if needed, for example, the user's profile page
         // revalidatePath('/profile'); // This is client-side, would need to be handled differently
@@ -623,8 +622,8 @@ export async function deleteUserAccount(userId: string): Promise<{ success: bool
         } else if (error.code === 'auth/user-not-found') {
             // This can happen if the auth user was already deleted but firestore failed.
             // We can consider this a partial success, but we'll report an error for clarity.
-             const userDocRef = firestore.collection('users').doc(userId);
-             await deleteDoc(userDocRef);
+             const userDocRef = firestore.doc(`users/${userId}`);
+             await userDocRef.delete();
              return { success: true };
         }
         
@@ -655,8 +654,8 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
       status = statusRes.Status;
 
       if (status === 'SUCCESS') {
-        const userDocRef = firestore.collection('users').doc(userId);
-        await updateDoc(userDocRef, {
+        const userDocRef = firestore.doc(`users/${userId}`);
+        await userDocRef.update({
             lastPackageInstallDate: new Date().toISOString(),
         });
         return { success: true };
