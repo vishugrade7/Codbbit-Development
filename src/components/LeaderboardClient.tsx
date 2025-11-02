@@ -288,22 +288,22 @@ export function LeaderboardClient() {
                             <CardTitle>Your Rank</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center gap-4">
-                            <Avatar className="h-16 w-16">
-                                <AvatarImage src={currentUserData.avatarUrl} />
-                                <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
-                            </Avatar>
-                            <div className="flex-grow">
-                               <p className="font-bold text-lg">{currentUserData.name}</p>
-                               <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
-                                <div className="flex items-center gap-4 mt-2">
-                                  <div className="text-center">
-                                      <p className="text-2xl font-bold">{currentUserData.rank}</p>
-                                      <p className="text-xs text-muted-foreground">Rank</p>
-                                  </div>
-                                  <div className="text-center">
-                                      <p className="text-2xl font-bold">{currentUserData.points}</p>
-                                      <p className="text-xs text-muted-foreground">Points</p>
-                                  </div>
+                            <div className="flex flex-col items-center">
+                                <Avatar className="h-16 w-16 mb-2">
+                                    <AvatarImage src={currentUserData.avatarUrl} />
+                                    <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
+                                </Avatar>
+                                <p className="font-bold text-lg">{currentUserData.name}</p>
+                                <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
+                            </div>
+                            <div className="flex-grow flex justify-center gap-8">
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold">{currentUserData.rank}</p>
+                                    <p className="text-xs text-muted-foreground">Rank</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold">{currentUserData.points}</p>
+                                    <p className="text-xs text-muted-foreground">Points</p>
                                 </div>
                             </div>
                         </CardContent>
