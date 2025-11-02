@@ -252,31 +252,31 @@ export function LeaderboardClient() {
                   See how you rank against the top developers. Keep solving problems to climb up the ranks!
               </p>
             </div>
-             <div className="flex items-center gap-2 md:gap-4 flex-wrap">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList>
-                      <TabsTrigger value="global">Global</TabsTrigger>
-                      <TabsTrigger value="country">By Country</TabsTrigger>
-                      <TabsTrigger value="company">By Company</TabsTrigger>
-                  </TabsList>
-              </Tabs>
-              <div className="w-full sm:w-64">
-                  {activeTab === 'country' && (
-                      <Combobox 
-                          options={countries}
-                          value={countryFilter}
-                          onValueChange={setCountryFilter}
-                          placeholder="Select a country..."
-                          searchPlaceholder="Search countries..."
-                      />
-                  )}
-                  {activeTab === 'company' && (
-                  <CompanyAutocomplete 
-                          value={companyFilter}
-                          onValueChange={setCompanyFilter}
-                  />
-                  )}
-              </div>
+            <div className="flex flex-col gap-2">
+                 <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <TabsList>
+                        <TabsTrigger value="global">Global</TabsTrigger>
+                        <TabsTrigger value="country">By Country</TabsTrigger>
+                        <TabsTrigger value="company">By Company</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                <div className="w-full sm:w-64">
+                    {activeTab === 'country' && (
+                        <Combobox 
+                            options={countries}
+                            value={countryFilter}
+                            onValueChange={setCountryFilter}
+                            placeholder="Select a country..."
+                            searchPlaceholder="Search countries..."
+                        />
+                    )}
+                    {activeTab === 'company' && (
+                    <CompanyAutocomplete 
+                            value={companyFilter}
+                            onValueChange={setCompanyFilter}
+                    />
+                    )}
+                </div>
             </div>
         </div>
 
@@ -288,14 +288,10 @@ export function LeaderboardClient() {
                             <CardTitle>Your Rank</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center gap-4">
-                            <Avatar className="h-16 w-16">
+                             <Avatar className="h-16 w-16">
                                 <AvatarImage src={currentUserData.avatarUrl} />
                                 <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
                             </Avatar>
-                            <div className="flex-grow">
-                                <p className="font-bold text-lg">{currentUserData.name}</p>
-                                <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
-                            </div>
                             <div className="flex-grow flex justify-center gap-8">
                                 <div className="text-center">
                                     <p className="text-3xl font-bold">{currentUserData.rank}</p>
