@@ -252,7 +252,7 @@ export function LeaderboardClient() {
                   See how you rank against the top developers. Keep solving problems to climb up the ranks!
               </p>
             </div>
-            <div className="flex flex-col gap-2">
+            <div className="flex flex-col items-start md:items-end gap-2">
                  <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <TabsList>
                         <TabsTrigger value="global">Global</TabsTrigger>
@@ -292,6 +292,10 @@ export function LeaderboardClient() {
                                 <AvatarImage src={currentUserData.avatarUrl} />
                                 <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
                             </Avatar>
+                            <div>
+                                <h3 className="font-semibold text-lg">{currentUserData.name}</h3>
+                                <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
+                            </div>
                             <div className="flex-grow flex justify-center gap-8">
                                 <div className="text-center">
                                     <p className="text-3xl font-bold">{currentUserData.rank}</p>
