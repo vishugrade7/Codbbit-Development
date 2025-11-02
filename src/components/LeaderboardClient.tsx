@@ -4,7 +4,7 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, limit, startAfter, getDocs, endBefore, limitToLast, where, Query, DocumentData } from 'firebase/firestore';
-import type { UserProfile } from '@/lib/types';
+import type { UserProfile, Question } from '@/lib/types';
 import { Trophy, Search } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -21,6 +21,9 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/t
 import Link from 'next/link';
 import Image from 'next/image';
 import { ScrollArea } from './ui/scroll-area';
+import { Badge } from './ui/badge';
+import { cn } from '@/lib/utils';
+import { Button } from './ui/button';
 
 const PAGE_SIZE = 20;
 
@@ -66,7 +69,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
     return (
         <Card>
             <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-400px)]">
+              <ScrollArea className="h-[calc(100vh-250px)]">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -116,7 +119,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                 </div>
                             </TableCell>
                             <TableCell>
-                                {user.company ? (
+                                {user.company && user.company !== 'N/A' ? (
                                     <div className="flex items-center gap-2">
                                         <Avatar className="h-6 w-6">
                                             <AvatarImage src={getCompanyLogoUrl(user.company)} />
@@ -128,7 +131,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                             </TableCell>
                             <TableCell>
                                 <div className="flex items-center gap-2">
-                                    <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />
+                                    {user.country && <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />}
                                     {countryMap.get(user.country) || user.country}
                                 </div>
                             </TableCell>
@@ -140,6 +143,44 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                     </TableBody>
                 </Table>
               </ScrollArea>
+            </CardContent>
+        </Card>
+    )
+}
+
+const getDifficultyDotClass = (difficulty: string | undefined) => {
+    switch (difficulty) {
+      case 'Easy':
+        return 'bg-green-500';
+      case 'Medium':
+        return 'bg-yellow-500';
+      case 'Hard':
+        return 'bg-red-500';
+      default:
+        return 'bg-gray-400';
+    }
+};
+
+function SolveToRankUp({ unsolvedProblems }: { unsolvedProblems: Partial<Question>[] }) {
+    return (
+        <Card>
+            <CardHeader>
+                <CardTitle>Solve to Rank Up</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="space-y-2">
+                    {unsolvedProblems.slice(0, 5).map((problem, index) => (
+                        <Link key={problem.id || index} href={`/problems/${problem.category}/${problem.id || problem.title}`}>
+                            <div className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                                <p className="text-sm font-medium">{problem.title}</p>
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center text-xs">
+                                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                  {problem.difficulty}
+                                </Badge>
+                            </div>
+                        </Link>
+                    ))}
+                </div>
             </CardContent>
         </Card>
     )
@@ -161,6 +202,14 @@ export function LeaderboardClient() {
 
   const { data: allUsers, isLoading } = useCollection<UserProfile>(usersCollectionRef);
 
+  const problemsCollectionRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return collection(firestore, 'problems');
+  }, [firestore]);
+
+  const { data: categoriesData } = useCollection<{id: string, Questions: Partial<Question>[]}>(problemsCollectionRef);
+
+
   useEffect(() => {
     // Reset page when filters change
     setCurrentPage(1);
@@ -181,6 +230,21 @@ export function LeaderboardClient() {
     return users;
   }, [allUsers, activeTab, countryFilter, companyFilter]);
 
+  const unsolvedProblems = useMemo(() => {
+    if (!categoriesData || !allUsers) return [];
+
+    const currentUserProfile = allUsers.find(u => u.uid === currentUser?.uid);
+    if (!currentUserProfile) return [];
+
+    const allProblems = categoriesData.flatMap(cat => 
+        (cat.Questions || []).map(q => ({...q, category: cat.id, id: q.id || q.title }))
+    );
+    
+    const solvedProblemIds = new Set(Object.keys(currentUserProfile.solvedProblems || {}));
+
+    return allProblems.filter(problem => !solvedProblemIds.has(problem.id!));
+  }, [categoriesData, allUsers, currentUser]);
+
   const totalUsers = filteredUsers.length;
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
 
@@ -192,7 +256,6 @@ export function LeaderboardClient() {
 
   const rankedUsers = useMemo(() => {
     if (!paginatedUsers) return [];
-    // The rank needs to be based on the index within the *filtered* list, not just the paginated one
     const nonAdminUsers = allUsers?.filter(u => !u.isAdmin) || [];
     return paginatedUsers.map((user) => {
         const overallRank = nonAdminUsers.findIndex(u => u.uid === user.uid) + 1;
@@ -226,15 +289,43 @@ export function LeaderboardClient() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-        <header className="mb-8">
-            <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
-            <p className="text-muted-foreground mt-1 max-w-lg">
-                See how you rank against the top developers. Keep solving problems to climb up the ranks!
-            </p>
+        <header className="mb-8 flex justify-between items-start">
+            <div>
+              <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
+              <p className="text-muted-foreground mt-1 max-w-lg">
+                  See how you rank against the top developers. Keep solving problems to climb up the ranks!
+              </p>
+            </div>
+             <div className="flex items-center gap-4">
+                 <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <TabsList>
+                        <TabsTrigger value="global">Global</TabsTrigger>
+                        <TabsTrigger value="country">By Country</TabsTrigger>
+                        <TabsTrigger value="company">By Company</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                <div className="w-64">
+                    {activeTab === 'country' && (
+                        <Combobox 
+                            options={countries}
+                            value={countryFilter}
+                            onValueChange={setCountryFilter}
+                            placeholder="Select a country..."
+                            searchPlaceholder="Search countries..."
+                        />
+                    )}
+                    {activeTab === 'company' && (
+                    <CompanyAutocomplete 
+                            value={companyFilter}
+                            onValueChange={setCompanyFilter}
+                    />
+                    )}
+                </div>
+            </div>
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-8">
                 {currentUserRank && (
                     <Card className="bg-muted/30 overflow-hidden sticky top-24">
                         <CardHeader>
@@ -263,34 +354,11 @@ export function LeaderboardClient() {
                         </CardContent>
                     </Card>
                 )}
+                <SolveToRankUp unsolvedProblems={unsolvedProblems} />
             </div>
 
             <div className="lg:col-span-2">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="flex justify-between items-center mb-4">
-                         <TabsList>
-                            <TabsTrigger value="global">Global</TabsTrigger>
-                            <TabsTrigger value="country">By Country</TabsTrigger>
-                            <TabsTrigger value="company">By Company</TabsTrigger>
-                        </TabsList>
-                        <div className="w-64">
-                            {activeTab === 'country' && (
-                                <Combobox 
-                                    options={countries}
-                                    value={countryFilter}
-                                    onValueChange={setCountryFilter}
-                                    placeholder="Select a country..."
-                                    searchPlaceholder="Search countries..."
-                                />
-                            )}
-                            {activeTab === 'company' && (
-                            <CompanyAutocomplete 
-                                    value={companyFilter}
-                                    onValueChange={setCompanyFilter}
-                            />
-                            )}
-                        </div>
-                    </div>
+                
                     <div className="relative min-h-[400px]">
                         {isLoading && (
                             <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
@@ -306,7 +374,6 @@ export function LeaderboardClient() {
                             onPageChange={handlePageChange}
                         />
                     </div>
-                </Tabs>
             </div>
         </div>
     </div>
