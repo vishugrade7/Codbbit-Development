@@ -65,7 +65,7 @@ const getDifficultyDotClass = (difficulty: string | undefined) => {
 function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (UserProfile & { rank: number })[], currentUserUid?: string, page: number, pageSize: number }) {
     if (!users || users.length === 0) {
         return (
-            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                 <Search className="h-12 w-12 mb-4" />
                 <h3 className="text-lg font-semibold">No Users Found</h3>
                 <p className="text-sm">No users match the current filter criteria.</p>
@@ -253,11 +253,11 @@ export function LeaderboardClient() {
               </p>
             </div>
             <div className="flex items-center gap-2 md:gap-4 flex-wrap">
-              <Tabs value={activeTab} onValueChange={setActiveTab}>
-                  <TabsList>
-                      <TabsTrigger value="global">Global</TabsTrigger>
-                      <TabsTrigger value="country">By Country</TabsTrigger>
-                      <TabsTrigger value="company">By Company</TabsTrigger>
+              <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-muted p-1 rounded-full">
+                  <TabsList className="bg-transparent p-0">
+                      <TabsTrigger value="global" className="rounded-full">Global</TabsTrigger>
+                      <TabsTrigger value="country" className="rounded-full">By Country</TabsTrigger>
+                      <TabsTrigger value="company" className="rounded-full">By Company</TabsTrigger>
                   </TabsList>
               </Tabs>
               <div className="w-full sm:w-64">
@@ -287,21 +287,23 @@ export function LeaderboardClient() {
                         <CardHeader>
                             <CardTitle>Your Rank</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex flex-col items-center text-center">
-                            <Avatar className="h-24 w-24 mb-4">
+                        <CardContent className="flex items-center gap-4">
+                            <Avatar className="h-16 w-16">
                                 <AvatarImage src={currentUserData.avatarUrl} />
                                 <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
                             </Avatar>
-                            <p className="font-bold text-lg">{currentUserData.name}</p>
-                            <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
-                            <div className="flex items-center gap-8 mt-4">
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold">{currentUserData.rank}</p>
-                                    <p className="text-xs text-muted-foreground">Rank</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold">{currentUserData.points}</p>
-                                    <p className="text-xs text-muted-foreground">Points</p>
+                            <div className="flex-grow">
+                               <p className="font-bold text-lg">{currentUserData.name}</p>
+                               <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
+                                <div className="flex items-center gap-4 mt-2">
+                                  <div className="text-center">
+                                      <p className="text-2xl font-bold">{currentUserData.rank}</p>
+                                      <p className="text-xs text-muted-foreground">Rank</p>
+                                  </div>
+                                  <div className="text-center">
+                                      <p className="text-2xl font-bold">{currentUserData.points}</p>
+                                      <p className="text-xs text-muted-foreground">Points</p>
+                                  </div>
                                 </div>
                             </div>
                         </CardContent>
