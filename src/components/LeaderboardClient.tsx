@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { UserProfile, Question } from '@/lib/types';
-import { Trophy, Search, ChevronRight, BarChartHorizontal, CheckCircle, Tag, List } from 'lucide-react';
+import { Trophy, Search, ChevronRight, BarChartHorizontal, CheckCircle, Tag, List, Filter } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -84,10 +84,10 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="w-20 text-center">Rank</TableHead>
+                            <TableHead className="w-16 text-center">Rank</TableHead>
                             <TableHead>User</TableHead>
-                            <TableHead>Company</TableHead>
-                            <TableHead>Country</TableHead>
+                            <TableHead className="hidden md:table-cell">Company</TableHead>
+                            <TableHead className="hidden lg:table-cell">Country</TableHead>
                             <TableHead className="text-right">Points</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -127,7 +127,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                     )}
                                 </div>
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden md:table-cell">
                                 {user.company && user.company !== 'N/A' ? (
                                     <div className="flex items-center gap-2">
                                         <Avatar className="h-6 w-6">
@@ -138,7 +138,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                     </div>
                                 ) : 'N/A'}
                             </TableCell>
-                            <TableCell>
+                            <TableCell className="hidden lg:table-cell">
                                 <div className="flex items-center gap-2">
                                     {user.country && <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />}
                                     {countryMap.get(user.country) || user.country}
@@ -245,14 +245,14 @@ export function LeaderboardClient() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-8 flex items-start justify-between">
+        <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
             <div>
               <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
               <p className="text-muted-foreground mt-1 max-w-lg">
                   See how you rank against the top developers. Keep solving problems to climb up the ranks!
               </p>
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 md:gap-4 flex-wrap">
               <Tabs value={activeTab} onValueChange={setActiveTab}>
                   <TabsList>
                       <TabsTrigger value="global">Global</TabsTrigger>
@@ -260,7 +260,7 @@ export function LeaderboardClient() {
                       <TabsTrigger value="company">By Company</TabsTrigger>
                   </TabsList>
               </Tabs>
-              <div className="w-64">
+              <div className="w-full sm:w-64">
                   {activeTab === 'country' && (
                       <Combobox 
                           options={countries}
