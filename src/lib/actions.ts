@@ -433,7 +433,7 @@ async function salesforceExecuteTestClass(
   problem: Partial<Question>
 ): Promise<{ success: boolean; logs: string; error?: string }> {
 
-  const auth = creds;
+  let auth = creds;
   if (!auth.instanceUrl || !auth.accessToken) {
     return { success: false, logs: "", error: "Salesforce credentials not set." };
   }
@@ -452,6 +452,7 @@ async function salesforceExecuteTestClass(
   }
 
   try {
+    auth = await getSfdcConnection(userId);
     // 1. Upload main Apex class or trigger
     if (userObjectType === 'Class') {
         await upsertApexClass(auth, userObjectName, sanitizedUserCode);
