@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
@@ -15,7 +16,7 @@ import {
   ResizableHandle,
   type PanelGroup,
 } from "@/components/ui/resizable";
-import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText, AlertTriangle, Lock } from "lucide-react";
+import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText, AlertTriangle } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   Sheet,
@@ -114,7 +115,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   const [resultsPanelSize, setResultsPanelSize] = useState(5);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
-  const [isSessionExpired, setIsSessionExpired] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
@@ -139,13 +139,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     // Reset output when question changes
     setOutput(null);
   }, [question.id, setOutput]);
-
-  useEffect(() => {
-    if (userProfile?.sfdcAuth) {
-      const { connected } = userProfile.sfdcAuth;
-      setIsSessionExpired(!connected);
-    }
-  }, [userProfile]);
 
   const toggleResultsPanel = (expand?: boolean) => {
     const isMinimized = resultsPanelSize < 10;
@@ -207,7 +200,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
 
   const handleSubmitCode = () => {
     startTransition(async () => {
-        if (!user || !userProfile?.sfdcAuth || !userProfile.sfdcAuth.connected) {
+        if (!user || !userProfile?.sfdcAuth?.connected) {
             setShowAuthDialog(true);
             return;
         }
@@ -223,8 +216,10 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
-            if (result.error === 'Your Salesforce session has expired. Please reconnect.') {
+            if (result.error?.includes('Failed to refresh Salesforce token')) {
                 setShowAuthDialog(true);
+                setOutput({ success: false, logs: "", error: "Your Salesforce session has expired. Please reconnect." });
+                return;
             }
 
             setOutput(result);
@@ -285,6 +280,8 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                         setDocumentNonBlocking(userDocRef, updatedProfile, { merge: true });
                     }
                 }
+            } else {
+                 // No need to throw an error here, just let the UI display the failure.
             }
 
         } catch (e: any) {
@@ -300,19 +297,11 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     if (classMatch && classMatch[1]) {
         return { name: classMatch[1], type: 'Class' };
     }
-
-    // Look for '@isTest class MyTestClassName'
-    const testClassMatch = code.match(/@isTest\s+(?:private|public|global)?\s+class\s+([a-zA-Z0-9_]+)/);
-    if (testClassMatch && testClassMatch[1]) {
-        return { name: testClassMatch[1], type: 'Class' };
-    }
-    
     // Look for 'trigger MyTriggerName on ObjectName'
     const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on\s+([a-zA-Z0-9_]+)/);
     if (triggerMatch && triggerMatch[1]) {
         return { name: triggerMatch[1], type: 'Trigger' };
     }
-    
     return { name: undefined, type: undefined };
   }
 
@@ -407,7 +396,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowAuthDialog(false)}>Cancel</Button>
-                <Button onClick={handleAuthWithSalesforce}>Reconnect</Button>
+                <Button onClick={handleAuthWithSalesforce}>Connect</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
@@ -420,21 +409,13 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             }}
         >
             <ResizablePanel defaultSize={95} minSize={20}>
-                <div className="h-full w-full relative">
-                    {isSessionExpired && (
-                      <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
-                          <Lock className="h-12 w-12 text-muted-foreground" />
-                          <h3 className="text-xl font-semibold">Salesforce Session Expired</h3>
-                          <p className="text-muted-foreground">Please reconnect to continue.</p>
-                          <Button onClick={handleAuthWithSalesforce}>Reconnect Salesforce</Button>
-                      </div>
-                    )}
+                <div className="h-full w-full">
                     <CodeEditor
                         value={code}
                         onChange={(v) => setCode(v || '')}
                         language="apex"
                         theme={editorTheme}
-                        options={{ fontSize, readOnly: isSessionExpired }}
+                        options={{ fontSize }}
                     />
                 </div>
             </ResizablePanel>

@@ -3,31 +3,25 @@
 
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
-import { collection, query, orderBy } from 'firebase/firestore';
-import type { UserProfile, Question } from '@/lib/types';
-import { Trophy, Search, ChevronRight, BarChartHorizontal, CheckCircle, Tag, List, Filter, Check, Bookmark, FileText } from 'lucide-react';
+import { collection, query, orderBy, limit, startAfter, getDocs, endBefore, limitToLast, where, Query, DocumentData } from 'firebase/firestore';
+import type { UserProfile } from '@/lib/types';
+import { Trophy, Search } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
 import { PaginationComponent } from '@/components/ui/pagination';
 import { VerifiedBadge } from './VerifiedBadge';
 import { countries } from '@/lib/countries';
 import { Combobox } from './ui/combobox';
 import { CompanyAutocomplete } from './CompanyAutocomplete';
+import { useDebounce } from '@/hooks/use-debounce';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import Link from 'next/link';
 import Image from 'next/image';
-import { ScrollArea } from './ui/scroll-area';
-import { Input } from './ui/input';
-import { Button } from './ui/button';
-import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
-import { Separator } from './ui/separator';
-import { cn } from '@/lib/utils';
-import { Badge } from './ui/badge';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 20;
 
 const countryMap = new Map(countries.map(c => [c.value, c.label]));
 
@@ -50,22 +44,13 @@ function RankMedal({ rank }: { rank: number }) {
   if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500 fill-yellow-500" />;
   if (rank === 2) return <Trophy className="h-6 w-6 text-gray-400 fill-gray-400" />;
   if (rank === 3) return <Trophy className="h-6 w-6 text-orange-600 fill-orange-600" />;
-  return <span className="text-muted-foreground font-medium text-center w-6">{rank}</span>;
+  return <span className="text-muted-foreground font-medium">{rank}</span>;
 }
-
-const getDifficultyDotClass = (difficulty: string | undefined) => {
-    switch (difficulty) {
-        case 'Easy': return 'bg-green-500';
-        case 'Medium': return 'bg-yellow-500';
-        case 'Hard': return 'bg-red-500';
-        default: return 'bg-gray-400';
-    }
-};
 
 function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (UserProfile & { rank: number })[], currentUserUid?: string, page: number, pageSize: number }) {
     if (!users || users.length === 0) {
         return (
-             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
+            <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                 <Search className="h-12 w-12 mb-4" />
                 <h3 className="text-lg font-semibold">No Users Found</h3>
                 <p className="text-sm">No users match the current filter criteria.</p>
@@ -80,14 +65,13 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
     return (
         <Card>
             <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-250px)]">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
-                            <TableHead className="w-16 text-center">Rank</TableHead>
+                            <TableHead className="w-20 text-center">Rank</TableHead>
                             <TableHead>User</TableHead>
-                            <TableHead className="hidden md:table-cell">Company</TableHead>
-                            <TableHead className="hidden lg:table-cell">Country</TableHead>
+                            <TableHead>Company</TableHead>
+                            <TableHead>Country</TableHead>
                             <TableHead className="text-right">Points</TableHead>
                         </TableRow>
                     </TableHeader>
@@ -101,10 +85,24 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                             </TableCell>
                             <TableCell>
                                 <div className="flex items-center gap-3">
-                                    <Avatar>
-                                        <AvatarImage src={user.avatarUrl} />
-                                        <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                                    </Avatar>
+                                    <div className="relative">
+                                        <Avatar>
+                                            <AvatarImage src={user.avatarUrl} />
+                                            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                                        </Avatar>
+                                        {isUserVerified(user) && (
+                                            <TooltipProvider>
+                                                <Tooltip>
+                                                    <TooltipTrigger>
+                                                        <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
+                                                    </TooltipTrigger>
+                                                    <TooltipContent>
+                                                        <p>Verified</p>
+                                                    </TooltipContent>
+                                                </Tooltip>
+                                            </TooltipProvider>
+                                        )}
+                                    </div>
                                     <Link href={`/${user.username}`} className="hover:underline">
                                       <div>
                                           <div className="font-medium">{user.name}</div>
@@ -113,22 +111,10 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                           </span>
                                       </div>
                                     </Link>
-                                    {isUserVerified(user) && (
-                                        <TooltipProvider>
-                                            <Tooltip>
-                                                <TooltipTrigger>
-                                                    <VerifiedBadge />
-                                                </TooltipTrigger>
-                                                <TooltipContent>
-                                                    <p>Verified</p>
-                                                </TooltipContent>
-                                            </Tooltip>
-                                        </TooltipProvider>
-                                    )}
                                 </div>
                             </TableCell>
-                            <TableCell className="hidden md:table-cell">
-                                {user.company && user.company !== 'N/A' ? (
+                            <TableCell>
+                                {user.company ? (
                                     <div className="flex items-center gap-2">
                                         <Avatar className="h-6 w-6">
                                             <AvatarImage src={getCompanyLogoUrl(user.company)} />
@@ -138,9 +124,9 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                                     </div>
                                 ) : 'N/A'}
                             </TableCell>
-                            <TableCell className="hidden lg:table-cell">
+                            <TableCell>
                                 <div className="flex items-center gap-2">
-                                    {user.country && <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />}
+                                    <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />
                                     {countryMap.get(user.country) || user.country}
                                 </div>
                             </TableCell>
@@ -151,7 +137,6 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                         ))}
                     </TableBody>
                 </Table>
-              </ScrollArea>
             </CardContent>
         </Card>
     )
@@ -178,19 +163,10 @@ export function LeaderboardClient() {
     setCurrentPage(1);
   }, [activeTab, countryFilter, companyFilter]);
 
-  const { filteredUsers, currentUserData } = useMemo(() => {
-    if (!allUsers) return { filteredUsers: [], currentUserData: null };
+  const filteredUsers = useMemo(() => {
+    if (!allUsers) return [];
     
     let users = allUsers.filter(user => !user.isAdmin);
-    let currentUserData = null;
-
-    if (currentUser) {
-        const rank = users.findIndex(u => u.uid === currentUser.uid) + 1;
-        const profile = users.find(u => u.uid === currentUser.uid);
-        if (profile) {
-            currentUserData = { ...profile, rank };
-        }
-    }
 
     if (activeTab === 'country' && countryFilter) {
       users = users.filter(user => user.country === countryFilter);
@@ -199,8 +175,8 @@ export function LeaderboardClient() {
       users = users.filter(user => user.company === companyFilter);
     }
     
-    return { filteredUsers: users, currentUserData };
-  }, [allUsers, activeTab, countryFilter, companyFilter, currentUser]);
+    return users;
+  }, [allUsers, activeTab, countryFilter, companyFilter]);
 
   const totalUsers = filteredUsers.length;
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
@@ -213,26 +189,28 @@ export function LeaderboardClient() {
 
   const rankedUsers = useMemo(() => {
     if (!paginatedUsers) return [];
-    return paginatedUsers.map((user, index) => {
-        const overallRank = filteredUsers.findIndex(u => u.uid === user.uid) + 1;
+    // The rank needs to be based on the index within the *filtered* list, not just the paginated one
+    const nonAdminUsers = allUsers?.filter(u => !u.isAdmin) || [];
+    return paginatedUsers.map((user) => {
+        const overallRank = nonAdminUsers.findIndex(u => u.uid === user.uid) + 1;
         return { ...user, rank: overallRank };
     });
-  }, [paginatedUsers, filteredUsers]);
+  }, [paginatedUsers, allUsers]);
   
+  const currentUserRank = useMemo(() => {
+      if (!currentUser || !allUsers) return null;
+      const nonAdminUsers = allUsers.filter(u => !u.isAdmin);
+      const userIndex = nonAdminUsers.findIndex(u => u.uid === currentUser.uid);
+      if (userIndex === -1) return null;
+      const userRankData = nonAdminUsers[userIndex];
+      return { ...userRankData, rank: userIndex + 1 };
+  }, [currentUser, allUsers]);
   
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
         setCurrentPage(page);
     }
   }
-
-  const problemsToRankUp: (Partial<Question> & { points: number })[] = [
-    { title: "Add and Remove Elements from List", difficulty: "Easy", points: 10 },
-    { title: "Merge Account Lists Without Duplicates", difficulty: "Medium", points: 20 },
-    { title: "Sort Integers Descending", difficulty: "Easy", points: 10 },
-    { title: "Remove Duplicate Strings from List", difficulty: "Easy", points: 10 },
-    { title: "Convert List of Ids to Set", difficulty: "Easy", points: 10 },
-  ];
 
 
   if (isLoading && !allUsers) {
@@ -245,104 +223,89 @@ export function LeaderboardClient() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-        <div className="mb-8 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
-            <div>
-              <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
-              <p className="text-muted-foreground mt-1 max-w-lg">
-                  See how you rank against the top developers. Keep solving problems to climb up the ranks!
-              </p>
-            </div>
-            <div className="flex flex-col items-start md:items-end gap-2">
-                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList>
-                        <TabsTrigger value="global">Global</TabsTrigger>
-                        <TabsTrigger value="country">By Country</TabsTrigger>
-                        <TabsTrigger value="company">By Company</TabsTrigger>
-                    </TabsList>
-                </Tabs>
-                <div className="w-full sm:w-64">
-                    {activeTab === 'country' && (
-                        <Combobox 
-                            options={countries}
-                            value={countryFilter}
-                            onValueChange={setCountryFilter}
-                            placeholder="Select a country..."
-                            searchPlaceholder="Search countries..."
-                        />
-                    )}
-                    {activeTab === 'company' && (
-                    <CompanyAutocomplete 
-                            value={companyFilter}
-                            onValueChange={setCompanyFilter}
-                    />
-                    )}
-                </div>
-            </div>
-        </div>
+        <header className="mb-8">
+            <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
+            <p className="text-muted-foreground mt-1 max-w-lg">
+                See how you rank against the top developers. Keep solving problems to climb up the ranks!
+            </p>
+        </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1 space-y-8">
-                {currentUserData && (
-                     <Card>
+            <div className="lg:col-span-1">
+                {currentUserRank && (
+                    <Card className="bg-muted/30 overflow-hidden sticky top-24">
                         <CardHeader>
                             <CardTitle>Your Rank</CardTitle>
                         </CardHeader>
-                        <CardContent className="flex items-center gap-4">
-                             <Avatar className="h-16 w-16">
-                                <AvatarImage src={currentUserData.avatarUrl} />
-                                <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
-                            </Avatar>
-                            <div>
-                                <h3 className="font-semibold text-lg">{currentUserData.name}</h3>
-                                <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
+                        <CardContent className="p-4 flex flex-col items-center text-center">
+                            <div className="relative">
+                                <Avatar className="h-24 w-24 mb-4">
+                                    <AvatarImage src={currentUserRank.avatarUrl} />
+                                    <AvatarFallback>{getInitials(currentUserRank.name)}</AvatarFallback>
+                                </Avatar>
                             </div>
-                            <div className="flex-grow flex justify-center gap-8">
+                            <p className="font-semibold text-xl">{currentUserRank.name}</p>
+                            <p className="text-sm text-muted-foreground">@{currentUserRank.username}</p>
+                            
+                            <div className="flex items-center gap-8 mt-6">
                                 <div className="text-center">
-                                    <p className="text-3xl font-bold">{currentUserData.rank}</p>
+                                    <p className="text-3xl font-bold">{currentUserRank.rank}</p>
                                     <p className="text-xs text-muted-foreground">Rank</p>
                                 </div>
                                 <div className="text-center">
-                                    <p className="text-3xl font-bold">{currentUserData.points}</p>
+                                    <p className="text-3xl font-bold">{currentUserRank.points}</p>
                                     <p className="text-xs text-muted-foreground">Points</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
                 )}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Solve to rank Up</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ul className="space-y-2">
-                            {problemsToRankUp.map((problem) => (
-                                <li key={problem.title} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50">
-                                    <span>{problem.title}</span>
-                                     <div className="flex items-center gap-4">
-                                        <Badge variant="secondary" className="font-mono">{problem.points} pts</Badge>
-                                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                            {problem.difficulty}
-                                        </Badge>
-                                     </div>
-                                </li>
-                            ))}
-                        </ul>
-                    </CardContent>
-                </Card>
             </div>
+
             <div className="lg:col-span-2">
-                <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
-                 <div className="mt-4 flex justify-center">
-                    <PaginationComponent 
-                        currentPage={currentPage}
-                        totalPages={totalPages}
-                        onPageChange={handlePageChange}
-                    />
-                </div>
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <div className="flex justify-between items-center mb-4">
+                        <TabsList>
+                            <TabsTrigger value="global">Global</TabsTrigger>
+                            <TabsTrigger value="country">By Country</TabsTrigger>
+                            <TabsTrigger value="company">By Company</TabsTrigger>
+                        </TabsList>
+                        <div className="w-64">
+                            {activeTab === 'country' && (
+                                <Combobox 
+                                    options={countries}
+                                    value={countryFilter}
+                                    onValueChange={setCountryFilter}
+                                    placeholder="Select a country..."
+                                    searchPlaceholder="Search countries..."
+                                />
+                            )}
+                            {activeTab === 'company' && (
+                            <CompanyAutocomplete 
+                                    value={companyFilter}
+                                    onValueChange={setCompanyFilter}
+                            />
+                            )}
+                        </div>
+                    </div>
+                    <div className="relative min-h-[400px]">
+                        {isLoading && (
+                            <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+                                <HashLoader color="#456eff" />
+                            </div>
+                        )}
+                        <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
+                    </div>
+                    <div className="mt-4 flex justify-center">
+                        <PaginationComponent 
+                            currentPage={currentPage}
+                            totalPages={totalPages}
+                            onPageChange={handlePageChange}
+                        />
+                    </div>
+                </Tabs>
             </div>
         </div>
-        
     </div>
   );
 }
