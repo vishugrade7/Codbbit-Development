@@ -54,12 +54,12 @@ export default function CoursesPage() {
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {allCourses.map(course => (
                             <Link key={course.id} href={`/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
-                                <Card className="h-full transition-colors duration-300 ease-in-out hover:bg-gradient-to-br hover:from-blue-100 hover:to-indigo-200 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50">
+                                <Card className="h-full transition-colors duration-300 ease-in-out hover:bg-gradient-to-br hover:from-green-100 hover:to-teal-200 dark:hover:from-green-900/50 dark:hover:to-teal-900/50">
                                 <CardHeader className="flex flex-row items-center justify-between p-4">
                                     <CardTitle className="text-lg flex items-center gap-2"><Search className="h-5 w-5 text-primary" /> {course.title}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-4 pt-0">
-                                    <p className="text-sm text-muted-foreground line-clamp-3 h-16">{course.description}</p>
+                                    <p className="text-sm text-muted-foreground line-clamp-4 h-20">{course.description}</p>
                                 </CardContent>
                                 </Card>
                             </Link>
