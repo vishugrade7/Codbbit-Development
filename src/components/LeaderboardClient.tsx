@@ -69,7 +69,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
     return (
         <Card>
             <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-250px)]">
+              <ScrollArea className="h-[calc(100vh-350px)]">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -289,40 +289,40 @@ export function LeaderboardClient() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-        <header className="mb-8 flex justify-between items-start">
+        <header className="mb-8">
             <div>
               <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
               <p className="text-muted-foreground mt-1 max-w-lg">
                   See how you rank against the top developers. Keep solving problems to climb up the ranks!
               </p>
             </div>
-             <div className="flex items-center gap-4">
-                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <TabsList>
-                        <TabsTrigger value="global">Global</TabsTrigger>
-                        <TabsTrigger value="country">By Country</TabsTrigger>
-                        <TabsTrigger value="company">By Company</TabsTrigger>
-                    </TabsList>
-                </Tabs>
-                <div className="w-64">
-                    {activeTab === 'country' && (
-                        <Combobox 
-                            options={countries}
-                            value={countryFilter}
-                            onValueChange={setCountryFilter}
-                            placeholder="Select a country..."
-                            searchPlaceholder="Search countries..."
-                        />
-                    )}
-                    {activeTab === 'company' && (
-                    <CompanyAutocomplete 
-                            value={companyFilter}
-                            onValueChange={setCompanyFilter}
-                    />
-                    )}
-                </div>
-            </div>
         </header>
+        <div className="mb-8 flex items-center gap-4">
+            <Tabs value={activeTab} onValueChange={setActiveTab}>
+                <TabsList>
+                    <TabsTrigger value="global">Global</TabsTrigger>
+                    <TabsTrigger value="country">By Country</TabsTrigger>
+                    <TabsTrigger value="company">By Company</TabsTrigger>
+                </TabsList>
+            </Tabs>
+            <div className="w-64">
+                {activeTab === 'country' && (
+                    <Combobox 
+                        options={countries}
+                        value={countryFilter}
+                        onValueChange={setCountryFilter}
+                        placeholder="Select a country..."
+                        searchPlaceholder="Search countries..."
+                    />
+                )}
+                {activeTab === 'company' && (
+                <CompanyAutocomplete 
+                        value={companyFilter}
+                        onValueChange={setCompanyFilter}
+                />
+                )}
+            </div>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-1 space-y-8">
