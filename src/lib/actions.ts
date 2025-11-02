@@ -183,6 +183,9 @@ async function sfdcFetch(auth: SfdcAuth, path: string, options: RequestInit = {}
             ...options.headers,
         },
     });
+    if (response.status === 401) {
+      throw new Error("Your Salesforce session has expired. Please reconnect.");
+    }
     if (!response.ok) {
         const errorBody = await response.json();
         let errorMessage;
@@ -199,10 +202,6 @@ async function sfdcFetch(auth: SfdcAuth, path: string, options: RequestInit = {}
             errorMessage = 'An unknown Salesforce API error occurred.';
         }
         
-        if (response.status === 401) {
-            errorMessage = "Your Salesforce session has expired. Please reconnect.";
-        }
-
         throw new Error(errorMessage);
     }
     if (response.status === 204 || response.headers.get('Content-Length') === '0') {
@@ -561,7 +560,7 @@ export async function executeSalesforceCode(
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
-        if (errorMessage.includes('Failed to refresh Salesforce token')) {
+        if (errorMessage.includes('Failed to refresh Salesforce token') || errorMessage.includes('Your Salesforce session has expired')) {
             return {
                 success: false,
                 error: 'Your Salesforce session has expired. Please reconnect.',
