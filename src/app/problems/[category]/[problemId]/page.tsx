@@ -146,44 +146,36 @@ export default function ProblemSolvingPage() {
   }, [theme]);
 
 
+  const categoryDocRef = useMemoFirebase(() => {
+    if (!firestore || !categoryUrlParam) return null;
+    return doc(firestore, 'problems', categoryUrlParam);
+  }, [firestore, categoryUrlParam]);
+
+  const { data: categoryData, isLoading: isLoadingCategory } = useDoc<{ Questions: Partial<Question>[] }>(categoryDocRef);
+
+
   useEffect(() => {
-    if (!firestore || !categoryUrlParam || !problemId) return;
-
-    const fetchProblem = async () => {
+    if (isLoadingCategory) {
       setIsLoading(true);
-      try {
-        const categoryDocRef = doc(firestore, 'problems', categoryUrlParam);
-        const categorySnap = await getDoc(categoryDocRef);
+      return;
+    }
+    
+    if (categoryData) {
+      const questions = categoryData.Questions || [];
+      const foundProblem: Question | undefined = questions.find((q: any) => (q.id || q.title) === problemId) as Question | undefined;
 
-        if (!categorySnap.exists()) {
-          setProblem(null);
-          return;
-        }
-
-        const categoryData = categorySnap.data();
-        const questions = categoryData.Questions || [];
-        const foundProblem: Question | undefined = questions.find((q: any) => (q.id || q.title) === problemId);
-
-        if (foundProblem) {
-          setProblem(foundProblem);
-
-          const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id] || userProfile.solvedProblems[foundProblem.title]);
-          
-          setCode(foundProblem.starterCode || '');
-
-        } else {
-          setProblem(null);
-        }
-      } catch (error) {
-        console.error("Error fetching problem:", error);
+      if (foundProblem) {
+        setProblem(foundProblem);
+        const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id] || userProfile.solvedProblems[foundProblem.title as string]);
+        setCode(foundProblem.starterCode || '');
+      } else {
         setProblem(null);
-      } finally {
-        setIsLoading(false);
       }
-    };
-
-    fetchProblem();
-  }, [firestore, categoryUrlParam, problemId, userProfile, user?.uid, toast]);
+    } else {
+      setProblem(null);
+    }
+    setIsLoading(false);
+  }, [categoryData, isLoadingCategory, problemId, userProfile]);
 
   
   useEffect(() => {
@@ -329,7 +321,7 @@ export default function ProblemSolvingPage() {
                                                 <div className="flex items-start gap-3 overflow-hidden">
                                                     {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" /> : <div className="w-4 h-4 flex-shrink-0" />}
                                                      <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                                                        {p.number}. {p.title.length > 35 ? `${p.title.substring(0, 35)}...` : p.title}
+                                                        {p.number}. {p.title && p.title.length > 35 ? `${p.title.substring(0, 35)}...` : p.title}
                                                     </span>
                                                 </div>
                                                 <Badge variant="outline" className={cn("text-xs w-20 justify-center flex-shrink-0", getDifficultyClass(p.difficulty))}>
