@@ -226,12 +226,12 @@ export function LeaderboardClient() {
     }
   }
 
-  const problemsToRankUp: Partial<Question>[] = [
-    { title: "Add and Remove Elements from List", difficulty: "Easy" },
-    { title: "Merge Account Lists Without Duplicates", difficulty: "Medium" },
-    { title: "Sort Integers Descending", difficulty: "Easy" },
-    { title: "Remove Duplicate Strings from List", difficulty: "Easy" },
-    { title: "Convert List of Ids to Set", difficulty: "Easy" },
+  const problemsToRankUp: (Partial<Question> & { points: number })[] = [
+    { title: "Add and Remove Elements from List", difficulty: "Easy", points: 10 },
+    { title: "Merge Account Lists Without Duplicates", difficulty: "Medium", points: 20 },
+    { title: "Sort Integers Descending", difficulty: "Easy", points: 10 },
+    { title: "Remove Duplicate Strings from List", difficulty: "Easy", points: 10 },
+    { title: "Convert List of Ids to Set", difficulty: "Easy", points: 10 },
   ];
 
 
@@ -318,10 +318,13 @@ export function LeaderboardClient() {
                             {problemsToRankUp.map((problem) => (
                                 <li key={problem.title} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50">
                                     <span>{problem.title}</span>
-                                     <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                        <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                        {problem.difficulty}
-                                     </Badge>
+                                     <div className="flex items-center gap-4">
+                                        <Badge variant="secondary" className="font-mono">{problem.points} pts</Badge>
+                                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                            {problem.difficulty}
+                                        </Badge>
+                                     </div>
                                 </li>
                             ))}
                         </ul>
