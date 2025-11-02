@@ -4,10 +4,10 @@
 import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, limit, startAfter, getDocs, endBefore, limitToLast, where, Query, DocumentData } from 'firebase/firestore';
-import type { UserProfile } from '@/lib/types';
-import { Trophy, Search } from 'lucide-react';
+import type { UserProfile, Question } from '@/lib/types';
+import { Trophy, Search, CheckCircle } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
@@ -20,8 +20,10 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import Link from 'next/link';
 import Image from 'next/image';
+import { Separator } from './ui/separator';
+import { Badge } from './ui/badge';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 8;
 
 const countryMap = new Map(countries.map(c => [c.value, c.label]));
 
@@ -221,6 +223,28 @@ export function LeaderboardClient() {
     );
   }
 
+  const getDifficultyDotClass = (difficulty: string | undefined) => {
+    switch (difficulty) {
+        case 'Easy':
+            return 'bg-green-500';
+        case 'Medium':
+            return 'bg-yellow-500';
+        case 'Hard':
+            return 'bg-red-500';
+        default:
+            return 'bg-gray-400';
+    }
+  };
+
+  const unsolvedProblems = [
+      {title: "Add and Remove Elements from List", difficulty: "Easy", points: 10},
+      {title: "Merge Account Lists Without Duplicates", difficulty: "Medium", points: 20},
+      {title: "Sort Integers Descending", difficulty: "Easy", points: 10},
+      {title: "Remove Duplicate Strings from List", difficulty: "Easy", points: 10},
+      {title: "Convert List of Ids to Set", difficulty: "Easy", points: 10},
+  ]
+
+
   return (
     <div className="p-4 sm:p-6 lg:p-8">
         <header className="mb-8">
@@ -231,9 +255,9 @@ export function LeaderboardClient() {
         </header>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            <div className="lg:col-span-1">
+            <div className="lg:col-span-1 space-y-8">
                 {currentUserRank && (
-                    <Card className="bg-muted/30 overflow-hidden sticky top-24">
+                    <Card className="bg-muted/30 sticky top-24">
                         <CardHeader>
                             <CardTitle>Your Rank</CardTitle>
                         </CardHeader>
@@ -260,33 +284,54 @@ export function LeaderboardClient() {
                         </CardContent>
                     </Card>
                 )}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Solve to rank Up</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="space-y-2">
+                           {unsolvedProblems.map(problem => (
+                             <li key={problem.title} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50">
+                               <span>{problem.title}</span>
+                               <div className="flex items-center gap-4">
+                                   <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                    {problem.difficulty}
+                                  </Badge>
+                                  <span className="font-semibold text-xs w-12 text-right">{problem.points} pts</span>
+                               </div>
+                             </li>
+                           ))}
+                        </ul>
+                    </CardContent>
+                </Card>
             </div>
 
             <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="flex justify-between items-center mb-4">
+                    <div className="flex justify-end mb-4">
                         <TabsList>
                             <TabsTrigger value="global">Global</TabsTrigger>
                             <TabsTrigger value="country">By Country</TabsTrigger>
                             <TabsTrigger value="company">By Company</TabsTrigger>
                         </TabsList>
-                        <div className="w-64">
-                            {activeTab === 'country' && (
-                                <Combobox 
-                                    options={countries}
-                                    value={countryFilter}
-                                    onValueChange={setCountryFilter}
-                                    placeholder="Select a country..."
-                                    searchPlaceholder="Search countries..."
-                                />
-                            )}
-                            {activeTab === 'company' && (
-                            <CompanyAutocomplete 
-                                    value={companyFilter}
-                                    onValueChange={setCompanyFilter}
+                    </div>
+                     <div className="mb-4">
+                        {activeTab === 'country' && (
+                            <Combobox 
+                                options={countries}
+                                value={countryFilter}
+                                onValueChange={setCountryFilter}
+                                placeholder="Select a country..."
+                                searchPlaceholder="Search countries..."
                             />
-                            )}
-                        </div>
+                        )}
+                        {activeTab === 'company' && (
+                        <CompanyAutocomplete 
+                                value={companyFilter}
+                                onValueChange={setCompanyFilter}
+                        />
+                        )}
                     </div>
                     <div className="relative min-h-[400px]">
                         {isLoading && (
