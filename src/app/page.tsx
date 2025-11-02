@@ -20,7 +20,6 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
-import BlurText from '@/components/ui/BlurText';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
@@ -205,12 +204,9 @@ export default function HomePage() {
           </Dialog>
 
           <header className="mb-8 animate-fade-in-up">
-            <BlurText
-                text={`Welcome back, ${userProfile?.name || 'Coder'}!`}
-                className="text-4xl font-bold font-handwritten tracking-tight"
-                delay={100}
-                animateBy="words"
-            />
+            <h1 className="text-4xl font-bold font-handwritten tracking-tight">
+                {`Welcome back, ${userProfile?.name || 'Coder'}!`}
+            </h1>
             <p className="text-muted-foreground mt-1">
               Ready to tackle your next challenge? Let's get started.
             </p>
