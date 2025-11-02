@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { UserProfile, Question } from '@/lib/types';
-import { Trophy, Search, ChevronRight, BarChartHorizontal, CheckCircle, Tag, List, Filter } from 'lucide-react';
+import { Trophy, Search, ChevronRight, BarChartHorizontal, CheckCircle, Tag, List, Filter, Check, Bookmark, FileText } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
