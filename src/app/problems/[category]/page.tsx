@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter, notFound } from 'next/navigation';
+import { useRouter, notFound, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
@@ -23,10 +23,11 @@ interface CategoryDoc {
     Questions: Partial<Question>[];
 }
 
-export default function CategoryPage({ params }: { params: { category: string } }) {
+export default function CategoryPage() {
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
+  const params = useParams();
   const categoryUrlParam = params.category as string;
 
   const categoryDocRef = useMemoFirebase(() => {

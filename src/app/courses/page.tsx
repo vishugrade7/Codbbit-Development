@@ -10,6 +10,8 @@ import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@
 import type { UserProfile, Course } from '@/lib/types';
 import { doc, collection } from 'firebase/firestore';
 import { HashLoader } from 'react-spinners';
+import { Badge } from '@/components/ui/badge';
+import { cn } from '@/lib/utils';
 
 export default function CoursesPage() {
     const { user, isUserLoading } = useUser();
@@ -24,9 +26,15 @@ export default function CoursesPage() {
 
     const allCourses = useMemo(() => {
       const staticCourses = [
-        { id: 'soql', title: 'SOQL Tutorial', description: 'A comprehensive guide to mastering Salesforce Object Query Language.', problemIds: [], createdBy: 'system' }
+        { id: 'soql', title: 'SOQL', description: 'A comprehensive guide to mastering Salesforce Object Query Language.', problemIds: [], createdBy: 'system' }
       ];
-      return [...staticCourses, ...(courses || [])];
+      const dynamicCourses = (courses || []).map(course => {
+          if (course.title.toLowerCase().includes('soql')) {
+              return {...course, title: 'SOQL'};
+          }
+          return course;
+      })
+      return [...staticCourses, ...dynamicCourses.filter(c => !c.title.toLowerCase().includes('soql'))];
     }, [courses]);
 
 
@@ -36,6 +44,15 @@ export default function CoursesPage() {
                 <HashLoader color="#456eff" />
             </div>
         );
+    }
+    
+    const getIconForCourse = (title: string) => {
+        // In a real app, you might have a map of course titles to icons
+        // For now, we'll just use the Search icon for SOQL
+        if (title.toLowerCase().includes('soql')) {
+            return <Search className="h-12 w-12 text-foreground/80" />;
+        }
+        return <Search className="h-12 w-12 text-foreground/80" />;
     }
 
     return (
@@ -51,15 +68,15 @@ export default function CoursesPage() {
                             Browse courses to improve your Apex skills.
                         </p>
                     </header>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
                         {allCourses.map(course => (
-                            <Link key={course.id} href={`/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
-                                <Card className="h-full transition-colors duration-300 ease-in-out hover:bg-gradient-to-br hover:from-blue-100 hover:to-indigo-200 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50">
-                                <CardHeader className="flex flex-row items-center justify-between p-4">
-                                    <CardTitle className="text-lg flex items-center gap-2"><Search className="h-5 w-5 text-primary" /> {course.title}</CardTitle>
-                                </CardHeader>
-                                <CardContent className="p-4 pt-0">
-                                    <p className="text-sm text-muted-foreground line-clamp-2 h-10">{course.description}</p>
+                            <Link key={course.id} href={`/courses/${course.id}`} className="block">
+                                <Card className={cn("h-64 transition-all duration-300 ease-in-out hover:shadow-lg hover:-translate-y-1 bg-green-200/50 dark:bg-green-800/20 border-green-500/30",
+                                )}>
+                                <CardContent className="flex flex-col items-center justify-center text-center p-6 h-full">
+                                    {getIconForCourse(course.title)}
+                                    <h2 className="text-4xl font-bold font-headline mt-4">{course.title}</h2>
+                                    <Badge className="mt-2 -rotate-6 bg-green-600 text-white hover:bg-green-700">Crash Course</Badge>
                                 </CardContent>
                                 </Card>
                             </Link>
