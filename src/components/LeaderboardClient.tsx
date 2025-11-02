@@ -27,7 +27,7 @@ import { Separator } from './ui/separator';
 import { cn } from '@/lib/utils';
 import { Badge } from './ui/badge';
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 8;
 
 const countryMap = new Map(countries.map(c => [c.value, c.label]));
 
@@ -252,12 +252,12 @@ export function LeaderboardClient() {
                   See how you rank against the top developers. Keep solving problems to climb up the ranks!
               </p>
             </div>
-            <div className="flex items-center gap-2 md:gap-4 flex-wrap">
-              <Tabs value={activeTab} onValueChange={setActiveTab} className="bg-muted p-1 rounded-full">
-                  <TabsList className="bg-transparent p-0">
-                      <TabsTrigger value="global" className="rounded-full">Global</TabsTrigger>
-                      <TabsTrigger value="country" className="rounded-full">By Country</TabsTrigger>
-                      <TabsTrigger value="company" className="rounded-full">By Company</TabsTrigger>
+             <div className="flex items-center gap-2 md:gap-4 flex-wrap">
+              <Tabs value={activeTab} onValueChange={setActiveTab}>
+                  <TabsList>
+                      <TabsTrigger value="global">Global</TabsTrigger>
+                      <TabsTrigger value="country">By Country</TabsTrigger>
+                      <TabsTrigger value="company">By Company</TabsTrigger>
                   </TabsList>
               </Tabs>
               <div className="w-full sm:w-64">
@@ -288,11 +288,11 @@ export function LeaderboardClient() {
                             <CardTitle>Your Rank</CardTitle>
                         </CardHeader>
                         <CardContent className="flex items-center gap-4">
-                            <div className="flex flex-col items-center">
-                                <Avatar className="h-16 w-16 mb-2">
-                                    <AvatarImage src={currentUserData.avatarUrl} />
-                                    <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
-                                </Avatar>
+                            <Avatar className="h-16 w-16">
+                                <AvatarImage src={currentUserData.avatarUrl} />
+                                <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
+                            </Avatar>
+                            <div className="flex-grow">
                                 <p className="font-bold text-lg">{currentUserData.name}</p>
                                 <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
                             </div>
