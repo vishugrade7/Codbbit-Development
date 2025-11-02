@@ -20,6 +20,7 @@ import { useDebounce } from '@/hooks/use-debounce';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import Link from 'next/link';
 import Image from 'next/image';
+import { ScrollArea } from './ui/scroll-area';
 
 const PAGE_SIZE = 20;
 
@@ -65,6 +66,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
     return (
         <Card>
             <CardContent className="p-0">
+              <ScrollArea className="h-[calc(100vh-400px)]">
                 <Table>
                     <TableHeader>
                         <TableRow className="hover:bg-transparent">
@@ -137,6 +139,7 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
                         ))}
                     </TableBody>
                 </Table>
+              </ScrollArea>
             </CardContent>
         </Card>
     )
@@ -265,7 +268,7 @@ export function LeaderboardClient() {
             <div className="lg:col-span-2">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <div className="flex justify-between items-center mb-4">
-                        <TabsList>
+                         <TabsList>
                             <TabsTrigger value="global">Global</TabsTrigger>
                             <TabsTrigger value="country">By Country</TabsTrigger>
                             <TabsTrigger value="company">By Company</TabsTrigger>
