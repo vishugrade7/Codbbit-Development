@@ -59,7 +59,7 @@ export default function CoursesPage() {
                                     <CardTitle className="text-lg flex items-center gap-2"><Search className="h-5 w-5 text-primary" /> {course.title}</CardTitle>
                                 </CardHeader>
                                 <CardContent className="p-4 pt-0">
-                                    <p className="text-sm text-muted-foreground line-clamp-2 h-10">{course.description}</p>
+                                    <p className="text-sm text-muted-foreground line-clamp-3 h-16">{course.description}</p>
                                 </CardContent>
                                 </Card>
                             </Link>
