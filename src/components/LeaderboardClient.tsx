@@ -5,9 +5,9 @@ import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { UserProfile, Question } from '@/lib/types';
-import { Trophy, Search } from 'lucide-react';
+import { Trophy, Search, ChevronRight, BarChartHorizontal, CheckCircle, Tag, List } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -20,6 +20,12 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/t
 import Link from 'next/link';
 import Image from 'next/image';
 import { ScrollArea } from './ui/scroll-area';
+import { Input } from './ui/input';
+import { Button } from './ui/button';
+import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
+import { Separator } from './ui/separator';
+import { cn } from '@/lib/utils';
+import { Badge } from './ui/badge';
 
 const PAGE_SIZE = 20;
 
@@ -44,8 +50,17 @@ function RankMedal({ rank }: { rank: number }) {
   if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500 fill-yellow-500" />;
   if (rank === 2) return <Trophy className="h-6 w-6 text-gray-400 fill-gray-400" />;
   if (rank === 3) return <Trophy className="h-6 w-6 text-orange-600 fill-orange-600" />;
-  return <span className="text-muted-foreground font-medium">{rank}</span>;
+  return <span className="text-muted-foreground font-medium text-center w-6">{rank}</span>;
 }
+
+const getDifficultyDotClass = (difficulty: string | undefined) => {
+    switch (difficulty) {
+        case 'Easy': return 'bg-green-500';
+        case 'Medium': return 'bg-yellow-500';
+        case 'Hard': return 'bg-red-500';
+        default: return 'bg-gray-400';
+    }
+};
 
 function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (UserProfile & { rank: number })[], currentUserUid?: string, page: number, pageSize: number }) {
     if (!users || users.length === 0) {
@@ -163,10 +178,19 @@ export function LeaderboardClient() {
     setCurrentPage(1);
   }, [activeTab, countryFilter, companyFilter]);
 
-  const filteredUsers = useMemo(() => {
-    if (!allUsers) return [];
+  const { filteredUsers, currentUserData } = useMemo(() => {
+    if (!allUsers) return { filteredUsers: [], currentUserData: null };
     
     let users = allUsers.filter(user => !user.isAdmin);
+    let currentUserData = null;
+
+    if (currentUser) {
+        const rank = users.findIndex(u => u.uid === currentUser.uid) + 1;
+        const profile = users.find(u => u.uid === currentUser.uid);
+        if (profile) {
+            currentUserData = { ...profile, rank };
+        }
+    }
 
     if (activeTab === 'country' && countryFilter) {
       users = users.filter(user => user.country === countryFilter);
@@ -175,8 +199,8 @@ export function LeaderboardClient() {
       users = users.filter(user => user.company === companyFilter);
     }
     
-    return users;
-  }, [allUsers, activeTab, countryFilter, companyFilter]);
+    return { filteredUsers: users, currentUserData };
+  }, [allUsers, activeTab, countryFilter, companyFilter, currentUser]);
 
   const totalUsers = filteredUsers.length;
   const totalPages = Math.ceil(totalUsers / PAGE_SIZE);
@@ -189,12 +213,11 @@ export function LeaderboardClient() {
 
   const rankedUsers = useMemo(() => {
     if (!paginatedUsers) return [];
-    const nonAdminUsers = allUsers?.filter(u => !u.isAdmin) || [];
-    return paginatedUsers.map((user) => {
-        const overallRank = nonAdminUsers.findIndex(u => u.uid === user.uid) + 1;
+    return paginatedUsers.map((user, index) => {
+        const overallRank = filteredUsers.findIndex(u => u.uid === user.uid) + 1;
         return { ...user, rank: overallRank };
     });
-  }, [paginatedUsers, allUsers]);
+  }, [paginatedUsers, filteredUsers]);
   
   
   const handlePageChange = (page: number) => {
@@ -202,6 +225,14 @@ export function LeaderboardClient() {
         setCurrentPage(page);
     }
   }
+
+  const problemsToRankUp: Partial<Question>[] = [
+    { title: "Add and Remove Elements from List", difficulty: "Easy" },
+    { title: "Merge Account Lists Without Duplicates", difficulty: "Medium" },
+    { title: "Sort Integers Descending", difficulty: "Easy" },
+    { title: "Remove Duplicate Strings from List", difficulty: "Easy" },
+    { title: "Convert List of Ids to Set", difficulty: "Easy" },
+  ];
 
 
   if (isLoading && !allUsers) {
@@ -214,7 +245,7 @@ export function LeaderboardClient() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-        <header className="mb-8 flex items-center justify-between">
+        <div className="mb-8 flex items-start justify-between">
             <div>
               <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
               <p className="text-muted-foreground mt-1 max-w-lg">
@@ -247,23 +278,66 @@ export function LeaderboardClient() {
                   )}
               </div>
             </div>
-        </header>
-        
-        <div className="relative min-h-[400px]">
-            {isLoading && (
-                <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
-                    <HashLoader color="#456eff" />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            <div className="lg:col-span-1 space-y-8">
+                {currentUserData && (
+                     <Card>
+                        <CardHeader>
+                            <CardTitle>Your Rank</CardTitle>
+                        </CardHeader>
+                        <CardContent className="flex flex-col items-center text-center">
+                            <Avatar className="h-24 w-24 mb-4">
+                                <AvatarImage src={currentUserData.avatarUrl} />
+                                <AvatarFallback>{getInitials(currentUserData.name)}</AvatarFallback>
+                            </Avatar>
+                            <p className="font-bold text-lg">{currentUserData.name}</p>
+                            <p className="text-sm text-muted-foreground">@{currentUserData.username}</p>
+                            <div className="flex items-center gap-8 mt-4">
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold">{currentUserData.rank}</p>
+                                    <p className="text-xs text-muted-foreground">Rank</p>
+                                </div>
+                                <div className="text-center">
+                                    <p className="text-3xl font-bold">{currentUserData.points}</p>
+                                    <p className="text-xs text-muted-foreground">Points</p>
+                                </div>
+                            </div>
+                        </CardContent>
+                    </Card>
+                )}
+                <Card>
+                    <CardHeader>
+                        <CardTitle>Solve to rank Up</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <ul className="space-y-2">
+                            {problemsToRankUp.map((problem) => (
+                                <li key={problem.title} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50">
+                                    <span>{problem.title}</span>
+                                     <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                        <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
+                                        {problem.difficulty}
+                                     </Badge>
+                                </li>
+                            ))}
+                        </ul>
+                    </CardContent>
+                </Card>
+            </div>
+            <div className="lg:col-span-2">
+                <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
+                 <div className="mt-4 flex justify-center">
+                    <PaginationComponent 
+                        currentPage={currentPage}
+                        totalPages={totalPages}
+                        onPageChange={handlePageChange}
+                    />
                 </div>
-            )}
-            <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
+            </div>
         </div>
-        <div className="mt-4 flex justify-center">
-            <PaginationComponent 
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={handlePageChange}
-            />
-        </div>
+        
     </div>
   );
 }
