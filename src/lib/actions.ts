@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { firestore } from '@/firebase/server-init';
@@ -562,6 +561,13 @@ export async function executeSalesforceCode(
 
     } catch (error) {
         const errorMessage = error instanceof Error ? error.message : 'An unknown server error occurred.';
+        if (errorMessage.includes('Failed to refresh Salesforce token')) {
+            return {
+                success: false,
+                error: 'Your Salesforce session has expired. Please reconnect.',
+                logs: '',
+            }
+        }
         return {
             success: false,
             error: `An unexpected error occurred: ${errorMessage}`,

@@ -223,10 +223,8 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
-            if (result.error?.includes('Failed to refresh Salesforce token')) {
+            if (result.error === 'Your Salesforce session has expired. Please reconnect.') {
                 setShowAuthDialog(true);
-                setOutput({ success: false, logs: "", error: "Your Salesforce session has expired. Please reconnect." });
-                return;
             }
 
             setOutput(result);
@@ -287,8 +285,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                         setDocumentNonBlocking(userDocRef, updatedProfile, { merge: true });
                     }
                 }
-            } else {
-                 // No need to throw an error here, just let the UI display the failure.
             }
 
         } catch (e: any) {
@@ -411,7 +407,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
               </DialogHeader>
               <DialogFooter>
                 <Button variant="outline" onClick={() => setShowAuthDialog(false)}>Cancel</Button>
-                <Button onClick={handleAuthWithSalesforce}>Connect</Button>
+                <Button onClick={handleAuthWithSalesforce}>Reconnect</Button>
               </DialogFooter>
             </DialogContent>
           </Dialog>
