@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState, useMemo, useEffect } from 'react';
@@ -22,7 +23,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc } from 'firebase/firestore';
+import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc, writeBatch, getDocs } from 'firebase/firestore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import type { Question } from '@/lib/types';
@@ -99,7 +100,6 @@ export default function CodingQuestionsPage() {
       (cat.Questions || []).map((q, index) => ({
         ...q,
         category: cat.id,
-        // Create a more robust unique key
         id: q.id || `${cat.id}-${q.title}-${index}`,
       }))
     );
@@ -589,7 +589,7 @@ export default function CodingQuestionsPage() {
               </TableHeader>
               <TableBody>
                 {filteredProblems.map((problem) => (
-                  <TableRow key={problem.id}>
+                  <TableRow key={`${problem.category}-${problem.id}`}>
                     <TableCell className="font-medium">{problem.title}</TableCell>
                     <TableCell>{problem.category}</TableCell>
                     <TableCell>
