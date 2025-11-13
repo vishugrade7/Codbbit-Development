@@ -587,8 +587,8 @@ export default function CodingQuestionsPage() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredProblems.map((problem) => (
-                  <TableRow key={`${problem.category}-${problem.id}`}>
+                {filteredProblems.map((problem, index) => (
+                  <TableRow key={`${problem.category}-${problem.id}-${index}`}>
                     <TableCell className="font-medium">{problem.title}</TableCell>
                     <TableCell>{problem.category}</TableCell>
                     <TableCell>
@@ -644,3 +644,4 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
+
