@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ['ogl'],
+  serverExternalPackages: ['ogl', 'gsap'],
 };
 
 export default nextConfig;
