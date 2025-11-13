@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc } from 'firebase/firestore';
+import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc } from 'firebase/firestore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import type { Question } from '@/lib/types';
@@ -86,17 +86,22 @@ export default function CodingQuestionsPage() {
   const [isSavingPackage, setIsSavingPackage] = useState(false);
 
 
-  const categoriesCollectionRef = useMemoFirebase(() => {
+  const problemsCollectionRef = useMemoFirebase(() => {
     if (!firestore) return null;
     return collection(firestore, 'problems');
   }, [firestore]);
+  const { data: categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useCollection<Category>(problemsCollectionRef);
 
-  const { data: categories, isLoading: isLoadingCategories, refetch: refetchCategories } = useCollection<Category>(categoriesCollectionRef);
 
   const allProblems = useMemo(() => {
     if (!categories) return [];
-    return categories.flatMap(cat => 
-        (cat.Questions || []).map(q => ({...q, category: cat.id, id: q.id || `${cat.id}-${q.title}` }))
+    return categories.flatMap(cat =>
+      (cat.Questions || []).map((q, index) => ({
+        ...q,
+        category: cat.id,
+        // Create a more robust unique key
+        id: q.id || `${cat.id}-${q.title}-${index}`,
+      }))
     );
   }, [categories]);
 
@@ -141,11 +146,23 @@ export default function CodingQuestionsPage() {
     setIsEditingCategory(true);
   };
   
-  const handleDeleteCategory = (categoryId: string) => {
+  const handleDeleteCategory = async (categoryId: string) => {
     if (!firestore) return;
     const categoryDocRef = doc(firestore, 'problems', categoryId);
-    deleteDocumentNonBlocking(categoryDocRef);
-    toast({ title: 'Category Deleted', description: `Category "${categoryId}" has been deleted.`});
+
+    // Also delete the Questions subcollection if it exists
+    const questionsCollectionRef = collection(firestore, 'problems', categoryId, 'Questions');
+    const questionsSnapshot = await getDocs(questionsCollectionRef);
+    const batch = firestore ? writeBatch(firestore) : null;
+    if (batch) {
+        questionsSnapshot.forEach(doc => {
+            batch.delete(doc.ref);
+        });
+        await batch.commit();
+    }
+    
+    await deleteDoc(categoryDocRef);
+    toast({ title: 'Category Deleted', description: `Category "${categoryId}" and all its questions have been deleted.`});
     refetchCategories();
   }
 
@@ -171,14 +188,14 @@ export default function CodingQuestionsPage() {
       const categoryData = {
           imageUrl: categoryImageUrl.trim(),
           createdAt: new Date().toISOString(),
-          Questions: currentCategory?.Questions || [],
       };
 
-      setDocumentNonBlocking(categoryDocRef, categoryData, {merge: true});
+      await setDoc(categoryDocRef, categoryData, {merge: true});
 
       if (currentCategory && currentCategory.id !== categoryName.trim()) {
         const oldCategoryDocRef = doc(firestore, 'problems', currentCategory.id);
-        deleteDocumentNonBlocking(oldCategoryDocRef);
+        // Note: This does not move subcollections. This logic assumes questions are moved separately or categories are simply renamed.
+        await deleteDoc(oldCategoryDocRef);
       }
 
       toast({
@@ -220,15 +237,18 @@ export default function CodingQuestionsPage() {
     setIsSavingSample(true);
     try {
       const problemData = JSON.parse(sampleJson) as Partial<Question>;
+      const problemId = problemData.id || uuidv4();
 
       if (!problemData.title) {
         throw new Error("JSON must contain a 'title' field.");
       }
       
-      const categoryDocRef = doc(firestore, 'problems', selectedCategoryForJson);
+      const questionDocRef = doc(firestore, 'problems', selectedCategoryForJson, 'Questions', problemId);
       
-      await updateDoc(categoryDocRef, {
-        Questions: arrayUnion(problemData)
+      await setDoc(questionDocRef, {
+        ...problemData,
+        id: problemId,
+        createdAt: new Date().toISOString(),
       });
 
 
@@ -266,28 +286,18 @@ export default function CodingQuestionsPage() {
   };
 
   const handleDeleteProblem = async (problem: Partial<Question>) => {
-    if (!firestore || !problem.category || !problem.title) return;
+    if (!firestore || !problem.category || !problem.id) return;
 
     try {
-      const categoryDocRef = doc(firestore, 'problems', problem.category);
-      const docSnap = await getDoc(categoryDocRef);
-      if (docSnap.exists()) {
-        const categoryData = docSnap.data() as Category;
-        const problemToDelete = categoryData.Questions?.find(q => q.title === problem.title);
-        
-        if (problemToDelete) {
-          await updateDoc(categoryDocRef, {
-            Questions: arrayRemove(problemToDelete)
-          });
-          toast({ title: 'Problem Deleted', description: `"${problem.title}" has been removed.`});
-          refetchCategories();
-        }
-      }
+        const questionDocRef = doc(firestore, "problems", problem.category, "Questions", problem.id);
+        deleteDocumentNonBlocking(questionDocRef);
+        toast({ title: "Problem Deleted", description: `"${problem.title}" has been removed.` });
+        refetchCategories(); // Assuming refetch is available from your collection hook
     } catch (error) {
-      console.error(error);
-      toast({ title: 'Error', description: 'Could not delete problem.', variant: 'destructive'});
+        console.error(error);
+        toast({ title: "Error", description: "Could not delete problem.", variant: "destructive" });
     }
-  }
+  };
 
   const handleDownloadSample = () => {
     const sampleProblem = {
