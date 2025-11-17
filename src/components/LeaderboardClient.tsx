@@ -22,6 +22,7 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
+import { cn } from '@/lib/utils';
 
 const PAGE_SIZE = 8;
 
