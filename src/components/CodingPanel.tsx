@@ -62,7 +62,20 @@ interface ChatMessage {
   text: string;
 }
 
-const TestResultDisplay = ({ output }: { output: { success: boolean; logs: string; error?: string; }}) => {
+const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; logs: string; error?: string; }, onAuth: () => void }) => {
+    if (output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
+        return (
+            <Alert variant="destructive" className="h-full flex flex-col items-center justify-center text-center">
+                 <AlertTriangle className="h-8 w-8 mb-4" />
+                <AlertTitle className="text-lg font-bold">Session Expired</AlertTitle>
+                <AlertDescription className="mb-6">
+                    Your Salesforce session has expired. Please authenticate again to continue.
+                </AlertDescription>
+                <Button onClick={onAuth}>Authenticate with Salesforce</Button>
+            </Alert>
+        )
+    }
+
     if (output.success) {
         return (
             <Alert variant="success" className="h-full">
@@ -447,7 +460,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                                   <span>Executing code...</span>
                               </div>
                             ) : output ? (
-                                <TestResultDisplay output={output} />
+                                <TestResultDisplay output={output} onAuth={handleAuthWithSalesforce} />
                             ) : (
                               <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                   <div className="h-12 w-12 rounded-full bg-muted flex items-center justify-center">
