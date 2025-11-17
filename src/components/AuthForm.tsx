@@ -81,7 +81,7 @@ const loginSchema = z.object({
 const signupSchema = z.object({
   fullName: z.string().min(1, { message: 'Full name is required.' }),
   username: z.string().min(3, { message: 'Username must be at least 3 characters.' }),
-  company: z.string().optional(),
+  company: z.string().min(1, { message: 'Company is required.' }),
   country: z.string().min(1, { message: 'Please select a country.' }),
   email: z.string().email({ message: 'Invalid email address.' }),
   password: z.string().min(8, 'Password must be at least 8 characters.')
@@ -521,7 +521,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                             name="company"
                             render={({ field }) => (
                                 <FormItem className="md:col-span-2">
-                                <FormLabel>Company / College (Optional)</FormLabel>
+                                <FormLabel>Company / College <span className="text-destructive">*</span></FormLabel>
                                 <FormControl>
                                     <CompanyAutocomplete
                                     value={field.value || ''}
