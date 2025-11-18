@@ -16,7 +16,7 @@ import {
   ResizableHandle,
   type PanelGroup,
 } from "@/components/ui/resizable";
-import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText, AlertTriangle } from "lucide-react";
+import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText, AlertTriangle, Lock } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   Sheet,
@@ -110,8 +110,8 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
             <AlertTitle className="text-lg font-bold">{testFailureLine}</AlertTitle>
             <AlertDescription className="flex items-center gap-2 flex-wrap">
                 {finalErrorMessage} 
-                {lineNumber && <Badge variant="secondary" className="font-mono">Line: {lineNumber}</Badge>}
-                {className && <Badge variant="secondary" className="font-mono">Class: {className}</Badge>}
+                {/* {lineNumber && <Badge variant="secondary" className="font-mono">Line: {lineNumber}</Badge>} */}
+                {/* {className && <Badge variant="secondary" className="font-mono">Class: {className}</Badge>} */}
             </AlertDescription>
         </Alert>
     )
@@ -128,6 +128,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   const [resultsPanelSize, setResultsPanelSize] = useState(5);
   const [isDeleting, setIsDeleting] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
   const userDocRef = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
@@ -173,14 +174,17 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   // Effect to auto-expand panel on new error
   useEffect(() => {
       if (output && !output.success) {
-          if (output.error === 'Your Salesforce session has expired. Please reconnect.') {
-            setShowAuthDialog(true);
+          if (output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
+            setSessionExpired(true);
           } else {
             const isMinimized = resultsPanelSize < 10;
             if (isMinimized) {
                 toggleResultsPanel(true);
             }
           }
+      }
+      if (output && output.success) {
+        setSessionExpired(false);
       }
   }, [output, resultsPanelSize]);
 
@@ -230,7 +234,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
             if (result.error?.includes('Failed to refresh Salesforce token')) {
-                setShowAuthDialog(true);
+                setSessionExpired(true);
                 setOutput({ success: false, logs: "", error: "Your Salesforce session has expired. Please reconnect." });
                 return;
             }
@@ -310,11 +314,19 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     if (classMatch && classMatch[1]) {
         return { name: classMatch[1], type: 'Class' };
     }
+
+    // Look for '@isTest class MyTestClassName'
+    const testClassMatch = code.match(/@isTest\s+(?:private|public|global)?\s+class\s+([a-zA-Z0-9_]+)/);
+    if (testClassMatch && testClassMatch[1]) {
+        return { name: testClassMatch[1], type: 'Class' };
+    }
+    
     // Look for 'trigger MyTriggerName on ObjectName'
     const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on\s+([a-zA-Z0-9_]+)/);
     if (triggerMatch && triggerMatch[1]) {
         return { name: triggerMatch[1], type: 'Trigger' };
     }
+    
     return { name: undefined, type: undefined };
   }
 
@@ -422,13 +434,21 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             }}
         >
             <ResizablePanel defaultSize={95} minSize={20}>
-                <div className="h-full w-full">
+                <div className="h-full w-full relative">
+                    {sessionExpired && (
+                      <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
+                        <Lock className="h-12 w-12 text-muted-foreground" />
+                        <h3 className="text-xl font-semibold">Session Expired</h3>
+                        <p className="text-muted-foreground">Your Salesforce connection has expired.</p>
+                        <Button onClick={handleAuthWithSalesforce}>Reconnect with Salesforce</Button>
+                      </div>
+                    )}
                     <CodeEditor
                         value={code}
                         onChange={(v) => setCode(v || '')}
                         language="apex"
                         theme={editorTheme}
-                        options={{ fontSize }}
+                        options={{ fontSize, readOnly: sessionExpired }}
                     />
                 </div>
             </ResizablePanel>
