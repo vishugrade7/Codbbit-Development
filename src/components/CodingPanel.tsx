@@ -80,7 +80,7 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
         return (
             <Alert variant="success" className="h-full">
                  <CheckCircle className="h-5 w-5" />
-                <AlertTitle className="text-lg font-bold">All Tests Passed!</AlertTitle>
+                <AlertTitle className="text-lg font-bold">Tests Passed</AlertTitle>
                 <AlertDescription>
                     Congratulations! Your solution passed all the test cases.
                 </AlertDescription>
@@ -88,28 +88,18 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
         )
     }
 
-    const errorParts = output.error?.split('\n') || [];
-    const testFailureLine = errorParts.find(line => line.includes('Test Failed:')) || 'An error occurred';
-    const errorMessage = errorParts.find(line => line.includes('System.AssertException:'))?.replace('System.AssertException: ', '') || output.error || 'No assertion message.';
-    
-    // Updated to handle both "Class.TriggerName: line X" and "Class.ClassName.MethodName: line X"
-    const lineInfoMatch = output.error?.match(/Class\.([^:]+): line (\d+)/);
-    
-    const className = lineInfoMatch ? lineInfoMatch[1].split('.')[0] : null;
-    const lineNumber = lineInfoMatch ? lineInfoMatch[2] : null;
-
-    let finalErrorMessage = errorMessage;
-    // For compile errors
-    if (output.error?.includes('(Line:')) {
-        finalErrorMessage = output.error;
-    }
+    const errorMessage = output.error || 'An unknown error occurred.';
     
     return (
         <Alert variant="destructive" className="h-full">
             <XCircle className="h-5 w-5" />
-            <AlertDescription className="flex items-center gap-2 flex-wrap">
-                {finalErrorMessage} 
+            <AlertTitle className="text-lg font-bold">Test Failed</AlertTitle>
+            <AlertDescription>
+                Your code did not pass all the tests. Review the error below.
             </AlertDescription>
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive-foreground p-3 rounded-md mt-4 font-code text-sm">
+                <pre className="whitespace-pre-wrap">{errorMessage}</pre>
+            </div>
         </Alert>
     )
 }
