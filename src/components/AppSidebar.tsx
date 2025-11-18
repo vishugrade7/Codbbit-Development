@@ -129,12 +129,12 @@ export function AppSidebar() {
                   <TooltipTrigger asChild>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-10 w-10">
-                            <MessageSquare size={20}/>
+                            <Settings2 size={20}/>
                       </Button>
                     </DialogTrigger>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="px-2 py-1 text-xs">
-                      Feedback
+                      Settings
                   </TooltipContent>
               </Tooltip>
               <DialogContent className="sm:max-w-2xl">
