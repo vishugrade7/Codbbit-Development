@@ -82,7 +82,7 @@ export default function ProblemSolvingPage() {
   const [syncError, setSyncError] = useState<string | null>(null);
   const [isSyncDialogOpen, setIsSyncDialogOpen] = useState(false);
   
-  const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
+  const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; runtime?: number; } | null>(null);
 
 
   const userDocRef = useMemoFirebase(() => {
@@ -167,9 +167,15 @@ export default function ProblemSolvingPage() {
         if (foundProblem) {
           setProblem(foundProblem);
 
+          const localStorageKey = `codbbit-code-${foundProblem.id || foundProblem.title}`;
+          const savedCode = localStorage.getItem(localStorageKey);
           const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id] || userProfile.solvedProblems[foundProblem.title]);
           
-          setCode(foundProblem.starterCode || '');
+          if (savedCode && !isSolved) {
+            setCode(savedCode);
+          } else {
+            setCode(foundProblem.starterCode || '');
+          }
 
         } else {
           setProblem(null);
@@ -184,6 +190,15 @@ export default function ProblemSolvingPage() {
 
     fetchProblem();
   }, [firestore, categoryUrlParam, problemId, userProfile, user?.uid, toast]);
+
+  
+  // Effect to save code to localStorage
+  useEffect(() => {
+    if (problem && code) {
+      const localStorageKey = `codbbit-code-${problem.id || problem.title}`;
+      localStorage.setItem(localStorageKey, code);
+    }
+  }, [code, problem]);
 
   
   useEffect(() => {
@@ -203,6 +218,10 @@ export default function ProblemSolvingPage() {
   
   const handleTestPass = () => {
     setShowConfetti(true);
+    if (problem) {
+      const localStorageKey = `codbbit-code-${problem.id || problem.title}`;
+      localStorage.removeItem(localStorageKey);
+    }
     setTimeout(() => {
       setShowConfetti(false);
     }, 5000); // Hide confetti after 5 seconds
