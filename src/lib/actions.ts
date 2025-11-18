@@ -431,7 +431,7 @@ async function salesforceExecuteTestClass(
   testCode: string,
   creds: SfdcAuth,
   problem: Partial<Question>
-): Promise<{ success: boolean; logs: string; error?: string }> {
+): Promise<{ success: boolean; logs: string; error?: string; runtime?: number }> {
 
   const auth = creds;
   if (!auth.instanceUrl || !auth.accessToken) {
@@ -487,11 +487,13 @@ async function salesforceExecuteTestClass(
     }
 
     // 5. Fetch test results
-    const resultQuery = `SELECT ApexClassId, Outcome, MethodName, Message, StackTrace, ApexLogId FROM ApexTestResult WHERE AsyncApexJobId = '${asyncJobId}'`;
+    const resultQuery = `SELECT ApexClassId, Outcome, MethodName, Message, StackTrace, ApexLogId, RunTime FROM ApexTestResult WHERE AsyncApexJobId = '${asyncJobId}'`;
     const resultData = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(resultQuery)}`);
 
     const failedTest = resultData.records.find((r: any) => r.Outcome !== "Pass");
     const logId = resultData.records[0]?.ApexLogId;
+    const runtime = resultData.records.reduce((acc: number, r: any) => acc + (r.RunTime || 0), 0);
+
     const logs = logId
       ? await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/ApexLog/${logId}/Body`)
       : "No logs found.";
@@ -507,6 +509,7 @@ async function salesforceExecuteTestClass(
     return {
       success: true,
       logs: `✅ All tests passed!\n\nLogs:\n${logs}`,
+      runtime,
     };
   } catch (err) {
     return {
@@ -524,7 +527,7 @@ export async function executeSalesforceCode(
     testCode?: string,
     userId?: string, // Optional: Only needed for operations that modify user data, like test submission
     problem?: Partial<Question>
-): Promise<{ success: boolean; result?: any; logs: string; error?: string; }> {
+): Promise<{ success: boolean; result?: any; logs: string; error?: string; runtime?: number; }> {
     try {
         if (!auth || !auth.instanceUrl || !auth.accessToken) {
              throw new Error('Salesforce credentials are not configured or are invalid.');

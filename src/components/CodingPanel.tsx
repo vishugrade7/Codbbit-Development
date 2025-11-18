@@ -53,8 +53,8 @@ interface CodingPanelProps {
   onTestPass: () => void;
   fontSize: number;
   editorTheme: string;
-  output: { success: boolean; logs: string; error?: string } | null;
-  setOutput: (output: { success: boolean; logs: string; error?: string } | null) => void;
+  output: { success: boolean; logs: string; error?: string; runtime?: number; } | null;
+  setOutput: (output: { success: boolean; logs: string; error?: string; runtime?: number; } | null) => void;
 }
 
 interface ChatMessage {
@@ -62,7 +62,7 @@ interface ChatMessage {
   text: string;
 }
 
-const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; logs: string; error?: string; }, onAuth: () => void }) => {
+const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; logs: string; error?: string; runtime?: number; }, onAuth: () => void }) => {
     if (output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
         return (
             <Alert variant="destructive" className="h-full flex flex-col items-center justify-center text-center">
@@ -78,13 +78,15 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
 
     if (output.success) {
         return (
-            <Alert variant="success" className="h-full">
-                 <CheckCircle className="h-5 w-5" />
-                <AlertTitle className="text-lg font-bold">Tests Passed</AlertTitle>
-                <AlertDescription>
-                    Congratulations! Your solution passed all the test cases.
-                </AlertDescription>
-            </Alert>
+            <div className="h-full flex flex-col items-center justify-center text-center">
+                <h2 className="text-2xl font-bold text-green-500">Accepted</h2>
+                {output.runtime !== undefined && (
+                  <p className="text-sm text-muted-foreground mt-1">
+                    Runtime: {output.runtime} ms
+                  </p>
+                )}
+                <p className="mt-4 text-muted-foreground">Congratulations! Your solution passed all test cases.</p>
+            </div>
         )
     }
 
@@ -92,20 +94,21 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
     const assertionMatch = errorMessage.match(/Assertion Failed: Expected: (.*), Actual: (.*)/);
 
     if (assertionMatch) {
-      errorMessage = `Assertion Failed: Expected: ${assertionMatch[1]}, Actual: ${assertionMatch[2]}`;
+      errorMessage = `Expected: ${assertionMatch[1]}, Actual: ${assertionMatch[2]}`;
+    } else {
+        const testFailedMatch = errorMessage.match(/❌ Test Failed: (\w+)/);
+        if (testFailedMatch && testFailedMatch[1]) {
+            errorMessage = `Test method ${testFailedMatch[1]} failed.`;
+        }
     }
     
     return (
-        <Alert variant="destructive" className="h-full">
-            <XCircle className="h-5 w-5" />
-            <AlertTitle className="text-lg font-bold">Test Failed</AlertTitle>
-            <AlertDescription>
-                Your code did not pass all the tests. Review the error below.
-            </AlertDescription>
-            <div className="bg-destructive/10 border border-destructive/20 text-destructive-foreground p-3 rounded-md mt-4 font-code text-sm">
+        <div className="h-full flex flex-col items-center justify-center text-center">
+            <h2 className="text-2xl font-bold text-red-500">Test Failed</h2>
+            <div className="bg-destructive/10 border border-destructive/20 text-destructive-foreground p-3 rounded-md mt-4 font-code text-sm text-left w-full max-w-md">
                 <pre className="whitespace-pre-wrap">{errorMessage}</pre>
             </div>
-        </Alert>
+        </div>
     )
 }
 
