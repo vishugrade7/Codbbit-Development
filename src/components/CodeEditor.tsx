@@ -22,29 +22,6 @@ export function CodeEditor({ value, onChange, language = 'apex', theme = 'vs-dar
     setIsMounted(true);
   }, []);
 
-  function handleEditorDidMount(editor: editor.IStandaloneCodeEditor, monaco: Monaco) {
-    // Disable pasting
-    editor.addAction({
-      id: 'disable-paste',
-      label: 'Disable Paste',
-      keybindings: [monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyV],
-      run: () => {},
-    });
-
-    // Also disable the context menu paste
-    // The context menu paste command is 'editor.action.clipboardPasteAction'
-    // We can't easily remove it, but we can override it with a no-op
-    // This is a bit of a hack, but it's a common way to disable built-in actions.
-    const pasteAction = editor.getAction('editor.action.clipboardPasteAction');
-    if (pasteAction) {
-      const originalRun = pasteAction.run;
-      pasteAction.run = () => {
-        // Do nothing, effectively disabling paste.
-        console.log("Paste disabled");
-      };
-    }
-  }
-
   if (!isMounted) {
     return null; // Or a loading skeleton
   }
@@ -57,7 +34,6 @@ export function CodeEditor({ value, onChange, language = 'apex', theme = 'vs-dar
         theme={theme}
         value={value}
         onChange={onChange}
-        onMount={handleEditorDidMount}
         options={{
           automaticLayout: true,
           minimap: { enabled: false },
@@ -71,7 +47,7 @@ export function CodeEditor({ value, onChange, language = 'apex', theme = 'vs-dar
           wordWrap: 'on',
           padding: { top: 16 },
           readOnly: readOnly,
-          contextmenu: !readOnly, // disable context menu when readOnly
+          contextmenu: !readOnly,
           ...options,
         }}
       />
