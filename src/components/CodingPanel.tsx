@@ -88,7 +88,12 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
         )
     }
 
-    const errorMessage = output.error || 'An unknown error occurred.';
+    let errorMessage = output.error || 'An unknown error occurred.';
+    const assertionMatch = errorMessage.match(/Assertion Failed: Expected: (.*), Actual: (.*)/);
+
+    if (assertionMatch) {
+      errorMessage = `Assertion Failed: Expected: ${assertionMatch[1]}, Actual: ${assertionMatch[2]}`;
+    }
     
     return (
         <Alert variant="destructive" className="h-full">
