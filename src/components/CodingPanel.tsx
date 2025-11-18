@@ -107,11 +107,8 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
     return (
         <Alert variant="destructive" className="h-full">
             <XCircle className="h-5 w-5" />
-            <AlertTitle className="text-lg font-bold">{testFailureLine}</AlertTitle>
             <AlertDescription className="flex items-center gap-2 flex-wrap">
                 {finalErrorMessage} 
-                {/* {lineNumber && <Badge variant="secondary" className="font-mono">Line: {lineNumber}</Badge>} */}
-                {/* {className && <Badge variant="secondary" className="font-mono">Class: {className}</Badge>} */}
             </AlertDescription>
         </Alert>
     )
