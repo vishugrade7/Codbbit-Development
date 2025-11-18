@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useTransition } from "react";
+import { useState, useTransition, useEffect } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
 import { DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
@@ -15,14 +15,28 @@ import { executeSalesforceCode } from "@/lib/actions";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resizable";
 import { Badge } from "./ui/badge";
 
+const LOCAL_STORAGE_KEY = 'anonymous-apex-code';
+const DEFAULT_CODE = "System.debug('Hello from Anonymous Apex!');";
+
 export function AnonymousCodeRunner() {
-    const [code, setCode] = useState("System.debug('Hello from Anonymous Apex!');");
+    const [code, setCode] = useState("");
     const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
     const [status, setStatus] = useState<string>('Ready');
     const [isPending, startTransition] = useTransition();
     const { toast } = useToast();
     const { user } = useUser();
     const firestore = useFirestore();
+
+    useEffect(() => {
+        const savedCode = localStorage.getItem(LOCAL_STORAGE_KEY);
+        setCode(savedCode || DEFAULT_CODE);
+    }, []);
+
+    useEffect(() => {
+        if (code) {
+            localStorage.setItem(LOCAL_STORAGE_KEY, code);
+        }
+    }, [code]);
 
     const userDocRef = useMemoFirebase(() => {
       if (!firestore || !user?.uid) return null;
