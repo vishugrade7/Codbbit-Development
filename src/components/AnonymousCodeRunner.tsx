@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
 import { DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Play, Loader2 } from "lucide-react";
+import { Play, Loader2, CheckCircle, XCircle } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -13,6 +13,7 @@ import { doc } from 'firebase/firestore';
 import type { UserProfile } from "@/lib/types";
 import { executeSalesforceCode } from "@/lib/actions";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resizable";
+import { Badge } from "./ui/badge";
 
 export function AnonymousCodeRunner() {
     const [code, setCode] = useState("System.debug('Hello from Anonymous Apex!');");
@@ -91,9 +92,32 @@ export function AnonymousCodeRunner() {
                                             <span>{status}...</span>
                                         </div>
                                     ) : output ? (
-                                        <pre className={`whitespace-pre-wrap ${output.success ? 'text-foreground' : 'text-red-400'}`}>
-                                            {output.success ? `✅ Success!\n\n--- Logs ---\n${output.logs}` : `❌ Error!\n\n${output.error}\n\n--- Logs ---\n${output.logs}`}
-                                        </pre>
+                                        <div className="flex flex-col gap-2">
+                                            {output.success ? (
+                                                <Badge variant="secondary" className="bg-green-100 border-green-200 text-green-800 dark:bg-green-900/40 dark:text-green-300 w-fit">
+                                                    <CheckCircle className="mr-1 h-3.5 w-3.5" />
+                                                    Success
+                                                </Badge>
+                                            ) : (
+                                                <Badge variant="destructive" className="w-fit">
+                                                    <XCircle className="mr-1 h-3.5 w-3.5" />
+                                                    Error
+                                                </Badge>
+                                            )}
+                                            
+                                            {!output.success && output.error && (
+                                                <div className="bg-destructive/10 border border-destructive/20 text-destructive p-2 rounded-md mt-1">
+                                                    <pre className="whitespace-pre-wrap font-code text-xs">
+                                                        {output.error}
+                                                    </pre>
+                                                </div>
+                                            )}
+                                            
+                                            <h3 className="font-semibold text-xs text-muted-foreground mt-2">Logs</h3>
+                                            <pre className="whitespace-pre-wrap text-muted-foreground text-xs p-2 bg-background/50 rounded-md">
+                                                {output.logs || "No logs available."}
+                                            </pre>
+                                        </div>
                                     ) : (
                                         <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
                                             <div className="text-lg">Run Results</div>
