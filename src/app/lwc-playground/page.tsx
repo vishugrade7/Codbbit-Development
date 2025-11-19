@@ -10,11 +10,13 @@ import {
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, Download } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
+import { Input } from '@/components/ui/input';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const initialHtml = `
 <template>
@@ -45,6 +47,14 @@ const initialCss = `
 }
 `.trim();
 
+const sampleComponents = [
+    { name: 'accountFinder', lastModified: '2 days ago' },
+    { name: 'contactList', lastModified: '1 week ago' },
+    { name: 'caseManager', lastModified: '3 hours ago' },
+    { name: 'opportunityKanban', lastModified: '5 days ago' },
+    { name: 'productSelector', lastModified: '1 month ago' },
+];
+
 export default function LwcPlaygroundPage() {
   const [htmlCode, setHtmlCode] = useState(initialHtml);
   const [jsCode, setJsCode] = useState(initialJs);
@@ -56,6 +66,7 @@ export default function LwcPlaygroundPage() {
   const [deploymentStatus, setDeploymentStatus] = useState<string[]>([]);
   const [isDeploying, setIsDeploying] = useState(false);
   const [activeTab, setActiveTab] = useState('html');
+  const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
 
   const handleToggleServer = () => {
     setIsServerRunning(prev => !prev);
@@ -82,6 +93,19 @@ export default function LwcPlaygroundPage() {
     
     setIsDeploying(false);
   };
+  
+  const handleFetchComponent = (componentName: string) => {
+    toast({
+      title: 'Component Fetched',
+      description: `"${componentName}" has been loaded into the playground.`,
+    });
+    // In a real implementation, you would fetch the actual file contents here.
+    // For now, we'll just update with placeholders.
+    setHtmlCode(`<template>\n    <!-- ${componentName}.html -->\n</template>`);
+    setJsCode(`import { LightningElement } from 'lwc';\n\nexport default class ${componentName.charAt(0).toUpperCase() + componentName.slice(1)} extends LightningElement {}`);
+    setCssCode(`/* ${componentName}.css */`);
+    setIsFetchDialogOpen(false);
+  };
 
   return (
     <SidebarProvider>
@@ -96,6 +120,10 @@ export default function LwcPlaygroundPage() {
                 <h1 className="text-lg font-bold font-headline">LWC Playground</h1>
              </div>
              <div className="flex items-center gap-2">
+                 <Button variant="outline" size="sm" onClick={() => setIsFetchDialogOpen(true)}>
+                    <Download className="mr-2 h-4 w-4" />
+                    Fetch from Org
+                </Button>
                 <Button variant="outline" size="sm" onClick={handleToggleServer}>
                     {isServerRunning ? (
                       <>
@@ -215,9 +243,33 @@ export default function LwcPlaygroundPage() {
                 </DialogFooter>
             </DialogContent>
         </Dialog>
+         <Dialog open={isFetchDialogOpen} onOpenChange={setIsFetchDialogOpen}>
+            <DialogContent className="sm:max-w-lg">
+                <DialogHeader>
+                    <DialogTitle>Fetch LWC from Org</DialogTitle>
+                    <DialogDescription>
+                        Search for a Lightning Web Component from your connected org to edit in the playground.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4">
+                    <Input placeholder="Search components..." className="mb-4" />
+                    <ScrollArea className="h-72">
+                        <div className="space-y-1 pr-4">
+                            {sampleComponents.map(comp => (
+                                <div key={comp.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                                    <div>
+                                        <p className="font-medium">{comp.name}</p>
+                                        <p className="text-xs text-muted-foreground">Modified {comp.lastModified}</p>
+                                    </div>
+                                    <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.name)}>Fetch</Button>
+                                </div>
+                            ))}
+                        </div>
+                    </ScrollArea>
+                </div>
+            </DialogContent>
+        </Dialog>
       </SidebarInset>
     </SidebarProvider>
   );
 }
-
-    
