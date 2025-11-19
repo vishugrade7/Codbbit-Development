@@ -67,6 +67,8 @@ export default function LwcPlaygroundPage() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [activeTab, setActiveTab] = useState('html');
   const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
+  const [fetchedComponents, setFetchedComponents] = useState<{name: string, lastModified: string}[]>([]);
+  const [isFetching, setIsFetching] = useState(false);
 
   const handleToggleServer = () => {
     setIsServerRunning(prev => !prev);
@@ -94,6 +96,19 @@ export default function LwcPlaygroundPage() {
     setIsDeploying(false);
   };
   
+  const handleFetchComponents = async () => {
+    setIsFetching(true);
+    // Simulate API call
+    await new Promise(resolve => setTimeout(resolve, 1500));
+    setFetchedComponents(sampleComponents);
+    setIsFetching(false);
+  }
+
+  const handleOpenFetchDialog = () => {
+    setIsFetchDialogOpen(true);
+    handleFetchComponents();
+  }
+  
   const handleFetchComponent = (componentName: string) => {
     toast({
       title: 'Component Fetched',
@@ -120,7 +135,7 @@ export default function LwcPlaygroundPage() {
                 <h1 className="text-lg font-bold font-headline">LWC Playground</h1>
              </div>
              <div className="flex items-center gap-2">
-                 <Button variant="outline" size="sm" onClick={() => setIsFetchDialogOpen(true)}>
+                 <Button variant="outline" size="sm" onClick={handleOpenFetchDialog}>
                     <Download className="mr-2 h-4 w-4" />
                     Fetch from Org
                 </Button>
@@ -254,17 +269,23 @@ export default function LwcPlaygroundPage() {
                 <div className="py-4">
                     <Input placeholder="Search components..." className="mb-4" />
                     <ScrollArea className="h-72">
-                        <div className="space-y-1 pr-4">
-                            {sampleComponents.map(comp => (
-                                <div key={comp.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
-                                    <div>
-                                        <p className="font-medium">{comp.name}</p>
-                                        <p className="text-xs text-muted-foreground">Modified {comp.lastModified}</p>
+                         {isFetching ? (
+                            <div className="flex items-center justify-center h-full">
+                                <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
+                            </div>
+                         ) : (
+                            <div className="space-y-1 pr-4">
+                                {fetchedComponents.map(comp => (
+                                    <div key={comp.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                                        <div>
+                                            <p className="font-medium">{comp.name}</p>
+                                            <p className="text-xs text-muted-foreground">Modified {comp.lastModified}</p>
+                                        </div>
+                                        <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.name)}>Fetch</Button>
                                     </div>
-                                    <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.name)}>Fetch</Button>
-                                </div>
-                            ))}
-                        </div>
+                                ))}
+                            </div>
+                         )}
                     </ScrollArea>
                 </div>
             </DialogContent>
