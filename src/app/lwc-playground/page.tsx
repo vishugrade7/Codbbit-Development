@@ -10,10 +10,11 @@ import {
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { cn } from '@/lib/utils';
 
 const initialHtml = `
 <template>
@@ -54,6 +55,7 @@ export default function LwcPlaygroundPage() {
   const [isDeployDialogOpen, setIsDeployDialogOpen] = useState(false);
   const [deploymentStatus, setDeploymentStatus] = useState<string[]>([]);
   const [isDeploying, setIsDeploying] = useState(false);
+  const [activeTab, setActiveTab] = useState('html');
 
   const handleToggleServer = () => {
     setIsServerRunning(prev => !prev);
@@ -114,12 +116,18 @@ export default function LwcPlaygroundPage() {
           <main className="flex-grow overflow-hidden">
             <ResizablePanelGroup direction="horizontal" className="h-full">
                 <ResizablePanel defaultSize={60} minSize={30}>
-                    <Tabs defaultValue="html" className="h-full flex flex-col">
-                        <div className="flex-shrink-0 px-4 py-2 border-b">
-                            <TabsList>
-                                <TabsTrigger value="html">HTML</TabsTrigger>
-                                <TabsTrigger value="js">JavaScript</TabsTrigger>
-                                <TabsTrigger value="css">CSS</TabsTrigger>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col bg-[#1e1e1e]">
+                        <div className="flex-shrink-0 border-b border-zinc-700">
+                            <TabsList className="bg-transparent p-0 gap-0">
+                                <TabsTrigger value="html" className={cn("text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-zinc-800 rounded-none border-t-2 border-transparent data-[state=active]:border-primary px-4 py-2 text-sm", activeTab === "html" && "border-primary")}>
+                                  <CodeIcon className="w-4 h-4 mr-2" /> myComponent.html
+                                </TabsTrigger>
+                                <TabsTrigger value="js" className={cn("text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-zinc-800 rounded-none border-t-2 border-transparent data-[state=active]:border-primary px-4 py-2 text-sm", activeTab === "js" && "border-primary")}>
+                                  <Braces className="w-4 h-4 mr-2" /> myComponent.js
+                                </TabsTrigger>
+                                <TabsTrigger value="css" className={cn("text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-zinc-800 rounded-none border-t-2 border-transparent data-[state=active]:border-primary px-4 py-2 text-sm", activeTab === "css" && "border-primary")}>
+                                  <Paintbrush className="w-4 h-4 mr-2" /> myComponent.css
+                                </TabsTrigger>
                             </TabsList>
                         </div>
                         <TabsContent value="html" className="flex-grow">
@@ -127,6 +135,7 @@ export default function LwcPlaygroundPage() {
                                 language="html"
                                 value={htmlCode}
                                 onChange={(value) => setHtmlCode(value || '')}
+                                theme="vs-dark"
                             />
                         </TabsContent>
                          <TabsContent value="js" className="flex-grow">
@@ -134,6 +143,7 @@ export default function LwcPlaygroundPage() {
                                 language="javascript"
                                 value={jsCode}
                                 onChange={(value) => setJsCode(value || '')}
+                                theme="vs-dark"
                             />
                         </TabsContent>
                          <TabsContent value="css" className="flex-grow">
@@ -141,6 +151,7 @@ export default function LwcPlaygroundPage() {
                                 language="css"
                                 value={cssCode}
                                 onChange={(value) => setCssCode(value || '')}
+                                theme="vs-dark"
                             />
                         </TabsContent>
                     </Tabs>
