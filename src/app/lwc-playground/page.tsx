@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState } from 'react';
@@ -10,7 +9,7 @@ import {
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, Deploy, FileCode, MonitorPlay, PowerOff } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 
@@ -91,7 +90,7 @@ export default function LwcPlaygroundPage() {
                     )}
                 </Button>
                  <Button size="sm" onClick={handleDeploy}>
-                    <Deploy className="mr-2 h-4 w-4" />
+                    <UploadCloud className="mr-2 h-4 w-4" />
                     Deploy
                 </Button>
              </div>
