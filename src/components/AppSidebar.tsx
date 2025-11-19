@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2, Search, BookOpen } from 'lucide-react';
+import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2, Search, BookOpen, Zap } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
@@ -83,6 +83,7 @@ export function AppSidebar() {
     if (pathname.startsWith('/settings')) return 'settings';
     if (pathname.startsWith('/feedback')) return 'feedback';
     if (pathname.startsWith('/courses')) return 'courses';
+    if (pathname.startsWith('/lwc-playground')) return 'lwc-playground';
     if (pathname === '/') return 'dashboard';
     if (userProfile && pathname.startsWith(`/${userProfile.username}`)) return 'profile';
     return '';
@@ -92,6 +93,7 @@ export function AppSidebar() {
     { value: 'dashboard', href: '/', icon: LayoutGrid, label: 'Dashboard' },
     { value: 'problems', href: '/problems', icon: Code, label: 'Problems' },
     { value: 'courses', href: '/courses', icon: BookOpen, label: 'Courses' },
+    { value: 'lwc-playground', href: '/lwc-playground', icon: Zap, label: 'LWC Playground' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
   ];
