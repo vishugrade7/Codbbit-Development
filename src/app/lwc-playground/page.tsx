@@ -49,6 +49,10 @@ const initialCss = `
 }
 `.trim();
 
+const lwcEngineSrc = "https://unpkg.com/@lwc/engine-dom@4.2.0/dist/engine-dom.cjs.min.js";
+const sldsStylesHref = "https://unpkg.com/@salesforce-ux/design-system@2.22.1/assets/styles/salesforce-lightning-design-system.min.css";
+
+
 export default function LwcPlaygroundPage() {
   const [htmlCode, setHtmlCode] = useState(initialHtml);
   const [jsCode, setJsCode] = useState(initialJs);
@@ -64,10 +68,61 @@ export default function LwcPlaygroundPage() {
   const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+
 
   const handleToggleServer = () => {
     setIsServerRunning(prev => !prev);
   }
+  
+  useEffect(() => {
+    if (isServerRunning && iframeRef.current) {
+        const iframe = iframeRef.current;
+        const document = iframe.contentDocument;
+        if (document) {
+            const transformedJs = jsCode.replace(/export default/, 'const MyComponent =');
+            
+            const fullHtml = `
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>LWC Preview</title>
+                    <link rel="stylesheet" href="${sldsStylesHref}">
+                    <style>${cssCode}</style>
+                </head>
+                <body class="slds-scope">
+                    <div id="main"></div>
+                    <script src="${lwcEngineSrc}"></script>
+                    <script type="module">
+                        try {
+                            const LWC = lwc;
+                            
+                            const templateString = \`${htmlCode}\`;
+                            
+                            function evalComponent() {
+                                ${transformedJs}
+                                return MyComponent;
+                            }
+                            
+                            const MyComponent = evalComponent();
+
+                            const App = LWC.createElement('my-component', { is: MyComponent });
+                            document.getElementById('main').appendChild(App);
+                        } catch (e) {
+                            console.error(e);
+                            document.getElementById('main').innerHTML = '<div style="color: red; padding: 1rem;">' + e.message + '</div>';
+                        }
+                    </script>
+                </body>
+                </html>
+            `;
+            document.open();
+            document.write(fullHtml);
+            document.close();
+        }
+    }
+  }, [isServerRunning, htmlCode, jsCode, cssCode])
+
 
   const handleDeploy = async () => {
     setIsDeployDialogOpen(true);
@@ -213,7 +268,7 @@ export default function LwcPlaygroundPage() {
                         <div className="flex-grow p-4">
                             {isServerRunning ? (
                                 <iframe
-                                    src="http://localhost:3001" // This will be the proxied URL
+                                    ref={iframeRef}
                                     className="w-full h-full border-none"
                                     title="LWC Preview"
                                 ></iframe>
@@ -297,3 +352,4 @@ export default function LwcPlaygroundPage() {
     </SidebarProvider>
   );
 }
+
