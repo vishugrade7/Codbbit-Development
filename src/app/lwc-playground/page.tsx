@@ -17,6 +17,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { getLwcBundles } from '@/lib/actions';
+import { useUser } from '@/firebase';
 
 const initialHtml = `
 <template>
@@ -47,19 +49,12 @@ const initialCss = `
 }
 `.trim();
 
-const sampleComponents = [
-    { name: 'accountFinder', lastModified: '2 days ago' },
-    { name: 'contactList', lastModified: '1 week ago' },
-    { name: 'caseManager', lastModified: '3 hours ago' },
-    { name: 'opportunityKanban', lastModified: '5 days ago' },
-    { name: 'productSelector', lastModified: '1 month ago' },
-];
-
 export default function LwcPlaygroundPage() {
   const [htmlCode, setHtmlCode] = useState(initialHtml);
   const [jsCode, setJsCode] = useState(initialJs);
   const [cssCode, setCssCode] = useState(initialCss);
   const { toast } = useToast();
+  const { user } = useUser();
   
   const [isServerRunning, setIsServerRunning] = useState(false);
   const [isDeployDialogOpen, setIsDeployDialogOpen] = useState(false);
@@ -67,7 +62,7 @@ export default function LwcPlaygroundPage() {
   const [isDeploying, setIsDeploying] = useState(false);
   const [activeTab, setActiveTab] = useState('html');
   const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
-  const [fetchedComponents, setFetchedComponents] = useState<{name: string, lastModified: string}[]>([]);
+  const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
 
   const handleToggleServer = () => {
@@ -97,10 +92,17 @@ export default function LwcPlaygroundPage() {
   };
   
   const handleFetchComponents = async () => {
+    if (!user) {
+        toast({ title: "Error", description: "You must be logged in to fetch components.", variant: "destructive" });
+        return;
+    }
     setIsFetching(true);
-    // Simulate API call
-    await new Promise(resolve => setTimeout(resolve, 1500));
-    setFetchedComponents(sampleComponents);
+    const result = await getLwcBundles(user.uid);
+    if (result.success) {
+      setFetchedComponents(result.data);
+    } else {
+      toast({ title: "Error Fetching Components", description: result.error, variant: "destructive" });
+    }
     setIsFetching(false);
   }
 
@@ -276,12 +278,12 @@ export default function LwcPlaygroundPage() {
                          ) : (
                             <div className="space-y-1 pr-4">
                                 {fetchedComponents.map(comp => (
-                                    <div key={comp.name} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
+                                    <div key={comp.Id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
                                         <div>
-                                            <p className="font-medium">{comp.name}</p>
-                                            <p className="text-xs text-muted-foreground">Modified {comp.lastModified}</p>
+                                            <p className="font-medium">{comp.DeveloperName}</p>
+                                            <p className="text-xs text-muted-foreground">Modified {new Date(comp.LastModifiedDate).toLocaleDateString()}</p>
                                         </div>
-                                        <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.name)}>Fetch</Button>
+                                        <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.DeveloperName)}>Fetch</Button>
                                     </div>
                                 ))}
                             </div>

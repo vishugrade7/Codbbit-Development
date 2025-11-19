@@ -670,3 +670,14 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
     return { success: false, error: error.message };
   }
 }
+
+export async function getLwcBundles(userId: string) {
+    try {
+        const auth = await getSfdcConnection(userId);
+        const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
+        const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
+        return { success: true, data: result.records };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
