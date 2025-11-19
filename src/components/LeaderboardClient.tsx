@@ -23,6 +23,7 @@ import Image from 'next/image';
 import { Separator } from './ui/separator';
 import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
+import { ScrollArea } from './ui/scroll-area';
 
 const PAGE_SIZE = 8;
 
@@ -68,78 +69,80 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
     return (
         <Card>
             <CardContent className="p-0">
-                <Table>
-                    <TableHeader>
-                        <TableRow className="hover:bg-transparent">
-                            <TableHead className="w-20 text-center">Rank</TableHead>
-                            <TableHead>User</TableHead>
-                            <TableHead>Company</TableHead>
-                            <TableHead>Country</TableHead>
-                            <TableHead className="text-right">Points</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {users.map((user, index) => (
-                        <TableRow key={user.uid} className={user.uid === currentUserUid ? 'bg-primary/5' : ''}>
-                            <TableCell className="text-center">
-                                <div className="flex items-center justify-center">
-                                    <RankMedal rank={(page - 1) * pageSize + index + 1} />
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center gap-3">
-                                    <div className="relative">
-                                        <Avatar>
-                                            <AvatarImage src={user.avatarUrl} />
-                                            <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                                        </Avatar>
-                                        {isUserVerified(user) && (
-                                            <TooltipProvider>
-                                                <Tooltip>
-                                                    <TooltipTrigger>
-                                                        <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
-                                                    </TooltipTrigger>
-                                                    <TooltipContent>
-                                                        <p>Verified</p>
-                                                    </TooltipContent>
-                                                </Tooltip>
-                                            </TooltipProvider>
-                                        )}
+                <ScrollArea className="h-[600px]">
+                    <Table>
+                        <TableHeader>
+                            <TableRow className="hover:bg-transparent">
+                                <TableHead className="w-20 text-center">Rank</TableHead>
+                                <TableHead>User</TableHead>
+                                <TableHead>Company</TableHead>
+                                <TableHead>Country</TableHead>
+                                <TableHead className="text-right">Points</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {users.map((user, index) => (
+                            <TableRow key={user.uid} className={user.uid === currentUserUid ? 'bg-primary/5' : ''}>
+                                <TableCell className="text-center">
+                                    <div className="flex items-center justify-center">
+                                        <RankMedal rank={(page - 1) * pageSize + index + 1} />
                                     </div>
-                                    <Link href={`/${user.username}`} className="hover:underline">
-                                      <div>
-                                          <div className="font-medium">{user.name}</div>
-                                          <span className="text-muted-foreground mt-0.5 text-xs">
-                                            @{user.username}
-                                          </span>
-                                      </div>
-                                    </Link>
-                                </div>
-                            </TableCell>
-                            <TableCell>
-                                {user.company ? (
+                                </TableCell>
+                                <TableCell>
+                                    <div className="flex items-center gap-3">
+                                        <div className="relative">
+                                            <Avatar>
+                                                <AvatarImage src={user.avatarUrl} />
+                                                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                                            </Avatar>
+                                            {isUserVerified(user) && (
+                                                <TooltipProvider>
+                                                    <Tooltip>
+                                                        <TooltipTrigger>
+                                                            <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
+                                                        </TooltipTrigger>
+                                                        <TooltipContent>
+                                                            <p>Verified</p>
+                                                        </TooltipContent>
+                                                    </Tooltip>
+                                                </TooltipProvider>
+                                            )}
+                                        </div>
+                                        <Link href={`/${user.username}`} className="hover:underline">
+                                          <div>
+                                              <div className="font-medium">{user.name}</div>
+                                              <span className="text-muted-foreground mt-0.5 text-xs">
+                                                @{user.username}
+                                              </span>
+                                          </div>
+                                        </Link>
+                                    </div>
+                                </TableCell>
+                                <TableCell>
+                                    {user.company ? (
+                                        <div className="flex items-center gap-2">
+                                            <Avatar className="h-6 w-6">
+                                                <AvatarImage src={getCompanyLogoUrl(user.company)} />
+                                                <AvatarFallback className="text-xs bg-muted">{user.company.charAt(0)}</AvatarFallback>
+                                            </Avatar>
+                                            <span className="font-medium">{user.company}</span>
+                                        </div>
+                                    ) : 'N/A'}
+                                </TableCell>
+                                <TableCell>
                                     <div className="flex items-center gap-2">
-                                        <Avatar className="h-6 w-6">
-                                            <AvatarImage src={getCompanyLogoUrl(user.company)} />
-                                            <AvatarFallback className="text-xs bg-muted">{user.company.charAt(0)}</AvatarFallback>
-                                        </Avatar>
-                                        <span className="font-medium">{user.company}</span>
+                                        <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />
+                                        {countryMap.get(user.country) || user.country}
                                     </div>
-                                ) : 'N/A'}
-                            </TableCell>
-                            <TableCell>
-                                <div className="flex items-center gap-2">
-                                    <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />
-                                    {countryMap.get(user.country) || user.country}
-                                </div>
-                            </TableCell>
-                            <TableCell className="text-right font-bold">
-                                {user.points}
-                            </TableCell>
-                        </TableRow>
-                        ))}
-                    </TableBody>
-                </Table>
+                                </TableCell>
+                                <TableCell className="text-right font-bold">
+                                    {user.points}
+                                </TableCell>
+                            </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
             </CardContent>
         </Card>
     )
