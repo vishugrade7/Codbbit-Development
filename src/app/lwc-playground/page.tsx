@@ -12,6 +12,7 @@ import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
 import { Play, Deploy, FileCode, MonitorPlay, PowerOff } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useToast } from '@/hooks/use-toast';
 
 const initialHtml = `
 <template>
@@ -46,12 +47,22 @@ export default function LwcPlaygroundPage() {
   const [htmlCode, setHtmlCode] = useState(initialHtml);
   const [jsCode, setJsCode] = useState(initialJs);
   const [cssCode, setCssCode] = useState(initialCss);
+  const { toast } = useToast();
   
   const [isServerRunning, setIsServerRunning] = useState(false);
 
   const handleToggleServer = () => {
     setIsServerRunning(prev => !prev);
   }
+
+  const handleDeploy = () => {
+    toast({
+      title: 'Deployment Started',
+      description: 'Your LWC component is being deployed to the connected org.',
+    });
+    // In a real implementation, this would trigger a server action
+    // to run the `sf project deploy` command.
+  };
 
   return (
     <SidebarProvider>
@@ -79,7 +90,7 @@ export default function LwcPlaygroundPage() {
                       </>
                     )}
                 </Button>
-                 <Button size="sm">
+                 <Button size="sm" onClick={handleDeploy}>
                     <Play className="mr-2 h-4 w-4" />
                     Deploy
                 </Button>
