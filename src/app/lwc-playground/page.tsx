@@ -76,8 +76,9 @@ export default function LwcPlaygroundPage() {
 
     const steps = [
         "Connecting to organization...",
-        "Creating deployment package...",
+        "Creating deployment package (myComponent.html, myComponent.js, myComponent.css)...",
         "Pushing component to the org...",
+        "Polling for deployment status...",
         "Running local tests...",
         "Verifying deployment...",
         "Deployment successful!",
@@ -248,7 +249,7 @@ export default function LwcPlaygroundPage() {
                             <span>{status}</span>
                         </div>
                     ))}
-                    {isDeploying && deploymentStatus.length < 6 && (
+                    {isDeploying && deploymentStatus.length < 7 && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <Loader2 className="h-4 w-4 animate-spin" />
                             <span>Processing...</span>
