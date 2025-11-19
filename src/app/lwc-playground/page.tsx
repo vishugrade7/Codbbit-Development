@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -68,7 +68,7 @@ export default function LwcPlaygroundPage() {
   const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
-  const iframeRef = React.useRef<HTMLIFrameElement>(null);
+  const iframeRef = useRef<HTMLIFrameElement>(null);
 
 
   const handleToggleServer = () => {
@@ -352,4 +352,3 @@ export default function LwcPlaygroundPage() {
     </SidebarProvider>
   );
 }
-
