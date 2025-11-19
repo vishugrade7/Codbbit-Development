@@ -68,8 +68,10 @@ export default function LwcPlaygroundPage() {
 
     const steps = [
         "Connecting to organization...",
-        "Deploying LWC component metadata...",
+        "Creating deployment package...",
+        "Pushing component to the org...",
         "Running local tests...",
+        "Verifying deployment...",
         "Deployment successful!",
     ];
 
@@ -201,7 +203,7 @@ export default function LwcPlaygroundPage() {
                             <span>{status}</span>
                         </div>
                     ))}
-                    {isDeploying && deploymentStatus.length < 4 && (
+                    {isDeploying && deploymentStatus.length < 6 && (
                         <div className="flex items-center gap-2 text-muted-foreground">
                             <Loader2 className="h-4 w-4 animate-spin" />
                             <span>Processing...</span>
@@ -217,3 +219,5 @@ export default function LwcPlaygroundPage() {
     </SidebarProvider>
   );
 }
+
+    
