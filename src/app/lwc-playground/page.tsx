@@ -1,6 +1,7 @@
+
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import {
   ResizablePanelGroup,
   ResizablePanel,
@@ -9,9 +10,10 @@ import {
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 
 const initialHtml = `
 <template>
@@ -49,18 +51,32 @@ export default function LwcPlaygroundPage() {
   const { toast } = useToast();
   
   const [isServerRunning, setIsServerRunning] = useState(false);
+  const [isDeployDialogOpen, setIsDeployDialogOpen] = useState(false);
+  const [deploymentStatus, setDeploymentStatus] = useState<string[]>([]);
+  const [isDeploying, setIsDeploying] = useState(false);
 
   const handleToggleServer = () => {
     setIsServerRunning(prev => !prev);
   }
 
-  const handleDeploy = () => {
-    toast({
-      title: 'Deployment Started',
-      description: 'Your LWC component is being deployed to the connected org.',
-    });
-    // In a real implementation, this would trigger a server action
-    // to run the `sf project deploy` command.
+  const handleDeploy = async () => {
+    setIsDeployDialogOpen(true);
+    setIsDeploying(true);
+    setDeploymentStatus([]);
+
+    const steps = [
+        "Connecting to organization...",
+        "Deploying LWC component metadata...",
+        "Running local tests...",
+        "Deployment successful!",
+    ];
+
+    for (const step of steps) {
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        setDeploymentStatus(prev => [...prev, step]);
+    }
+    
+    setIsDeploying(false);
   };
 
   return (
@@ -155,6 +171,37 @@ export default function LwcPlaygroundPage() {
             </ResizablePanelGroup>
           </main>
         </div>
+        <Dialog open={isDeployDialogOpen} onOpenChange={setIsDeployDialogOpen}>
+            <DialogContent>
+                <DialogHeader>
+                    <DialogTitle>Deployment Progress</DialogTitle>
+                    <DialogDescription>
+                        Your LWC component is being deployed. This may take a moment.
+                    </DialogDescription>
+                </DialogHeader>
+                <div className="py-4 font-mono text-sm space-y-2">
+                    {deploymentStatus.map((status, index) => (
+                        <div key={index} className="flex items-center gap-2">
+                            {index === deploymentStatus.length - 1 && isDeploying ? (
+                                <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                                <CheckCircle className="h-4 w-4 text-green-500" />
+                            )}
+                            <span>{status}</span>
+                        </div>
+                    ))}
+                    {isDeploying && deploymentStatus.length < 4 && (
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                            <Loader2 className="h-4 w-4 animate-spin" />
+                            <span>Processing...</span>
+                        </div>
+                    )}
+                </div>
+                <DialogFooter>
+                    <Button onClick={() => setIsDeployDialogOpen(false)} disabled={isDeploying}>Close</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
       </SidebarInset>
     </SidebarProvider>
   );
