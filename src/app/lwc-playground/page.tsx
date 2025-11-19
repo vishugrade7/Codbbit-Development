@@ -91,7 +91,7 @@ export default function LwcPlaygroundPage() {
                     )}
                 </Button>
                  <Button size="sm" onClick={handleDeploy}>
-                    <Play className="mr-2 h-4 w-4" />
+                    <Deploy className="mr-2 h-4 w-4" />
                     Deploy
                 </Button>
              </div>
