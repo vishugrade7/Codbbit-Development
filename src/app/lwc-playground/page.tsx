@@ -10,7 +10,7 @@ import {
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, Deploy, FileCode, MonitorPlay } from 'lucide-react';
+import { Play, Deploy, FileCode, MonitorPlay, PowerOff } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 const initialHtml = `
@@ -49,6 +49,10 @@ export default function LwcPlaygroundPage() {
   
   const [isServerRunning, setIsServerRunning] = useState(false);
 
+  const handleToggleServer = () => {
+    setIsServerRunning(prev => !prev);
+  }
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -62,9 +66,18 @@ export default function LwcPlaygroundPage() {
                 <h1 className="text-lg font-bold font-headline">LWC Playground</h1>
              </div>
              <div className="flex items-center gap-2">
-                <Button variant="outline" size="sm">
-                    <MonitorPlay className="mr-2 h-4 w-4" />
-                    Start Server
+                <Button variant="outline" size="sm" onClick={handleToggleServer}>
+                    {isServerRunning ? (
+                      <>
+                        <PowerOff className="mr-2 h-4 w-4 text-red-500"/>
+                        Stop Server
+                      </>
+                    ) : (
+                      <>
+                        <MonitorPlay className="mr-2 h-4 w-4" />
+                        Start Server
+                      </>
+                    )}
                 </Button>
                  <Button size="sm">
                     <Play className="mr-2 h-4 w-4" />
