@@ -255,7 +255,7 @@ export function LeaderboardClient() {
             </p>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
             <div className="lg:col-span-1 space-y-8">
                 {currentUserRank && (
                     <Card className="bg-muted/30 sticky top-24">
@@ -308,7 +308,7 @@ export function LeaderboardClient() {
                 </Card>
             </div>
 
-            <div className="lg:col-span-2">
+            <div className="lg:col-span-3">
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
                     <div className="flex justify-end mb-4">
                         <TabsList>
