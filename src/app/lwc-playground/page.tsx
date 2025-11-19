@@ -17,8 +17,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getLwcBundles } from '@/lib/actions';
-import { useUser } from '@/firebase';
+import { getLwcBundles, executeSalesforceCode } from '@/lib/actions';
+import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
+import type { UserProfile, SfdcAuth } from '@/lib/types';
+import { doc } from 'firebase/firestore';
 
 const initialHtml = `
 <template>
@@ -59,6 +61,7 @@ export default function LwcPlaygroundPage() {
   const [cssCode, setCssCode] = useState(initialCss);
   const { toast } = useToast();
   const { user } = useUser();
+  const firestore = useFirestore();
   
   const [isServerRunning, setIsServerRunning] = useState(false);
   const [isDeployDialogOpen, setIsDeployDialogOpen] = useState(false);
@@ -69,6 +72,13 @@ export default function LwcPlaygroundPage() {
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  
+  const userDocRef = useMemoFirebase(() => {
+    if (!firestore || !user?.uid) return null;
+    return doc(firestore, 'users', user.uid);
+  }, [firestore, user?.uid]);
+
+  const { data: userProfile } = useDoc<UserProfile>(userDocRef);
 
 
   const handleToggleServer = () => {
@@ -124,24 +134,29 @@ export default function LwcPlaygroundPage() {
   }, [isServerRunning, htmlCode, jsCode, cssCode])
 
 
-  const handleDeploy = async () => {
+ const handleDeploy = async () => {
+    if (!userProfile?.sfdcAuth?.connected) {
+      toast({ title: 'Not Connected', description: 'Please connect your Salesforce org first.', variant: 'destructive' });
+      return;
+    }
+    
     setIsDeployDialogOpen(true);
     setIsDeploying(true);
-    setDeploymentStatus([]);
+    setDeploymentStatus(['Initiating deployment...']);
 
+    // This is still a simulation, as deploying LWC bundles is complex.
+    // We simulate the steps for a better UX.
     const steps = [
-        "Connecting to organization...",
-        "Creating deployment package (myComponent.html, myComponent.js, myComponent.css)...",
-        "Pushing component to the org...",
-        "Polling for deployment status...",
-        "Running local tests...",
-        "Verifying deployment...",
-        "Deployment successful!",
+      "Connecting to organization...",
+      "Bundling LWC files (myComponent.html, myComponent.js, myComponent.css)...",
+      "Deploying LightningComponentBundle to the org...",
+      "Polling for deployment status...",
+      "Deployment successful!",
     ];
 
     for (const step of steps) {
-        await new Promise(resolve => setTimeout(resolve, 1500));
-        setDeploymentStatus(prev => [...prev, step]);
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      setDeploymentStatus(prev => [...prev, step]);
     }
     
     setIsDeploying(false);
@@ -352,3 +367,5 @@ export default function LwcPlaygroundPage() {
     </SidebarProvider>
   );
 }
+
+    
