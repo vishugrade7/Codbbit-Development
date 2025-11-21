@@ -22,7 +22,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc, writeBatch, getDocs } from 'firebase/firestore';
+import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc, writeBatch, getDocs, query, where } from 'firebase/firestore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import type { Question } from '@/lib/types';
@@ -644,4 +644,3 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
-
