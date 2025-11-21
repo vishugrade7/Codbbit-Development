@@ -713,11 +713,7 @@ export async function deployLwc(userId: string, lwcData: {
         };
 
         const bundleBody = {
-            DeveloperName: componentName,
-            ApiVersion: apiVersion,
-            IsExposed: isExposed,
-            MasterLabel: masterLabel || componentName,
-            Description: description,
+            FullName: componentName,
             Metadata: metadata
         };
         
