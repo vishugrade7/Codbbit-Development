@@ -110,7 +110,7 @@ export function AppSidebar() {
         // Fallback to global settings if no override exists
         return navSettings[key] !== false;
     });
-  }, [navSettings, isLoadingNav, userProfile]);
+  }, [navSettings, isLoadingNav, userProfile, allNavItems]);
 
 
   return (

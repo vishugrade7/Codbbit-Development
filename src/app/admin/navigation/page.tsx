@@ -8,10 +8,11 @@ import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@
 import { doc } from 'firebase/firestore';
 import type { NavigationSettings } from '@/lib/types';
 import { HashLoader } from 'react-spinners';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
+import Link from 'next/link';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', description: 'The main landing page for logged-in users.' },
@@ -84,13 +85,21 @@ export default function NavigationSettingsPage() {
 
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-       <header className="mb-8">
-        <h1 className="text-3xl font-bold font-headline tracking-tight">Navigation Settings</h1>
-        <p className="text-muted-foreground mt-1">Control which sidebar tabs are visible to regular users.</p>
+       <header className="mb-8 flex items-center justify-between">
+        <div>
+          <h1 className="text-3xl font-bold font-headline tracking-tight">Navigation Settings</h1>
+          <p className="text-muted-foreground mt-1">Control which sidebar tabs are visible to regular users.</p>
+        </div>
+        <Button asChild variant="outline">
+          <Link href="/admin/users">
+            <Users className="mr-2 h-4 w-4" />
+            Manage Individual Users
+          </Link>
+        </Button>
       </header>
       <Card>
         <CardHeader>
-          <CardTitle>Sidebar Visibility</CardTitle>
+          <CardTitle>Global Sidebar Visibility</CardTitle>
           <CardDescription>
             Enable or disable sidebar items for all non-admin users. Changes will take effect on next page load for them.
           </CardDescription>
