@@ -19,7 +19,7 @@ import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getLwcBundles, executeSalesforceCode } from '@/lib/actions';
+import { getLwcBundles, getLwcBundleFiles } from '@/lib/actions';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import type { UserProfile, SfdcAuth } from '@/lib/types';
 import { doc } from 'firebase/firestore';
@@ -73,6 +73,7 @@ export default function LwcPlaygroundPage() {
   const [isFetchDialogOpen, setIsFetchDialogOpen] = useState(false);
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
+  const [isFetchingFiles, setIsFetchingFiles] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   
   const [sessionInstanceUrl, setSessionInstanceUrl] = useState('');
@@ -193,17 +194,36 @@ export default function LwcPlaygroundPage() {
     setFetchedComponents([]); 
   }
   
-  const handleFetchComponent = (componentName: string) => {
-    toast({
-      title: 'Component Fetched',
-      description: `"${componentName}" has been loaded into the playground.`,
-    });
-    // In a real implementation, you would fetch the actual file contents here.
-    // For now, we'll just update with placeholders.
-    setHtmlCode(`<template>\n    <!-- ${componentName}.html -->\n</template>`);
-    setJsCode(`import { LightningElement } from 'lwc';\n\nexport default class ${componentName.charAt(0).toUpperCase() + componentName.slice(1)} extends LightningElement {}`);
-    setCssCode(`/* ${componentName}.css */`);
-    setIsFetchDialogOpen(false);
+  const handleFetchComponent = async (bundleId: string, componentName: string) => {
+    if (!user) return;
+    setIsFetchingFiles(true);
+    
+    const result = await getLwcBundleFiles(bundleId, user.uid, sessionInstanceUrl, sessionToken);
+    
+    if (result.success && result.data) {
+        const files = result.data;
+        const htmlFile = files.find(f => f.FilePath.endsWith('.html'));
+        const jsFile = files.find(f => f.FilePath.endsWith('.js'));
+        const cssFile = files.find(f => f.FilePath.endsWith('.css'));
+        
+        setHtmlCode(htmlFile?.Source || initialHtml);
+        setJsCode(jsFile?.Source || initialJs);
+        setCssCode(cssFile?.Source || initialCss);
+
+        toast({
+          title: 'Component Loaded',
+          description: `"${componentName}" has been loaded into the playground.`,
+        });
+        setIsFetchDialogOpen(false);
+    } else {
+        toast({
+          title: 'Error Fetching Files',
+          description: result.error || 'Could not load component source files.',
+          variant: 'destructive',
+        });
+    }
+
+    setIsFetchingFiles(false);
   };
 
   return (
@@ -347,7 +367,7 @@ export default function LwcPlaygroundPage() {
                 <DialogHeader>
                     <DialogTitle>Fetch LWC from Org</DialogTitle>
                     <DialogDescription>
-                        Search for a Lightning Web Component from your connected org to edit in the playground.
+                        Connect via OAuth through settings, or provide a session token to fetch components.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
@@ -359,7 +379,7 @@ export default function LwcPlaygroundPage() {
                                  <Input id="instanceUrl" placeholder="https://your-domain.my.salesforce.com" value={sessionInstanceUrl} onChange={(e) => setSessionInstanceUrl(e.target.value)} />
                              </div>
                              <div className="space-y-1">
-                                 <Label htmlFor="sessionToken">Session Token / ID</Label>
+                                 <Label htmlFor="sessionToken">Session ID / Token</Label>
                                  <Input id="sessionToken" type="password" placeholder="00D..." value={sessionToken} onChange={(e) => setSessionToken(e.target.value)} />
                              </div>
                         </div>
@@ -384,7 +404,10 @@ export default function LwcPlaygroundPage() {
                                             <p className="font-medium">{comp.DeveloperName}</p>
                                             <p className="text-xs text-muted-foreground">Modified {new Date(comp.LastModifiedDate).toLocaleDateString()}</p>
                                         </div>
-                                        <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.DeveloperName)}>Fetch</Button>
+                                        <Button size="sm" variant="secondary" onClick={() => handleFetchComponent(comp.Id, comp.DeveloperName)} disabled={isFetchingFiles}>
+                                            {isFetchingFiles && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                                            Fetch
+                                        </Button>
                                     </div>
                                 ))}
                             </div>

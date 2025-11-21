@@ -117,8 +117,7 @@ export async function initiateLinkedInOAuth(userId: string) {
 
 
 async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
-    const db = firestore;
-    const userDocRef = db.collection('users').doc(userId);
+    const userDocRef = firestore.collection('users').doc(userId);
     const userDoc = await userDocRef.get();
     const userData = userDoc.data() as UserProfile | undefined;
 
@@ -128,7 +127,6 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
     let auth = userData.sfdcAuth;
 
-    // Refresh if token is older than 55 minutes, or if connection is marked as disconnected
     const tokenAgeMinutes = (Date.now() - (auth.issuedAt || 0)) / (1000 * 60);
     if (tokenAgeMinutes > 55 || !auth.connected) { 
         console.log("Salesforce token is old or connection is stale, attempting refresh...");
@@ -158,12 +156,12 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
         if (!response.ok) {
             console.error("Failed to refresh Salesforce token, marking as disconnected.", data.error_description);
             await userDocRef.update({ "sfdcAuth.connected": false });
-            throw new Error('Failed to refresh Salesforce token. Please reconnect.');
+            throw new Error(`Could not refresh access token: ${data.error_description || 'Request failed with status code ' + response.status}`);
         }
         
         console.log("Salesforce token refreshed successfully.");
         const newAuth: Partial<SfdcAuth> = {
-            connected: true, // Mark as connected on successful refresh
+            connected: true,
             accessToken: data.access_token,
             issuedAt: parseInt(data.issued_at, 10),
             ...(data.refresh_token && { refreshToken: data.refresh_token }),
@@ -231,9 +229,9 @@ async function salesforceExecuteAnonymous(
   };
 
   try {
-    // 1. Get Current User Id (more reliable)
     const userInfoRes = await fetch(`${instanceUrl}/services/oauth2/userinfo`, { headers });
     const userInfo = await userInfoRes.json();
+    if (!userInfoRes.ok) throw new Error("Could not fetch user info.");
 
     const username = userInfo.preferred_username;
     const userQuery = await fetch(
@@ -246,7 +244,6 @@ async function salesforceExecuteAnonymous(
     const userId = userData.records?.[0]?.Id;
     if (!userId) throw new Error("Could not fetch user Id.");
 
-    // 2. Ensure DebugLevel exists
     const debugQuery = `${instanceUrl}/services/data/v60.0/tooling/query/?q=${encodeURIComponent(
       "SELECT Id FROM DebugLevel WHERE DeveloperName='CodeDebugLevel'"
     )}`;
@@ -275,7 +272,6 @@ async function salesforceExecuteAnonymous(
       debugLevelId = debugResult.id;
     }
 
-    // 3. Remove old TraceFlags for that user (avoid conflicts)
     const oldFlags = await fetch(
       `${instanceUrl}/services/data/v60.0/tooling/query?q=${encodeURIComponent(
         `SELECT Id FROM TraceFlag WHERE TracedEntityId = '${userId}'`
@@ -290,7 +286,6 @@ async function salesforceExecuteAnonymous(
       });
     }
 
-    // 4. Create fresh TraceFlag
     const expiration = new Date(Date.now() + 5 * 60 * 1000).toISOString();
     const traceCreate = await fetch(`${instanceUrl}/services/data/v60.0/tooling/sobjects/TraceFlag/`, {
       method: "POST",
@@ -305,7 +300,6 @@ async function salesforceExecuteAnonymous(
     const traceData = await traceCreate.json();
     if (!traceData.id) throw new Error("Failed to create TraceFlag.");
 
-    // 5. Execute Anonymous Apex
     const execUrl = `${instanceUrl}/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(
       code
     )}`;
@@ -320,7 +314,6 @@ async function salesforceExecuteAnonymous(
       return { success: false, logs: "", error };
     }
 
-    // 6. Fetch the latest ApexLog (wait a bit for it to generate)
     await new Promise(res => setTimeout(res, 1500));
     const logQuery = await fetch(
       `${instanceUrl}/services/data/v60.0/tooling/query?q=${encodeURIComponent(
@@ -341,7 +334,6 @@ async function salesforceExecuteAnonymous(
     const logBodyUrl = `${instanceUrl}/services/data/v60.0/tooling/sobjects/ApexLog/${logId}/Body`;
     const logText = await (await fetch(logBodyUrl, { headers })).text();
 
-    // 7. Filter debug lines
     const debugLines = logText
       .split("\n")
       .filter(l => l.includes("|DEBUG|"))
@@ -380,13 +372,12 @@ async function deleteToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 
         console.log(`Successfully deleted ${objectType} with ID ${recordId}`);
         return true;
     } catch (e: any) {
-        // If the record is already gone, that's a success for our purposes.
         if (e.message?.includes('ENTITY_IS_DELETED') || e.message?.includes('NOT_FOUND')) {
              console.log(`${objectType} with ID ${recordId} was already deleted.`);
              return true;
         }
         console.error(`Failed to delete ${objectType} with ID ${recordId}:`, e.message);
-        throw e; // Re-throw the error if it's not a "not found" error
+        throw e;
     }
 }
 
@@ -395,7 +386,6 @@ async function upsertApexClass(auth: SfdcAuth, className: string, body: string):
   const existingRecord = await findToolingApiRecord(auth, 'ApexClass', className);
   if (existingRecord) {
       await deleteToolingApiRecord(auth, 'ApexClass', existingRecord.Id);
-      // Wait a moment for deletion to propagate
       await sleep(1000); 
   }
   
@@ -411,7 +401,6 @@ async function upsertApexTrigger(auth: SfdcAuth, triggerName: string, body: stri
     const existingRecord = await findToolingApiRecord(auth, 'ApexTrigger', triggerName);
     if (existingRecord) {
         await deleteToolingApiRecord(auth, 'ApexTrigger', existingRecord.Id);
-        // Wait a moment for deletion to propagate
         await sleep(1000);
     }
     
@@ -454,7 +443,6 @@ async function salesforceExecuteTestClass(
   }
 
   try {
-    // 1. Upload main Apex class or trigger
     if (userObjectType === 'Class') {
         await upsertApexClass(auth, userObjectName, sanitizedUserCode);
     } else if (userObjectType === 'Trigger' && problem.object) {
@@ -463,10 +451,8 @@ async function salesforceExecuteTestClass(
         return { success: false, logs: "", error: "Unsupported metadata type or missing object for trigger." };
     }
 
-    // 2. Upload test class
     await upsertApexClass(auth, testClassName, sanitizedTestCode);
 
-    // 3. Execute test asynchronously
     const runRes = await sfdcFetch(auth, `/services/data/v60.0/tooling/runTestsAsynchronous/`, {
       method: "POST",
       body: JSON.stringify({ classNames: testClassName }),
@@ -475,7 +461,6 @@ async function salesforceExecuteTestClass(
     const asyncJobId = runRes || null;
     if (!asyncJobId) throw new Error("Failed to start asynchronous test run.");
 
-    // 4. Poll for completion
     let status = "Queued";
     for (let i = 0; i < 30; i++) {
       await sleep(2000);
@@ -488,7 +473,6 @@ async function salesforceExecuteTestClass(
       throw new Error(`Test run did not complete successfully. Status: ${status}`);
     }
 
-    // 5. Fetch test results
     const resultQuery = `SELECT ApexClassId, Outcome, MethodName, Message, StackTrace, ApexLogId, RunTime FROM ApexTestResult WHERE AsyncApexJobId = '${asyncJobId}'`;
     const resultData = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(resultQuery)}`);
 
@@ -525,9 +509,9 @@ async function salesforceExecuteTestClass(
 export async function executeSalesforceCode(
     auth: SfdcAuth,
     code: string,
-    executionType: 'anonymous' | 'class' | 'soql' | 'test class',
+    executionType: 'anonymous' | 'class' | 'trigger' | 'test class',
     testCode?: string,
-    userId?: string, // Optional: Only needed for operations that modify user data, like test submission
+    userId?: string,
     problem?: Partial<Question>
 ): Promise<{ success: boolean; result?: any; logs: string; error?: string; runtime?: number; }> {
     try {
@@ -600,32 +584,20 @@ export async function deleteSalesforceMetadata(
 
 export async function deleteUserAccount(userId: string): Promise<{ success: boolean, error?: string }> {
     try {
-        // Delete user from Firebase Authentication
         await getAuth().deleteUser(userId);
-
-        // Delete user document from Firestore
         const userDocRef = firestore.collection('users').doc(userId);
         await userDocRef.delete();
-
-        // Revalidate paths if needed, for example, the user's profile page
-        // revalidatePath('/profile'); // This is client-side, would need to be handled differently
-
         return { success: true };
-
     } catch (error: any) {
         console.error("Error deleting user account:", error);
-        
         let errorMessage = "An unknown error occurred while deleting your account.";
         if (error.code === 'auth/requires-recent-login') {
             errorMessage = "This is a sensitive operation and requires you to have recently logged in. Please log out and log back in before trying again.";
         } else if (error.code === 'auth/user-not-found') {
-            // This can happen if the auth user was already deleted but firestore failed.
-            // We can consider this a partial success, but we'll report an error for clarity.
              const userDocRef = firestore.collection('users').doc(userId);
              await userDocRef.delete();
              return { success: true };
         }
-        
         return { success: false, error: errorMessage };
     }
 }
@@ -647,7 +619,7 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
     }
 
     let status = 'IN_PROGRESS';
-    for (let i = 0; i < 60; i++) { // Poll for up to 5 minutes (60 * 5s)
+    for (let i = 0; i < 60; i++) {
       await new Promise(r => setTimeout(r, 5000));
       const statusRes = await sfdcFetch(auth, `/services/data/v59.0/tooling/sobjects/PackageInstallRequest/${requestId}`);
       status = statusRes.Status;
@@ -673,22 +645,34 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
   }
 }
 
+async function getAuthForRequest(userId: string, instanceUrl?: string, sessionToken?: string): Promise<SfdcAuth> {
+    if (instanceUrl && sessionToken) {
+        return {
+            instanceUrl,
+            accessToken: sessionToken,
+            connected: true,
+            refreshToken: '',
+            issuedAt: Date.now()
+        };
+    }
+    return getSfdcConnection(userId);
+}
+
 export async function getLwcBundles(userId: string, instanceUrl?: string, sessionToken?: string) {
     try {
-        let auth: SfdcAuth;
-        if (instanceUrl && sessionToken) {
-            auth = {
-                instanceUrl,
-                accessToken: sessionToken,
-                connected: true,
-                refreshToken: '', // Not available in this flow
-                issuedAt: Date.now()
-            };
-        } else {
-            auth = await getSfdcConnection(userId);
-        }
-        
+        const auth = await getAuthForRequest(userId, instanceUrl, sessionToken);
         const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
+        const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
+        return { success: true, data: result.records };
+    } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function getLwcBundleFiles(bundleId: string, userId: string, instanceUrl?: string, sessionToken?: string) {
+    try {
+        const auth = await getAuthForRequest(userId, instanceUrl, sessionToken);
+        const query = `SELECT Id, LightningComponentBundleId, FilePath, Source FROM LightningComponentResource WHERE LightningComponentBundleId='${bundleId}'`;
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
     } catch (e: any) {
