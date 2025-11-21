@@ -71,7 +71,19 @@
         "contributions": { "type": "array", "items": { "type": "object" } },
         "referralCode": { "type": "string", "description": "Unique code for referring other users." },
         "referredBy": { "type": "string", "description": "The referral code of the user who referred them." },
-        "referredUsersCount": { "type": "number", "description": "The number of users referred by this user." }
+        "referredUsersCount": { "type": "number", "description": "The number of users referred by this user." },
+        "navigationOverrides": {
+          "type": "object",
+          "description": "User-specific overrides for sidebar navigation visibility.",
+           "properties": {
+              "dashboard": { "type": "boolean" },
+              "problems": { "type": "boolean" },
+              "courses": { "type": "boolean" },
+              "lwc-playground": { "type": "boolean" },
+              "leaderboard": { "type": "boolean" },
+              "sheets": { "type": "boolean" }
+            }
+        }
       },
       "required": ["uid", "email", "username", "name"]
     },

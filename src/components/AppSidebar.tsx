@@ -95,12 +95,22 @@ export function AppSidebar() {
   ];
 
   const navItems = React.useMemo(() => {
-      if (isLoadingNav || !navSettings) {
-          // Show all items by default while loading or if settings don't exist
-          return allNavItems;
-      }
-      return allNavItems.filter(item => navSettings[item.value as keyof NavigationSettings] !== false);
-  }, [navSettings, isLoadingNav]);
+    if (isLoadingNav || !navSettings || !userProfile) {
+        return allNavItems;
+    }
+    
+    return allNavItems.filter(item => {
+        const key = item.value as keyof NavigationSettings;
+        const userOverride = userProfile.navigationOverrides?.[key];
+
+        if (typeof userOverride === 'boolean') {
+            return userOverride;
+        }
+        
+        // Fallback to global settings if no override exists
+        return navSettings[key] !== false;
+    });
+  }, [navSettings, isLoadingNav, userProfile]);
 
 
   return (
