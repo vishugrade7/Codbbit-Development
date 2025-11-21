@@ -25,6 +25,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { AppSidebar, Sidebar, SidebarInset, SidebarProvider } from '@/components';
 
 const initialHtml = `
 <template>
@@ -149,116 +150,123 @@ export default function LwcPlaygroundPage() {
   );
 
   return (
-    <div className="flex flex-col h-screen bg-[#0d1117] text-foreground">
-      <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-zinc-800">
-         <Button variant="outline" size="sm" onClick={handleNewComponent}>
-            <FilePlus className="mr-2 h-4 w-4" />
-            New Component
-        </Button>
-         <div className="flex items-center gap-2">
-            <Button variant="outline" size="sm">
-                <Download className="mr-2 h-4 w-4" />
-                Fetch from Org
+    <SidebarProvider>
+      <Sidebar>
+        <AppSidebar />
+      </Sidebar>
+      <SidebarInset>
+        <div className="flex flex-col h-screen bg-[#0d1117] text-foreground">
+          <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-zinc-800">
+            <Button variant="outline" size="sm" onClick={handleNewComponent}>
+                <FilePlus className="mr-2 h-4 w-4" />
+                New Component
             </Button>
-            <Button variant="outline" size="sm">
-                <MonitorPlay className="mr-2 h-4 w-4" />
-                Start Server
-            </Button>
-             <Button size="sm">
-                <UploadCloud className="mr-2 h-4 w-4" />
-                Deploy
-            </Button>
-         </div>
-      </header>
-      <main className="flex-grow overflow-hidden">
-        <ResizablePanelGroup direction="horizontal" className="h-full">
-            <ResizablePanel defaultSize={25} minSize={20} className="bg-[#0d1117] p-2">
-                <div className="flex flex-col h-full">
-                    <div className="relative mb-2">
-                        <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
-                        <Input 
-                            placeholder="Search component or items..."
-                            value={searchQuery}
-                            onChange={(e) => setSearchQuery(e.target.value)}
-                            className="bg-zinc-900 border-zinc-700 pl-8 h-9"
-                        />
-                    </div>
-                    <ScrollArea className="flex-grow">
-                        <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
-                            <AccordionItem value="item-1" className="border-none">
-                                <AccordionTrigger className="text-xs font-bold text-zinc-400 uppercase py-2 hover:no-underline">
-                                    <div className="flex items-center gap-2">
-                                        <FileCode className="h-4 w-4" />
-                                        Lightning Web Component
-                                    </div>
-                                </AccordionTrigger>
-                                <AccordionContent className="pl-2">
-                                    {isFetching ? (
-                                        <div className="flex items-center justify-center p-4">
-                                            <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+            <div className="flex items-center gap-2">
+                <Button variant="outline" size="sm" onClick={handleFetchComponents} disabled={isFetching}>
+                    {isFetching && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                    Fetch from Org
+                </Button>
+                <Button variant="outline" size="sm">
+                    <MonitorPlay className="mr-2 h-4 w-4" />
+                    Start Server
+                </Button>
+                <Button size="sm">
+                    <UploadCloud className="mr-2 h-4 w-4" />
+                    Deploy
+                </Button>
+            </div>
+          </header>
+          <main className="flex-grow overflow-hidden">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
+                <ResizablePanel defaultSize={25} minSize={20} className="bg-[#0d1117] p-2">
+                    <div className="flex flex-col h-full">
+                        <div className="relative mb-2">
+                            <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                            <Input 
+                                placeholder="Search component or items..."
+                                value={searchQuery}
+                                onChange={(e) => setSearchQuery(e.target.value)}
+                                className="bg-zinc-900 border-zinc-700 pl-8 h-9"
+                            />
+                        </div>
+                        <ScrollArea className="flex-grow">
+                            <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
+                                <AccordionItem value="item-1" className="border-none">
+                                    <AccordionTrigger className="text-xs font-bold text-zinc-400 uppercase py-2 hover:no-underline">
+                                        <div className="flex items-center gap-2">
+                                            <FileCode className="h-4 w-4" />
+                                            Lightning Web Component
                                         </div>
-                                    ) : (
-                                        filteredComponents.map(comp => (
-                                            <button 
-                                                key={comp.Id} 
-                                                className="w-full text-left flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-zinc-800 text-zinc-300 text-sm"
-                                                onClick={() => handleFetchComponent(comp.Id, comp.DeveloperName)}
-                                            >
-                                               <ChevronRight className="h-4 w-4 text-zinc-600" />
-                                               {comp.DeveloperName}
-                                            </button>
-                                        ))
-                                    )}
-                                </AccordionContent>
-                            </AccordionItem>
-                        </Accordion>
-                    </ScrollArea>
-                </div>
-            </ResizablePanel>
-            <ResizableHandle withHandle className="bg-zinc-800" />
-            <ResizablePanel defaultSize={75} minSize={30}>
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden">
-                    <div className="flex-shrink-0 border-b border-zinc-700 bg-[#3c3c3c]">
-                        <TabsList className="bg-transparent p-0 gap-0">
-                            <TabsTrigger value="html" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
-                              <CodeIcon className="w-4 h-4 mr-2" /> myComponent.html
-                            </TabsTrigger>
-                            <TabsTrigger value="js" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
-                              <Braces className="w-4 h-4 mr-2" /> myComponent.js
-                            </TabsTrigger>
-                            <TabsTrigger value="css" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
-                              <Paintbrush className="w-4 h-4 mr-2" /> myComponent.css
-                            </TabsTrigger>
-                        </TabsList>
+                                    </AccordionTrigger>
+                                    <AccordionContent className="pl-2">
+                                        {isFetching ? (
+                                            <div className="flex items-center justify-center p-4">
+                                                <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                                            </div>
+                                        ) : (
+                                            filteredComponents.map(comp => (
+                                                <button 
+                                                    key={comp.Id} 
+                                                    className="w-full text-left flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-zinc-800 text-zinc-300 text-sm"
+                                                    onClick={() => handleFetchComponent(comp.Id, comp.DeveloperName)}
+                                                >
+                                                  <ChevronRight className="h-4 w-4 text-zinc-600" />
+                                                  {comp.DeveloperName}
+                                                </button>
+                                            ))
+                                        )}
+                                    </AccordionContent>
+                                </AccordionItem>
+                            </Accordion>
+                        </ScrollArea>
                     </div>
-                    <TabsContent value="html" className="flex-grow m-0">
-                         <CodeEditor
-                            language="html"
-                            value={htmlCode}
-                            onChange={(value) => setHtmlCode(value || '')}
-                            theme="vs-dark"
-                        />
-                    </TabsContent>
-                     <TabsContent value="js" className="flex-grow m-0">
-                         <CodeEditor
-                            language="javascript"
-                            value={jsCode}
-                            onChange={(value) => setJsCode(value || '')}
-                            theme="vs-dark"
-                        />
-                    </TabsContent>
-                     <TabsContent value="css" className="flex-grow m-0">
-                         <CodeEditor
-                            language="css"
-                            value={cssCode}
-                            onChange={(value) => setCssCode(value || '')}
-                            theme="vs-dark"
-                        />
-                    </TabsContent>
-                </Tabs>
-            </ResizablePanel>
-        </ResizablePanelGroup>
-      </main>
-    </div>
+                </ResizablePanel>
+                <ResizableHandle withHandle className="bg-zinc-800" />
+                <ResizablePanel defaultSize={75} minSize={30}>
+                    <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden">
+                        <div className="flex-shrink-0 border-b border-zinc-700 bg-[#3c3c3c]">
+                            <TabsList className="bg-transparent p-0 gap-0">
+                                <TabsTrigger value="html" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
+                                  <CodeIcon className="w-4 h-4 mr-2" /> myComponent.html
+                                </TabsTrigger>
+                                <TabsTrigger value="js" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
+                                  <Braces className="w-4 h-4 mr-2" /> myComponent.js
+                                </TabsTrigger>
+                                <TabsTrigger value="css" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
+                                  <Paintbrush className="w-4 h-4 mr-2" /> myComponent.css
+                                </TabsTrigger>
+                            </TabsList>
+                        </div>
+                        <TabsContent value="html" className="flex-grow m-0">
+                            <CodeEditor
+                                language="html"
+                                value={htmlCode}
+                                onChange={(value) => setHtmlCode(value || '')}
+                                theme="vs-dark"
+                            />
+                        </TabsContent>
+                        <TabsContent value="js" className="flex-grow m-0">
+                            <CodeEditor
+                                language="javascript"
+                                value={jsCode}
+                                onChange={(value) => setJsCode(value || '')}
+                                theme="vs-dark"
+                            />
+                        </TabsContent>
+                        <TabsContent value="css" className="flex-grow m-0">
+                            <CodeEditor
+                                language="css"
+                                value={cssCode}
+                                onChange={(value) => setCssCode(value || '')}
+                                theme="vs-dark"
+                            />
+                        </TabsContent>
+                    </Tabs>
+                </ResizablePanel>
+            </ResizablePanelGroup>
+          </main>
+        </div>
+      </SidebarInset>
+    </SidebarProvider>
   );
 }
