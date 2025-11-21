@@ -9,11 +9,12 @@ import {
 } from "@/components/ui/resizable";
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, FilePlus, Search, ChevronRight } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, FilePlus, Search, ChevronRight, Link as LinkIcon } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { getLwcBundles, getLwcBundleFiles, deployLwc } from '@/lib/actions';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
@@ -25,6 +26,7 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "@/components/ui/accordion";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { AppSidebar, Sidebar, SidebarInset, SidebarProvider } from '@/components';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { CreateLwcForm } from '@/components/CreateLwcForm';
@@ -79,6 +81,33 @@ export default function LwcPlaygroundPage() {
   const [previewOpen, setPreviewOpen] = useState(false);
   const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
 
+  const [sessionId, setSessionId] = useState('');
+  const [instanceUrl, setInstanceUrl] = useState('');
+  const [isCredentialDialogOpen, setIsCredentialDialogOpen] = useState(false);
+
+  useEffect(() => {
+    try {
+      const storedSessionId = localStorage.getItem('lwc_sessionId');
+      const storedInstanceUrl = localStorage.getItem('lwc_instanceUrl');
+      if (storedSessionId) setSessionId(storedSessionId);
+      if (storedInstanceUrl) setInstanceUrl(storedInstanceUrl);
+    } catch (error) {
+      console.warn("Could not access localStorage for LWC credentials.");
+    }
+  }, []);
+
+  const handleSaveCredentials = () => {
+    try {
+      localStorage.setItem('lwc_sessionId', sessionId);
+      localStorage.setItem('lwc_instanceUrl', instanceUrl);
+      toast({ title: 'Credentials Saved', description: 'Session ID and Instance URL have been saved locally.' });
+      setIsCredentialDialogOpen(false);
+    } catch (error) {
+      toast({ title: 'Error', description: 'Could not save credentials to local storage.', variant: 'destructive' });
+    }
+  };
+
+
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return doc(firestore, 'users', user.uid);
@@ -92,13 +121,15 @@ export default function LwcPlaygroundPage() {
         toast({ title: "Error", description: "You must be logged in to fetch components.", variant: "destructive" });
         return;
     }
-    if (!userProfile?.sfdcAuth?.connected) {
-      toast({ title: "Authentication Required", description: "Please connect your Salesforce org via settings.", variant: "destructive" });
+    if (!sessionId || !instanceUrl) {
+      toast({ title: "Authentication Required", description: "Please provide your Salesforce Session ID and Instance URL.", variant: "destructive" });
+      setIsCredentialDialogOpen(true);
       return;
     }
 
     setIsFetching(true);
-    const result = await getLwcBundles(user.uid);
+    const auth = { accessToken: sessionId, instanceUrl, connected: true, refreshToken: '', issuedAt: 0 };
+    const result = await getLwcBundles(user.uid, auth);
     if (result.success) {
       setFetchedComponents(result.data);
     } else {
@@ -108,17 +139,22 @@ export default function LwcPlaygroundPage() {
   }
   
   useEffect(() => {
-    if (userProfile?.sfdcAuth?.connected) {
+    if (sessionId && instanceUrl) {
       handleFetchComponents();
     }
-  }, [userProfile]);
+  }, [sessionId, instanceUrl]);
 
 
   const handleFetchComponent = async (bundleId: string, componentName: string) => {
     if (!user) return;
+     if (!sessionId || !instanceUrl) {
+      toast({ title: "Authentication Required", description: "Please provide your Salesforce Session ID and Instance URL.", variant: "destructive" });
+      return;
+    }
     setIsFetchingFiles(true);
     
-    const result = await getLwcBundleFiles(bundleId, user.uid);
+    const auth = { accessToken: sessionId, instanceUrl, connected: true, refreshToken: '', issuedAt: 0 };
+    const result = await getLwcBundleFiles(bundleId, user.uid, auth);
     
     if (result.success && result.data) {
         const files = result.data;
@@ -150,7 +186,6 @@ export default function LwcPlaygroundPage() {
   }
   
   const handleFormSubmit = (data: any) => {
-    // In a real app, you would use this data to generate and deploy the new component.
     console.log("New component data:", data);
     setHtmlCode(initialHtml.replace('My LWC Component', data.masterLabel || data.componentName));
     setJsCode(initialJs.replace('MyComponent', data.componentName));
@@ -166,24 +201,17 @@ export default function LwcPlaygroundPage() {
     comp.DeveloperName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
-  // ---------- Preview Sandbox ----------
   function createSandboxHtml(html: string, js: string, css: string) {
-    // Basic transform: convert LWC template-like tokens to simple DOM
-    // We'll replace <template> wrapper and `{greeting}` bindings for this sandbox
     const cleanHtml = html
       .replace(/<template[^>]*>/i, '')
       .replace(/<\/template>/i, '')
-      // Replace <lightning-input ... onchange={handleGreetingChange}> with a simple input
       .replace(/<lightning-input[^>]*label="([^"]*)"[^>]*value=\{greeting\}[^>]*onchange=\{handleGreetingChange\}[^>]*><\/lightning-input>/i,
         `<label>$1</label><input id="__sandbox_input__" value="{greeting}" />`)
-      // Replace any {greeting} occurrences with span with data-binding
       .replace(/\{greeting\}/g, '<span data-binding="greeting">{greeting}</span>');
 
-    // Provide a tiny runtime to update bindings
     const runtime = `
       (function(){
         const root = document.getElementById('root');
-        // initialize model
         const model = { greeting: 'World' };
         function refresh() {
           const els = root.querySelectorAll('[data-binding="greeting"]');
@@ -191,18 +219,14 @@ export default function LwcPlaygroundPage() {
           const input = document.getElementById('__sandbox_input__');
           if (input) input.value = model.greeting;
         }
-        // hook input
         document.addEventListener('input', (ev) => {
           if (ev.target && ev.target.id === '__sandbox_input__') {
             model.greeting = ev.target.value;
             refresh();
           }
         }, true);
-
-        // If user-provided JS contains a naive initialization like setting greeting, try to eval it (best-effort)
         try {
           const userJs = \`${js.replace(/`/g, '\\`')}\`;
-          // Very light-weight: replace @track greeting = 'X' with model.greeting = 'X' assignments.
           const trackedAssign = userJs.match(/@track\\s+greeting\\s*=\\s*['"]([^'"]+)['"]/);
           if (trackedAssign) {
             model.greeting = trackedAssign[1];
@@ -210,7 +234,6 @@ export default function LwcPlaygroundPage() {
         } catch (e) {
           console.warn('Could not execute user JS in sandbox:', e);
         }
-
         refresh();
       })();
     `;
@@ -234,7 +257,6 @@ export default function LwcPlaygroundPage() {
 
   const handlePreview = () => {
     setPreviewOpen(true);
-    // inject content after iframe mounts
     setTimeout(() => {
       if (!previewIframeRef.current) return;
       const doc = previewIframeRef.current.contentDocument || previewIframeRef.current.contentWindow?.document;
@@ -249,28 +271,28 @@ export default function LwcPlaygroundPage() {
     setPreviewOpen(false);
   };
 
-  // ---------- Deploy (Tooling API via server) ----------
   const handleDeploy = async () => {
     if (!user) {
       toast({ title: 'Login required', description: 'Please sign in before deploying.', variant: 'destructive' });
       return;
     }
+     if (!sessionId || !instanceUrl) {
+      toast({ title: "Authentication Required", description: "Please provide your Salesforce Session ID and Instance URL.", variant: "destructive" });
+      return;
+    }
     setIsDeploying(true);
 
-    // Derive component name: developer-friendly name (remove spaces / special chars)
     const componentNameGuess = ((): string => {
-      // If template contains lightning-card with title, try to use that, fallback to myComponent
       const match = htmlCode.match(/<lightning-card[^>]*title="([^"]+)"/i);
       if (match?.[1]) {
         return match[1].replace(/\s+/g, '').replace(/[^a-zA-Z0-9_]/g, '');
       }
-      // try existing: assume myComponent filename in tabs
       return 'myComponent';
     })();
 
     const lwcData = {
       componentName: componentNameGuess,
-      apiVersion: '57.0', // you can adjust
+      apiVersion: '57.0',
       isExposed: false,
       masterLabel: componentNameGuess,
       description: `Deployed from Playground by ${user.uid}`,
@@ -279,12 +301,13 @@ export default function LwcPlaygroundPage() {
       js: jsCode,
       css: cssCode,
     };
+    
+    const auth = { accessToken: sessionId, instanceUrl, connected: true, refreshToken: '', issuedAt: 0 };
 
     try {
-      const res = await deployLwc(user.uid, lwcData);
+      const res = await deployLwc(user.uid, lwcData, auth);
       if (res.success) {
         toast({ title: 'Deployed', description: `Component ${lwcData.componentName} deployed successfully.` });
-        // refresh component list
         await handleFetchComponents();
       } else {
         toast({ title: 'Deploy Error', description: res.error || 'Failed to deploy', variant: 'destructive' });
@@ -324,6 +347,37 @@ export default function LwcPlaygroundPage() {
                       {isDeploying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
                       Deploy
                   </Button>
+               </div>
+               <div className="flex items-center gap-2">
+                 <Dialog open={isCredentialDialogOpen} onOpenChange={setIsCredentialDialogOpen}>
+                    <DialogTrigger asChild>
+                        <Button variant="outline" size="sm">
+                            <LinkIcon className="mr-2 h-4 w-4" />
+                            Connect
+                        </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                        <DialogHeader>
+                            <DialogTitle>Salesforce Credentials</DialogTitle>
+                            <DialogDescription>
+                                Enter your session ID and instance URL to connect to your Salesforce org. This information is saved locally in your browser.
+                            </DialogDescription>
+                        </DialogHeader>
+                        <div className="grid gap-4 py-4">
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="instanceUrl" className="text-right">Instance URL</Label>
+                                <Input id="instanceUrl" value={instanceUrl} onChange={e => setInstanceUrl(e.target.value)} className="col-span-3" placeholder="https://your-domain.my.salesforce.com" />
+                            </div>
+                            <div className="grid grid-cols-4 items-center gap-4">
+                                <Label htmlFor="sessionId" className="text-right">Session ID</Label>
+                                <Input id="sessionId" value={sessionId} onChange={e => setSessionId(e.target.value)} className="col-span-3" placeholder="Paste your session ID here" />
+                            </div>
+                        </div>
+                        <DialogFooter>
+                            <Button onClick={handleSaveCredentials}>Save Credentials</Button>
+                        </DialogFooter>
+                    </DialogContent>
+                 </Dialog>
                </div>
             </header>
             <main className="flex-grow overflow-hidden">
@@ -432,7 +486,6 @@ export default function LwcPlaygroundPage() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button size="sm" variant="ghost" onClick={() => {
-                    // re-inject to refresh preview
                     if (!previewIframeRef.current) return;
                     const doc = previewIframeRef.current.contentDocument || previewIframeRef.current.contentWindow?.document;
                     if (!doc) return;
@@ -454,3 +507,4 @@ export default function LwcPlaygroundPage() {
     </SidebarProvider>
   );
 }
+

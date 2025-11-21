@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { firestore } from '@/firebase/server-init';
@@ -129,7 +128,8 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
     const tokenAgeMinutes = (Date.now() - (auth.issuedAt || 0)) / (1000 * 60);
 
-    if (!auth.connected || tokenAgeMinutes > 55) { 
+    // Refresh if token is older than 55 minutes, OR if the connection is marked as disconnected but we have a refresh token.
+    if (tokenAgeMinutes > 55 || (!auth.connected && auth.refreshToken)) { 
         console.log("Salesforce token is expired or connection is stale, attempting refresh...");
         const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
         const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
@@ -162,7 +162,8 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
         }
         
         console.log("Salesforce token refreshed successfully.");
-        const newAuth: Partial<SfdcAuth> = {
+        const newAuth: SfdcAuth = {
+            ...auth,
             connected: true,
             accessToken: data.access_token,
             issuedAt: parseInt(data.issued_at, 10),
@@ -173,9 +174,8 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
             newAuth.refreshToken = data.refresh_token;
         }
 
-        const finalAuth = { ...auth, ...newAuth };
-        await userDocRef.update({ sfdcAuth: finalAuth });
-        return finalAuth as SfdcAuth;
+        await userDocRef.update({ sfdcAuth: newAuth });
+        return newAuth;
     }
     
     return auth;
@@ -652,13 +652,16 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
   }
 }
 
-async function getAuthForRequest(userId: string): Promise<SfdcAuth> {
+async function getAuthForRequest(userId: string, authOverride?: SfdcAuth): Promise<SfdcAuth> {
+    if (authOverride && authOverride.accessToken && authOverride.instanceUrl) {
+      return authOverride;
+    }
     return getSfdcConnection(userId);
 }
 
-export async function getLwcBundles(userId: string) {
+export async function getLwcBundles(userId: string, authOverride?: SfdcAuth) {
     try {
-        const auth = await getAuthForRequest(userId);
+        const auth = await getAuthForRequest(userId, authOverride);
         const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
@@ -667,9 +670,9 @@ export async function getLwcBundles(userId: string) {
     }
 }
 
-export async function getLwcBundleFiles(bundleId: string, userId: string) {
+export async function getLwcBundleFiles(bundleId: string, userId: string, authOverride?: SfdcAuth) {
     try {
-        const auth = await getAuthForRequest(userId);
+        const auth = await getAuthForRequest(userId, authOverride);
         const query = `SELECT Id, LightningComponentBundleId, FilePath, Source FROM LightningComponentResource WHERE LightningComponentBundleId='${bundleId}'`;
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
@@ -689,9 +692,9 @@ export async function deployLwc(userId: string, lwcData: {
     js: string;
     css: string;
     svg?: string;
-}): Promise<{ success: boolean; error?: string }> {
+}, authOverride?: SfdcAuth): Promise<{ success: boolean; error?: string }> {
     try {
-        const auth = await getAuthForRequest(userId);
+        const auth = await getAuthForRequest(userId, authOverride);
         const { componentName, apiVersion, isExposed, masterLabel, description, targets, html, js, css, svg } = lwcData;
 
         // 1. Check if bundle exists and delete if it does
