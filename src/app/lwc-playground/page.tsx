@@ -11,7 +11,7 @@ import {
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, Download } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, Download, FilePlus } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -75,9 +75,6 @@ export default function LwcPlaygroundPage() {
   const [isFetching, setIsFetching] = useState(false);
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  
-  const [sessionInstanceUrl, setSessionInstanceUrl] = useState('');
-  const [sessionToken, setSessionToken] = useState('');
   
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
@@ -173,13 +170,13 @@ export default function LwcPlaygroundPage() {
         toast({ title: "Error", description: "You must be logged in to fetch components.", variant: "destructive" });
         return;
     }
-    if (!userProfile?.sfdcAuth?.connected && (!sessionInstanceUrl || !sessionToken)) {
-      toast({ title: "Authentication Required", description: "Please connect your Salesforce org via settings or provide a session token.", variant: "destructive" });
+    if (!userProfile?.sfdcAuth?.connected) {
+      toast({ title: "Authentication Required", description: "Please connect your Salesforce org via settings.", variant: "destructive" });
       return;
     }
 
     setIsFetching(true);
-    const result = await getLwcBundles(user.uid, sessionInstanceUrl, sessionToken);
+    const result = await getLwcBundles(user.uid);
     if (result.success) {
       setFetchedComponents(result.data);
     } else {
@@ -190,15 +187,15 @@ export default function LwcPlaygroundPage() {
 
   const handleOpenFetchDialog = () => {
     setIsFetchDialogOpen(true);
-    // We don't fetch immediately anymore, we wait for the user to click the button in the dialog
     setFetchedComponents([]); 
+    handleFetchComponents();
   }
   
   const handleFetchComponent = async (bundleId: string, componentName: string) => {
     if (!user) return;
     setIsFetchingFiles(true);
     
-    const result = await getLwcBundleFiles(bundleId, user.uid, sessionInstanceUrl, sessionToken);
+    const result = await getLwcBundleFiles(bundleId, user.uid);
     
     if (result.success && result.data) {
         const files = result.data;
@@ -225,6 +222,16 @@ export default function LwcPlaygroundPage() {
 
     setIsFetchingFiles(false);
   };
+  
+  const handleNewComponent = () => {
+    setHtmlCode(initialHtml);
+    setJsCode(initialJs);
+    setCssCode(initialCss);
+    toast({
+      title: 'New Component',
+      description: 'Loaded default template for a new component.',
+    });
+  }
 
   return (
     <SidebarProvider>
@@ -239,7 +246,11 @@ export default function LwcPlaygroundPage() {
                 <h1 className="text-lg font-bold font-headline">LWC Playground</h1>
              </div>
              <div className="flex items-center gap-2">
-                 <Button variant="outline" size="sm" onClick={handleOpenFetchDialog}>
+                <Button variant="outline" size="sm" onClick={handleNewComponent}>
+                    <FilePlus className="mr-2 h-4 w-4" />
+                    New
+                </Button>
+                <Button variant="outline" size="sm" onClick={handleOpenFetchDialog}>
                     <Download className="mr-2 h-4 w-4" />
                     Fetch from Org
                 </Button>
@@ -367,37 +378,18 @@ export default function LwcPlaygroundPage() {
                 <DialogHeader>
                     <DialogTitle>Fetch LWC from Org</DialogTitle>
                     <DialogDescription>
-                        Connect via OAuth through settings, or provide a session token to fetch components.
+                       Search for a Lightning Web Component from your connected org to edit in the playground.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
-                     <div className='space-y-2'>
-                         <p className='text-sm font-medium text-muted-foreground'>Quick Fetch (Session Token)</p>
-                         <div className='space-y-2 p-4 border rounded-md'>
-                             <div className="space-y-1">
-                                 <Label htmlFor="instanceUrl">Instance URL</Label>
-                                 <Input id="instanceUrl" placeholder="https://your-domain.my.salesforce.com" value={sessionInstanceUrl} onChange={(e) => setSessionInstanceUrl(e.target.value)} />
-                             </div>
-                             <div className="space-y-1">
-                                 <Label htmlFor="sessionToken">Session ID / Token</Label>
-                                 <Input id="sessionToken" type="password" placeholder="00D..." value={sessionToken} onChange={(e) => setSessionToken(e.target.value)} />
-                             </div>
-                        </div>
-                     </div>
-
-                    <Button onClick={handleFetchComponents} className="w-full" disabled={isFetching}>
-                      {isFetching ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}
-                      Fetch Components
-                    </Button>
-
-                    <ScrollArea className="h-60 border rounded-md">
+                    <ScrollArea className="h-72 border rounded-md">
                          {isFetching ? (
                             <div className="flex items-center justify-center h-full">
                                 <Loader2 className="h-8 w-8 animate-spin text-muted-foreground" />
                             </div>
                          ) : (
                             <div className="space-y-1 p-2">
-                                {fetchedComponents.length === 0 && <p className='text-center text-sm text-muted-foreground p-4'>No components fetched. Click "Fetch Components" to load.</p>}
+                                {fetchedComponents.length === 0 && <p className='text-center text-sm text-muted-foreground p-4'>No components found. Ensure your org is connected.</p>}
                                 {fetchedComponents.map(comp => (
                                     <div key={comp.Id} className="flex items-center justify-between p-2 rounded-md hover:bg-muted">
                                         <div>
