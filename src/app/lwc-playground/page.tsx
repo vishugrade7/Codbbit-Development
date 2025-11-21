@@ -149,10 +149,10 @@ export default function LwcPlaygroundPage() {
   }
   
   useEffect(() => {
-    if (sessionId && instanceUrl) {
+    if (userProfile?.sfdcAuth?.connected) {
       handleFetchComponents();
     }
-  }, [sessionId, instanceUrl]);
+  }, [userProfile]);
 
 
   const handleFetchComponent = async (bundleId: string, newComponentName: string) => {
