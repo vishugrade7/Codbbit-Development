@@ -1,6 +1,7 @@
 
 'use client';
 
+import * as React from 'react';
 import {
   SidebarContent,
   SidebarHeader,
@@ -98,7 +99,7 @@ export function AppSidebar() {
           // Show all items by default while loading or if settings don't exist
           return allNavItems;
       }
-      return allNavItems.filter(item => navSettings[item.value] !== false);
+      return allNavItems.filter(item => navSettings[item.value as keyof NavigationSettings] !== false);
   }, [navSettings, isLoadingNav]);
 
 
