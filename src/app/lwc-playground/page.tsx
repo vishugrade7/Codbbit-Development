@@ -9,13 +9,13 @@ import {
 } from "@/components/ui/resizable";
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, Download, FilePlus, Search, ChevronRight } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, FilePlus, Search, ChevronRight } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { getLwcBundles, getLwcBundleFiles } from '@/lib/actions';
+import { getLwcBundles, getLwcBundleFiles, deployLwc } from '@/lib/actions';
 import { useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import type { UserProfile } from '@/lib/types';
 import { doc } from 'firebase/firestore';
@@ -73,9 +73,12 @@ export default function LwcPlaygroundPage() {
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
   const [isFetchingFiles, setIsFetchingFiles] = useState(false);
+  const [isDeploying, setIsDeploying] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isCreateDrawerOpen, setIsCreateDrawerOpen] = useState(false);
-  
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const previewIframeRef = useRef<HTMLIFrameElement | null>(null);
+
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return doc(firestore, 'users', user.uid);
@@ -163,6 +166,136 @@ export default function LwcPlaygroundPage() {
     comp.DeveloperName.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
+  // ---------- Preview Sandbox ----------
+  function createSandboxHtml(html: string, js: string, css: string) {
+    // Basic transform: convert LWC template-like tokens to simple DOM
+    // We'll replace <template> wrapper and `{greeting}` bindings for this sandbox
+    const cleanHtml = html
+      .replace(/<template[^>]*>/i, '')
+      .replace(/<\/template>/i, '')
+      // Replace <lightning-input ... onchange={handleGreetingChange}> with a simple input
+      .replace(/<lightning-input[^>]*label="([^"]*)"[^>]*value=\{greeting\}[^>]*onchange=\{handleGreetingChange\}[^>]*><\/lightning-input>/i,
+        `<label>$1</label><input id="__sandbox_input__" value="{greeting}" />`)
+      // Replace any {greeting} occurrences with span with data-binding
+      .replace(/\{greeting\}/g, '<span data-binding="greeting">{greeting}</span>');
+
+    // Provide a tiny runtime to update bindings
+    const runtime = `
+      (function(){
+        const root = document.getElementById('root');
+        // initialize model
+        const model = { greeting: 'World' };
+        function refresh() {
+          const els = root.querySelectorAll('[data-binding="greeting"]');
+          els.forEach(e => e.textContent = model.greeting);
+          const input = document.getElementById('__sandbox_input__');
+          if (input) input.value = model.greeting;
+        }
+        // hook input
+        document.addEventListener('input', (ev) => {
+          if (ev.target && ev.target.id === '__sandbox_input__') {
+            model.greeting = ev.target.value;
+            refresh();
+          }
+        }, true);
+
+        // If user-provided JS contains a naive initialization like setting greeting, try to eval it (best-effort)
+        try {
+          const userJs = \`${js.replace(/`/g, '\\`')}\`;
+          // Very light-weight: replace @track greeting = 'X' with model.greeting = 'X' assignments.
+          const trackedAssign = userJs.match(/@track\\s+greeting\\s*=\\s*['"]([^'"]+)['"]/);
+          if (trackedAssign) {
+            model.greeting = trackedAssign[1];
+          }
+        } catch (e) {
+          console.warn('Could not execute user JS in sandbox:', e);
+        }
+
+        refresh();
+      })();
+    `;
+
+    const final = `
+      <!doctype html>
+      <html>
+        <head>
+          <meta charset="utf-8"/>
+          <meta name="viewport" content="width=device-width,initial-scale=1"/>
+          <style>${css}</style>
+        </head>
+        <body>
+          <div id="root">${cleanHtml}</div>
+          <script>${runtime}</script>
+        </body>
+      </html>
+    `;
+    return final;
+  }
+
+  const handlePreview = () => {
+    setPreviewOpen(true);
+    // inject content after iframe mounts
+    setTimeout(() => {
+      if (!previewIframeRef.current) return;
+      const doc = previewIframeRef.current.contentDocument || previewIframeRef.current.contentWindow?.document;
+      if (!doc) return;
+      doc.open();
+      doc.write(createSandboxHtml(htmlCode, jsCode, cssCode));
+      doc.close();
+    }, 50);
+  };
+
+  const closePreview = () => {
+    setPreviewOpen(false);
+  };
+
+  // ---------- Deploy (Tooling API via server) ----------
+  const handleDeploy = async () => {
+    if (!user) {
+      toast({ title: 'Login required', description: 'Please sign in before deploying.', variant: 'destructive' });
+      return;
+    }
+    setIsDeploying(true);
+
+    // Derive component name: developer-friendly name (remove spaces / special chars)
+    const componentNameGuess = ((): string => {
+      // If template contains lightning-card with title, try to use that, fallback to myComponent
+      const match = htmlCode.match(/<lightning-card[^>]*title="([^"]+)"/i);
+      if (match?.[1]) {
+        return match[1].replace(/\s+/g, '').replace(/[^a-zA-Z0-9_]/g, '');
+      }
+      // try existing: assume myComponent filename in tabs
+      return 'myComponent';
+    })();
+
+    const lwcData = {
+      componentName: componentNameGuess,
+      apiVersion: '57.0', // you can adjust
+      isExposed: false,
+      masterLabel: componentNameGuess,
+      description: `Deployed from Playground by ${user.uid}`,
+      targets: [],
+      html: htmlCode,
+      js: jsCode,
+      css: cssCode,
+    };
+
+    try {
+      const res = await deployLwc(user.uid, lwcData);
+      if (res.success) {
+        toast({ title: 'Deployed', description: `Component ${lwcData.componentName} deployed successfully.` });
+        // refresh component list
+        await handleFetchComponents();
+      } else {
+        toast({ title: 'Deploy Error', description: res.error || 'Failed to deploy', variant: 'destructive' });
+      }
+    } catch (e: any) {
+      toast({ title: 'Deploy Error', description: e.message || 'Unknown error', variant: 'destructive' });
+    } finally {
+      setIsDeploying(false);
+    }
+  };
+
   return (
     <SidebarProvider>
       <Sidebar>
@@ -172,26 +305,26 @@ export default function LwcPlaygroundPage() {
         <Drawer open={isCreateDrawerOpen} onOpenChange={setIsCreateDrawerOpen}>
           <div className="flex flex-col h-screen bg-background text-foreground">
             <header className="flex-shrink-0 flex items-center justify-between p-3 border-b">
-               <DrawerTrigger asChild>
-                <Button variant="outline" size="sm">
-                    <FilePlus className="mr-2 h-4 w-4" />
-                    New Component
-                </Button>
-               </DrawerTrigger>
-              <div className="flex items-center gap-2">
-                  <Button variant="outline" size="sm" onClick={handleFetchComponents} disabled={isFetching}>
+               <div className="flex items-center gap-2">
+                 <DrawerTrigger asChild>
+                  <Button variant="outline" size="sm" onClick={handleNewComponent}>
+                      <FilePlus className="mr-2 h-4 w-4" />
+                      New Component
+                  </Button>
+                 </DrawerTrigger>
+                 <Button variant="outline" size="sm" onClick={handleFetchComponents} disabled={isFetching}>
                       {isFetching && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                       Fetch from Org
                   </Button>
-                  <Button variant="outline" size="sm">
+                 <Button variant="outline" size="sm" onClick={handlePreview}>
                       <MonitorPlay className="mr-2 h-4 w-4" />
                       Start Server
                   </Button>
-                  <Button size="sm">
-                      <UploadCloud className="mr-2 h-4 w-4" />
+                 <Button size="sm" onClick={handleDeploy} disabled={isDeploying}>
+                      {isDeploying ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <UploadCloud className="mr-2 h-4 w-4" />}
                       Deploy
                   </Button>
-              </div>
+               </div>
             </header>
             <main className="flex-grow overflow-hidden">
               <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -287,6 +420,36 @@ export default function LwcPlaygroundPage() {
              <CreateLwcForm onFormSubmit={handleFormSubmit} onCancel={() => setIsCreateDrawerOpen(false)} />
           </DrawerContent>
         </Drawer>
+
+        {/* Preview Modal */}
+        {previewOpen && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+            <div className="bg-background rounded-lg w-full max-w-4xl h-[80vh] overflow-hidden border">
+              <div className="flex items-center justify-between p-2 border-b">
+                <div className="flex items-center gap-2">
+                  <MonitorPlay className="h-4 w-4" />
+                  <span className="font-medium">Sandbox Preview</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Button size="sm" variant="ghost" onClick={() => {
+                    // re-inject to refresh preview
+                    if (!previewIframeRef.current) return;
+                    const doc = previewIframeRef.current.contentDocument || previewIframeRef.current.contentWindow?.document;
+                    if (!doc) return;
+                    doc.open();
+                    doc.write(createSandboxHtml(htmlCode, jsCode, cssCode));
+                    doc.close();
+                    toast({ title: 'Preview refreshed' });
+                  }}>
+                    Refresh
+                  </Button>
+                  <Button size="sm" onClick={closePreview}><PowerOff /></Button>
+                </div>
+              </div>
+              <iframe ref={previewIframeRef} title="lwc-sandbox-preview" className="w-full h-full border-0" />
+            </div>
+          </div>
+        )}
       </SidebarInset>
     </SidebarProvider>
   );
