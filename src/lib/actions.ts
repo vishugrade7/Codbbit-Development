@@ -700,77 +700,101 @@ export async function deployLwc(userId: string, lwcData: {
 
         // 1. Find existing bundle
         const existingBundle = await findToolingApiRecord(auth, 'LightningComponentBundle', componentName);
-        
         let bundleId: string;
+        
+        const metadata = {
+            apiVersion: parseFloat(apiVersion),
+            isExposed: isExposed,
+            masterLabel: masterLabel,
+            description: description || '',
+            targets: {
+              target: targets
+            }
+        };
+
+        const bundleBody = {
+            DeveloperName: componentName,
+            ApiVersion: apiVersion,
+            IsExposed: isExposed,
+            MasterLabel: masterLabel || componentName,
+            Description: description,
+            Metadata: metadata
+        };
+        
+        const compositeRequest = {
+            allOrNone: true,
+            compositeRequest: [] as any[]
+        };
 
         if (existingBundle) {
-            // UPDATE
             bundleId = existingBundle.Id;
-            // You might want to update the bundle definition itself if fields like isExposed have changed
-            await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/LightningComponentBundle/${bundleId}`, {
+            // Add update bundle metadata request
+            compositeRequest.compositeRequest.push({
                 method: 'PATCH',
-                body: JSON.stringify({
-                    ApiVersion: apiVersion,
-                    IsExposed: isExposed,
-                    MasterLabel: masterLabel || componentName,
-                    Description: description,
-                }),
+                url: `/services/data/v60.0/tooling/sobjects/LightningComponentBundle/${bundleId}`,
+                referenceId: 'bundleUpdate',
+                body: { Metadata: metadata }
             });
         } else {
-            // CREATE
-            const bundleBody = {
-                DeveloperName: componentName,
-                ApiVersion: apiVersion,
-                IsExposed: isExposed,
-                MasterLabel: masterLabel || componentName,
-                Description: description,
-            };
-
-            const bundleResult = await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentBundle', {
+            // Add create bundle request
+            compositeRequest.compositeRequest.push({
                 method: 'POST',
-                body: JSON.stringify(bundleBody),
+                url: '/services/data/v60.0/tooling/sobjects/LightningComponentBundle',
+                referenceId: 'newBundle',
+                body: bundleBody
             });
-
-            if (!bundleResult || !bundleResult.id) {
-                throw new Error("Failed to create LightningComponentBundle.");
-            }
-            bundleId = bundleResult.id;
+            bundleId = '@{newBundle.id}';
         }
 
-        // 2. Upsert resources
         const resources = [
-            { FilePath: `${componentName}.html`, Source: html, Format: 'HTML' },
-            { FilePath: `${componentName}.js`, Source: js, Format: 'JS' },
-            { FilePath: `${componentName}.js-meta.xml`, Source: xml, Format: 'XML' },
+            { FilePath: `${componentName}.html`, Source: html, Format: 'HTML', referenceId: 'htmlRef' },
+            { FilePath: `${componentName}.js`, Source: js, Format: 'JS', referenceId: 'jsRef' },
+            { FilePath: `${componentName}.js-meta.xml`, Source: xml, Format: 'XML', referenceId: 'xmlRef' },
         ];
         if (css) {
-            resources.push({ FilePath: `${componentName}.css`, Source: css, Format: 'CSS' });
+            resources.push({ FilePath: `${componentName}.css`, Source: css, Format: 'CSS', referenceId: 'cssRef' });
         }
-        if (svg) {
-             resources.push({ FilePath: `${componentName}.svg`, Source: svg, Format: 'SVG' });
-        }
-
-        for (const resource of resources) {
-             const existingResourceQuery = `SELECT Id FROM LightningComponentResource WHERE LightningComponentBundleId = '${bundleId}' AND FilePath = '${resource.FilePath}'`;
-             const existingResourceResult = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(existingResourceQuery)}`);
-             const existingResourceId = existingResourceResult.records?.[0]?.Id;
-             
-             if (existingResourceId) {
-                  await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/LightningComponentResource/${existingResourceId}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify({ Source: resource.Source }),
-                });
-             } else {
-                await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentResource', {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        LightningComponentBundleId: bundleId,
-                        ...resource
-                    }),
-                });
+        
+        // Find and delete existing resources
+        if (existingBundle) {
+             const existingResourcesQuery = `SELECT Id, FilePath FROM LightningComponentResource WHERE LightningComponentBundleId = '${existingBundle.Id}'`;
+             const existingResourcesResult = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(existingResourcesQuery)}`);
+             for (const resource of existingResourcesResult.records) {
+                 compositeRequest.compositeRequest.push({
+                     method: 'DELETE',
+                     url: `/services/data/v60.0/tooling/sobjects/LightningComponentResource/${resource.Id}`,
+                     referenceId: `delete_${resource.FilePath.replace(/[^a-zA-Z0-9]/g, '')}`
+                 });
              }
         }
         
+        // Add create new resources requests
+        resources.forEach(resource => {
+            compositeRequest.compositeRequest.push({
+                method: 'POST',
+                url: '/services/data/v60.0/tooling/sobjects/LightningComponentResource',
+                referenceId: resource.referenceId,
+                body: {
+                    LightningComponentBundleId: bundleId,
+                    Format: resource.Format,
+                    FilePath: resource.FilePath,
+                    Source: resource.Source
+                }
+            });
+        });
+        
+        const compositeResponse = await sfdcFetch(auth, '/services/data/v60.0/tooling/composite', {
+            method: 'POST',
+            body: JSON.stringify(compositeRequest)
+        });
+
+        const failedRequest = compositeResponse.compositeResponse.find((res: any) => res.httpStatusCode >= 300);
+
+        if (failedRequest) {
+            const errorDetails = failedRequest.body[0];
+            throw new Error(`Deployment failed: ${errorDetails.message} (Error Code: ${errorDetails.errorCode})`);
+        }
+
         return { success: true };
 
     } catch (e: any) {
