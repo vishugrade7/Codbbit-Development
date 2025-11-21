@@ -1,5 +1,4 @@
 
-
 'use server';
 
 import { firestore } from '@/firebase/server-init';
@@ -118,7 +117,7 @@ export async function initiateLinkedInOAuth(userId: string) {
 
 async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     const db = firestore;
-    const userDocRef = db.doc(`users/${userId}`);
+    const userDocRef = db.collection('users').doc(userId);
     const userDoc = await userDocRef.get();
     const userData = userDoc.data() as UserProfile | undefined;
 
