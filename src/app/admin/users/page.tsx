@@ -9,7 +9,7 @@ import { Download, ListFilter, Upload, Settings } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import type { UserProfile, NavigationSettings } from '@/lib/types';
-import { collection, doc, updateDoc, deleteField } from 'firebase/firestore';
+import { collection, doc, updateDoc, deleteField, setDoc } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -58,7 +58,7 @@ export default function ManageUsersPage() {
     return collection(firestore, 'users');
   }, [firestore]);
 
-  const { data: users, isLoading } = useCollection<UserProfile>(usersCollectionRef);
+  const { data: users, isLoading, refetch } = useCollection<UserProfile>(usersCollectionRef);
 
   const [isExporting, setIsExporting] = useState(false);
   const [isBackingUp, setIsBackingUp] = useState(false);
@@ -97,25 +97,27 @@ export default function ManageUsersPage() {
     if (!selectedUser || !firestore) return;
 
     const userDocRef = doc(firestore, 'users', selectedUser.uid);
-    const updateData: Record<string, boolean | ReturnType<typeof deleteField>> = {};
+    const newOverrides: Record<string, boolean | undefined> = {};
 
     Object.entries(userNavOverrides).forEach(([key, value]) => {
-      const fieldPath = `navigationOverrides.${key}`;
       if (value === 'on') {
-        updateData[fieldPath] = true;
+        newOverrides[key] = true;
       } else if (value === 'off') {
-        updateData[fieldPath] = false;
-      } else {
-        // 'default' means we want to remove the field.
-        updateData[fieldPath] = deleteField();
+        newOverrides[key] = false;
       }
+      // 'default' is handled by not including the key, which `setDoc` with merge will respect
     });
-
+    
     try {
-      await updateDoc(userDocRef, updateData);
+      // Use setDoc with merge:true to create/update the nested object
+      // This will correctly create `navigationOverrides` if it doesn't exist,
+      // and will add/update/remove fields within it as needed.
+      await setDoc(userDocRef, { navigationOverrides: newOverrides }, { merge: true });
+
       toast({ title: 'Permissions Updated', description: `Navigation settings for ${selectedUser.name} have been saved.` });
       setIsPermissionsDialogOpen(false);
       setSelectedUser(null);
+      refetch(); // Refetch user data to reflect changes
     } catch (e) {
       console.error(e);
       toast({ title: 'Error', description: 'Could not save permissions.', variant: 'destructive' });
