@@ -28,6 +28,7 @@ import {
 import { AppSidebar, Sidebar, SidebarInset, SidebarProvider } from '@/components';
 import { Drawer, DrawerContent, DrawerTrigger } from '@/components/ui/drawer';
 import { CreateLwcForm } from '@/components/CreateLwcForm';
+import { useTheme } from '@/components';
 
 const initialHtml = `
 <template>
@@ -66,6 +67,7 @@ export default function LwcPlaygroundPage() {
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
+  const { theme } = useTheme();
 
   const [activeTab, setActiveTab] = useState('html');
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
@@ -168,8 +170,8 @@ export default function LwcPlaygroundPage() {
       </Sidebar>
       <SidebarInset>
         <Drawer open={isCreateDrawerOpen} onOpenChange={setIsCreateDrawerOpen}>
-          <div className="flex flex-col h-screen bg-[#0d1117] text-foreground">
-            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b border-zinc-800">
+          <div className="flex flex-col h-screen bg-background text-foreground">
+            <header className="flex-shrink-0 flex items-center justify-between p-3 border-b">
                <DrawerTrigger asChild>
                 <Button variant="outline" size="sm">
                     <FilePlus className="mr-2 h-4 w-4" />
@@ -193,21 +195,21 @@ export default function LwcPlaygroundPage() {
             </header>
             <main className="flex-grow overflow-hidden">
               <ResizablePanelGroup direction="horizontal" className="h-full">
-                  <ResizablePanel defaultSize={25} minSize={20} className="bg-[#0d1117] p-2">
+                  <ResizablePanel defaultSize={25} minSize={20} className="bg-background p-2">
                       <div className="flex flex-col h-full">
                           <div className="relative mb-2">
-                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-zinc-500" />
+                              <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                               <Input 
                                   placeholder="Search component or items..."
                                   value={searchQuery}
                                   onChange={(e) => setSearchQuery(e.target.value)}
-                                  className="bg-zinc-900 border-zinc-700 pl-8 h-9"
+                                  className="bg-muted/30 border-border pl-8 h-9"
                               />
                           </div>
                           <ScrollArea className="flex-grow">
                               <Accordion type="single" collapsible defaultValue="item-1" className="w-full">
                                   <AccordionItem value="item-1" className="border-none">
-                                      <AccordionTrigger className="text-xs font-bold text-zinc-400 uppercase py-2 hover:no-underline">
+                                      <AccordionTrigger className="text-xs font-bold text-muted-foreground uppercase py-2 hover:no-underline">
                                           <div className="flex items-center gap-2">
                                               <FileCode className="h-4 w-4" />
                                               Lightning Web Component
@@ -216,16 +218,16 @@ export default function LwcPlaygroundPage() {
                                       <AccordionContent className="pl-2">
                                           {isFetching ? (
                                               <div className="flex items-center justify-center p-4">
-                                                  <Loader2 className="h-5 w-5 animate-spin text-zinc-500" />
+                                                  <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
                                               </div>
                                           ) : (
                                               filteredComponents.map(comp => (
                                                   <button 
                                                       key={comp.Id} 
-                                                      className="w-full text-left flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-zinc-800 text-zinc-300 text-sm"
+                                                      className="w-full text-left flex items-center gap-2 py-1.5 px-2 rounded-md hover:bg-muted text-sm"
                                                       onClick={() => handleFetchComponent(comp.Id, comp.DeveloperName)}
                                                   >
-                                                    <ChevronRight className="h-4 w-4 text-zinc-600" />
+                                                    <ChevronRight className="h-4 w-4 text-muted-foreground" />
                                                     {comp.DeveloperName}
                                                   </button>
                                               ))
@@ -236,18 +238,18 @@ export default function LwcPlaygroundPage() {
                           </ScrollArea>
                       </div>
                   </ResizablePanel>
-                  <ResizableHandle withHandle className="bg-zinc-800" />
+                  <ResizableHandle withHandle />
                   <ResizablePanel defaultSize={75} minSize={30}>
-                      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col bg-[#1e1e1e] rounded-lg overflow-hidden">
-                          <div className="flex-shrink-0 border-b border-zinc-700 bg-[#3c3c3c]">
+                      <Tabs value={activeTab} onValueChange={setActiveTab} className="h-full flex flex-col rounded-lg overflow-hidden">
+                          <div className="flex-shrink-0 border-b bg-muted/30">
                               <TabsList className="bg-transparent p-0 gap-0">
-                                  <TabsTrigger value="html" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
+                                  <TabsTrigger value="html" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
                                     <CodeIcon className="w-4 h-4 mr-2" /> myComponent.html
                                   </TabsTrigger>
-                                  <TabsTrigger value="js" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
+                                  <TabsTrigger value="js" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
                                     <Braces className="w-4 h-4 mr-2" /> myComponent.js
                                   </TabsTrigger>
-                                  <TabsTrigger value="css" className="text-zinc-400 data-[state=active]:text-white data-[state=active]:bg-[#1e1e1e] rounded-none px-4 py-2 text-sm h-auto">
+                                  <TabsTrigger value="css" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
                                     <Paintbrush className="w-4 h-4 mr-2" /> myComponent.css
                                   </TabsTrigger>
                               </TabsList>
@@ -257,7 +259,7 @@ export default function LwcPlaygroundPage() {
                                   language="html"
                                   value={htmlCode}
                                   onChange={(value) => setHtmlCode(value || '')}
-                                  theme="vs-dark"
+                                  theme={theme === 'dark' ? 'vs-dark' : 'light'}
                               />
                           </TabsContent>
                           <TabsContent value="js" className="flex-grow m-0">
@@ -265,7 +267,7 @@ export default function LwcPlaygroundPage() {
                                   language="javascript"
                                   value={jsCode}
                                   onChange={(value) => setJsCode(value || '')}
-                                  theme="vs-dark"
+                                  theme={theme === 'dark' ? 'vs-dark' : 'light'}
                               />
                           </TabsContent>
                           <TabsContent value="css" className="flex-grow m-0">
@@ -273,7 +275,7 @@ export default function LwcPlaygroundPage() {
                                   language="css"
                                   value={cssCode}
                                   onChange={(value) => setCssCode(value || '')}
-                                  theme="vs-dark"
+                                  theme={theme === 'dark' ? 'vs-dark' : 'light'}
                               />
                           </TabsContent>
                       </Tabs>
