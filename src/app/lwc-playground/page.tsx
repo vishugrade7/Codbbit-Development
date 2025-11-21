@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/resizable";
 import { CodeEditor } from '@/components/CodeEditor';
 import { Button } from '@/components/ui/button';
-import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, FilePlus, Search, ChevronRight, Link as LinkIcon } from 'lucide-react';
+import { Play, UploadCloud, FileCode, MonitorPlay, PowerOff, Loader2, CheckCircle, Code as CodeIcon, Braces, Paintbrush, FilePlus, Search, ChevronRight, Link as LinkIcon, FileJson } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
@@ -61,11 +61,20 @@ const initialCss = `
 }
 `.trim();
 
+const initialXml = `
+<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>57.0</apiVersion>
+    <isExposed>false</isExposed>
+</LightningComponentBundle>
+`.trim();
+
 
 export default function LwcPlaygroundPage() {
   const [htmlCode, setHtmlCode] = useState(initialHtml);
   const [jsCode, setJsCode] = useState(initialJs);
   const [cssCode, setCssCode] = useState(initialCss);
+  const [xmlCode, setXmlCode] = useState(initialXml);
   const { toast } = useToast();
   const { user } = useUser();
   const firestore = useFirestore();
@@ -162,10 +171,12 @@ export default function LwcPlaygroundPage() {
         const htmlFile = files.find(f => f.FilePath.endsWith('.html'));
         const jsFile = files.find(f => f.FilePath.endsWith('.js'));
         const cssFile = files.find(f => f.FilePath.endsWith('.css'));
+        const xmlFile = files.find(f => f.FilePath.endsWith('.js-meta.xml'));
         
         setHtmlCode(htmlFile?.Source || initialHtml);
         setJsCode(jsFile?.Source || initialJs);
         setCssCode(cssFile?.Source || initialCss);
+        setXmlCode(xmlFile?.Source || initialXml);
         setComponentName(newComponentName);
 
         toast({
@@ -192,6 +203,7 @@ export default function LwcPlaygroundPage() {
     setHtmlCode(initialHtml.replace('My LWC Component', data.masterLabel || data.componentName));
     setJsCode(initialJs.replace('MyComponent', data.componentName));
     setCssCode(initialCss);
+    setXmlCode(initialXml.replace('<apiVersion>57.0</apiVersion>', `<apiVersion>${data.apiVersion}</apiVersion>`).replace('<isExposed>false</isExposed>', `<isExposed>${data.isExposed}</isExposed>`));
     setComponentName(data.componentName);
     setIsCreateDrawerOpen(false);
     toast({
@@ -434,6 +446,9 @@ export default function LwcPlaygroundPage() {
                                   <TabsTrigger value="css" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
                                     <Paintbrush className="w-4 h-4 mr-2" /> {componentName}.css
                                   </TabsTrigger>
+                                  <TabsTrigger value="xml" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
+                                    <FileJson className="w-4 h-4 mr-2" /> {componentName}.js-meta.xml
+                                  </TabsTrigger>
                               </TabsList>
                           </div>
                           <TabsContent value="html" className="flex-grow m-0">
@@ -457,6 +472,14 @@ export default function LwcPlaygroundPage() {
                                   language="css"
                                   value={cssCode}
                                   onChange={(value) => setCssCode(value || '')}
+                                  theme={theme === 'dark' ? 'vs-dark' : 'light'}
+                              />
+                          </TabsContent>
+                          <TabsContent value="xml" className="flex-grow m-0">
+                              <CodeEditor
+                                  language="xml"
+                                  value={xmlCode}
+                                  onChange={(value) => setXmlCode(value || '')}
                                   theme={theme === 'dark' ? 'vs-dark' : 'light'}
                               />
                           </TabsContent>
