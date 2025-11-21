@@ -9,7 +9,7 @@ import { Download, ListFilter, Upload, Settings } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import type { UserProfile, NavigationSettings } from '@/lib/types';
-import { collection, doc } from 'firebase/firestore';
+import { collection, doc, updateDoc, deleteField } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -97,27 +97,27 @@ export default function ManageUsersPage() {
     if (!selectedUser || !firestore) return;
 
     const userDocRef = doc(firestore, 'users', selectedUser.uid);
-    const newOverrides: Partial<NavigationSettings> = {};
+    const updateData: Record<string, boolean | ReturnType<typeof deleteField>> = {};
 
     Object.entries(userNavOverrides).forEach(([key, value]) => {
+      const fieldPath = `navigationOverrides.${key}`;
       if (value === 'on') {
-        newOverrides[key as keyof NavigationSettings] = true;
+        updateData[fieldPath] = true;
       } else if (value === 'off') {
-        newOverrides[key as keyof NavigationSettings] = false;
-      }
-      // 'default' means we don't set a value, so it falls back to global settings.
-      // Firestore `update` with `undefined` values will remove the field.
-      else {
-        newOverrides[key as keyof NavigationSettings] = undefined as any;
+        updateData[fieldPath] = false;
+      } else {
+        // 'default' means we want to remove the field.
+        updateData[fieldPath] = deleteField();
       }
     });
 
     try {
-      await setDocumentNonBlocking(userDocRef, { navigationOverrides: newOverrides }, { merge: true });
+      await updateDoc(userDocRef, updateData);
       toast({ title: 'Permissions Updated', description: `Navigation settings for ${selectedUser.name} have been saved.` });
       setIsPermissionsDialogOpen(false);
       setSelectedUser(null);
     } catch (e) {
+      console.error(e);
       toast({ title: 'Error', description: 'Could not save permissions.', variant: 'destructive' });
     }
   };
