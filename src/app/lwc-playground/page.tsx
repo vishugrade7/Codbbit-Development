@@ -100,7 +100,9 @@ export default function LwcPlaygroundPage() {
   }
   
   useEffect(() => {
-    handleFetchComponents();
+    if (userProfile?.sfdcAuth?.connected) {
+      handleFetchComponents();
+    }
   }, [userProfile]);
 
 

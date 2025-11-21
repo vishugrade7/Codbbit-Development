@@ -128,6 +128,7 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     let auth = userData.sfdcAuth;
 
     const tokenAgeMinutes = (Date.now() - (auth.issuedAt || 0)) / (1000 * 60);
+    // Refresh if token is old OR if connection is marked as disconnected but we have a refresh token
     if (tokenAgeMinutes > 55 || !auth.connected) { 
         console.log("Salesforce token is old or connection is stale, attempting refresh...");
         const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
@@ -645,22 +646,13 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
   }
 }
 
-async function getAuthForRequest(userId: string, instanceUrl?: string, sessionToken?: string): Promise<SfdcAuth> {
-    if (instanceUrl && sessionToken) {
-        return {
-            instanceUrl,
-            accessToken: sessionToken,
-            connected: true,
-            refreshToken: '',
-            issuedAt: Date.now()
-        };
-    }
+async function getAuthForRequest(userId: string): Promise<SfdcAuth> {
     return getSfdcConnection(userId);
 }
 
-export async function getLwcBundles(userId: string, instanceUrl?: string, sessionToken?: string) {
+export async function getLwcBundles(userId: string) {
     try {
-        const auth = await getAuthForRequest(userId, instanceUrl, sessionToken);
+        const auth = await getAuthForRequest(userId);
         const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
@@ -669,9 +661,9 @@ export async function getLwcBundles(userId: string, instanceUrl?: string, sessio
     }
 }
 
-export async function getLwcBundleFiles(bundleId: string, userId: string, instanceUrl?: string, sessionToken?: string) {
+export async function getLwcBundleFiles(bundleId: string, userId: string) {
     try {
-        const auth = await getAuthForRequest(userId, instanceUrl, sessionToken);
+        const auth = await getAuthForRequest(userId);
         const query = `SELECT Id, LightningComponentBundleId, FilePath, Source FROM LightningComponentResource WHERE LightningComponentBundleId='${bundleId}'`;
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
