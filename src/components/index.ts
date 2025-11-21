@@ -41,3 +41,4 @@ export * from './AddCourseForm';
 export * from './CodeBlock';
 export * from './InteractiveSoqlQuery';
 export * from './ui/BlurText';
+export * from './CreateLwcForm';

@@ -1,0 +1,175 @@
+
+'use client';
+
+import { useState } from 'react';
+import { useForm, Controller } from 'react-hook-form';
+import { zodResolver } from '@hookform/resolvers/zod';
+import * as z from 'zod';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/ui/drawer';
+import { Loader2 } from 'lucide-react';
+
+const lwcTargetOptions = [
+  'lightning__AppPage', 'lightning__HomePage', 'lightning__RecordPage', 'lightning__Tab', 'lightning__Inbox', 
+  'lightning__UtilityBar', 'lightning__FlowScreen', 'lightning__RecordAction', 'lightning__GlobalAction', 
+  'lightning__UrlAddressable', 'lightning__AgentforceInput', 'lightning__AgentforceOutput', 'lightning__ECSFSApp', 
+  'lightning__VoiceExtension', 'lightning__ServiceDocument', 'lightning__EnablementProgram', 'lightningSnapin__PreChat', 
+  'lightningSnapin__Minimized', 'lightningSnapin__ChatHeader', 'lightningSnapin__ChatMessage', 
+  'lightningSnapin__MessagingPreChat', 'lightningSnapin__MessagingHeader', 'lightningStatic__Email', 
+  'lightningCommunity__Default', 'lightningCommunity__Page', 'lightningCommunity__Page_Layout', 
+  'lightningCommunity__Theme_Layout', 'analytics__Dashboard'
+];
+
+const createLwcSchema = z.object({
+  componentName: z.string().min(1, 'Component name is required.').regex(/^[a-zA-Z][a-zA-Z0-9_]*$/, 'Invalid name format.'),
+  isExposed: z.boolean().default(false),
+  includeCss: z.boolean().default(true),
+  includeSvg: z.boolean().default(false),
+  masterLabel: z.string().optional(),
+  apiVersion: z.string().default('63.0'),
+  description: z.string().optional(),
+  targets: z.array(z.string()).optional(),
+});
+
+type CreateLwcFormData = z.infer<typeof createLwcSchema>;
+
+interface CreateLwcFormProps {
+  onFormSubmit: (data: CreateLwcFormData) => void;
+  onCancel: () => void;
+}
+
+export function CreateLwcForm({ onFormSubmit, onCancel }: CreateLwcFormProps) {
+  const [isDeploying, setIsDeploying] = useState(false);
+
+  const { control, register, handleSubmit, formState: { errors }, watch } = useForm<CreateLwcFormData>({
+    resolver: zodResolver(createLwcSchema),
+  });
+  
+  const isExposed = watch('isExposed');
+
+  const onSubmit = (data: CreateLwcFormData) => {
+    setIsDeploying(true);
+    // Simulate deployment
+    setTimeout(() => {
+      onFormSubmit(data);
+      setIsDeploying(false);
+    }, 1500);
+  };
+
+  return (
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <DrawerHeader>
+        <DrawerTitle>Create New Lightning Web Component</DrawerTitle>
+        <DrawerDescription>Configure and deploy a new LWC to your connected org.</DrawerDescription>
+      </DrawerHeader>
+      <div className="p-4 overflow-y-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            {/* Left Column */}
+            <div className="space-y-6">
+                <div>
+                    <Label htmlFor="componentName" className="font-semibold">Component Name <span className="text-red-500">*</span></Label>
+                    <Input id="componentName" {...register('componentName')} placeholder="myComponent" className="mt-1" />
+                    <p className="text-xs text-muted-foreground mt-1">Enter name without spaces and special characters.</p>
+                    {errors.componentName && <p className="text-sm text-red-500 mt-1">{errors.componentName.message}</p>}
+                </div>
+                
+                <div className="flex items-center space-x-6">
+                    <FormFieldItem control={control} name="isExposed" label="isExposed" />
+                    <FormFieldItem control={control} name="includeCss" label="Include CSS file" />
+                    <FormFieldItem control={control} name="includeSvg" label="Include SVG file" />
+                </div>
+
+                <Separator />
+                
+                <h3 className="font-semibold text-lg">Additional Configurations</h3>
+                
+                <div className="grid grid-cols-2 gap-4">
+                    <div>
+                        <Label htmlFor="masterLabel">Master Label</Label>
+                        <Input id="masterLabel" {...register('masterLabel')} placeholder="Master Label" className="mt-1" />
+                    </div>
+                     <div>
+                        <Label htmlFor="apiVersion">API Version</Label>
+                        <Controller
+                            name="apiVersion"
+                            control={control}
+                            render={({ field }) => (
+                                <Select onValueChange={field.onChange} defaultValue={field.value}>
+                                    <SelectTrigger id="apiVersion" className="mt-1">
+                                        <SelectValue placeholder="Select version" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectItem value="63.0">63.0</SelectItem>
+                                        <SelectItem value="62.0">62.0</SelectItem>
+                                        <SelectItem value="61.0">61.0</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            )}
+                        />
+                    </div>
+                </div>
+
+                <div>
+                    <Label htmlFor="description">Description</Label>
+                    <Textarea id="description" {...register('description')} placeholder="Description" className="mt-1" />
+                </div>
+            </div>
+            
+            {/* Right Column */}
+            <div className="space-y-4">
+                <h3 className="font-semibold text-lg">Target Configuration</h3>
+                <Card className="h-[350px]">
+                    <ScrollArea className="h-full">
+                        <CardContent className="p-4 space-y-3">
+                        {lwcTargetOptions.map(target => (
+                            <FormFieldItem 
+                                key={target} 
+                                control={control} 
+                                name={`targets.${target}` as any} 
+                                label={target}
+                                disabled={!isExposed}
+                            />
+                        ))}
+                        </CardContent>
+                    </ScrollArea>
+                </Card>
+            </div>
+        </div>
+      </div>
+      <DrawerFooter className="pt-2 border-t">
+        <Button variant="outline" onClick={onCancel} type="button">Cancel</Button>
+        <Button type="submit" disabled={isDeploying}>
+          {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+          Deploy
+        </Button>
+      </DrawerFooter>
+    </form>
+  );
+}
+
+const FormFieldItem = ({ control, name, label, disabled = false }: { control: any, name: string, label: string, disabled?: boolean }) => (
+  <div className="flex items-center space-x-2">
+    <Controller
+      name={name}
+      control={control}
+      render={({ field }) => (
+        <Checkbox
+          id={name}
+          checked={field.value}
+          onCheckedChange={field.onChange}
+          disabled={disabled}
+        />
+      )}
+    />
+    <Label htmlFor={name} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+      {label}
+    </Label>
+  </div>
+);
