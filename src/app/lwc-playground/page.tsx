@@ -299,14 +299,15 @@ export default function LwcPlaygroundPage() {
 
     const lwcData = {
       componentName: componentName,
-      apiVersion: '57.0',
-      isExposed: false,
+      apiVersion: '57.0', // This could be parsed from xmlCode
+      isExposed: xmlCode.includes('<isExposed>true</isExposed>'),
       masterLabel: componentName,
       description: `Deployed from Playground by ${user.uid}`,
-      targets: [],
+      targets: [], // This could be parsed from xmlCode
       html: htmlCode,
       js: jsCode,
       css: cssCode,
+      xml: xmlCode,
     };
     
     const auth = { accessToken: sessionId, instanceUrl, connected: true, refreshToken: '', issuedAt: 0 };

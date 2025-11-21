@@ -120,16 +120,16 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     const userDoc = await userDocRef.get();
     const userData = userDoc.data() as UserProfile | undefined;
 
-    if (!userDoc.exists || !userData?.sfdcAuth?.refreshToken) {
-        throw new Error('Salesforce account not connected or refresh token missing.');
+    if (!userDoc.exists || !(userData?.sfdcAuth?.refreshToken || userData?.sfdcAuth?.accessToken)) {
+      throw new Error('Salesforce account not connected or credentials missing.');
     }
 
     let auth = userData.sfdcAuth;
 
+    // Refresh if token is older than 55 minutes, OR if the connection is marked as disconnected but we have a refresh token.
     const tokenAgeMinutes = (Date.now() - (auth.issuedAt || 0)) / (1000 * 60);
 
-    // Refresh if token is older than 55 minutes, OR if the connection is marked as disconnected but we have a refresh token.
-    if (tokenAgeMinutes > 55 || (!auth.connected && auth.refreshToken)) { 
+    if (auth.refreshToken && (tokenAgeMinutes > 55 || !auth.connected)) { 
         console.log("Salesforce token is expired or connection is stale, attempting refresh...");
         const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
         const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
@@ -146,17 +146,14 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
         const response = await fetch(`https://login.salesforce.com/services/oauth2/token`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
             body: params,
         });
 
         const data: SalesforceTokenResponse = await response.json();
 
-        if (!response.ok) {
+        if (!response.ok || data.error) {
             console.error("Failed to refresh Salesforce token, marking as disconnected.", data.error_description);
-            // If refresh fails (e.g. user revoked access), mark as disconnected.
             await userDocRef.update({ "sfdcAuth.connected": false });
             throw new Error(`Failed to refresh Salesforce token: ${data.error_description || 'Please reconnect your Salesforce org.'}`);
         }
@@ -169,7 +166,6 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
             issuedAt: parseInt(data.issued_at, 10),
         };
 
-        // Only update the refresh token if a new one is provided in the response
         if (data.refresh_token) {
             newAuth.refreshToken = data.refresh_token;
         }
@@ -178,6 +174,10 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
         return newAuth;
     }
     
+    if (!auth.connected) {
+        throw new Error('Salesforce not connected. Please connect your org in settings.');
+    }
+
     return auth;
 }
 
@@ -691,52 +691,57 @@ export async function deployLwc(userId: string, lwcData: {
     html: string;
     js: string;
     css: string;
+    xml: string;
     svg?: string;
 }, authOverride?: SfdcAuth): Promise<{ success: boolean; error?: string }> {
     try {
         const auth = await getAuthForRequest(userId, authOverride);
-        const { componentName, apiVersion, isExposed, masterLabel, description, targets, html, js, css, svg } = lwcData;
+        const { componentName, apiVersion, isExposed, masterLabel, description, targets, html, js, css, xml, svg } = lwcData;
 
-        // 1. Check if bundle exists and delete if it does
+        // 1. Find existing bundle
         const existingBundle = await findToolingApiRecord(auth, 'LightningComponentBundle', componentName);
+        
+        let bundleId: string;
+
         if (existingBundle) {
-            await deleteToolingApiRecord(auth, 'LightningComponentBundle', existingBundle.Id);
-            await sleep(1000); // Wait a bit after deletion
+            // UPDATE
+            bundleId = existingBundle.Id;
+            // You might want to update the bundle definition itself if fields like isExposed have changed
+            await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/LightningComponentBundle/${bundleId}`, {
+                method: 'PATCH',
+                body: JSON.stringify({
+                    ApiVersion: apiVersion,
+                    IsExposed: isExposed,
+                    MasterLabel: masterLabel || componentName,
+                    Description: description,
+                }),
+            });
+        } else {
+            // CREATE
+            const bundleBody = {
+                DeveloperName: componentName,
+                ApiVersion: apiVersion,
+                IsExposed: isExposed,
+                MasterLabel: masterLabel || componentName,
+                Description: description,
+            };
+
+            const bundleResult = await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentBundle', {
+                method: 'POST',
+                body: JSON.stringify(bundleBody),
+            });
+
+            if (!bundleResult || !bundleResult.id) {
+                throw new Error("Failed to create LightningComponentBundle.");
+            }
+            bundleId = bundleResult.id;
         }
-        
-        // 2. Create LightningComponentBundle
-        const bundleBody = {
-            DeveloperName: componentName,
-            ApiVersion: apiVersion,
-            IsExposed: isExposed,
-            MasterLabel: masterLabel || componentName,
-            Description: description,
-        };
 
-        const bundleResult = await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentBundle', {
-            method: 'POST',
-            body: JSON.stringify(bundleBody),
-        });
-
-        if (!bundleResult || !bundleResult.id) {
-            throw new Error("Failed to create LightningComponentBundle.");
-        }
-
-        const bundleId = bundleResult.id;
-        
-        // 3. Create meta.xml file
-        const metaXml = `<?xml version="1.0" encoding="UTF-8"?>
-<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
-    <apiVersion>${apiVersion}</apiVersion>
-    <isExposed>${isExposed}</isExposed>
-    ${isExposed ? `<targets>${targets.map(t => `<target>${t}</target>`).join('')}</targets>` : ''}
-</LightningComponentBundle>`;
-
-        // 4. Create resource files (HTML, JS, CSS, SVG)
+        // 2. Upsert resources
         const resources = [
             { FilePath: `${componentName}.html`, Source: html, Format: 'HTML' },
             { FilePath: `${componentName}.js`, Source: js, Format: 'JS' },
-            { FilePath: `${componentName}.js-meta.xml`, Source: metaXml, Format: 'XML' },
+            { FilePath: `${componentName}.js-meta.xml`, Source: xml, Format: 'XML' },
         ];
         if (css) {
             resources.push({ FilePath: `${componentName}.css`, Source: css, Format: 'CSS' });
@@ -744,15 +749,26 @@ export async function deployLwc(userId: string, lwcData: {
         if (svg) {
              resources.push({ FilePath: `${componentName}.svg`, Source: svg, Format: 'SVG' });
         }
-        
+
         for (const resource of resources) {
-            await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentResource', {
-                method: 'POST',
-                body: JSON.stringify({
-                    LightningComponentBundleId: bundleId,
-                    ...resource
-                }),
-            });
+             const existingResourceQuery = `SELECT Id FROM LightningComponentResource WHERE LightningComponentBundleId = '${bundleId}' AND FilePath = '${resource.FilePath}'`;
+             const existingResourceResult = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(existingResourceQuery)}`);
+             const existingResourceId = existingResourceResult.records?.[0]?.Id;
+             
+             if (existingResourceId) {
+                  await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/LightningComponentResource/${existingResourceId}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify({ Source: resource.Source }),
+                });
+             } else {
+                await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentResource', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        LightningComponentBundleId: bundleId,
+                        ...resource
+                    }),
+                });
+             }
         }
         
         return { success: true };
