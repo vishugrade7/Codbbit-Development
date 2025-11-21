@@ -71,6 +71,7 @@ export default function LwcPlaygroundPage() {
   const firestore = useFirestore();
   const { theme } = useTheme();
 
+  const [componentName, setComponentName] = useState('myComponent');
   const [activeTab, setActiveTab] = useState('html');
   const [fetchedComponents, setFetchedComponents] = useState<any[]>([]);
   const [isFetching, setIsFetching] = useState(false);
@@ -145,7 +146,7 @@ export default function LwcPlaygroundPage() {
   }, [sessionId, instanceUrl]);
 
 
-  const handleFetchComponent = async (bundleId: string, componentName: string) => {
+  const handleFetchComponent = async (bundleId: string, newComponentName: string) => {
     if (!user) return;
      if (!sessionId || !instanceUrl) {
       toast({ title: "Authentication Required", description: "Please provide your Salesforce Session ID and Instance URL.", variant: "destructive" });
@@ -165,10 +166,11 @@ export default function LwcPlaygroundPage() {
         setHtmlCode(htmlFile?.Source || initialHtml);
         setJsCode(jsFile?.Source || initialJs);
         setCssCode(cssFile?.Source || initialCss);
+        setComponentName(newComponentName);
 
         toast({
           title: 'Component Loaded',
-          description: `"${componentName}" has been loaded into the playground.`,
+          description: `"${newComponentName}" has been loaded into the playground.`,
         });
     } else {
         toast({
@@ -190,6 +192,7 @@ export default function LwcPlaygroundPage() {
     setHtmlCode(initialHtml.replace('My LWC Component', data.masterLabel || data.componentName));
     setJsCode(initialJs.replace('MyComponent', data.componentName));
     setCssCode(initialCss);
+    setComponentName(data.componentName);
     setIsCreateDrawerOpen(false);
     toast({
       title: 'Component Ready',
@@ -282,19 +285,11 @@ export default function LwcPlaygroundPage() {
     }
     setIsDeploying(true);
 
-    const componentNameGuess = ((): string => {
-      const match = htmlCode.match(/<lightning-card[^>]*title="([^"]+)"/i);
-      if (match?.[1]) {
-        return match[1].replace(/\s+/g, '').replace(/[^a-zA-Z0-9_]/g, '');
-      }
-      return 'myComponent';
-    })();
-
     const lwcData = {
-      componentName: componentNameGuess,
+      componentName: componentName,
       apiVersion: '57.0',
       isExposed: false,
-      masterLabel: componentNameGuess,
+      masterLabel: componentName,
       description: `Deployed from Playground by ${user.uid}`,
       targets: [],
       html: htmlCode,
@@ -431,13 +426,13 @@ export default function LwcPlaygroundPage() {
                           <div className="flex-shrink-0 border-b bg-muted/30">
                               <TabsList className="bg-transparent p-0 gap-0">
                                   <TabsTrigger value="html" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
-                                    <CodeIcon className="w-4 h-4 mr-2" /> myComponent.html
+                                    <CodeIcon className="w-4 h-4 mr-2" /> {componentName}.html
                                   </TabsTrigger>
                                   <TabsTrigger value="js" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
-                                    <Braces className="w-4 h-4 mr-2" /> myComponent.js
+                                    <Braces className="w-4 h-4 mr-2" /> {componentName}.js
                                   </TabsTrigger>
                                   <TabsTrigger value="css" className="data-[state=active]:text-foreground data-[state=active]:bg-background rounded-none px-4 py-2 text-sm h-auto">
-                                    <Paintbrush className="w-4 h-4 mr-2" /> myComponent.css
+                                    <Paintbrush className="w-4 h-4 mr-2" /> {componentName}.css
                                   </TabsTrigger>
                               </TabsList>
                           </div>
@@ -507,4 +502,3 @@ export default function LwcPlaygroundPage() {
     </SidebarProvider>
   );
 }
-
