@@ -146,6 +146,9 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
         const response = await fetch(`https://login.salesforce.com/services/oauth2/token`, {
             method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
             body: params,
         });
 
