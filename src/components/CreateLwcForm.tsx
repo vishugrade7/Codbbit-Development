@@ -66,9 +66,18 @@ export function CreateLwcForm({ onFormSubmit, onCancel }: CreateLwcFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <DrawerHeader>
-        <DrawerTitle>Create New Lightning Web Component</DrawerTitle>
-        <DrawerDescription>Configure and deploy a new LWC to your connected org.</DrawerDescription>
+      <DrawerHeader className="flex flex-row items-center justify-between border-b p-4">
+        <div>
+          <DrawerTitle>Create New Lightning Web Component</DrawerTitle>
+          <DrawerDescription>Configure and deploy a new LWC to your connected org.</DrawerDescription>
+        </div>
+        <div className="flex gap-2">
+            <Button variant="outline" onClick={onCancel} type="button" size="sm">Cancel</Button>
+            <Button type="submit" disabled={isDeploying} size="sm">
+              {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+              Deploy
+            </Button>
+        </div>
       </DrawerHeader>
       <div className="p-4 overflow-y-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
@@ -144,13 +153,6 @@ export function CreateLwcForm({ onFormSubmit, onCancel }: CreateLwcFormProps) {
             </div>
         </div>
       </div>
-      <DrawerFooter className="pt-2 border-t">
-        <Button variant="outline" onClick={onCancel} type="button">Cancel</Button>
-        <Button type="submit" disabled={isDeploying}>
-          {isDeploying && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-          Deploy
-        </Button>
-      </DrawerFooter>
     </form>
   );
 }
