@@ -15,6 +15,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/ui/drawer';
 import { Loader2 } from 'lucide-react';
+import { Card, CardContent } from './ui/card';
 
 const lwcTargetOptions = [
   'lightning__AppPage', 'lightning__HomePage', 'lightning__RecordPage', 'lightning__Tab', 'lightning__Inbox', 
