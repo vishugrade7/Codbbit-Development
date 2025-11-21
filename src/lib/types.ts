@@ -52,6 +52,16 @@ export type PriceConfig = {
     isPaymentsEnabled?: boolean;
 }
 
+export type NavigationSettings = {
+    [key: string]: boolean;
+    dashboard: boolean;
+    problems: boolean;
+    courses: boolean;
+    'lwc-playground': boolean;
+    leaderboard: boolean;
+    sheets: boolean;
+}
+
 export type SalesforceCredentials = {
   instanceUrl: string;
   accessToken: string;

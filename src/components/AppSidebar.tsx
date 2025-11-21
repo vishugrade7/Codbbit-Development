@@ -14,14 +14,13 @@ import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, Lo
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
-import type { PriceConfig, UserProfile } from '@/lib/types';
+import type { PriceConfig, UserProfile, NavigationSettings } from '@/lib/types';
 import { doc } from 'firebase/firestore';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 import { ThemeToggle } from './ThemeToggle';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from './ui/tooltip';
 import Image from 'next/image';
-import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { usePathname, useRouter } from 'next/navigation';
 import { Skeleton } from './ui/skeleton';
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from './ui/dialog';
@@ -33,7 +32,7 @@ export function AppSidebar() {
   const { user, isUserLoading } = useUser();
   const auth = useAuth();
   const firestore = useFirestore();
-  const { state, setOpen, isMobile } = useSidebar();
+  const { state, isMobile } = useSidebar();
   const pathname = usePathname();
   const router = useRouter();
   const [isFeedbackDialogOpen, setIsFeedbackDialogOpen] = useState(false);
@@ -47,9 +46,15 @@ export function AppSidebar() {
     if (!firestore) return null;
     return doc(firestore, 'config', 'pricing');
   }, [firestore]);
+
+  const navDocRef = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return doc(firestore, 'config', 'navigation');
+  }, [firestore]);
   
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
   const { data: priceConfig } = useDoc<PriceConfig>(priceDocRef);
+  const { data: navSettings, isLoading: isLoadingNav } = useDoc<NavigationSettings>(navDocRef);
 
   const handleSignOut = () => {
     document.documentElement.classList.remove('grayscale-effect');
@@ -66,16 +71,6 @@ export function AppSidebar() {
       .substring(0, 2);
   };
   
-  const isCollapsed = !isMobile && state === 'collapsed';
-
-  const handleLogoutHover = (isHovering: boolean) => {
-    if (isHovering) {
-      document.documentElement.classList.add('grayscale-effect');
-    } else {
-      document.documentElement.classList.remove('grayscale-effect');
-    }
-  };
-  
   const getActiveTab = () => {
     if (pathname.startsWith('/problems')) return 'problems';
     if (pathname.startsWith('/leaderboard')) return 'leaderboard';
@@ -89,7 +84,7 @@ export function AppSidebar() {
     return '';
   }
 
-  const navItems = [
+  const allNavItems = [
     { value: 'dashboard', href: '/', icon: LayoutGrid, label: 'Dashboard' },
     { value: 'problems', href: '/problems', icon: Code, label: 'Problems' },
     { value: 'courses', href: '/courses', icon: BookOpen, label: 'Courses' },
@@ -97,6 +92,14 @@ export function AppSidebar() {
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
   ];
+
+  const navItems = React.useMemo(() => {
+      if (isLoadingNav || !navSettings) {
+          // Show all items by default while loading or if settings don't exist
+          return allNavItems;
+      }
+      return allNavItems.filter(item => navSettings[item.value] !== false);
+  }, [navSettings, isLoadingNav]);
 
 
   return (
@@ -131,12 +134,12 @@ export function AppSidebar() {
                   <TooltipTrigger asChild>
                     <DialogTrigger asChild>
                       <Button variant="ghost" size="icon" className="h-10 w-10">
-                            <Settings2 size={20}/>
+                            <MessageSquare size={20}/>
                       </Button>
                     </DialogTrigger>
                   </TooltipTrigger>
                   <TooltipContent side="right" className="px-2 py-1 text-xs">
-                      Settings
+                      Feedback & Support
                   </TooltipContent>
               </Tooltip>
               <DialogContent className="sm:max-w-2xl">
@@ -197,8 +200,6 @@ export function AppSidebar() {
                         <DropdownMenuSeparator />
                         <DropdownMenuItem
                           onClick={handleSignOut}
-                          onMouseEnter={() => handleLogoutHover(true)}
-                          onMouseLeave={() => handleLogoutHover(false)}
                         >
                             <LogOut className="-ms-0.5 opacity-60" size={16} aria-hidden="true" />
                             <span>Log out</span>

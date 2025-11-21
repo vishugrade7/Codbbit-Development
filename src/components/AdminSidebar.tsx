@@ -12,7 +12,7 @@ import {
   SidebarTrigger,
   SidebarMenuSkeleton,
 } from '@/components/ui/sidebar';
-import { LayoutDashboard, Users, FilePlus, LogOut, PanelRightOpen, Shield, LogIn, Code, User as UserIcon, Settings, MoreHorizontal, Star, Ticket, Send, BookOpen } from 'lucide-react';
+import { LayoutDashboard, Users, FilePlus, LogOut, PanelRightOpen, Shield, LogIn, Code, User as UserIcon, Settings, MoreHorizontal, Star, Ticket, Send, BookOpen, List } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
@@ -113,6 +113,14 @@ export function AdminSidebar() {
               <SidebarMenuButton tooltip="Courses">
                 <BookOpen />
                 <span>Courses</span>
+              </SidebarMenuButton>
+            </Link>
+          </SidebarMenuItem>
+           <SidebarMenuItem>
+            <Link href="/admin/navigation" passHref>
+              <SidebarMenuButton tooltip="Navigation">
+                <List />
+                <span>Navigation</span>
               </SidebarMenuButton>
             </Link>
           </SidebarMenuItem>

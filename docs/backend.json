@@ -146,6 +146,19 @@
         },
         "required": ["premiumPrice"]
     },
+    "NavigationSettings": {
+      "title": "NavigationSettings",
+      "description": "Controls the visibility of sidebar navigation items.",
+      "type": "object",
+      "properties": {
+        "dashboard": { "type": "boolean" },
+        "problems": { "type": "boolean" },
+        "courses": { "type": "boolean" },
+        "lwc-playground": { "type": "boolean" },
+        "leaderboard": { "type": "boolean" },
+        "sheets": { "type": "boolean" }
+      }
+    },
     "ManagedPackage": {
       "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "ManagedPackage",
@@ -217,7 +230,7 @@
         "definition": {
           "entityName": "PriceConfig",
           "schema": { "$ref": "#/entities/PriceConfig" },
-          "description": "Stores application configuration. Use specific document IDs like 'pricing'."
+          "description": "Stores application configuration. Use specific document IDs like 'pricing' or 'navigation'."
         }
       },
       {
