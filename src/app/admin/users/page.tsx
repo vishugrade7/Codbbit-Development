@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, ListFilter, Upload, Settings } from 'lucide-react';
 import { HashLoader } from 'react-spinners';
-import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
+import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, errorEmitter, FirestorePermissionError } from '@/firebase';
 import type { UserProfile, NavigationSettings } from '@/lib/types';
 import { collection, doc, updateDoc, deleteField, setDoc } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
@@ -97,31 +97,40 @@ export default function ManageUsersPage() {
     if (!selectedUser || !firestore) return;
 
     const userDocRef = doc(firestore, 'users', selectedUser.uid);
-    const newOverrides: Record<string, boolean | undefined> = {};
+    const overrides: Record<string, boolean | ReturnType<typeof deleteField>> = {};
 
     Object.entries(userNavOverrides).forEach(([key, value]) => {
       if (value === 'on') {
-        newOverrides[key] = true;
+        overrides[key] = true;
       } else if (value === 'off') {
-        newOverrides[key] = false;
+        overrides[key] = false;
+      } else {
+        // For 'default', we need to remove the field.
+        overrides[key] = deleteField();
       }
-      // 'default' is handled by not including the key, which `setDoc` with merge will respect
     });
     
-    try {
-      // Use setDoc with merge:true to create/update the nested object
-      // This will correctly create `navigationOverrides` if it doesn't exist,
-      // and will add/update/remove fields within it as needed.
-      await setDoc(userDocRef, { navigationOverrides: newOverrides }, { merge: true });
+    const payload = { navigationOverrides: overrides };
 
-      toast({ title: 'Permissions Updated', description: `Navigation settings for ${selectedUser.name} have been saved.` });
-      setIsPermissionsDialogOpen(false);
-      setSelectedUser(null);
-      refetch(); // Refetch user data to reflect changes
-    } catch (e) {
-      console.error(e);
-      toast({ title: 'Error', description: 'Could not save permissions.', variant: 'destructive' });
-    }
+    // Use setDoc with merge to handle both creating and updating nested fields.
+    setDoc(userDocRef, payload, { merge: true })
+      .then(() => {
+        toast({ title: 'Permissions Updated', description: `Navigation settings for ${selectedUser.name} have been saved.` });
+        setIsPermissionsDialogOpen(false);
+        setSelectedUser(null);
+        refetch(); // Refetch user data to reflect changes
+      })
+      .catch(async (serverError) => {
+        // Create the rich, contextual error asynchronously.
+        const permissionError = new FirestorePermissionError({
+          path: userDocRef.path,
+          operation: 'update',
+          requestResourceData: payload,
+        });
+        
+        // Emit the error with the global error emitter
+        errorEmitter.emit('permission-error', permissionError);
+      });
   };
 
 
