@@ -672,9 +672,21 @@ export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey
   }
 }
 
-export async function getLwcBundles(userId: string) {
+export async function getLwcBundles(userId: string, instanceUrl?: string, sessionToken?: string) {
     try {
-        const auth = await getSfdcConnection(userId);
+        let auth: SfdcAuth;
+        if (instanceUrl && sessionToken) {
+            auth = {
+                instanceUrl,
+                accessToken: sessionToken,
+                connected: true,
+                refreshToken: '', // Not available in this flow
+                issuedAt: Date.now()
+            };
+        } else {
+            auth = await getSfdcConnection(userId);
+        }
+        
         const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
