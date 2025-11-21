@@ -347,25 +347,23 @@ export default function LwcPlaygroundPage() {
                 <DialogHeader>
                     <DialogTitle>Fetch LWC from Org</DialogTitle>
                     <DialogDescription>
-                        Connect via OAuth through settings, or provide a session token to fetch components.
+                        Search for a Lightning Web Component from your connected org to edit in the playground.
                     </DialogDescription>
                 </DialogHeader>
                 <div className="py-4 space-y-4">
-                    {!userProfile?.sfdcAuth?.connected && (
-                         <div className='space-y-2'>
-                             <p className='text-sm font-medium text-muted-foreground'>Quick Fetch (Session Token)</p>
-                             <div className='space-y-2 p-4 border rounded-md'>
-                                 <div className="space-y-1">
-                                     <Label htmlFor="instanceUrl">Instance URL</Label>
-                                     <Input id="instanceUrl" placeholder="https://your-domain.my.salesforce.com" value={sessionInstanceUrl} onChange={(e) => setSessionInstanceUrl(e.target.value)} />
-                                 </div>
-                                 <div className="space-y-1">
-                                     <Label htmlFor="sessionToken">Session Token</Label>
-                                     <Input id="sessionToken" type="password" placeholder="00D..." value={sessionToken} onChange={(e) => setSessionToken(e.target.value)} />
-                                 </div>
-                            </div>
-                         </div>
-                    )}
+                     <div className='space-y-2'>
+                         <p className='text-sm font-medium text-muted-foreground'>Quick Fetch (Session Token)</p>
+                         <div className='space-y-2 p-4 border rounded-md'>
+                             <div className="space-y-1">
+                                 <Label htmlFor="instanceUrl">Instance URL</Label>
+                                 <Input id="instanceUrl" placeholder="https://your-domain.my.salesforce.com" value={sessionInstanceUrl} onChange={(e) => setSessionInstanceUrl(e.target.value)} />
+                             </div>
+                             <div className="space-y-1">
+                                 <Label htmlFor="sessionToken">Session Token / ID</Label>
+                                 <Input id="sessionToken" type="password" placeholder="00D..." value={sessionToken} onChange={(e) => setSessionToken(e.target.value)} />
+                             </div>
+                        </div>
+                     </div>
 
                     <Button onClick={handleFetchComponents} className="w-full" disabled={isFetching}>
                       {isFetching ? <Loader2 className='mr-2 h-4 w-4 animate-spin' /> : <Download className='mr-2 h-4 w-4' />}

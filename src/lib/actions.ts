@@ -1,4 +1,5 @@
 
+
 'use server';
 
 import { firestore } from '@/firebase/server-init';
@@ -121,7 +122,7 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     const userDoc = await userDocRef.get();
     const userData = userDoc.data() as UserProfile | undefined;
 
-    if (!userDoc.exists() || !userData?.sfdcAuth?.refreshToken) {
+    if (!userDoc.exists || !userData?.sfdcAuth?.refreshToken) {
         throw new Error('Salesforce account not connected or refresh token missing.');
     }
 
