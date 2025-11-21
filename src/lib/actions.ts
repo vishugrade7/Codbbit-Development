@@ -128,9 +128,9 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     let auth = userData.sfdcAuth;
 
     const tokenAgeMinutes = (Date.now() - (auth.issuedAt || 0)) / (1000 * 60);
-    // Refresh if token is old OR if connection is marked as disconnected but we have a refresh token
-    if (tokenAgeMinutes > 55 || (!auth.connected && auth.refreshToken)) { 
-        console.log("Salesforce token is old or connection is stale, attempting refresh...");
+
+    if (!auth.connected || tokenAgeMinutes > 55) { 
+        console.log("Salesforce token is expired or connection is stale, attempting refresh...");
         const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
         const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
 
@@ -156,8 +156,9 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
         if (!response.ok) {
             console.error("Failed to refresh Salesforce token, marking as disconnected.", data.error_description);
+            // If refresh fails (e.g. user revoked access), mark as disconnected.
             await userDocRef.update({ "sfdcAuth.connected": false });
-            throw new Error(`Could not refresh access token: ${data.error_description || 'Request failed with status code ' + response.status}`);
+            throw new Error(`Failed to refresh Salesforce token: ${data.error_description || 'Please reconnect your Salesforce org.'}`);
         }
         
         console.log("Salesforce token refreshed successfully.");
@@ -165,11 +166,16 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
             connected: true,
             accessToken: data.access_token,
             issuedAt: parseInt(data.issued_at, 10),
-            ...(data.refresh_token && { refreshToken: data.refresh_token }),
         };
 
-        await userDocRef.update({ sfdcAuth: { ...auth, ...newAuth } });
-        auth = { ...auth, ...newAuth } as SfdcAuth;
+        // Only update the refresh token if a new one is provided in the response
+        if (data.refresh_token) {
+            newAuth.refreshToken = data.refresh_token;
+        }
+
+        const finalAuth = { ...auth, ...newAuth };
+        await userDocRef.update({ sfdcAuth: finalAuth });
+        return finalAuth as SfdcAuth;
     }
     
     return auth;
