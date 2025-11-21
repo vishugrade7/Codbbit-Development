@@ -16,6 +16,9 @@ import { Separator } from '@/components/ui/separator';
 import { DrawerHeader, DrawerTitle, DrawerDescription, DrawerFooter } from '@/components/ui/drawer';
 import { Loader2 } from 'lucide-react';
 import { Card, CardContent } from './ui/card';
+import { useToast } from '@/hooks/use-toast';
+import { deployLwc } from '@/lib/actions';
+import { useUser } from '@/firebase';
 
 const lwcTargetOptions = [
   'lightning__AppPage', 'lightning__HomePage', 'lightning__RecordPage', 'lightning__Tab', 'lightning__Inbox', 
@@ -42,26 +45,69 @@ const createLwcSchema = z.object({
 type CreateLwcFormData = z.infer<typeof createLwcSchema>;
 
 interface CreateLwcFormProps {
-  onFormSubmit: (data: CreateLwcFormData) => void;
+  onFormSubmit: (data: any) => void;
   onCancel: () => void;
 }
 
+const initialHtml = `<template>
+    <lightning-card title="My LWC Component">
+        <div class="slds-m-around_medium">
+            <p>Hello, World!</p>
+        </div>
+    </lightning-card>
+</template>`;
+const initialJs = `import { LightningElement } from 'lwc';
+export default class MyComponent extends LightningElement {}`;
+const initialCss = `:host { display: block; }`;
+
 export function CreateLwcForm({ onFormSubmit, onCancel }: CreateLwcFormProps) {
   const [isDeploying, setIsDeploying] = useState(false);
+  const { toast } = useToast();
+  const { user } = useUser();
 
   const { control, register, handleSubmit, formState: { errors }, watch } = useForm<CreateLwcFormData>({
     resolver: zodResolver(createLwcSchema),
+    defaultValues: {
+      isExposed: true,
+      includeCss: true,
+      targets: ['lightning__AppPage'],
+      apiVersion: '60.0',
+    }
   });
   
   const isExposed = watch('isExposed');
 
-  const onSubmit = (data: CreateLwcFormData) => {
+  const onSubmit = async (data: CreateLwcFormData) => {
+    if (!user) {
+        toast({ title: "Error", description: "You must be logged in to deploy components.", variant: "destructive" });
+        return;
+    }
+    
     setIsDeploying(true);
-    // Simulate deployment
-    setTimeout(() => {
-      onFormSubmit(data);
-      setIsDeploying(false);
-    }, 1500);
+    
+    const jsCode = `import { LightningElement } from 'lwc';\nexport default class ${data.componentName} extends LightningElement {}`;
+    
+    const result = await deployLwc(user.uid, {
+        ...data,
+        masterLabel: data.masterLabel || data.componentName,
+        targets: data.isExposed ? (data.targets || []) : [],
+        html: initialHtml.replace('My LWC Component', data.masterLabel || data.componentName),
+        js: jsCode,
+        css: data.includeCss ? initialCss : '',
+        svg: data.includeSvg ? '<svg xmlns="http://www.w3.org/2000/svg" width="100" height="100"><circle cx="50" cy="50" r="40" stroke="black" stroke-width="3" fill="red" /></svg>' : undefined,
+    });
+
+    if (result.success) {
+        toast({ title: "Success!", description: `Component "${data.componentName}" deployed successfully.` });
+        onFormSubmit({
+            componentName: data.componentName,
+            masterLabel: data.masterLabel || data.componentName,
+        });
+    } else {
+        toast({ title: "Deployment Failed", description: result.error, variant: "destructive" });
+    }
+
+    setIsDeploying(false);
   };
 
   return (
@@ -138,15 +184,32 @@ export function CreateLwcForm({ onFormSubmit, onCancel }: CreateLwcFormProps) {
                 <Card className="h-[350px]">
                     <ScrollArea className="h-full">
                         <CardContent className="p-4 space-y-3">
-                        {lwcTargetOptions.map(target => (
-                            <FormFieldItem 
-                                key={target} 
-                                control={control} 
-                                name={`targets.${target}` as any} 
-                                label={target}
-                                disabled={!isExposed}
-                            />
-                        ))}
+                        <Controller
+                            name="targets"
+                            control={control}
+                            render={({ field }) => (
+                                <>
+                                {lwcTargetOptions.map(target => (
+                                    <div key={target} className="flex items-center space-x-2">
+                                        <Checkbox
+                                            id={`target-${target}`}
+                                            checked={field.value?.includes(target)}
+                                            onCheckedChange={(checked) => {
+                                                const newValue = checked
+                                                    ? [...(field.value || []), target]
+                                                    : (field.value || []).filter((value) => value !== target);
+                                                field.onChange(newValue);
+                                            }}
+                                            disabled={!isExposed}
+                                        />
+                                        <Label htmlFor={`target-${target}`} className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                                            {target}
+                                        </Label>
+                                    </div>
+                                ))}
+                                </>
+                            )}
+                        />
                         </CardContent>
                     </ScrollArea>
                 </Card>

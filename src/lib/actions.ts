@@ -129,7 +129,7 @@ async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
 
     const tokenAgeMinutes = (Date.now() - (auth.issuedAt || 0)) / (1000 * 60);
     // Refresh if token is old OR if connection is marked as disconnected but we have a refresh token
-    if (tokenAgeMinutes > 55 || !auth.connected) { 
+    if (tokenAgeMinutes > 55 || (!auth.connected && auth.refreshToken)) { 
         console.log("Salesforce token is old or connection is stale, attempting refresh...");
         const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
         const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
@@ -354,8 +354,8 @@ async function salesforceExecuteAnonymous(
   }
 }
 
-async function findToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 'ApexTrigger', name: string) {
-    const query = `SELECT Id FROM ${objectType} WHERE Name = '${name}'`;
+async function findToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 'ApexTrigger' | 'LightningComponentBundle', name: string) {
+    const query = `SELECT Id FROM ${objectType} WHERE DeveloperName = '${name}'`;
     try {
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query/?q=${encodeURIComponent(query)}`);
         return result.records?.[0] || null;
@@ -365,7 +365,7 @@ async function findToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 'A
     }
 }
 
-async function deleteToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 'ApexTrigger', recordId: string) {
+async function deleteToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 'ApexTrigger' | 'LightningComponentBundle', recordId: string) {
     try {
         await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${objectType}/${recordId}`, {
             method: 'DELETE',
@@ -668,6 +668,88 @@ export async function getLwcBundleFiles(bundleId: string, userId: string) {
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
     } catch (e: any) {
+        return { success: false, error: e.message };
+    }
+}
+
+export async function deployLwc(userId: string, lwcData: {
+    componentName: string;
+    apiVersion: string;
+    isExposed: boolean;
+    masterLabel: string;
+    description: string;
+    targets: string[];
+    html: string;
+    js: string;
+    css: string;
+    svg?: string;
+}): Promise<{ success: boolean; error?: string }> {
+    try {
+        const auth = await getAuthForRequest(userId);
+        const { componentName, apiVersion, isExposed, masterLabel, description, targets, html, js, css, svg } = lwcData;
+
+        // 1. Check if bundle exists and delete if it does
+        const existingBundle = await findToolingApiRecord(auth, 'LightningComponentBundle', componentName);
+        if (existingBundle) {
+            await deleteToolingApiRecord(auth, 'LightningComponentBundle', existingBundle.Id);
+            await sleep(1000); // Wait a bit after deletion
+        }
+        
+        // 2. Create LightningComponentBundle
+        const bundleBody = {
+            DeveloperName: componentName,
+            ApiVersion: apiVersion,
+            IsExposed: isExposed,
+            MasterLabel: masterLabel || componentName,
+            Description: description,
+        };
+
+        const bundleResult = await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentBundle', {
+            method: 'POST',
+            body: JSON.stringify(bundleBody),
+        });
+
+        if (!bundleResult || !bundleResult.id) {
+            throw new Error("Failed to create LightningComponentBundle.");
+        }
+
+        const bundleId = bundleResult.id;
+        
+        // 3. Create meta.xml file
+        const metaXml = `<?xml version="1.0" encoding="UTF-8"?>
+<LightningComponentBundle xmlns="http://soap.sforce.com/2006/04/metadata">
+    <apiVersion>${apiVersion}</apiVersion>
+    <isExposed>${isExposed}</isExposed>
+    ${isExposed ? `<targets>${targets.map(t => `<target>${t}</target>`).join('')}</targets>` : ''}
+</LightningComponentBundle>`;
+
+        // 4. Create resource files (HTML, JS, CSS, SVG)
+        const resources = [
+            { FilePath: `${componentName}.html`, Source: html, Format: 'HTML' },
+            { FilePath: `${componentName}.js`, Source: js, Format: 'JS' },
+            { FilePath: `${componentName}.js-meta.xml`, Source: metaXml, Format: 'XML' },
+        ];
+        if (css) {
+            resources.push({ FilePath: `${componentName}.css`, Source: css, Format: 'CSS' });
+        }
+        if (svg) {
+             resources.push({ FilePath: `${componentName}.svg`, Source: svg, Format: 'SVG' });
+        }
+        
+        for (const resource of resources) {
+            await sfdcFetch(auth, '/services/data/v60.0/tooling/sobjects/LightningComponentResource', {
+                method: 'POST',
+                body: JSON.stringify({
+                    LightningComponentBundleId: bundleId,
+                    ...resource
+                }),
+            });
+        }
+        
+        return { success: true };
+
+    } catch (e: any) {
+        console.error('LWC Deployment Error:', e);
         return { success: false, error: e.message };
     }
 }
