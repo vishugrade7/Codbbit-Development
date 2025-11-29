@@ -6,7 +6,7 @@ import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebas
 import { collection, query, orderBy, limit, startAfter, getDocs, endBefore, limitToLast, where, Query, DocumentData } from 'firebase/firestore';
 import type { UserProfile, Question } from '@/lib/types';
 import { Trophy, Search, CheckCircle } from 'lucide-react';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -222,7 +222,7 @@ export function LeaderboardClient() {
   if (isLoading && !allUsers) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }
@@ -340,7 +340,7 @@ export function LeaderboardClient() {
                     <div className="relative min-h-[400px]">
                         {isLoading && (
                             <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
-                                <HashLoader color="#456eff" />
+                                <Loader />
                             </div>
                         )}
                         <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
