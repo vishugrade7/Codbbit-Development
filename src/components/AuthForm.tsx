@@ -412,7 +412,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                       </TabsTrigger>
                   </TabsList>
                   <TabsContent value="account" className="mt-4">
-                      <div className="space-y-4 relative">
+                      <div className="space-y-2 relative">
                           <FormField
                               control={form.control}
                               name="email"
@@ -452,7 +452,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                       </div>
                   </TabsContent>
                   <TabsContent value="profile" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
                         <FormField
                             control={form.control}
                             name="fullName"
