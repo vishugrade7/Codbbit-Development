@@ -42,7 +42,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Link from 'next/link';
-import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
+import { useAuth, useUser, useFirestore, setDocumentNonBlocking, initiateGoogleSignIn } from '@/firebase';
 import {
   initiateEmailSignIn,
   initiateEmailSignUp,
@@ -59,7 +59,7 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
-import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail } from 'firebase/auth';
+import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail, getAdditionalUserInfo } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { PasswordStrength } from './PasswordStrength';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -334,6 +334,36 @@ function AuthFormComponent({ type }: AuthFormProps) {
     }
   }
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const userCredential = await initiateGoogleSignIn(auth);
+      const additionalInfo = getAdditionalUserInfo(userCredential);
+      
+      if (additionalInfo?.isNewUser) {
+        // For new users, we need to gather additional info.
+        // We'll pre-fill what we can from Google and move them to the profile step.
+        const user = userCredential.user;
+        form.setValue('email', user.email || '');
+        form.setValue('fullName', user.displayName || '');
+        if (type === 'signup') {
+            setActiveTab('profile');
+        } else {
+            router.push(`/signup?email=${encodeURIComponent(user.email || '')}&fullName=${encodeURIComponent(user.displayName || '')}`);
+        }
+
+      } else {
+        // Existing user, redirect to dashboard
+        router.push('/');
+      }
+    } catch (error: any) {
+      toast({
+        title: 'Google Sign-In Failed',
+        description: error.message || 'An unexpected error occurred.',
+        variant: 'destructive',
+      });
+    }
+  };
+
   if (isUserLoading || (user && user.emailVerified)) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
@@ -353,200 +383,219 @@ function AuthFormComponent({ type }: AuthFormProps) {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-              {isLogin ? (
-                 <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
-                  <div className="space-y-4">
-                    <FormField
-                      control={form.control}
-                      name="email"
-                      render={({ field }) => (
-                        <FormItem>
-                          <FormLabel>Email</FormLabel>
-                          <FormControl>
-                            <Input placeholder="name@example.com" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    <FormField
-                      control={form.control}
-                      name="password"
-                      render={({ field }) => (
-                        <FormItem>
-                          <div className="flex justify-between items-center">
-                              <FormLabel>Password</FormLabel>
-                                <DialogTrigger asChild>
-                                  <Button variant="link" size="sm" className="p-0 h-auto" type="button">Forgot Password?</Button>
-                                </DialogTrigger>
-                          </div>
-                          <FormControl>
-                            <Input type="password" placeholder="••••••••" {...field} />
-                          </FormControl>
-                          <FormMessage />
-                        </FormItem>
-                      )}
-                    />
-                    {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
-                    <Button type="submit" className="w-full" disabled={isSubmitting}>
-                      {isSubmitting && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
-                      Login
-                    </Button>
-                  </div>
-                 </Dialog>
-              ) : (
-                <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                      <TabsTrigger value="account" disabled={isSubmitting}>
-                        <UserIcon className="mr-2 h-4 w-4" />
-                        Account Info
-                      </TabsTrigger>
-                      <TabsTrigger 
-                          value="profile" 
-                          disabled={isSubmitting || !touchedFields.email || !!errors.email || !touchedFields.password || !!errors.password}
-                      >
-                        <DocumentTextIcon className="mr-2 h-4 w-4" />
-                        Profile Info
-                      </TabsTrigger>
-                  </TabsList>
-                  <TabsContent value="account" className="mt-4">
-                      <div className="space-y-2 relative">
-                          <FormField
-                              control={form.control}
-                              name="email"
-                              render={({ field }) => (
-                              <FormItem>
-                                  <FormLabel>Email <span className="text-destructive">*</span></FormLabel>
-                                  <FormControl>
-                                  <Input placeholder="user@example.com" {...field} />
-                                  </FormControl>
-                                  <FormMessage />
-                              </FormItem>
-                              )}
-                          />
-                          <FormField
-                              control={form.control}
-                              name="password"
-                              render={({ field }) => (
-                              <FormItem>
-                                  <PasswordStrength
-                                  id="password"
-                                  value={field.value}
-                                  onChange={field.onChange}
-                                  aria-describedby="password-form-item-message"
-                                  />
-                                  <FormMessage />
-                              </FormItem>
-                              )}
-                          />
-                          <Button
-                              type="button"
-                              className="absolute -right-4 -bottom-4 rounded-full h-12 w-12"
-                              size="icon"
-                              onClick={handleNext}
-                          >
-                              <ArrowRightIcon className="h-5 w-5" />
-                          </Button>
-                      </div>
-                  </TabsContent>
-                  <TabsContent value="profile" className="mt-4">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
-                        <FormField
-                            control={form.control}
-                            name="fullName"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
-                                <FormControl>
-                                    <Input placeholder="e.g. Codbee" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                         <FormField
-                            control={form.control}
-                            name="country"
-                            render={({ field }) => (
-                                <FormItem className="flex flex-col">
-                                <FormLabel>Country <span className="text-destructive">*</span></FormLabel>
-                                <Combobox
-                                    options={countries}
-                                    value={field.value}
-                                    onValueChange={field.onChange}
-                                    placeholder="Select country..."
-                                    searchPlaceholder="Search countries..."
-                                />
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
+           <div className="space-y-4">
+             <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
+                <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 21.2 177.2 56.4l-64.2 64.2c-23.7-22.4-56.2-35.8-93-35.8-73.5 0-133.1 60.1-133.1 134.1s59.6 134.1 133.1 134.1c83.3 0 119.2-61.2 122.8-89.1H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
+                Continue with Google
+             </Button>
+
+            <div className="relative">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground">
+                  OR
+                </span>
+              </div>
+            </div>
+          
+            <Form {...form}>
+              <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+                {isLogin ? (
+                  <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
+                    <div className="space-y-2">
+                      <FormField
                         control={form.control}
-                        name="username"
+                        name="email"
                         render={({ field }) => (
-                            <FormItem>
-                            <FormLabel>Username <span className="text-destructive">*</span></FormLabel>
+                          <FormItem>
+                            <FormLabel>Email</FormLabel>
                             <FormControl>
-                                <div className="relative">
-                                <Input placeholder="e.g. codbee" {...field} />
-                                <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                                    {usernameStatus === 'checking' && <ArrowPathIcon className="h-4 w-4 animate-spin text-muted-foreground" />}
-                                    {usernameStatus === 'unique' && <CheckIcon className="h-4 w-4 text-green-500" />}
-                                    {usernameStatus === 'taken' && <XMarkIcon className="h-4 w-4 text-red-500" />}
-                                </div>
-                                </div>
+                              <Input placeholder="name@example.com" {...field} />
                             </FormControl>
                             <FormMessage />
-                            </FormItem>
+                          </FormItem>
                         )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="referralCode"
-                            render={({ field }) => (
-                                <FormItem>
-                                <FormLabel>Referral Code (Optional)</FormLabel>
-                                <FormControl>
-                                    <Input placeholder="Enter referral code" {...field} />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
-                        <FormField
-                            control={form.control}
-                            name="company"
-                            render={({ field }) => (
-                                <FormItem className="md:col-span-2">
-                                <FormLabel>Company / College <span className="text-destructive">*</span></FormLabel>
-                                <FormControl>
-                                    <CompanyAutocomplete
-                                    value={field.value || ''}
-                                    onValueChange={field.onChange}
-                                    />
-                                </FormControl>
-                                <FormMessage />
-                                </FormItem>
-                            )}
-                        />
+                      />
+                      <FormField
+                        control={form.control}
+                        name="password"
+                        render={({ field }) => (
+                          <FormItem>
+                            <div className="flex justify-between items-center">
+                                <FormLabel>Password</FormLabel>
+                                  <DialogTrigger asChild>
+                                    <Button variant="link" size="sm" className="p-0 h-auto text-xs" type="button">Forgot Password?</Button>
+                                  </DialogTrigger>
+                            </div>
+                            <FormControl>
+                              <Input type="password" placeholder="••••••••" {...field} />
+                            </FormControl>
+                            <FormMessage />
+                          </FormItem>
+                        )}
+                      />
+                      {errors.root && <FormMessage>{errors.root.message}</FormMessage>}
+                      <Button type="submit" className="w-full" disabled={isSubmitting}>
+                        {isSubmitting && <ArrowPathIcon className="mr-2 h-4 w-4 animate-spin" />}
+                        Login
+                      </Button>
                     </div>
-                     <div className="flex justify-between items-center mt-4">
-                        <Button type="button" variant="outline" size="icon" className="rounded-full h-12 w-12" onClick={() => setActiveTab('account')}>
-                          <ArrowLeftIcon className="h-5 w-5" />
-                        </Button>
-                        <Button type="submit" size="icon" className="rounded-full h-12 w-12" disabled={isSubmitting || usernameStatus !== 'unique'}>
-                          {isSubmitting ? <ArrowPathIcon className="h-5 w-5 animate-spin" /> : <CheckIcon className="h-5 w-5" />}
-                        </Button>
+                  </Dialog>
+                ) : (
+                  <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
+                    <TabsList className="grid w-full grid-cols-2 h-9">
+                        <TabsTrigger value="account" disabled={isSubmitting} className="h-7 text-xs">
+                          <UserIcon className="mr-2 h-4 w-4" />
+                          Account Info
+                        </TabsTrigger>
+                        <TabsTrigger 
+                            value="profile" 
+                            disabled={isSubmitting || !touchedFields.email || !!errors.email || !touchedFields.password || !!errors.password}
+                            className="h-7 text-xs"
+                        >
+                          <DocumentTextIcon className="mr-2 h-4 w-4" />
+                          Profile Info
+                        </TabsTrigger>
+                    </TabsList>
+                    <TabsContent value="account" className="mt-4">
+                        <div className="space-y-2 relative">
+                            <FormField
+                                control={form.control}
+                                name="email"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <FormLabel>Email <span className="text-destructive">*</span></FormLabel>
+                                    <FormControl>
+                                    <Input placeholder="user@example.com" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <FormField
+                                control={form.control}
+                                name="password"
+                                render={({ field }) => (
+                                <FormItem>
+                                    <PasswordStrength
+                                    id="password"
+                                    value={field.value}
+                                    onChange={field.onChange}
+                                    aria-describedby="password-form-item-message"
+                                    />
+                                    <FormMessage />
+                                </FormItem>
+                                )}
+                            />
+                            <Button
+                                type="button"
+                                className="absolute -right-4 -bottom-4 rounded-full h-12 w-12"
+                                size="icon"
+                                onClick={handleNext}
+                            >
+                                <ArrowRightIcon className="h-5 w-5" />
+                            </Button>
+                        </div>
+                    </TabsContent>
+                    <TabsContent value="profile" className="mt-4">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                          <FormField
+                              control={form.control}
+                              name="fullName"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Full Name <span className="text-destructive">*</span></FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="e.g. Codbee" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="country"
+                              render={({ field }) => (
+                                  <FormItem className="flex flex-col">
+                                  <FormLabel>Country <span className="text-destructive">*</span></FormLabel>
+                                  <Combobox
+                                      options={countries}
+                                      value={field.value}
+                                      onValueChange={field.onChange}
+                                      placeholder="Select country..."
+                                      searchPlaceholder="Search countries..."
+                                  />
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                          control={form.control}
+                          name="username"
+                          render={({ field }) => (
+                              <FormItem>
+                              <FormLabel>Username <span className="text-destructive">*</span></FormLabel>
+                              <FormControl>
+                                  <div className="relative">
+                                  <Input placeholder="e.g. codbee" {...field} />
+                                  <div className="absolute inset-y-0 right-0 flex items-center pr-3">
+                                      {usernameStatus === 'checking' && <ArrowPathIcon className="h-4 w-4 animate-spin text-muted-foreground" />}
+                                      {usernameStatus === 'unique' && <CheckIcon className="h-4 w-4 text-green-500" />}
+                                      {usernameStatus === 'taken' && <XMarkIcon className="h-4 w-4 text-red-500" />}
+                                  </div>
+                                  </div>
+                              </FormControl>
+                              <FormMessage />
+                              </FormItem>
+                          )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="referralCode"
+                              render={({ field }) => (
+                                  <FormItem>
+                                  <FormLabel>Referral Code (Optional)</FormLabel>
+                                  <FormControl>
+                                      <Input placeholder="Enter referral code" {...field} />
+                                  </FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
+                          <FormField
+                              control={form.control}
+                              name="company"
+                              render={({ field }) => (
+                                  <FormItem className="md:col-span-2">
+                                  <FormLabel>Company / College <span className="text-destructive">*</span></FormLabel>
+                                  <FormControl>
+                                      <CompanyAutocomplete
+                                      value={field.value || ''}
+                                      onValueChange={field.onChange}
+                                      />
+                                  </FormControl>
+                                  <FormMessage />
+                                  </FormItem>
+                              )}
+                          />
                       </div>
-                      {errors.root && <FormMessage className="mt-4 text-center">{errors.root.message}</FormMessage>}
-                  </TabsContent>
-                </Tabs>
-              )}
-            </form>
-          </Form>
+                      <div className="flex justify-between items-center mt-4">
+                          <Button type="button" variant="outline" size="icon" className="rounded-full h-12 w-12" onClick={() => setActiveTab('account')}>
+                            <ArrowLeftIcon className="h-5 w-5" />
+                          </Button>
+                          <Button type="submit" size="icon" className="rounded-full h-12 w-12" disabled={isSubmitting || usernameStatus !== 'unique'}>
+                            {isSubmitting ? <ArrowPathIcon className="h-5 w-5 animate-spin" /> : <CheckIcon className="h-5 w-5" />}
+                          </Button>
+                        </div>
+                        {errors.root && <FormMessage className="mt-4 text-center">{errors.root.message}</FormMessage>}
+                    </TabsContent>
+                  </Tabs>
+                )}
+              </form>
+            </Form>
+          </div>
         </CardContent>
         <CardFooter className="flex justify-center text-sm">
           {isLogin ? (
