@@ -4,7 +4,6 @@
 import { useEffect, useState, useRef } from 'react';
 import './CodeExecutionAnimation.css';
 import { cn } from '@/lib/utils';
-import { Confetti } from '../Confetti';
 import { useInView } from 'framer-motion';
 
 const apexCode = `
@@ -94,7 +93,6 @@ function highlightSyntax(line: string) {
 export function CodeExecutionAnimation() {
     const [lines, setLines] = useState<string[]>([]);
     const [currentLine, setCurrentLine] = useState(0);
-    const [showConfetti, setShowConfetti] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
     const codeBodyRef = useRef<HTMLDivElement>(null);
     const isInView = useInView(containerRef, { once: true, amount: 0.5 });
@@ -109,9 +107,7 @@ export function CodeExecutionAnimation() {
                 setCurrentLine(prev => prev + 1);
             } else {
                 clearInterval(typingInterval);
-                setShowConfetti(true);
                  setTimeout(() => {
-                    setShowConfetti(false);
                     setCurrentLine(0);
                     setLines([]);
                 }, 3000);
@@ -129,7 +125,6 @@ export function CodeExecutionAnimation() {
     
     return (
         <div className="code-animation-container" ref={containerRef}>
-            {showConfetti && <Confetti />}
             <div className="code-editor">
                 <div className="code-header">
                     <div className="code-buttons">
