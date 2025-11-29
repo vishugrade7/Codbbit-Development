@@ -291,8 +291,10 @@ export function LandingPage() {
                   top: `${'i * 2.5'}rem`,
                 }}
               >
-                 <div className="relative h-[80vh] rounded-2xl border border-border/20 bg-card p-8 md:p-12 overflow-hidden dotted-bg">
-                    <div className="absolute inset-0 -z-10 bg-gradient-to-br from-background via-background/80 to-background" />
+                 <div className="relative h-[80vh] rounded-2xl bg-card/60 dark:bg-black/60 backdrop-blur-xl p-8 md:p-12 overflow-hidden shadow-2xl shadow-black/10">
+                    <div className="absolute -inset-24 -z-10 bg-gradient-to-br from-background via-background/80 to-background opacity-50" />
+                    <div className="absolute inset-0 -z-20 bg-[radial-gradient(40%_120%_at_50%_0%,hsl(var(--primary)/0.15)_0%,transparent_100%)]" />
+
                     <div className="grid md:grid-cols-2 gap-12">
                         <div className="space-y-6">
                             <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-primary/10 border border-primary/20">
