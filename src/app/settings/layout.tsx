@@ -3,13 +3,13 @@
 
 import { ReactNode, Suspense } from 'react';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { SettingsLayout } from './SettingsLayout';
 
 function SettingsLoadingFallback() {
   return (
     <div className="flex h-screen items-center justify-center">
-      <HashLoader color="#456eff" />
+      <Loader />
     </div>
   );
 }

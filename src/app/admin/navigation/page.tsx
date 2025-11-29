@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { NavigationSettings } from '@/lib/types';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Loader2, Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -78,7 +78,7 @@ export default function NavigationSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }

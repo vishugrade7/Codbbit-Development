@@ -7,7 +7,7 @@ import { useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase
 import { doc, collection } from 'firebase/firestore';
 import type { Course, Question } from '@/lib/types';
 import { ArrowLeft } from 'lucide-react';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -61,7 +61,7 @@ export default function CourseDetailPage() {
   if (isLoadingCourse || isLoadingProblems) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }

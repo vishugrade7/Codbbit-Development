@@ -43,7 +43,7 @@ import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Plus, MoreHorizontal, CalendarIcon, Trash2, DollarSign, Tag, Settings } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking, useDoc } from '@/firebase';
 import type { Voucher, PriceConfig } from '@/lib/types';
@@ -203,7 +203,7 @@ export default function PricingManagementPage() {
             </CardHeader>
             <form onSubmit={handlePriceSubmit(onPriceSubmit)}>
                 <CardContent>
-                    {isLoadingPrice ? <HashLoader color="#456eff" /> : (
+                    {isLoadingPrice ? <Loader /> : (
                         <div className="max-w-sm">
                             <Label htmlFor="premiumPrice">Premium Plan Price (USD)</Label>
                             <div className="relative mt-2">
@@ -215,7 +215,7 @@ export default function PricingManagementPage() {
                 </CardContent>
                 <CardFooter>
                     <Button type="submit" disabled={isSavingPrice}>
-                        {isSavingPrice && <HashLoader color="#456eff" size={20} />}
+                        {isSavingPrice && <Loader />}
                         Save Price
                     </Button>
                 </CardFooter>
@@ -228,7 +228,7 @@ export default function PricingManagementPage() {
             </CardHeader>
             <form onSubmit={handlePriceSubmit(onPriceSubmit)}>
                 <CardContent>
-                    {isLoadingPrice ? <HashLoader color="#456eff" /> : (
+                    {isLoadingPrice ? <Loader /> : (
                          <div className="flex items-center justify-between rounded-lg border p-4">
                             <div>
                                 <Label htmlFor="isPaymentsEnabled" className="font-medium">Enable Payments</Label>
@@ -250,7 +250,7 @@ export default function PricingManagementPage() {
                 </CardContent>
                  <CardFooter>
                     <Button type="submit" disabled={isSavingPrice}>
-                        {isSavingPrice && <HashLoader color="#456eff" size={20} />}
+                        {isSavingPrice && <Loader />}
                         Save Settings
                     </Button>
                 </CardFooter>
@@ -352,7 +352,7 @@ export default function PricingManagementPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
-              <HashLoader color="#456eff" />
+              <Loader />
             </div>
           ) : (
             <Table>
