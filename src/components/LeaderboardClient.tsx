@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy, limit, startAfter, getDocs, endBefore, limitToLast, where, Query, DocumentData } from 'firebase/firestore';
 import type { UserProfile, Question } from '@/lib/types';
-import { Trophy, Search, CheckCircle } from 'lucide-react';
+import { Trophy, Search, CheckCircle, Flame, BarChart } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -25,7 +25,7 @@ import { Badge } from './ui/badge';
 import { cn } from '@/lib/utils';
 import { ScrollArea } from './ui/scroll-area';
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 10;
 
 const countryMap = new Map(countries.map(c => [c.value, c.label]));
 
@@ -37,7 +37,7 @@ const getInitials = (name: string | null | undefined) => {
 const getCompanyLogoUrl = (companyName?: string) => {
     if (!companyName) return '';
     try {
-        const domain = new URL(`https://${companyName.toLowerCase().replace(/ /g, '').replace(/,/g, '').replace(/\./g, '') + '.com'}`).hostname;
+        const domain = new URL(`https://${companyName.toLowerCase().replace(/ /g, '').replace(/,/g, '') + '.com'}`).hostname;
         return `https://img.logo.dev/${domain}`;
     } catch (e) {
         return '';
@@ -48,10 +48,10 @@ function RankMedal({ rank }: { rank: number }) {
   if (rank === 1) return <Trophy className="h-6 w-6 text-yellow-500 fill-yellow-500" />;
   if (rank === 2) return <Trophy className="h-6 w-6 text-gray-400 fill-gray-400" />;
   if (rank === 3) return <Trophy className="h-6 w-6 text-orange-600 fill-orange-600" />;
-  return <span className="text-muted-foreground font-medium">{rank}</span>;
+  return <span className="font-bold text-lg text-muted-foreground">{rank}</span>;
 }
 
-function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (UserProfile & { rank: number })[], currentUserUid?: string, page: number, pageSize: number }) {
+function LeaderboardList({ users, currentUserUid }: { users: (UserProfile & { rank: number })[], currentUserUid?: string }) {
     if (!users || users.length === 0) {
         return (
             <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
@@ -67,84 +67,59 @@ function LeaderboardTable({ users, currentUserUid, page, pageSize }: { users: (U
     }
 
     return (
-        <Card>
-            <CardContent className="p-0">
-                <ScrollArea className="h-[600px]">
-                    <Table>
-                        <TableHeader>
-                            <TableRow className="hover:bg-transparent">
-                                <TableHead className="w-20 text-center">Rank</TableHead>
-                                <TableHead>User</TableHead>
-                                <TableHead>Company</TableHead>
-                                <TableHead>Country</TableHead>
-                                <TableHead className="text-right">Points</TableHead>
-                            </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                            {users.map((user, index) => (
-                            <TableRow key={user.uid} className={user.uid === currentUserUid ? 'bg-primary/5' : ''}>
-                                <TableCell className="text-center">
-                                    <div className="flex items-center justify-center">
-                                        <RankMedal rank={(page - 1) * pageSize + index + 1} />
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-3">
-                                        <div className="relative">
-                                            <Avatar>
-                                                <AvatarImage src={user.avatarUrl} />
-                                                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
-                                            </Avatar>
-                                            {isUserVerified(user) && (
-                                                <TooltipProvider>
-                                                    <Tooltip>
-                                                        <TooltipTrigger>
-                                                            <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
-                                                        </TooltipTrigger>
-                                                        <TooltipContent>
-                                                            <p>Verified</p>
-                                                        </TooltipContent>
-                                                    </Tooltip>
-                                                </TooltipProvider>
-                                            )}
-                                        </div>
-                                        <Link href={`/${user.username}`} className="hover:underline">
-                                          <div>
-                                              <div className="font-medium">{user.name}</div>
-                                              <span className="text-muted-foreground mt-0.5 text-xs">
-                                                @{user.username}
-                                              </span>
-                                          </div>
-                                        </Link>
-                                    </div>
-                                </TableCell>
-                                <TableCell>
-                                    {user.company ? (
-                                        <div className="flex items-center gap-2">
-                                            <Avatar className="h-6 w-6">
-                                                <AvatarImage src={getCompanyLogoUrl(user.company)} />
-                                                <AvatarFallback className="text-xs bg-muted">{user.company.charAt(0)}</AvatarFallback>
-                                            </Avatar>
-                                            <span className="font-medium">{user.company}</span>
-                                        </div>
-                                    ) : 'N/A'}
-                                </TableCell>
-                                <TableCell>
-                                    <div className="flex items-center gap-2">
-                                        <Image src={`https://flagsapi.com/${user.country}/flat/16.png`} alt={`${user.country} flag`} width={16} height={12} />
-                                        {countryMap.get(user.country) || user.country}
-                                    </div>
-                                </TableCell>
-                                <TableCell className="text-right font-bold">
-                                    {user.points}
-                                </TableCell>
-                            </TableRow>
-                            ))}
-                        </TableBody>
-                    </Table>
-                </ScrollArea>
-            </CardContent>
-        </Card>
+        <div className="space-y-2">
+            {users.map((user, index) => (
+                <div key={user.uid} className={cn("flex items-center p-3 rounded-lg transition-colors", index % 2 === 0 ? "bg-muted/30" : "bg-transparent", user.uid === currentUserUid && "bg-primary/10 ring-2 ring-primary")}>
+                    <div className="w-16 text-center flex items-center justify-center">
+                       <RankMedal rank={user.rank} />
+                    </div>
+                    <div className="flex-1 flex items-center gap-4">
+                        <div className="relative">
+                            <Avatar className="h-12 w-12">
+                                <AvatarImage src={user.avatarUrl} />
+                                <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
+                            </Avatar>
+                             {isUserVerified(user) && (
+                                <TooltipProvider>
+                                    <Tooltip>
+                                        <TooltipTrigger>
+                                            <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
+                                        </TooltipTrigger>
+                                        <TooltipContent>
+                                            <p>Verified</p>
+                                        </TooltipContent>
+                                    </Tooltip>
+                                </TooltipProvider>
+                            )}
+                        </div>
+                        <Link href={`/${user.username}`} className="hover:underline">
+                            <div className="font-semibold">{user.name}</div>
+                            <div className="text-sm text-muted-foreground">@{user.username}</div>
+                        </Link>
+                    </div>
+                    <div className="flex items-center gap-2 mr-4">
+                        {user.company && (
+                            <>
+                                <Avatar className="h-6 w-6">
+                                    <AvatarImage src={getCompanyLogoUrl(user.company)} />
+                                    <AvatarFallback className="text-xs bg-muted">{user.company.charAt(0)}</AvatarFallback>
+                                </Avatar>
+                                <span className="text-sm text-muted-foreground hidden md:inline">{user.company}</span>
+                            </>
+                        )}
+                    </div>
+                    <div className="flex items-center gap-2 mr-4">
+                        {user.country && (
+                            <>
+                                <Image src={`https://flagsapi.com/${user.country}/flat/24.png`} alt={`${user.country} flag`} width={24} height={18} />
+                                <span className="text-sm text-muted-foreground hidden md:inline">{countryMap.get(user.country)}</span>
+                             </>
+                        )}
+                    </div>
+                    <div className="w-24 text-right font-bold text-lg">{user.points}</div>
+                </div>
+            ))}
+        </div>
     )
 }
 
@@ -195,22 +170,18 @@ export function LeaderboardClient() {
 
   const rankedUsers = useMemo(() => {
     if (!paginatedUsers) return [];
-    // The rank needs to be based on the index within the *filtered* list, not just the paginated one
-    const nonAdminUsers = allUsers?.filter(u => !u.isAdmin) || [];
-    return paginatedUsers.map((user) => {
-        const overallRank = nonAdminUsers.findIndex(u => u.uid === user.uid) + 1;
-        return { ...user, rank: overallRank };
+    const baseRank = (currentPage - 1) * PAGE_SIZE;
+    return paginatedUsers.map((user, index) => {
+        return { ...user, rank: baseRank + index + 1 };
     });
-  }, [paginatedUsers, allUsers]);
+  }, [paginatedUsers, currentPage]);
   
   const currentUserRank = useMemo(() => {
-      if (!currentUser || !allUsers) return null;
-      const nonAdminUsers = allUsers.filter(u => !u.isAdmin);
-      const userIndex = nonAdminUsers.findIndex(u => u.uid === currentUser.uid);
+      if (!currentUser || !filteredUsers) return null;
+      const userIndex = filteredUsers.findIndex(u => u.uid === currentUser.uid);
       if (userIndex === -1) return null;
-      const userRankData = nonAdminUsers[userIndex];
-      return { ...userRankData, rank: userIndex + 1 };
-  }, [currentUser, allUsers]);
+      return userIndex + 1;
+  }, [currentUser, filteredUsers]);
   
   const handlePageChange = (page: number) => {
     if (page > 0 && page <= totalPages) {
@@ -226,134 +197,64 @@ export function LeaderboardClient() {
       </div>
     );
   }
-
-  const getDifficultyDotClass = (difficulty: string | undefined) => {
-    switch (difficulty) {
-        case 'Easy':
-            return 'bg-green-500';
-        case 'Medium':
-            return 'bg-yellow-500';
-        case 'Hard':
-            return 'bg-red-500';
-        default:
-            return 'bg-gray-400';
-    }
-  };
-
-  const unsolvedProblems = [
-      {title: "Add and Remove Elements from List", difficulty: "Easy", points: 10},
-      {title: "Merge Account Lists Without Duplicates", difficulty: "Medium", points: 20},
-      {title: "Sort Integers Descending", difficulty: "Easy", points: 10},
-      {title: "Remove Duplicate Strings from List", difficulty: "Easy", points: 10},
-      {title: "Convert List of Ids to Set", difficulty: "Easy", points: 10},
-  ]
-
-
+  
   return (
     <div className="p-4 sm:p-6 lg:p-8">
-        <header className="mb-8">
-            <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
-            <p className="text-muted-foreground mt-1 max-w-lg">
-                See how you rank against the top developers. Keep solving problems to climb up the ranks!
-            </p>
+        <header className="mb-8 flex flex-wrap items-start justify-between gap-4">
+            <div>
+                <h1 className="text-3xl font-bold font-headline tracking-tight">Leaderboard</h1>
+                <p className="text-muted-foreground mt-1 max-w-lg">
+                    See how you rank against the top developers. Keep solving problems to climb up the ranks!
+                </p>
+            </div>
+            <div className="flex flex-col items-end gap-4">
+                <Tabs value={activeTab} onValueChange={setActiveTab}>
+                    <TabsList>
+                        <TabsTrigger value="global">Global</TabsTrigger>
+                        <TabsTrigger value="country">By Country</TabsTrigger>
+                        <TabsTrigger value="company">By Company</TabsTrigger>
+                    </TabsList>
+                </Tabs>
+                {currentUserRank && (
+                     <div className="text-right">
+                        <p className="font-semibold text-lg">Your Rank {currentUserRank}</p>
+                    </div>
+                )}
+            </div>
         </header>
 
-        <div className="grid grid-cols-1 lg:grid-cols-4 gap-8">
-            <div className="lg:col-span-1 space-y-8">
-                {currentUserRank && (
-                    <Card className="bg-muted/30 sticky top-24">
-                        <CardHeader>
-                            <CardTitle>Your Rank</CardTitle>
-                        </CardHeader>
-                        <CardContent className="p-4 flex flex-col items-center text-center">
-                            <div className="relative">
-                                <Avatar className="h-24 w-24 mb-4">
-                                    <AvatarImage src={currentUserRank.avatarUrl} />
-                                    <AvatarFallback>{getInitials(currentUserRank.name)}</AvatarFallback>
-                                </Avatar>
-                            </div>
-                            <p className="font-semibold text-xl">{currentUserRank.name}</p>
-                            <p className="text-sm text-muted-foreground">@{currentUserRank.username}</p>
-                            
-                            <div className="flex items-center gap-8 mt-6">
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold">{currentUserRank.rank}</p>
-                                    <p className="text-xs text-muted-foreground">Rank</p>
-                                </div>
-                                <div className="text-center">
-                                    <p className="text-3xl font-bold">{currentUserRank.points}</p>
-                                    <p className="text-xs text-muted-foreground">Points</p>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-                )}
-                <Card>
-                    <CardHeader>
-                        <CardTitle>Solve to rank Up</CardTitle>
-                    </CardHeader>
-                    <CardContent>
-                        <ul className="space-y-2">
-                           {unsolvedProblems.map(problem => (
-                             <li key={problem.title} className="flex justify-between items-center text-sm p-2 rounded-md hover:bg-muted/50">
-                               <span>{problem.title}</span>
-                               <div className="flex items-center gap-4">
-                                   <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
-                                    {problem.difficulty}
-                                  </Badge>
-                                  <span className="font-semibold text-xs w-12 text-right">{problem.points} pts</span>
-                               </div>
-                             </li>
-                           ))}
-                        </ul>
-                    </CardContent>
-                </Card>
-            </div>
-
-            <div className="lg:col-span-3">
-                <Tabs value={activeTab} onValueChange={setActiveTab}>
-                    <div className="flex justify-end mb-4">
-                        <TabsList>
-                            <TabsTrigger value="global">Global</TabsTrigger>
-                            <TabsTrigger value="country">By Country</TabsTrigger>
-                            <TabsTrigger value="company">By Company</TabsTrigger>
-                        </TabsList>
-                    </div>
-                     <div className="mb-4">
-                        {activeTab === 'country' && (
-                            <Combobox 
-                                options={countries}
-                                value={countryFilter}
-                                onValueChange={setCountryFilter}
-                                placeholder="Select a country..."
-                                searchPlaceholder="Search countries..."
-                            />
-                        )}
-                        {activeTab === 'company' && (
-                        <CompanyAutocomplete 
-                                value={companyFilter}
-                                onValueChange={setCompanyFilter}
-                        />
-                        )}
-                    </div>
-                    <div className="relative min-h-[400px]">
-                        {isLoading && (
-                            <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
-                                <Loader />
-                            </div>
-                        )}
-                        <LeaderboardTable users={rankedUsers} currentUserUid={currentUser?.uid} page={currentPage} pageSize={PAGE_SIZE} />
-                    </div>
-                    <div className="mt-4 flex justify-center">
-                        <PaginationComponent 
-                            currentPage={currentPage}
-                            totalPages={totalPages}
-                            onPageChange={handlePageChange}
-                        />
-                    </div>
-                </Tabs>
-            </div>
+        <div className="mb-4">
+            {activeTab === 'country' && (
+                <Combobox 
+                    options={countries}
+                    value={countryFilter}
+                    onValueChange={setCountryFilter}
+                    placeholder="Select a country..."
+                    searchPlaceholder="Search countries..."
+                />
+            )}
+            {activeTab === 'company' && (
+            <CompanyAutocomplete 
+                    value={companyFilter}
+                    onValueChange={setCompanyFilter}
+            />
+            )}
+        </div>
+        
+        <div className="relative min-h-[400px] bg-card p-4 rounded-xl shadow-lg">
+            {isLoading && (
+                <div className="absolute inset-0 bg-background/50 flex items-center justify-center z-10">
+                    <Loader />
+                </div>
+            )}
+            <LeaderboardList users={rankedUsers} currentUserUid={currentUser?.uid} />
+        </div>
+        <div className="mt-4 flex justify-center">
+            <PaginationComponent 
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={handlePageChange}
+            />
         </div>
     </div>
   );
