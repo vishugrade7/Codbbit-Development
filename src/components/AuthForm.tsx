@@ -308,6 +308,10 @@ function AuthFormComponent({ type }: AuthFormProps) {
           };
           
           setDocumentNonBlocking(userDocRef, newUserProfile, { merge: false });
+
+          if (signupValues.referralCode) {
+            handleReferral({ referralCode: signupValues.referralCode });
+          }
           
           // Send verification email
           await sendEmailVerification(user);
@@ -341,52 +345,57 @@ function AuthFormComponent({ type }: AuthFormProps) {
       const user = userCredential.user;
 
       if (additionalInfo?.isNewUser) {
-        // Create a new user profile in Firestore
-        const { isUnique, existingUserName } = await isUsernameUnique({ username: user.displayName || user.email?.split('@')[0] || `user${user.uid.substring(0,5)}`});
-        const finalUsername = isUnique ? (user.displayName || user.email?.split('@')[0] || `user${user.uid.substring(0,5)}`) : `${user.displayName || user.email?.split('@')[0]}${user.uid.substring(0,5)}`;
+        const potentialUsername = user.displayName?.replace(/\s/g, '').toLowerCase() || user.email?.split('@')[0] || `user${user.uid.substring(0, 5)}`;
+        const { isUnique } = await isUsernameUnique({ username: potentialUsername });
+        const finalUsername = isUnique ? potentialUsername : `${potentialUsername}${user.uid.substring(0, 4)}`;
 
         const userDocRef = doc(firestore, 'users', user.uid);
         const newUserProfile = {
-          uid: user.uid,
-          email: user.email,
-          name: user.displayName,
-          username: finalUsername,
-          username_lowercase: finalUsername.toLowerCase(),
-          company: '',
-          country: '',
-          emailVerified: user.emailVerified,
-          phone: '',
-          phoneVerified: false,
-          about: '',
-          avatarUrl: user.photoURL || '',
-          isEmailPublic: false,
-          isAdmin: false,
-          points: 0,
-          currentStreak: 0,
-          maxStreak: 0,
-          lastSolvedDate: null,
-          activeSessionId: '',
-          achievements: {},
-          categoryPoints: {},
-          dsaStats: { Easy: 0, Medium: 0, Hard: 0 },
-          sfdcAuth: {
-            connected: false,
-            instanceUrl: '',
-            accessToken: '',
-            refreshToken: '',
-            issuedAt: 0,
-          },
-          solvedProblems: {},
-          starredProblems: [],
-          submissionHeatmap: {},
-          contributions: [],
-          referredBy: '',
-          referredUsersCount: 0,
+            uid: user.uid,
+            email: user.email,
+            name: user.displayName,
+            username: finalUsername,
+            username_lowercase: finalUsername.toLowerCase(),
+            company: '',
+            country: '',
+            emailVerified: user.emailVerified,
+            phone: '',
+            phoneVerified: false,
+            about: '',
+            avatarUrl: user.photoURL || '',
+            isEmailPublic: false,
+            isAdmin: false,
+            points: 0,
+            currentStreak: 0,
+            maxStreak: 0,
+            lastSolvedDate: null,
+            activeSessionId: '',
+            achievements: {},
+            categoryPoints: {},
+            dsaStats: { Easy: 0, Medium: 0, Hard: 0 },
+            sfdcAuth: {
+              connected: false,
+              instanceUrl: '',
+              accessToken: '',
+              refreshToken: '',
+              issuedAt: 0,
+            },
+            solvedProblems: {},
+            starredProblems: [],
+            submissionHeatmap: {},
+            contributions: [],
+            referredBy: referralCodeFromUrl,
+            referredUsersCount: 0,
         };
+
         setDocumentNonBlocking(userDocRef, newUserProfile, { merge: false });
+        
+        if (referralCodeFromUrl) {
+          handleReferral({ referralCode: referralCodeFromUrl });
+        }
+
         router.push('/');
       } else {
-        // Existing user, redirect to dashboard
         router.push('/');
       }
     } catch (error: any) {
