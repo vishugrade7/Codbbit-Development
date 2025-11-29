@@ -338,13 +338,53 @@ function AuthFormComponent({ type }: AuthFormProps) {
     try {
       const userCredential = await initiateGoogleSignIn(auth);
       const additionalInfo = getAdditionalUserInfo(userCredential);
-      
+      const user = userCredential.user;
+
       if (additionalInfo?.isNewUser) {
-        // For ALL new users, redirect to the signup page to complete their profile.
-        const user = userCredential.user;
-        const email = user.email ? encodeURIComponent(user.email) : '';
-        const fullName = user.displayName ? encodeURIComponent(user.displayName) : '';
-        router.push(`/signup?email=${email}&fullName=${fullName}`);
+        // Create a new user profile in Firestore
+        const { isUnique, existingUserName } = await isUsernameUnique({ username: user.displayName || user.email?.split('@')[0] || `user${user.uid.substring(0,5)}`});
+        const finalUsername = isUnique ? (user.displayName || user.email?.split('@')[0] || `user${user.uid.substring(0,5)}`) : `${user.displayName || user.email?.split('@')[0]}${user.uid.substring(0,5)}`;
+
+        const userDocRef = doc(firestore, 'users', user.uid);
+        const newUserProfile = {
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName,
+          username: finalUsername,
+          username_lowercase: finalUsername.toLowerCase(),
+          company: '',
+          country: '',
+          emailVerified: user.emailVerified,
+          phone: '',
+          phoneVerified: false,
+          about: '',
+          avatarUrl: user.photoURL || '',
+          isEmailPublic: false,
+          isAdmin: false,
+          points: 0,
+          currentStreak: 0,
+          maxStreak: 0,
+          lastSolvedDate: null,
+          activeSessionId: '',
+          achievements: {},
+          categoryPoints: {},
+          dsaStats: { Easy: 0, Medium: 0, Hard: 0 },
+          sfdcAuth: {
+            connected: false,
+            instanceUrl: '',
+            accessToken: '',
+            refreshToken: '',
+            issuedAt: 0,
+          },
+          solvedProblems: {},
+          starredProblems: [],
+          submissionHeatmap: {},
+          contributions: [],
+          referredBy: '',
+          referredUsersCount: 0,
+        };
+        setDocumentNonBlocking(userDocRef, newUserProfile, { merge: false });
+        router.push('/');
       } else {
         // Existing user, redirect to dashboard
         router.push('/');
