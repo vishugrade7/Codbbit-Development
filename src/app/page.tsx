@@ -204,7 +204,7 @@ export default function HomePage() {
           </Dialog>
 
           <header className="mb-8 animate-fade-in-up">
-            <h1 className="text-4xl font-bold font-handwritten tracking-tight">
+            <h1 className="text-3xl font-bold font-handwritten tracking-tight">
                 {`Welcome back, ${userProfile?.name || 'Coder'}!`}
             </h1>
             <p className="text-muted-foreground mt-1">
