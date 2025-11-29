@@ -99,10 +99,10 @@ export function Header() {
            {!isUserLoading && !user && (
             <>
               <div className="hidden md:flex items-center gap-2">
-                  <Button asChild variant="ghost">
+                  <Button asChild variant="ghost" size="sm">
                       <Link href="/login">Sign In</Link>
                   </Button>
-                  <Button asChild>
+                  <Button asChild size="sm">
                       <Link href="/signup">Get Started <ArrowRight className="h-4 w-4" /></Link>
                   </Button>
               </div>
