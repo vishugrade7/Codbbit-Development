@@ -340,17 +340,11 @@ function AuthFormComponent({ type }: AuthFormProps) {
       const additionalInfo = getAdditionalUserInfo(userCredential);
       
       if (additionalInfo?.isNewUser) {
-        // For new users, we need to gather additional info.
-        // We'll pre-fill what we can from Google and move them to the profile step.
+        // For ALL new users, redirect to the signup page to complete their profile.
         const user = userCredential.user;
-        form.setValue('email', user.email || '');
-        form.setValue('fullName', user.displayName || '');
-        if (type === 'signup') {
-            setActiveTab('profile');
-        } else {
-            router.push(`/signup?email=${encodeURIComponent(user.email || '')}&fullName=${encodeURIComponent(user.displayName || '')}`);
-        }
-
+        const email = user.email ? encodeURIComponent(user.email) : '';
+        const fullName = user.displayName ? encodeURIComponent(user.displayName) : '';
+        router.push(`/signup?email=${email}&fullName=${fullName}`);
       } else {
         // Existing user, redirect to dashboard
         router.push('/');
@@ -404,7 +398,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {isLogin ? (
                   <Dialog open={isForgotPasswordOpen} onOpenChange={setIsForgotPasswordOpen}>
-                    <div className="space-y-2">
+                    <div className="space-y-4">
                       <FormField
                         control={form.control}
                         name="email"
@@ -460,7 +454,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                         </TabsTrigger>
                     </TabsList>
                     <TabsContent value="account" className="mt-4">
-                        <div className="space-y-2 relative">
+                        <div className="space-y-4 relative">
                             <FormField
                                 control={form.control}
                                 name="email"
@@ -500,7 +494,7 @@ function AuthFormComponent({ type }: AuthFormProps) {
                         </div>
                     </TabsContent>
                     <TabsContent value="profile" className="mt-4">
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-2">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-x-4 gap-y-4">
                           <FormField
                               control={form.control}
                               name="fullName"
