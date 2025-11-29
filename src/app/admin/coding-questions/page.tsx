@@ -74,11 +74,10 @@ export default function CodingQuestionsPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
   const [editingProblem, setEditingProblem] = useState<Partial<Question> | null>(null);
   
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState<Omit<FilterState, 'category'>>({
     status: 'All',
     difficulty: 'All',
     search: '',
-    category: 'All',
   });
 
   const [showManagedPackageInput, setShowManagedPackageInput] = useState(false);
@@ -114,9 +113,8 @@ export default function CodingQuestionsPage() {
       const statusMatch = filters.status === 'All' ||
         (filters.status === 'Solved' && solvedProblemIds.has(problem.id!)) ||
         (filters.status === 'Unsolved' && !solvedProblemIds.has(problem.id!));
-      const categoryMatch = filters.category === 'All' || problem.category === filters.category;
         
-      return searchMatch && difficultyMatch && statusMatch && categoryMatch;
+      return searchMatch && difficultyMatch && statusMatch;
     });
   }, [allProblems, filters]);
 

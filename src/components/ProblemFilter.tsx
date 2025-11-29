@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -19,7 +18,7 @@ export type FilterState = {
 };
 
 interface ProblemFilterProps {
-  onFilterChange: (filters: FilterState) => void;
+  onFilterChange: (filters: Omit<FilterState, 'category'>) => void;
   categories: string[];
 }
 
@@ -27,7 +26,6 @@ export function ProblemFilter({ onFilterChange, categories = [] }: ProblemFilter
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<FilterState['status']>('All');
   const [difficulty, setDifficulty] = useState<FilterState['difficulty']>('All');
-  const [category, setCategory] = useState<FilterState['category']>('All');
 
   const debouncedSearch = useDebounce(search, 300);
 
@@ -36,9 +34,8 @@ export function ProblemFilter({ onFilterChange, categories = [] }: ProblemFilter
       search: debouncedSearch,
       status,
       difficulty,
-      category,
     });
-  }, [debouncedSearch, status, difficulty, category, onFilterChange]);
+  }, [debouncedSearch, status, difficulty, onFilterChange]);
   
   const FilterRadioGroup = ({ title, icon, options, value, onValueChange }: { title: string, icon: React.ReactNode, options: string[], value: string, onValueChange: (value: any) => void }) => (
     <div className="grid gap-2">
@@ -90,14 +87,6 @@ export function ProblemFilter({ onFilterChange, categories = [] }: ProblemFilter
                 options={['All', 'Easy', 'Medium', 'Hard']}
                 value={difficulty}
                 onValueChange={(val: 'All' | 'Easy' | 'Medium' | 'Hard') => setDifficulty(val)}
-            />
-            <Separator />
-             <FilterRadioGroup 
-                title="Category"
-                icon={<Tag className="h-4 w-4" />}
-                options={['All', ...categories]}
-                value={category}
-                onValueChange={setCategory}
             />
           </div>
         </PopoverContent>
