@@ -63,18 +63,6 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
             <Tag />
             {question.category}
           </Badge>
-          {(question.tags || []).map(tag => (
-            <Badge key={tag} variant="secondary" className="w-24 justify-center">
-              <Tag />
-              {tag}
-            </Badge>
-          ))}
-          { isSolved && 
-            <Badge variant="outline" className="border-transparent bg-green-100 text-green-800 dark:bg-green-900/40 dark:text-green-300 font-medium">
-                <CheckCircle className="mr-1.5 h-3.5 w-3.5"/>
-                Solved
-            </Badge>
-          }
         </div>
         
         <div className="text-sm text-foreground/90 space-y-6 prose prose-sm dark:prose-invert max-w-none">
