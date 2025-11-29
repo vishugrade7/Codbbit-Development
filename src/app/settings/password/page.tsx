@@ -10,7 +10,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useUser } from '@/firebase';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Eye, EyeOff } from 'lucide-react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card';
 import { EmailAuthProvider, reauthenticateWithCredential, updatePassword } from 'firebase/auth';
@@ -151,7 +151,7 @@ export default function PasswordSettingsPage() {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={isSaving}>
-            {isSaving && <HashLoader color="#456eff" size={20} />}
+            {isSaving && <Loader />}
             Update Password
           </Button>
         </CardFooter>

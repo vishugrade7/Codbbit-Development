@@ -8,7 +8,7 @@ import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@
 import { doc } from 'firebase/firestore';
 import type { NavigationSettings } from '@/lib/types';
 import { Loader } from '@/components/ui/loader';
-import { Loader2, Users } from 'lucide-react';
+import { Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
@@ -121,7 +121,7 @@ export default function NavigationSettingsPage() {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+            {isSaving && <Loader />}
             Save Settings
           </Button>
         </CardFooter>

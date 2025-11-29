@@ -5,7 +5,8 @@ import { useState, useTransition, useEffect } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
 import { DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Play, Loader2, CheckCircle, XCircle } from "lucide-react";
+import { Play, CheckCircle, XCircle } from "lucide-react";
+import { Loader } from "./ui/loader";
 import { ScrollArea } from "./ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -102,7 +103,7 @@ export function AnonymousCodeRunner() {
                                 <div className="p-4 h-full font-code text-sm">
                                     {isExecuting ? (
                                         <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                                            <Loader2 className="animate-spin h-8 w-8" />
+                                            <Loader />
                                             <span>{status}...</span>
                                         </div>
                                     ) : output ? (
@@ -146,7 +147,7 @@ export function AnonymousCodeRunner() {
             </div>
              <div className="flex-shrink-0 p-2 border-t flex justify-end">
                 <Button onClick={handleRun} disabled={isExecuting}>
-                    {isExecuting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="mr-2 h-4 w-4" />}
+                    {isExecuting ? <Loader /> : <Play className="mr-2 h-4 w-4" />}
                     Run
                 </Button>
             </div>

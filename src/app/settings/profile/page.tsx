@@ -11,7 +11,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase, useStorage } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Pencil, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -261,7 +261,7 @@ export default function EditProfilePage() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }
@@ -313,7 +313,7 @@ export default function EditProfilePage() {
           </CardContent>
           <CardFooter className="flex justify-end">
               <Button type="submit" disabled={isSaving}>
-              {isSaving && <HashLoader color="#456eff" size={20} />}
+              {isSaving && <Loader />}
               Save Changes
               </Button>
           </CardFooter>
@@ -360,7 +360,7 @@ export default function EditProfilePage() {
         </CardContent>
         <CardFooter className="flex justify-end">
             <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving && <HashLoader color="#456eff" size={20} />}
+            {isSaving && <Loader />}
             Save Editor Settings
             </Button>
         </CardFooter>
@@ -436,7 +436,7 @@ export default function EditProfilePage() {
                 setSelectedFile(null);
             }} disabled={isUploading}>Cancel</Button>
             <Button type="button" onClick={handleUploadAvatar} disabled={isUploading || !selectedFile}>
-              {isUploading ? <HashLoader color="#456eff" size={20} /> : null}
+              {isUploading ? <Loader /> : null}
               {isUploading ? 'Uploading...' : 'Save'}
             </Button>
           </DialogFooter>
