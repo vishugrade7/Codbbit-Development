@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Link as LinkIcon, Cloud } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { initiateSalesforceOAuth } from '@/lib/actions';
@@ -101,7 +101,7 @@ export default function ConnectedAppsPage() {
   if (isProfileLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }
@@ -130,7 +130,7 @@ export default function ConnectedAppsPage() {
              <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={isDisconnectingSalesforce} className="w-full sm:w-auto">
-                        {isDisconnectingSalesforce && <HashLoader color="#456eff" size={20} />}
+                        {isDisconnectingSalesforce && <Loader />}
                         Disconnect
                     </Button>
                 </AlertDialogTrigger>
@@ -149,7 +149,7 @@ export default function ConnectedAppsPage() {
             </AlertDialog>
           ) : (
             <Button onClick={handleAuthWithSalesforce} disabled={isConnecting} className="w-full sm:w-auto">
-              {isConnecting ? <HashLoader color="#456eff" size={20} /> : <LinkIcon className="mr-2 h-4 w-4" />}
+              {isConnecting ? <Loader /> : <LinkIcon className="mr-2 h-4 w-4" />}
               Connect
             </Button>
           )}

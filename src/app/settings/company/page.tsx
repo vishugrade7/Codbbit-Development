@@ -13,7 +13,7 @@ import { Label } from '@/components/ui/label';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { CompanyAutocomplete } from '@/components/CompanyAutocomplete';
 
 const companySchema = z.object({
@@ -81,7 +81,7 @@ export default function CompanySettingsPage() {
   if (isProfileLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function CompanySettingsPage() {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={isSaving}>
-            {isSaving && <HashLoader color="#456eff" size={20} />}
+            {isSaving && <Loader />}
             Save Changes
           </Button>
         </CardFooter>

@@ -12,7 +12,7 @@ import { collection, doc } from 'firebase/firestore';
 import { ProblemSheetCard } from '@/components/ProblemSheetCard';
 import type { ProblemSheet, UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import Link from 'next/link';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
@@ -128,7 +128,7 @@ export default function ProblemSheetsPage() {
               </h2>
               {isLoading ? (
                 <div className="flex justify-center items-center h-64">
-                  <HashLoader color="#456eff" />
+                  <Loader />
                 </div>
               ) : (
                 <>

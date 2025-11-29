@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { CheckCircle, ShieldAlert, CheckIcon, XIcon, Link as LinkIcon, Users, Linkedin } from 'lucide-react';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -115,7 +115,7 @@ export default function SettingsPage() {
 
 
   if (isUserLoading || isProfileLoading) {
-    return <div className="flex min-h-[400px] flex-col items-center justify-center"><HashLoader color="#456eff" /></div>;
+    return <div className="flex min-h-[400px] flex-col items-center justify-center"><Loader /></div>;
   }
 
   return (
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                         className="pr-10"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                        {usernameStatus === 'checking' && <HashLoader color="#456eff" size={20} />}
+                        {usernameStatus === 'checking' && <Loader />}
                         {usernameStatus === 'unique' && isUsernameChanged && <CheckIcon className="h-4 w-4 text-green-500" />}
                         {usernameStatus === 'taken' && <XIcon className="h-4 w-4 text-red-500" />}
                     </div>
@@ -185,7 +185,7 @@ export default function SettingsPage() {
         </div>
         <div className="p-6 flex justify-end bg-muted/30">
             <Button onClick={handleSave} disabled={!canSave}>
-                {isSaving ? <HashLoader color="#456eff" size={20} /> : null}
+                {isSaving ? <Loader /> : null}
                 Save Changes
             </Button>
         </div>

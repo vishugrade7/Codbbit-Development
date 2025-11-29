@@ -4,7 +4,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { Command, CommandInput, CommandItem, CommandList, CommandEmpty } from '@/components/ui/command';
 import { useDebounce } from '@/hooks/use-debounce';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { Building2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -37,7 +37,7 @@ function AutocompleteContent({
               {isLoading && suggestions.length === 0 ? (
                 <CommandEmpty>
                     <div className="flex items-center justify-center p-2">
-                        <HashLoader color="#456eff" size={20} />
+                        <Loader />
                     </div>
                 </CommandEmpty>
               ) : (
@@ -129,7 +129,7 @@ export function CompanyAutocomplete({ value, onValueChange }: CompanyAutocomplet
           placeholder="e.g., Salesforce"
           className="flex h-10 w-full rounded-md border border-input bg-background pl-9 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
         />
-        {isLoading && <HashLoader color="#456eff" size={20} className="absolute right-3 top-1/2 -translate-y-1/2" />}
+        {isLoading && <Loader className="absolute right-3 top-1/2 -translate-y-1/2" />}
     </div>
   );
 

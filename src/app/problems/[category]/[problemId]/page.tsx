@@ -8,7 +8,7 @@ import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
 import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -211,7 +211,7 @@ export default function ProblemSolvingPage() {
   if (isLoading || !problem || isLoadingProblems) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <HashLoader color="#456eff" />
+        <Loader />
       </div>
     );
   }
@@ -271,7 +271,7 @@ export default function ProblemSolvingPage() {
             ))}
             {isSyncing && (
                 <div className="flex items-center gap-2 text-muted-foreground">
-                    <HashLoader color="#456eff" size={20} />
+                    <Loader />
                     <span>Processing...</span>
                 </div>
             )}

@@ -9,7 +9,7 @@ import { Search } from 'lucide-react';
 import { useUser, useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Course } from '@/lib/types';
 import { doc, collection } from 'firebase/firestore';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 
 export default function CoursesPage() {
     const { user, isUserLoading } = useUser();
@@ -33,7 +33,7 @@ export default function CoursesPage() {
     if (isUserLoading || isLoadingCourses) {
         return (
             <div className="flex h-screen items-center justify-center">
-                <HashLoader color="#456eff" />
+                <Loader />
             </div>
         );
     }

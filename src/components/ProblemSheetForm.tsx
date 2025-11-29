@@ -31,7 +31,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
 import { ArrowLeft, FilePlus2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2, Eye, EyeOff } from 'lucide-react';
-import { HashLoader } from 'react-spinners';
+import { Loader } from '@/components/ui/loader';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -213,8 +213,8 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
    const FilterRadioGroup = ({ title, icon, options, value, onValueChange }: { title: string, icon: React.ReactNode, options: string[], value: string, onValueChange: (value: any) => void }) => (
     <div className="grid gap-2">
       <p className="font-medium text-sm flex items-center gap-2 text-muted-foreground">
-        {icon}
-        {title}
+          {icon}
+          {title}
       </p>
       {options.map(option => (
         <button key={option} onClick={() => onValueChange(option)} className="flex items-center text-sm text-foreground hover:text-primary">
@@ -327,7 +327,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                     {isLoading ? (
                       <TableRow>
                         <TableCell colSpan={4} className="h-24 text-center">
-                          <HashLoader color="#456eff" />
+                          <Loader />
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -407,7 +407,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                   onClick={handleSaveSheet} 
                   disabled={saveState !== 'idle'}
                 >
-                  {saveState === 'saving' && <HashLoader color="#456eff" size={20} />}
+                  {saveState === 'saving' && <Loader />}
                   {saveState === 'saved' && <Check className="mr-2 h-4 w-4"/>}
                   {saveState === 'idle' && (isEditMode ? 'Update Sheet' : 'Save Sheet')}
                   {saveState === 'saving' && 'Saving...'}
