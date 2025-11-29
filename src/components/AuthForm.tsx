@@ -42,7 +42,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog"
 import Link from 'next/link';
-import { useAuth, useUser, useFirestore, setDocumentNonBlocking, initiateGoogleSignIn } from '@/firebase';
+import { useAuth, useUser, useFirestore, setDocumentNonBlocking } from '@/firebase';
 import {
   initiateEmailSignIn,
   initiateEmailSignUp,
@@ -59,7 +59,7 @@ import {
   ArrowRightIcon,
   ArrowLeftIcon,
 } from '@heroicons/react/24/outline';
-import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail, getAdditionalUserInfo } from 'firebase/auth';
+import { updateProfile, sendEmailVerification, type User, onIdTokenChanged, sendPasswordResetEmail } from 'firebase/auth';
 import { doc } from 'firebase/firestore';
 import { PasswordStrength } from './PasswordStrength';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -338,75 +338,6 @@ function AuthFormComponent({ type }: AuthFormProps) {
     }
   }
 
-  const handleGoogleSignIn = async () => {
-    try {
-      const userCredential = await initiateGoogleSignIn(auth);
-      const additionalInfo = getAdditionalUserInfo(userCredential);
-      const user = userCredential.user;
-
-      if (additionalInfo?.isNewUser) {
-        const potentialUsername = user.displayName?.replace(/\s/g, '').toLowerCase() || user.email?.split('@')[0] || `user${user.uid.substring(0, 5)}`;
-        const { isUnique } = await isUsernameUnique({ username: potentialUsername });
-        const finalUsername = isUnique ? potentialUsername : `${potentialUsername}${user.uid.substring(0, 4)}`;
-
-        const userDocRef = doc(firestore, 'users', user.uid);
-        const newUserProfile = {
-            uid: user.uid,
-            email: user.email,
-            name: user.displayName,
-            username: finalUsername,
-            username_lowercase: finalUsername.toLowerCase(),
-            company: '',
-            country: '',
-            emailVerified: user.emailVerified,
-            phone: '',
-            phoneVerified: false,
-            about: '',
-            avatarUrl: user.photoURL || '',
-            isEmailPublic: false,
-            isAdmin: false,
-            points: 0,
-            currentStreak: 0,
-            maxStreak: 0,
-            lastSolvedDate: null,
-            activeSessionId: '',
-            achievements: {},
-            categoryPoints: {},
-            dsaStats: { Easy: 0, Medium: 0, Hard: 0 },
-            sfdcAuth: {
-              connected: false,
-              instanceUrl: '',
-              accessToken: '',
-              refreshToken: '',
-              issuedAt: 0,
-            },
-            solvedProblems: {},
-            starredProblems: [],
-            submissionHeatmap: {},
-            contributions: [],
-            referredBy: referralCodeFromUrl,
-            referredUsersCount: 0,
-        };
-
-        setDocumentNonBlocking(userDocRef, newUserProfile, { merge: false });
-        
-        if (referralCodeFromUrl) {
-          handleReferral({ referralCode: referralCodeFromUrl });
-        }
-
-        router.push('/');
-      } else {
-        router.push('/');
-      }
-    } catch (error: any) {
-      toast({
-        title: 'Google Sign-In Failed',
-        description: error.message || 'An unexpected error occurred.',
-        variant: 'destructive',
-      });
-    }
-  };
-
   if (isUserLoading || (user && user.emailVerified)) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
@@ -427,22 +358,6 @@ function AuthFormComponent({ type }: AuthFormProps) {
         </CardHeader>
         <CardContent>
            <div className="space-y-4">
-             <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-                <svg className="mr-2 h-4 w-4" aria-hidden="true" focusable="false" data-prefix="fab" data-icon="google" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 488 512"><path fill="currentColor" d="M488 261.8C488 403.3 391.1 504 248 504 110.8 504 0 393.2 0 256S110.8 8 248 8c66.8 0 126 21.2 177.2 56.4l-64.2 64.2c-23.7-22.4-56.2-35.8-93-35.8-73.5 0-133.1 60.1-133.1 134.1s59.6 134.1 133.1 134.1c83.3 0 119.2-61.2 122.8-89.1H248v-85.3h236.1c2.3 12.7 3.9 24.9 3.9 41.4z"></path></svg>
-                Continue with Google
-             </Button>
-
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <span className="w-full border-t" />
-              </div>
-              <div className="relative flex justify-center text-xs uppercase">
-                <span className="bg-background px-2 text-muted-foreground">
-                  OR
-                </span>
-              </div>
-            </div>
-          
             <Form {...form}>
               <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
                 {isLogin ? (
