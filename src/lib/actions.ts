@@ -114,6 +114,25 @@ export async function initiateLinkedInOAuth(userId: string) {
   return { success: true, url: oauthUrl.toString() };
 }
 
+export async function initiateGitHubOAuth(userId: string) {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/github/callback`;
+
+    if (!clientId || !callbackUrl) {
+        const error = "GitHub environment variables are not set up.";
+        console.error(error);
+        return { success: false, error };
+    }
+
+    const oauthUrl = new URL('https://github.com/login/oauth/authorize');
+    oauthUrl.searchParams.append('client_id', clientId);
+    oauthUrl.searchParams.append('redirect_uri', callbackUrl);
+    oauthUrl.searchParams.append('state', userId);
+    oauthUrl.searchParams.append('scope', 'repo'); // Request repository access
+
+    return { success: true, url: oauthUrl.toString() };
+}
+
 
 async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
     const userDocRef = firestore.collection('users').doc(userId);
@@ -798,3 +817,5 @@ export async function deployLwc(userId: string, lwcData: {
         return { success: false, error: e.message };
     }
 }
+
+    
