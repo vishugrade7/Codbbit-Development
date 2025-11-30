@@ -29,9 +29,12 @@ export async function GET(request: NextRequest) {
 
   try {
     const callbackUri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`;
-    console.log("REDIRECT URI SENT:", callbackUri);
-    console.log("BASE URL:", process.env.NEXT_PUBLIC_BASE_URL);
     
+    console.log("🔎 CALLBACK:", callbackUri);
+    console.log("🔎 BASE:", process.env.NEXT_PUBLIC_BASE_URL);
+    console.log("🔎 CLIENT ID:", process.env.GITHUB_CLIENT_ID);
+    console.log("🔎 SECRET:", process.env.GITHUB_CLIENT_SECRET ? "OK" : "MISSING");
+
     // Exchange authorization code for access token
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
