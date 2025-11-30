@@ -71,9 +71,9 @@ export async function GET(request: NextRequest) {
 
     // Update user document in Firestore
     const userDocRef = firestore.collection('users').doc(userId);
-    await userDocRef.update({
+    await userDocRef.set({
       githubAuth: newAuth
-    });
+    }, { merge: true });
 
     revalidatePath('/settings/connected-apps');
     revalidatePath('/settings');
@@ -87,4 +87,3 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
   }
 }
-
