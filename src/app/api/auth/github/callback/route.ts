@@ -28,6 +28,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    const callbackUri = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`;
+    console.log("REDIRECT URI SENT:", callbackUri);
+    console.log("BASE URL:", process.env.NEXT_PUBLIC_BASE_URL);
+    
     // Exchange authorization code for access token
     const tokenResponse = await fetch('https://github.com/login/oauth/access_token', {
       method: 'POST',
@@ -39,7 +43,7 @@ export async function GET(request: NextRequest) {
         client_id: process.env.GITHUB_CLIENT_ID!,
         client_secret: process.env.GITHUB_CLIENT_SECRET!,
         code: code,
-        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`,
+        redirect_uri: callbackUri,
       }),
     });
 
@@ -82,7 +86,8 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(redirectUrl);
 
   } catch (e: any) {
-    console.error('GitHub callback error:', e.message);
+    console.error("GITHUB ERROR FULL:", e);
+    console.error("GITHUB ERROR MESSAGE:", e.message);
     redirectUrl.searchParams.set('error', 'github_error');
     return NextResponse.redirect(redirectUrl);
   }
