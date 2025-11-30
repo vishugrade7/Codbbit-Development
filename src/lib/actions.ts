@@ -116,7 +116,7 @@ export async function initiateLinkedInOAuth(userId: string) {
 
 export async function initiateGitHubOAuth(userId: string) {
     const clientId = process.env.GITHUB_CLIENT_ID;
-    const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/github/callback`;
+    const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`;
 
     if (!clientId || !callbackUrl) {
         const error = "GitHub environment variables are not set up.";

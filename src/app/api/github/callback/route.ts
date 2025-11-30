@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
         client_id: process.env.GITHUB_CLIENT_ID!,
         client_secret: process.env.GITHUB_CLIENT_SECRET!,
         code: code,
-        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/github/callback`,
+        redirect_uri: `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`,
       }),
     });
 
