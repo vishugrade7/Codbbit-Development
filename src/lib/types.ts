@@ -78,6 +78,12 @@ export type SfdcAuth = {
     issuedAt: number;
 };
 
+export type GithubAuth = {
+    connected: boolean;
+    username: string;
+    accessToken: string; // This should be encrypted server-side
+};
+
 export type Course = {
   id: string;
   title: string;
@@ -127,6 +133,7 @@ export interface UserProfile {
     Hard: number;
   };
   sfdcAuth: SfdcAuth;
+  githubAuth?: GithubAuth;
   solvedProblems: Record<string, {
     difficulty: string;
     points: number;

@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { useState } from 'react';
@@ -8,9 +9,9 @@ import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase 
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
 import { Loader } from '@/components/ui/loader';
-import { Link as LinkIcon, Cloud } from 'lucide-react';
+import { Link as LinkIcon, Cloud, Github } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { initiateSalesforceOAuth } from '@/lib/actions';
+import { initiateSalesforceOAuth, initiateGitHubOAuth } from '@/lib/actions';
 import Image from 'next/image';
 import {
   AlertDialog,
@@ -40,6 +41,8 @@ export default function ConnectedAppsPage() {
 
   const [isConnecting, setIsConnecting] = useState(false);
   const [isDisconnectingSalesforce, setIsDisconnectingSalesforce] = useState(false);
+  const [isConnectingGitHub, setIsConnectingGitHub] = useState(false);
+  const [isDisconnectingGitHub, setIsDisconnectingGitHub] = useState(false);
   
 
   const handleAuthWithSalesforce = async () => {
@@ -95,8 +98,48 @@ export default function ConnectedAppsPage() {
     }
   }
 
+  const handleAuthWithGitHub = async () => {
+    if (!user) return;
+    setIsConnectingGitHub(true);
+    try {
+      const result = await initiateGitHubOAuth(user.uid);
+      if (result.success && result.url) {
+        window.location.href = result.url;
+      } else {
+        throw new Error(result.error || "Could not initiate GitHub authentication.");
+      }
+    } catch (error: any) {
+      toast({
+        title: "Authentication Error",
+        description: error.message,
+        variant: "destructive",
+      });
+      setIsConnectingGitHub(false);
+    }
+  };
+
+  const handleDisconnectGitHub = async () => {
+    if (!userDocRef) return;
+    setIsDisconnectingGitHub(true);
+    try {
+      await setDocumentNonBlocking(userDocRef, {
+        githubAuth: {
+          connected: false,
+          username: '',
+          accessToken: '',
+        }
+      }, { merge: true });
+      await refetch();
+      toast({ title: "GitHub Disconnected", description: "Your GitHub account has been disconnected."});
+    } catch(error: any) {
+       toast({ title: "Error", description: "Could not disconnect GitHub account.", variant: "destructive"});
+    } finally {
+        setIsDisconnectingGitHub(false);
+    }
+  }
 
   const isSalesforceConnected = userProfile?.sfdcAuth?.connected || false;
+  const isGitHubConnected = userProfile?.githubAuth?.connected || false;
 
   if (isProfileLoading) {
     return (
@@ -110,7 +153,7 @@ export default function ConnectedAppsPage() {
     <Card>
       <CardHeader>
         <CardTitle>Connected Apps</CardTitle>
-        <CardDescription>Manage your third-party application connections for Salesforce.</CardDescription>
+        <CardDescription>Manage your third-party application connections.</CardDescription>
       </CardHeader>
       <CardContent className="divide-y divide-border">
         {/* Salesforce Connection */}
@@ -150,6 +193,48 @@ export default function ConnectedAppsPage() {
           ) : (
             <Button onClick={handleAuthWithSalesforce} disabled={isConnecting} className="w-full sm:w-auto">
               {isConnecting ? <Loader /> : <LinkIcon className="mr-2 h-4 w-4" />}
+              Connect
+            </Button>
+          )}
+        </div>
+        
+        {/* GitHub Connection */}
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 py-4">
+          <div className="flex items-center gap-4">
+            <div className="p-2 rounded-md bg-muted">
+                <Github className="h-6 w-6 text-foreground" />
+            </div>
+            <div>
+              <p className="font-semibold">GitHub</p>
+              <p className="text-sm text-muted-foreground">
+                {isGitHubConnected ? `Connected as ${userProfile?.githubAuth?.username}` : 'Save your solutions and notes.'}
+              </p>
+            </div>
+          </div>
+          {isGitHubConnected ? (
+             <AlertDialog>
+                <AlertDialogTrigger asChild>
+                    <Button variant="destructive" disabled={isDisconnectingGitHub} className="w-full sm:w-auto">
+                        {isDisconnectingGitHub && <Loader />}
+                        Disconnect
+                    </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                    <AlertDialogHeader>
+                        <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                            Disconnecting your GitHub account will prevent you from syncing your solutions. You can reconnect at any time.
+                        </AlertDialogDescription>
+                    </AlertDialogHeader>
+                    <AlertDialogFooter>
+                        <AlertDialogCancel>Cancel</AlertDialogCancel>
+                        <AlertDialogAction onClick={handleDisconnectGitHub}>Disconnect</AlertDialogAction>
+                    </AlertDialogFooter>
+                </AlertDialogContent>
+            </AlertDialog>
+          ) : (
+            <Button onClick={handleAuthWithGitHub} disabled={isConnectingGitHub} className="w-full sm:w-auto">
+              {isConnectingGitHub ? <Loader /> : <LinkIcon className="mr-2 h-4 w-4" />}
               Connect
             </Button>
           )}
