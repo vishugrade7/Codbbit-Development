@@ -65,12 +65,12 @@ function LeaderboardList({ users, currentUserUid }: { users: (UserProfile & { ra
           <TableBody>
             {users.map((user, index) => (
                 <TableRow key={user.uid} className={cn("transition-colors", user.uid === currentUserUid ? "bg-primary/10 hover:bg-primary/20" : "dark:odd:bg-white/[.02] dark:even:bg-transparent")}>
-                    <TableCell className="w-20 text-center">
+                    <TableCell className="w-20 text-center py-2">
                         <div className="flex items-center justify-center">
                            <RankMedal rank={user.rank} />
                         </div>
                     </TableCell>
-                    <TableCell>
+                    <TableCell className="py-2">
                         <div className="flex items-center gap-4">
                              <div className="relative">
                                 <Avatar className="h-10 w-10">
@@ -96,8 +96,8 @@ function LeaderboardList({ users, currentUserUid }: { users: (UserProfile & { ra
                             </div>
                         </div>
                     </TableCell>
-                    <TableCell className="font-semibold text-lg">{user.points}</TableCell>
-                    <TableCell>
+                    <TableCell className="font-semibold text-lg py-2">{user.points}</TableCell>
+                    <TableCell className="py-2">
                         {user.country && (
                             <div className="flex items-center gap-2">
                                 <Image src={`https://flagsapi.com/${user.country}/flat/24.png`} alt={`${user.country} flag`} width={24} height={18} />
