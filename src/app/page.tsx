@@ -204,52 +204,51 @@ export default function HomePage() {
             </DialogContent>
           </Dialog>
 
-          <header className="mb-8 animate-fade-in-up">
-            <h1 className="text-3xl font-bold font-handwritten tracking-tight">
-                {`Welcome back, ${userProfile?.name || 'Coder'}!`}
-            </h1>
-            <p className="text-muted-foreground mt-1">
-              Ready to tackle your next challenge? Let's get started.
-            </p>
+          <header className="mb-8 flex items-center justify-between">
+            <div className="animate-fade-in-up">
+              <h1 className="text-3xl font-bold font-handwritten tracking-tight">
+                  {`Welcome back, ${userProfile?.name || 'Coder'}!`}
+              </h1>
+              <p className="text-muted-foreground mt-1">
+                Ready to tackle your next challenge? Let's get started.
+              </p>
+            </div>
+             <div className="grid grid-cols-4 gap-4">
+              <StatCard
+                title="Rank"
+                value={`#${userRank || 'N/A'}`}
+                icon={Award}
+                changeText="Your position"
+                variant="primary"
+                changeType="neutral"
+              />
+              <StatCard
+                title="Total Points"
+                value={userProfile?.points || 0}
+                icon={BarChart}
+                changeText="Keep solving"
+                changeType="neutral"
+              />
+               <StatCard
+                title="Current Streak"
+                value={`${userProfile?.currentStreak || 0} days`}
+                icon={Flame}
+                changeText="vs last month"
+                changeValue={userProfile?.currentStreak || 0 > (userProfile?.maxStreak || 0) ? 5 : -2}
+                changeType={(userProfile?.currentStreak || 0) > 0 ? "positive" : "negative"}
+              />
+              <StatCard
+                title="Max Streak"
+                value={`${userProfile?.maxStreak || 0} days`}
+                icon={TrendingUp}
+                changeText="All time high"
+                changeType="neutral"
+              />
+            </div>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-5 gap-6">
-            <div className="lg:col-span-2 space-y-6 flex flex-col">
-              <div className="w-full">
-                 <div className="grid grid-cols-2 md:grid-cols-2 gap-4">
-                  <StatCard
-                    title="Rank"
-                    value={`#${userRank || 'N/A'}`}
-                    icon={Award}
-                    changeText="Your position"
-                    variant="primary"
-                    changeType="neutral"
-                  />
-                  <StatCard
-                    title="Total Points"
-                    value={userProfile?.points || 0}
-                    icon={BarChart}
-                    changeText="Keep solving"
-                    changeType="neutral"
-                  />
-                   <StatCard
-                    title="Current Streak"
-                    value={`${userProfile?.currentStreak || 0} days`}
-                    icon={Flame}
-                    changeText="vs last month"
-                    changeValue={userProfile?.currentStreak || 0 > (userProfile?.maxStreak || 0) ? 5 : -2}
-                    changeType={(userProfile?.currentStreak || 0) > 0 ? "positive" : "negative"}
-                  />
-                  <StatCard
-                    title="Max Streak"
-                    value={`${userProfile?.maxStreak || 0} days`}
-                    icon={TrendingUp}
-                    changeText="All time high"
-                    changeType="neutral"
-                  />
-                </div>
-              </div>
-              <Card className="animate-fade-in-up flex-grow flex flex-col" style={{ animationDelay: '0.7s' }}>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <Card className="animate-fade-in-up flex-grow flex flex-col" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
                   <CardDescription>Curated lists to sharpen your skills.</CardDescription>
@@ -304,8 +303,6 @@ export default function HomePage() {
                   </div>
                 </CardContent>
               </Card>
-            </div>
-            <div className="lg:col-span-3 space-y-6">
               <Card className="animate-fade-in-up flex flex-col" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2 text-primary"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
@@ -400,7 +397,6 @@ export default function HomePage() {
                     )}
                   </div>
               </Card>
-            </div>
           </div>
 
         </main>
