@@ -4,17 +4,18 @@
 import { useState, useTransition, useEffect } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
-import { DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Play, CheckCircle, XCircle } from "lucide-react";
+import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
+import { Play, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
 import { Loader } from "./ui/loader";
 import { ScrollArea } from "./ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from "@/lib/types";
-import { executeSalesforceCode } from "@/lib/actions";
+import { executeSalesforceCode, initiateSalesforceOAuth } from "@/lib/actions";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resizable";
 import { Badge } from "./ui/badge";
+import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 
 const LOCAL_STORAGE_KEY = 'anonymous-apex-code';
 const DEFAULT_CODE = "System.debug('Hello from Anonymous Apex!');";
@@ -45,6 +46,33 @@ export function AnonymousCodeRunner() {
     }, [firestore, user?.uid]);
     
     const { data: userProfile } = useDoc<UserProfile>(userDocRef);
+    
+    const handleAuthWithSalesforce = async () => {
+        // 1. Generate code verifier
+        const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
+        sessionStorage.setItem('salesforce_code_verifier', verifier);
+
+        // 2. Generate code challenge
+        const encoder = new TextEncoder();
+        const data = encoder.encode(verifier);
+        const digest = await window.crypto.subtle.digest('SHA-256', data);
+        const challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
+        .replace(/\+/g, '-')
+        .replace(/\//g, '_')
+        .replace(/=/g, '');
+        
+        // 3. Call server action with the challenge
+        const result = await initiateSalesforceOAuth(challenge);
+        if (result.success && result.url) {
+            window.location.href = result.url;
+        } else {
+            toast({
+                title: "Authentication Error",
+                description: result.error || "Could not initiate Salesforce authentication.",
+                variant: "destructive",
+            });
+        }
+    };
 
     const handleRun = () => {
         startTransition(async () => {
@@ -67,7 +95,7 @@ export function AnonymousCodeRunner() {
             const result = await executeSalesforceCode(authCreds, code, "anonymous");
             setStatus('Ready');
             
-            if (!result.success) {
+            if (!result.success && result.error && !result.error.includes("Bad_OAuth_Token") && !result.error.includes("Session expired")) {
                 toast({
                     title: "Execution Error",
                     description: result.error,
@@ -77,8 +105,11 @@ export function AnonymousCodeRunner() {
             setOutput(result);
         });
     }
-
+    
     const isExecuting = isPending || status !== 'Ready';
+    
+    const sessionExpired = !output?.success && (output?.error?.includes("Bad_OAuth_Token") || output?.error?.includes("Session expired"));
+
 
     return (
         <>
@@ -106,6 +137,15 @@ export function AnonymousCodeRunner() {
                                             <Loader />
                                             <span>{status}...</span>
                                         </div>
+                                    ) : sessionExpired ? (
+                                         <Alert variant="destructive" className="h-full flex flex-col items-center justify-center text-center">
+                                             <AlertTriangle className="h-8 w-8 mb-4" />
+                                            <AlertTitle className="text-lg font-bold">Session Expired</AlertTitle>
+                                            <AlertDescription className="mb-6">
+                                                Your Salesforce session has expired. Please authenticate again to continue.
+                                            </AlertDescription>
+                                            <Button onClick={handleAuthWithSalesforce}>Authenticate with Salesforce</Button>
+                                        </Alert>
                                     ) : output ? (
                                         <div className="flex flex-col gap-2">
                                             {output.success ? (
@@ -145,12 +185,12 @@ export function AnonymousCodeRunner() {
                     </ResizablePanel>
                 </ResizablePanelGroup>
             </div>
-             <div className="flex-shrink-0 p-2 border-t flex justify-end">
+             <DialogFooter className="flex-shrink-0 p-2 border-t">
                 <Button onClick={handleRun} disabled={isExecuting}>
                     {isExecuting ? <Loader /> : <Play className="mr-2 h-4 w-4" />}
                     Run
                 </Button>
-            </div>
+            </DialogFooter>
         </>
     )
 }
