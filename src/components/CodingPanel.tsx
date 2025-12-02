@@ -63,7 +63,7 @@ interface ChatMessage {
 }
 
 const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; logs: string; error?: string; runtime?: number; }, onAuth: () => void }) => {
-    if (output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
+    if (output.error?.includes('Bad_OAuth_Token') || output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
         return (
             <Alert variant="destructive" className="h-full flex flex-col items-center justify-center text-center">
                  <AlertTriangle className="h-8 w-8 mb-4" />
