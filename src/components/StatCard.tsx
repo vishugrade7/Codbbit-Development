@@ -6,6 +6,8 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { cn } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { TrendingUp, TrendingDown } from 'lucide-react';
+import CountUp from './ui/CountUp';
+import React from 'react';
 
 interface StatCardProps {
   title: string;
@@ -30,6 +32,13 @@ export function StatCard({
 }: StatCardProps) {
   
   const ChangeIcon = changeType === 'positive' ? TrendingUp : TrendingDown;
+  const prevValue = React.useRef(typeof value === 'number' ? value : 0);
+
+  React.useEffect(() => {
+    if (typeof value === 'number') {
+      prevValue.current = value;
+    }
+  }, [value]);
 
   return (
     <Card className={cn(
@@ -53,7 +62,13 @@ export function StatCard({
               </div>
               <span>{title}</span>
             </div>
-            <div className="text-2xl font-bold">{value}</div>
+            <div className="text-2xl font-bold">
+              {typeof value === 'number' ? (
+                <CountUp from={prevValue.current} to={value} duration={1.5} />
+              ) : (
+                value
+              )}
+            </div>
             <div className="flex items-center gap-1 text-xs" style={{color: variant === 'primary' ? 'rgba(255,255,255,0.8)' : 'hsl(var(--muted-foreground))'}}>
               {changeType !== 'neutral' && changeValue !== undefined && (
                 <div className={cn("flex items-center gap-1 font-semibold", changeType === 'positive' ? 'text-emerald-400' : 'text-red-400')}>
