@@ -165,36 +165,34 @@ export function HeaderBar({ leftControls, onReset, children, fontSize, setFontSi
                     <AnonymousCodeRunner />
                 </DialogContent>
             </Dialog>
-            {!userProfile?.sfdcAuth?.connected && (
-              <Dialog>
-                  <TooltipProvider>
-                      <Tooltip>
-                          <TooltipTrigger asChild>
-                              <DialogTrigger asChild>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8"><Shield className="h-4 w-4"/></Button>
-                              </DialogTrigger>
-                          </TooltipTrigger>
-                          <TooltipContent>
-                              <p>Salesforce Connection</p>
-                          </TooltipContent>
-                      </Tooltip>
-                  </TooltipProvider>
-                  <DialogContent>
-                      <DialogHeader>
-                          <DialogTitle>Salesforce Connection</DialogTitle>
-                          <DialogDescription>
-                              Connect your Salesforce org to run code in a real environment.
-                          </DialogDescription>
-                      </DialogHeader>
-                      <div className="space-y-4 py-4">
-                          <Button variant={userProfile?.sfdcAuth?.connected ? 'secondary' : 'default'} onClick={handleAuthWithSalesforce} className="w-full">
-                              {userProfile?.sfdcAuth?.connected ? 'Reconnect with Salesforce' : 'Connect with Salesforce'}
-                          </Button>
-                          {userProfile?.sfdcAuth?.connected && <p className="text-sm text-green-600 text-center">Connected</p>}
-                      </div>
-                  </DialogContent>
-              </Dialog>
-            )}
+            <Dialog>
+                <TooltipProvider>
+                    <Tooltip>
+                        <TooltipTrigger asChild>
+                            <DialogTrigger asChild>
+                                <Button variant="ghost" size="icon" className="h-8 w-8"><Settings className="h-4 w-4"/></Button>
+                            </DialogTrigger>
+                        </TooltipTrigger>
+                        <TooltipContent>
+                            <p>Settings</p>
+                        </TooltipContent>
+                    </Tooltip>
+                </TooltipProvider>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Settings</DialogTitle>
+                        <DialogDescription>
+                            Customize your Codbbit experience.
+                        </DialogDescription>
+                    </DialogHeader>
+                    <div className="space-y-4 py-4">
+                        <Button variant={userProfile?.sfdcAuth?.connected ? 'secondary' : 'default'} onClick={handleAuthWithSalesforce} className="w-full">
+                            {userProfile?.sfdcAuth?.connected ? 'Reconnect with Salesforce' : 'Connect with Salesforce'}
+                        </Button>
+                        {userProfile?.sfdcAuth?.connected && <p className="text-sm text-green-600 text-center">Connected</p>}
+                    </div>
+                </DialogContent>
+            </Dialog>
             <TooltipProvider>
                  <Tooltip>
                     <TooltipTrigger asChild>
