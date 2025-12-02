@@ -3,9 +3,12 @@
 
 import { AppSidebar, Sidebar, SidebarProvider, SheetDisplayPage, SidebarInset } from '@/components';
 import React from 'react';
+import { useParams } from 'next/navigation';
 
 
-export default function SheetDetailPage({ params: { sheetId } }: { params: { sheetId: string } }) {
+export default function SheetDetailPage() {
+  const params = useParams();
+  const sheetId = params.sheetId as string;
 
   return (
     <SidebarProvider>
