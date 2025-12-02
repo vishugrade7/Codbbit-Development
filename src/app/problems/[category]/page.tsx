@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter, notFound, useParams } from 'next/navigation';
+import { useRouter, useParams, notFound } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
@@ -137,7 +137,7 @@ export default function CategoryPage() {
                         {filteredQuestions?.map((question) => {
                             const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
                             return (
-                                <TableRow key={question.id || question.title} className="dark:odd:bg-transparent dark:even:bg-transparent">
+                                <TableRow key={question.id || question.title}>
                                     <TableCell className="text-center py-2">
                                         {isSolved ? (
                                             <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
