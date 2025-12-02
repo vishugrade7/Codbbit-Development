@@ -5,7 +5,7 @@ import { useMemo, useState, useEffect } from 'react';
 import { useCollection, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { collection, query, orderBy } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Trophy, Search } from 'lucide-react';
+import { Trophy, Search, Star } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
@@ -161,6 +161,11 @@ export function LeaderboardClient() {
     }));
   }, [paginatedUsers, currentPage]);
   
+  const currentUserProfile = useMemo(() => {
+      if (!currentUser || !allUsers) return null;
+      return allUsers.find(u => u.uid === currentUser.uid);
+  }, [currentUser, allUsers]);
+  
   const currentUserRank = useMemo(() => {
       if (!currentUser || !filteredUsers) return null;
       const userIndex = filteredUsers.findIndex(u => u.uid === currentUser.uid);
@@ -188,10 +193,17 @@ export function LeaderboardClient() {
                 <h1 className="text-3xl font-bold font-headline tracking-tight">Global Ranking</h1>
             </div>
             <div className="flex items-center gap-4">
-               {currentUserRank && (
-                    <div className="text-right">
-                        <p className="text-sm text-muted-foreground">Your Rank</p>
-                        <p className="font-bold text-lg text-primary">{currentUserRank}</p>
+               {currentUserRank && currentUserProfile && (
+                    <div className="flex items-center gap-4 rounded-full bg-muted/50 px-4 py-1.5">
+                        <div className="text-center">
+                            <p className="text-xs text-muted-foreground">Your Rank</p>
+                            <p className="font-bold text-lg text-primary">{currentUserRank}</p>
+                        </div>
+                        <div className="h-8 w-px bg-border"></div>
+                         <div className="text-center">
+                            <p className="text-xs text-muted-foreground">Your Points</p>
+                            <p className="font-bold text-lg text-primary">{currentUserProfile.points}</p>
+                        </div>
                     </div>
                 )}
                 <Tabs value={activeTab} onValueChange={setActiveTab}>
