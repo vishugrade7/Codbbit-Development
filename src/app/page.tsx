@@ -204,7 +204,7 @@ export default function HomePage() {
             </DialogContent>
           </Dialog>
 
-          <header className="mb-8 flex items-center justify-between">
+          <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
             <div className="animate-fade-in-up">
               <h1 className="text-3xl font-bold font-handwritten tracking-tight">
                   {`Welcome back, ${userProfile?.name || 'Coder'}!`}
@@ -255,7 +255,7 @@ export default function HomePage() {
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <div className="flex flex-col h-full">
-                    <div className="space-y-2 flex-grow">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-2 flex-grow">
                       {sheets && sheets.map((sheet, index) => {
                           const colorClasses = getCategoryColorClasses(index);
                           return (
