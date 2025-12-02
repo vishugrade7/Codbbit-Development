@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -14,15 +15,13 @@ export type FilterState = {
   status: 'All' | 'Solved' | 'Unsolved';
   difficulty: 'All' | 'Easy' | 'Medium' | 'Hard';
   search: string;
-  category: string;
 };
 
 interface ProblemFilterProps {
   onFilterChange: (filters: Omit<FilterState, 'category'>) => void;
-  categories: string[];
 }
 
-export function ProblemFilter({ onFilterChange, categories = [] }: ProblemFilterProps) {
+export function ProblemFilter({ onFilterChange }: ProblemFilterProps) {
   const [search, setSearch] = useState('');
   const [status, setStatus] = useState<FilterState['status']>('All');
   const [difficulty, setDifficulty] = useState<FilterState['difficulty']>('All');

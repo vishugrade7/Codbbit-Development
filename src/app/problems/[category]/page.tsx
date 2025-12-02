@@ -2,7 +2,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
-import { useRouter, notFound } from 'next/navigation';
+import { useRouter, notFound, useParams } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
@@ -23,8 +23,9 @@ interface CategoryDoc {
     Questions: Partial<Question>[];
 }
 
-export default function CategoryPage({ params }: { params: { category: string } }) {
+export default function CategoryPage() {
   const router = useRouter();
+  const params = useParams();
   const firestore = useFirestore();
   const { user } = useUser();
   const categoryUrlParam = params.category as string;
@@ -43,7 +44,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
   }, [firestore, user?.uid]);
   const { data: userProfile } = useDoc<UserProfile>(userDocRef);
   
-  const [filters, setFilters] = useState<FilterState>({
+  const [filters, setFilters] = useState<Omit<FilterState, 'category'>>({
     status: 'All',
     difficulty: 'All',
     search: '',
@@ -117,7 +118,7 @@ export default function CategoryPage({ params }: { params: { category: string } 
               </div>
             </div>
             <div className="w-full max-w-sm">
-              <ProblemFilter onFilterChange={setFilters} />
+              <ProblemFilter onFilterChange={setFilters} categories={[]} />
             </div>
           </header>
 
