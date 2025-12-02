@@ -137,7 +137,7 @@ export default function CategoryPage() {
                         {filteredQuestions?.map((question) => {
                             const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
                             return (
-                                <TableRow key={question.id || question.title}>
+                                <TableRow key={question.id || question.title} className="dark:odd:bg-transparent dark:even:bg-transparent">
                                     <TableCell className="text-center py-2">
                                         {isSolved ? (
                                             <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
