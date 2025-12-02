@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight } from 'lucide-react';
+import { Award, BarChart, Flame, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight, Tag } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -315,6 +315,9 @@ export default function HomePage() {
                               <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
                                 <p className="font-semibold">{problem.title}</p>
                                 <div className="flex items-center gap-4">
+                                   <Badge variant="secondary" className="hidden sm:flex">
+                                    {problem.category}
+                                  </Badge>
                                   <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                                     <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} aria-hidden="true"></span>
                                     {problem.difficulty}
