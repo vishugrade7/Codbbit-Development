@@ -137,19 +137,19 @@ export default function CategoryPage({ params }: { params: { category: string } 
                             const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
                             return (
                                 <TableRow key={question.id || question.title}>
-                                    <TableCell className="text-center">
+                                    <TableCell className="text-center py-2">
                                         {isSolved ? (
                                             <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
                                         ) : (
                                             <Circle className="h-5 w-5 text-muted-foreground/20 mx-auto" />
                                         )}
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="py-2">
                                         <Link href={`/problems/${categoryUrlParam}/${question.id || question.title}`} className="font-medium hover:underline">
                                             {question.title}
                                         </Link>
                                     </TableCell>
-                                    <TableCell>
+                                    <TableCell className="py-2">
                                         <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                                         <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
                                         {question.difficulty}
