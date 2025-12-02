@@ -65,15 +65,15 @@ function LeaderboardList({ users, currentUserUid }: { users: (UserProfile & { ra
           <TableBody>
             {users.map((user, index) => (
                 <TableRow key={user.uid} className={cn("transition-colors", user.uid === currentUserUid ? "bg-primary/10 hover:bg-primary/20" : "dark:odd:bg-white/[.02] dark:even:bg-transparent")}>
-                    <TableCell className="w-20 text-center py-2">
+                    <TableCell className="w-20 text-center py-1">
                         <div className="flex items-center justify-center">
                            <RankMedal rank={user.rank} />
                         </div>
                     </TableCell>
-                    <TableCell className="py-2">
-                        <div className="flex items-center gap-4">
+                    <TableCell className="py-1">
+                        <div className="flex items-center gap-3">
                              <div className="relative">
-                                <Avatar className="h-10 w-10">
+                                <Avatar className="h-8 w-8">
                                     <AvatarImage src={user.avatarUrl} />
                                     <AvatarFallback>{getInitials(user.name)}</AvatarFallback>
                                 </Avatar>
@@ -81,7 +81,7 @@ function LeaderboardList({ users, currentUserUid }: { users: (UserProfile & { ra
                                      <TooltipProvider>
                                         <Tooltip>
                                             <TooltipTrigger>
-                                                <VerifiedBadge className="absolute -end-1.5 -top-1.5" />
+                                                <VerifiedBadge className="absolute -end-1 -top-1" />
                                             </TooltipTrigger>
                                             <TooltipContent>
                                                 <p>Verified</p>
@@ -92,12 +92,12 @@ function LeaderboardList({ users, currentUserUid }: { users: (UserProfile & { ra
                             </div>
                             <div>
                                 <Link href={`/${user.username}`} className="font-semibold hover:underline">{user.name}</Link>
-                                <div className="text-sm text-muted-foreground">@{user.username}</div>
+                                <div className="text-xs text-muted-foreground">@{user.username}</div>
                             </div>
                         </div>
                     </TableCell>
-                    <TableCell className="font-semibold text-lg py-2">{user.points}</TableCell>
-                    <TableCell className="py-2">
+                    <TableCell className="font-semibold text-base py-1">{user.points}</TableCell>
+                    <TableCell className="py-1">
                         {user.country && (
                             <div className="flex items-center gap-2">
                                 <Image src={`https://flagsapi.com/${user.country}/flat/24.png`} alt={`${user.country} flag`} width={24} height={18} />
