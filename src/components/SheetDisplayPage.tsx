@@ -354,7 +354,11 @@ export function SheetDisplayPage({ sheetId }: { sheetId: string }) {
                         <TableBody>
                             {filteredSheetQuestions.map((q, index) => (
                                 <TableRow key={q.id || q.title}>
-                                    <TableCell className="text-center font-medium text-muted-foreground">{index + 1}</TableCell>
+                                    <TableCell className="text-center font-medium">
+                                        <div className="mx-auto flex h-8 w-8 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                                          {index + 1}
+                                        </div>
+                                    </TableCell>
                                     <TableCell>
                                         <Link href={`/problems/${q.category}/${q.id || q.title}`} className="font-medium hover:underline">
                                             {q.title}
