@@ -194,15 +194,19 @@ export function LeaderboardClient() {
             </div>
             <div className="flex items-center gap-4">
                {currentUserRank && currentUserProfile && (
-                    <div className="flex items-center gap-4 rounded-full bg-muted/50 px-4 py-1.5">
+                    <div className="flex items-center gap-3 rounded-full bg-muted/50 px-3 py-1.5">
+                        <Avatar className="h-8 w-8">
+                            <AvatarImage src={currentUserProfile.avatarUrl} />
+                            <AvatarFallback>{getInitials(currentUserProfile.name)}</AvatarFallback>
+                        </Avatar>
                         <div className="text-center">
                             <p className="text-xs text-muted-foreground">Your Rank</p>
-                            <p className="font-bold text-lg text-primary">{currentUserRank}</p>
+                            <p className="font-bold text-primary">{currentUserRank}</p>
                         </div>
                         <div className="h-8 w-px bg-border"></div>
                          <div className="text-center">
                             <p className="text-xs text-muted-foreground">Your Points</p>
-                            <p className="font-bold text-lg text-primary">{currentUserProfile.points}</p>
+                            <p className="font-bold text-primary">{currentUserProfile.points}</p>
                         </div>
                     </div>
                 )}
