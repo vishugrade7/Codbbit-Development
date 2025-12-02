@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset, StatCard } from '@/components';
@@ -7,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight, Tag } from 'lucide-react';
+import { Award, BarChart, Flame, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight, Tag, Folder } from 'lucide-react';
 import { Loader } from '@/components/ui/loader';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -259,20 +260,25 @@ export default function HomePage() {
                       {sheets && sheets.map((sheet, index) => {
                           const colorClasses = getCategoryColorClasses(index);
                           return (
-                            <Link href={`/sheets/${sheet.id}`} key={sheet.id} className={cn(
-                              'flex items-center justify-between p-4 rounded-lg transition-all hover:shadow-md hover:-translate-y-0.5',
-                              colorClasses.card
-                            )}>
-                                <div className="flex items-center gap-3">
-                                   <div className={cn("p-2 rounded-md", colorClasses.button)}>
-                                     <FileText className="h-5 w-5" />
-                                   </div>
-                                   <div>
+                            <Link href={`/sheets/${sheet.id}`} key={sheet.id} className="block group">
+                               <div className={cn(
+                                'relative p-4 rounded-lg transition-all transform group-hover:shadow-lg group-hover:-translate-y-0.5',
+                                'bg-muted/30 border border-border'
+                              )}>
+                                <div className={cn("absolute top-0 left-4 h-1 w-16 rounded-b-md", colorClasses.progress)} />
+                                <div className="flex items-center justify-between">
+                                  <div className="flex items-center gap-3">
+                                    <div className={cn("p-1.5 rounded-md", colorClasses.button)}>
+                                      <Folder className="h-5 w-5" />
+                                    </div>
+                                    <div>
                                       <p className="font-semibold">{sheet.name}</p>
                                       <p className="text-xs opacity-70">{sheet.questionIds.length} problems</p>
-                                   </div>
+                                    </div>
+                                  </div>
+                                  <ChevronRight className="h-5 w-5 text-muted-foreground transition-transform group-hover:translate-x-1" />
                                 </div>
-                                
+                              </div>
                             </Link>
                           )
                       })}
