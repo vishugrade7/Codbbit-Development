@@ -41,7 +41,7 @@ export default function RootLayout({
       <body className="font-body antialiased bg-background text-foreground">
         <ThemeProvider
           attribute="class"
-          defaultTheme="light"
+          defaultTheme="dark"
           disableTransitionOnChange
         >
           <FirebaseClientProvider>
