@@ -249,6 +249,23 @@ export default function ProblemSolvingPage() {
     }
   };
 
+  const FilterRadioGroup = ({ title, icon, options, value, onValueChange }: { title: string, icon: React.ReactNode, options: string[], value: string, onValueChange: (value: any) => void }) => (
+    <div className="grid gap-2">
+      <p className="font-medium text-sm flex items-center gap-2 text-muted-foreground">
+          {icon}
+          {title}
+      </p>
+      {options.map(option => (
+        <button key={option} onClick={() => onValueChange(option)} className="flex items-center text-sm text-foreground hover:text-primary">
+          <div className="w-5 h-5 mr-2 flex items-center justify-center">
+            {value === option && <div className="w-2 h-2 rounded-full bg-blue-500" />}
+          </div>
+          {option}
+        </button>
+      ))}
+    </div>
+  );
+
   return (
     <SidebarProvider>
       {showConfetti && <Confetti />}
@@ -318,24 +335,35 @@ export default function ProblemSolvingPage() {
                                     </h3>
                                     <Badge variant="outline">{solvedInCategory}/{categoryProblems.length} Solved</Badge>
                                   </div>
-                                  <div className="relative flex-grow">
-                                     <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                     <Input
-                                         placeholder="Search questions"
-                                         value={searchTerm}
-                                         onChange={(e) => setSearchTerm(e.target.value)}
-                                         className="pl-9"
-                                     />
+                                  <div className="flex items-center gap-2">
+                                    <div className="relative flex-grow">
+                                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                                      <Input
+                                          placeholder="Search questions"
+                                          value={searchTerm}
+                                          onChange={(e) => setSearchTerm(e.target.value)}
+                                          className="pl-9 h-9"
+                                      />
+                                    </div>
+                                    <Popover>
+                                        <PopoverTrigger asChild>
+                                          <Button variant="outline" size="icon" className="w-9 h-9">
+                                              <Filter className="h-4 w-4" />
+                                          </Button>
+                                        </PopoverTrigger>
+                                        <PopoverContent className="w-60 p-4" align="start">
+                                            <div className="grid gap-4">
+                                                <FilterRadioGroup 
+                                                    title="Difficulty"
+                                                    icon={<BarChartHorizontal className="h-4 w-4" />}
+                                                    options={['All', 'Easy', 'Medium', 'Hard']}
+                                                    value={difficultyFilter}
+                                                    onValueChange={setDifficultyFilter}
+                                                />
+                                            </div>
+                                        </PopoverContent>
+                                    </Popover>
                                   </div>
-                                  <RadioGroup value={difficultyFilter} onValueChange={(value) => setDifficultyFilter(value as any)} className="flex items-center gap-2">
-                                     <Label className="text-sm">Difficulty:</Label>
-                                    {['All', 'Easy', 'Medium', 'Hard'].map(option => (
-                                        <div key={option} className="flex items-center space-x-2">
-                                            <RadioGroupItem value={option} id={`diff-${option}`} />
-                                            <Label htmlFor={`diff-${option}`} className="text-sm font-normal">{option}</Label>
-                                        </div>
-                                    ))}
-                                  </RadioGroup>
                               </div>
                               <ScrollArea className="h-[calc(100vh-80px)]">
                                 <div className="p-2">
@@ -380,6 +408,11 @@ export default function ProblemSolvingPage() {
                             </AlertDialogFooter>
                           </AlertDialogContent>
                         </AlertDialog>
+                        <div className='hidden md:flex items-center gap-2 text-sm'>
+                          <Link href={`/problems/${problem.category}`} className="text-muted-foreground hover:text-foreground">{problem.category}</Link>
+                          <ChevronRight className='h-4 w-4 text-muted-foreground' />
+                          <span className="font-semibold">{problem.title}</span>
+                        </div>
                     </>
                 }
              >
