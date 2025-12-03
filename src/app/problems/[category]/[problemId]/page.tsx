@@ -76,6 +76,7 @@ export default function ProblemSolvingPage() {
   const [editorTheme, setEditorTheme] = useState(theme === 'dark' ? 'vs-dark' : 'light');
   const [searchTerm, setSearchTerm] = useState('');
   const [difficultyFilter, setDifficultyFilter] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
+  const [statusFilter, setStatusFilter] = useState<'All' | 'Solved' | 'Unsolved'>('All');
   
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string[]>([]);
@@ -325,11 +326,11 @@ export default function ProblemSolvingPage() {
                           </SheetTrigger>
                            <SheetContent side="left" className="p-0 sm:max-w-xl">
                               <SheetHeader className="p-4 border-b">
-                                  <SheetTitle className="sr-only">Problem List</SheetTitle>
-                                  <SheetDescription className="sr-only">Navigate to other problems.</SheetDescription>
+                                  <SheetTitle>Problem List</SheetTitle>
+                                  <SheetDescription>Navigate to other problems.</SheetDescription>
                                   <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-semibold text-lg flex items-center">
-                                      Problem List <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                      {categoryUrlParam} <ChevronRight className="h-5 w-5 text-muted-foreground" />
                                     </h3>
                                     <Badge variant="outline">{solvedInCategory}/{categoryProblems.length} Solved</Badge>
                                   </div>
@@ -455,5 +456,6 @@ export default function ProblemSolvingPage() {
 
 
     
+
 
 
