@@ -7,7 +7,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List, Loader2 } from 'lucide-react';
+import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -325,6 +325,8 @@ export default function ProblemSolvingPage() {
                           </SheetTrigger>
                            <SheetContent side="left" className="p-0 sm:max-w-xl">
                               <SheetHeader className="p-4 border-b">
+                                  <SheetTitle className="sr-only">Problem List</SheetTitle>
+                                  <SheetDescription className="sr-only">Navigate to other problems.</SheetDescription>
                                   <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-semibold text-lg flex items-center">
                                       Problem List <ChevronRight className="h-5 w-5 text-muted-foreground" />
@@ -350,11 +352,11 @@ export default function ProblemSolvingPage() {
                                         <PopoverContent className="w-60 p-4" align="start">
                                             <div className="grid gap-4">
                                                 <FilterRadioGroup 
-                                                    title="Difficulty"
-                                                    icon={<BarChartHorizontal className="h-4 w-4" />}
-                                                    options={['All', 'Easy', 'Medium', 'Hard']}
-                                                    value={difficultyFilter}
-                                                    onValueChange={setDifficultyFilter}
+                                                    title="Status"
+                                                    icon={<CheckCircle className="h-4 w-4" />}
+                                                    options={['All', 'Solved', 'Unsolved']}
+                                                    value={statusFilter}
+                                                    onValueChange={setStatusFilter}
                                                 />
                                             </div>
                                         </PopoverContent>
@@ -453,4 +455,5 @@ export default function ProblemSolvingPage() {
 
 
     
+
 
