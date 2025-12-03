@@ -9,6 +9,8 @@ import { ScrollArea } from './ui/scroll-area';
 import { Lightbulb, CheckCircle, Bot, Tag, Youtube } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
+import { Card, CardContent } from './ui/card';
 
 interface QuestionPanelProps {
   question: Question;
@@ -58,80 +60,99 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
 
 
   return (
-    <ScrollArea className="h-full">
-      <div className="p-6">
-         <h1 className="text-2xl font-bold mb-4 font-headline tracking-tight">
-            {question.title}
-        </h1>
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          <Badge variant="outline" className="gap-1.5 w-24 justify-center">
-            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
-            {question.difficulty}
-          </Badge>
-          <Badge variant="secondary" className="w-24 justify-center">
-            <Tag />
-            {question.category}
-          </Badge>
-        </div>
-        
-        <div className="text-sm text-foreground/90 space-y-6 prose prose-sm dark:prose-invert max-w-none">
-            <p>{question.description}</p>
-            
-            {question.examples && question.examples.length > 0 && (
-                <div className="space-y-4">
-                    {question.examples.map((ex, index) => (
-                        <div key={index}>
-                            <h3 className="font-semibold text-base">Example {index + 1}:</h3>
-                            <div className="bg-muted p-4 rounded-lg mt-2 inline-block">
-                            <pre className="font-code text-xs whitespace-pre-wrap leading-relaxed text-foreground">
-                                <div><strong className="font-semibold select-none">Input:</strong> {typeof ex.input === 'string' ? ex.input : JSON.stringify(ex.input)}</div>
-                                <div><strong className="font-semibold select-none">Output:</strong> {typeof ex.output === 'string' ? ex.output : JSON.stringify(ex.output)}</div>
-                                {ex.explanation && <div><strong className="font-semibold select-none">Explanation:</strong> {ex.explanation}</div>}
-                            </pre>
-                            </div>
-                        </div>
-                    ))}
-                </div>
-            )}
-            
-             {videoId && (
-              <div>
-                <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
-                  <Youtube className="h-5 w-5 text-red-500" /> Video Solution
-                </h3>
-                <div className="aspect-video">
-                  <iframe
-                    className="w-full h-full rounded-lg"
-                    src={`https://www.youtube.com/embed/${videoId}`}
-                    title="YouTube video player"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  ></iframe>
-                </div>
-              </div>
-            )}
-
-            {hasHints && (
-              <div className="space-y-4">
-                {revealedHints.map((hint, index) => (
-                  <div key={index} className="flex items-start gap-3">
-                    <Avatar className="h-8 w-8 border">
-                      <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
-                    </Avatar>
-                    <div className="bg-muted/50 p-3 rounded-lg rounded-tl-none">
-                      <p className="font-semibold text-xs text-foreground mb-1">Codbbit Assistant</p>
-                      <p className="text-sm">{hint.value}</p>
-                    </div>
-                  </div>
-                ))}
-                <Button variant="outline" onClick={handleShowHint} disabled={allHintsRevealed}>
-                  <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" /> 
-                  {allHintsRevealed ? "All Hints Shown" : "Get a Hint"}
-                </Button>
-              </div>
-            )}
-        </div>
+    <div className='h-full flex flex-col'>
+      <div className="flex-shrink-0 border-b p-4">
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+            <h4 className="text-xl font-semibold flex items-center gap-2">
+                {question.title}
+            </h4>
+          </div>
+          <div className="flex items-center gap-2 flex-wrap mb-4">
+              <Badge variant="outline" className="gap-1.5 w-24 justify-center">
+                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
+                  {question.difficulty}
+              </Badge>
+              <Badge variant="secondary" className="w-24 justify-center">
+                  <Tag />
+                  {question.category}
+              </Badge>
+          </div>
       </div>
-    </ScrollArea>
+
+      <ScrollArea className="flex-grow">
+        <div className="p-6">
+          <div className="text-sm text-foreground/90 space-y-6 prose prose-sm dark:prose-invert max-w-none">
+              <p>{question.description}</p>
+              
+              {question.examples && question.examples.length > 0 && (
+                  <div className="space-y-4">
+                      {question.examples.map((ex, index) => (
+                          <div key={index}>
+                              <h3 className="font-semibold text-base">Example {index + 1}:</h3>
+                              <div className="bg-muted p-4 rounded-lg mt-2 space-y-4">
+                                <div>
+                                    <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-2">Input</p>
+                                    <pre className="font-code text-xs whitespace-pre-wrap leading-relaxed text-foreground">
+                                        {typeof ex.input === 'string' ? ex.input : JSON.stringify(ex.input)}
+                                    </pre>
+                                </div>
+                                 <div>
+                                    <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-2">Output</p>
+                                    <pre className="font-code text-xs whitespace-pre-wrap leading-relaxed text-foreground">
+                                       {typeof ex.output === 'string' ? ex.output : JSON.stringify(ex.output)}
+                                    </pre>
+                                </div>
+                                {ex.explanation && (
+                                    <div>
+                                        <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-2">Explanation</p>
+                                        <p className="text-xs">{ex.explanation}</p>
+                                    </div>
+                                )}
+                              </div>
+                          </div>
+                      ))}
+                  </div>
+              )}
+              
+               {videoId && (
+                <div>
+                  <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+                    <Youtube className="h-5 w-5 text-red-500" /> Video Solution
+                  </h3>
+                  <div className="aspect-video">
+                    <iframe
+                      className="w-full h-full rounded-lg"
+                      src={`https://www.youtube.com/embed/${videoId}`}
+                      title="YouTube video player"
+                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                      allowFullScreen
+                    ></iframe>
+                  </div>
+                </div>
+              )}
+
+              {hasHints && (
+                <div className="space-y-4">
+                  {revealedHints.map((hint, index) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <Avatar className="h-8 w-8 border">
+                        <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
+                      </Avatar>
+                      <div className="bg-muted/50 p-3 rounded-lg rounded-tl-none">
+                        <p className="font-semibold text-xs text-foreground mb-1">Codbbit Assistant</p>
+                        <p className="text-sm">{hint.value}</p>
+                      </div>
+                    </div>
+                  ))}
+                  <Button variant="outline" onClick={handleShowHint} disabled={allHintsRevealed}>
+                    <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" /> 
+                    {allHintsRevealed ? "All Hints Shown" : "Get a Hint"}
+                  </Button>
+                </div>
+              )}
+          </div>
+        </div>
+      </ScrollArea>
+    </div>
   );
 }
