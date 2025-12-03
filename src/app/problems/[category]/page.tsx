@@ -7,8 +7,7 @@ import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
 import { ArrowLeft, CheckCircle, Circle } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
-import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
+import { AppSidebar, Sidebar, SidebarProvider, SidebarInset, Spinner } from '@/components';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -86,7 +85,7 @@ export default function CategoryPage() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
