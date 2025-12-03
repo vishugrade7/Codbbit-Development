@@ -8,7 +8,6 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import { Link as LinkIcon, Cloud, Github } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { initiateSalesforceOAuth, initiateGitHubOAuth } from '@/lib/actions';
@@ -25,6 +24,7 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import Link from 'next/link';
+import { Spinner } from '@/components/ui/spinner';
 
 
 export default function ConnectedAppsPage() {
@@ -144,7 +144,7 @@ export default function ConnectedAppsPage() {
   if (isProfileLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -173,7 +173,7 @@ export default function ConnectedAppsPage() {
              <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={isDisconnectingSalesforce} className="w-full sm:w-auto">
-                        {isDisconnectingSalesforce && <Loader />}
+                        {isDisconnectingSalesforce && <Spinner />}
                         Disconnect
                     </Button>
                 </AlertDialogTrigger>
@@ -192,7 +192,7 @@ export default function ConnectedAppsPage() {
             </AlertDialog>
           ) : (
             <Button onClick={handleAuthWithSalesforce} disabled={isConnecting} className="w-full sm:w-auto">
-              {isConnecting ? <Loader /> : <LinkIcon className="mr-2 h-4 w-4" />}
+              {isConnecting ? <Spinner /> : <LinkIcon className="mr-2 h-4 w-4" />}
               Connect
             </Button>
           )}
@@ -215,7 +215,7 @@ export default function ConnectedAppsPage() {
              <AlertDialog>
                 <AlertDialogTrigger asChild>
                     <Button variant="destructive" disabled={isDisconnectingGitHub} className="w-full sm:w-auto">
-                        {isDisconnectingGitHub && <Loader />}
+                        {isDisconnectingGitHub && <Spinner />}
                         Disconnect
                     </Button>
                 </AlertDialogTrigger>
@@ -234,7 +234,7 @@ export default function ConnectedAppsPage() {
             </AlertDialog>
           ) : (
             <Button onClick={handleAuthWithGitHub} disabled={isConnectingGitHub} className="w-full sm:w-auto">
-              {isConnectingGitHub ? <Loader /> : <LinkIcon className="mr-2 h-4 w-4" />}
+              {isConnectingGitHub ? <Spinner /> : <LinkIcon className="mr-2 h-4 w-4" />}
               Connect
             </Button>
           )}
@@ -243,3 +243,5 @@ export default function ConnectedAppsPage() {
     </Card>
   );
 }
+
+    

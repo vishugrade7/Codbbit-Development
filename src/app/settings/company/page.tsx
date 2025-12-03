@@ -13,8 +13,8 @@ import { Label } from '@/components/ui/label';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import { CompanyAutocomplete } from '@/components/CompanyAutocomplete';
+import { Spinner } from '@/components/ui/spinner';
 
 const companySchema = z.object({
   company: z.string().min(1, 'Company name is required.'),
@@ -81,7 +81,7 @@ export default function CompanySettingsPage() {
   if (isProfileLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -110,7 +110,7 @@ export default function CompanySettingsPage() {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button type="submit" disabled={isSaving}>
-            {isSaving && <Loader />}
+            {isSaving && <Spinner />}
             Save Changes
           </Button>
         </CardFooter>
@@ -118,3 +118,5 @@ export default function CompanySettingsPage() {
     </form>
   );
 }
+
+    

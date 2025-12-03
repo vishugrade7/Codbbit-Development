@@ -7,8 +7,8 @@ import { ProfilePageClient } from '@/components/ProfilePageClient';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import { AppSidebar, Sidebar, SidebarInset, SidebarProvider } from '@/components';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ProfilePage() {
   const { user: currentUser, isUserLoading } = useUser();
@@ -25,7 +25,7 @@ export default function ProfilePage() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -35,7 +35,7 @@ export default function ProfilePage() {
     // Or if the user navigated here while not being logged in. The AuthGuard should prevent the latter.
     return (
        <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
         <p>Loading your profile...</p>
       </div>
     )
@@ -52,3 +52,5 @@ export default function ProfilePage() {
     </SidebarProvider>
   );
 }
+
+    

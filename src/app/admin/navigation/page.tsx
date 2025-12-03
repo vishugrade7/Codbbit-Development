@@ -7,12 +7,12 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useMemoFirebase, setDocumentNonBlocking } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { NavigationSettings } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import { Users } from 'lucide-react';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Spinner } from '@/components/ui/spinner';
 
 const navItems = [
   { id: 'dashboard', label: 'Dashboard', description: 'The main landing page for logged-in users.' },
@@ -78,7 +78,7 @@ export default function NavigationSettingsPage() {
   if (isLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -121,7 +121,7 @@ export default function NavigationSettingsPage() {
         </CardContent>
         <CardFooter className="flex justify-end">
           <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving && <Loader />}
+            {isSaving && <Spinner />}
             Save Settings
           </Button>
         </CardFooter>
@@ -129,3 +129,5 @@ export default function NavigationSettingsPage() {
     </div>
   );
 }
+
+    

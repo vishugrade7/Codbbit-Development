@@ -4,7 +4,7 @@
 import { useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
 import { cn } from "@/lib/utils";
 import { doc } from "firebase/firestore";
-import { Check, Cloud, Code, GitBranch, Sparkles, X, Package, Loader2, Bug } from "lucide-react";
+import { Check, Cloud, Code, GitBranch, Sparkles, X, Package, Bug } from "lucide-react";
 import { AnonymousCodeRunner } from "./AnonymousCodeRunner";
 import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
 import { Tooltip, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
@@ -15,6 +15,7 @@ import { Button } from "./ui/button";
 import { installSalesforcePackage } from "@/lib/actions";
 import { Badge } from "./ui/badge";
 import { FeedbackForm } from "./FeedbackForm";
+import { Spinner } from "./ui/spinner";
 
 
 type ManagedPackage = {
@@ -116,7 +117,7 @@ export function BottomBar() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <Button variant="ghost" size="icon" className="h-6 w-6" onClick={handleInstallPackage} disabled={isInstalling}>
-                  {isInstalling ? <Loader2 size={16} className="animate-spin" /> : <Package size={16} />}
+                  {isInstalling ? <Spinner size="icon" /> : <Package size={16} />}
                 </Button>
               </TooltipTrigger>
               <TooltipContent>
@@ -128,3 +129,5 @@ export function BottomBar() {
     </footer>
   );
 }
+
+    

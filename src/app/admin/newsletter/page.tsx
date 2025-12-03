@@ -10,9 +10,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Loader } from '@/components/ui/loader';
 import { Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 
 const newsletterSchema = z.object({
   subject: z.string().min(1, 'Subject is required.'),
@@ -78,7 +78,7 @@ export default function NewsletterPage() {
           <CardFooter className="flex justify-end">
             <Button type="submit" disabled={isSending}>
               {isSending ? (
-                <Loader />
+                <Spinner />
               ) : (
                 <Send className="mr-2 h-4 w-4" />
               )}
@@ -90,3 +90,5 @@ export default function NewsletterPage() {
     </div>
   );
 }
+
+    

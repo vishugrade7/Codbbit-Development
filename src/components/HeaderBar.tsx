@@ -207,3 +207,5 @@ export function HeaderBar({ leftControls, onReset, children, fontSize, setFontSi
     </header>
   )
 }
+
+    

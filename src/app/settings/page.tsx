@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader } from '@/components/ui/loader';
 import { CheckCircle, ShieldAlert, CheckIcon, XIcon, Link as LinkIcon, Users, Linkedin } from 'lucide-react';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase, useAuth } from '@/firebase';
 import { doc } from 'firebase/firestore';
@@ -16,6 +15,7 @@ import { Badge } from '@/components/ui/badge';
 import { sendEmailVerification } from 'firebase/auth';
 import { useDebounce } from '@/hooks/use-debounce';
 import { isUsernameUnique } from '@/ai/flows/is-username-unique';
+import { Spinner } from '@/components/ui/spinner';
 
 type UsernameStatus = 'idle' | 'checking' | 'unique' | 'taken';
 
@@ -115,7 +115,7 @@ export default function SettingsPage() {
 
 
   if (isUserLoading || isProfileLoading) {
-    return <div className="flex min-h-[400px] flex-col items-center justify-center"><Loader /></div>;
+    return <div className="flex min-h-[400px] flex-col items-center justify-center"><Spinner /></div>;
   }
 
   return (
@@ -131,7 +131,7 @@ export default function SettingsPage() {
                         className="pr-10"
                     />
                     <div className="absolute inset-y-0 right-0 flex items-center pr-3">
-                        {usernameStatus === 'checking' && <Loader />}
+                        {usernameStatus === 'checking' && <Spinner />}
                         {usernameStatus === 'unique' && isUsernameChanged && <CheckIcon className="h-4 w-4 text-green-500" />}
                         {usernameStatus === 'taken' && <XIcon className="h-4 w-4 text-red-500" />}
                     </div>
@@ -185,10 +185,12 @@ export default function SettingsPage() {
         </div>
         <div className="p-6 flex justify-end bg-muted/30">
             <Button onClick={handleSave} disabled={!canSave}>
-                {isSaving ? <Loader /> : null}
+                {isSaving ? <Spinner /> : null}
                 Save Changes
             </Button>
         </div>
     </div>
   );
 }
+
+    

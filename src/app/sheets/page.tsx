@@ -12,9 +12,9 @@ import { collection, doc } from 'firebase/firestore';
 import { ProblemSheetCard } from '@/components/ProblemSheetCard';
 import type { ProblemSheet, UserProfile } from '@/lib/types';
 import { cn } from '@/lib/utils';
-import { Loader } from '@/components/ui/loader';
 import Link from 'next/link';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ProblemSheetsPage() {
   const [activeTab, setActiveTab] = useState<'all' | 'my' | 'following'>('all');
@@ -128,7 +128,7 @@ export default function ProblemSheetsPage() {
               </h2>
               {isLoading ? (
                 <div className="flex justify-center items-center h-64">
-                  <Loader />
+                  <Spinner />
                 </div>
               ) : (
                 <>
@@ -157,3 +157,5 @@ export default function ProblemSheetsPage() {
     </SidebarProvider>
   );
 }
+
+    

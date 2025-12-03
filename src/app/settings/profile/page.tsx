@@ -11,7 +11,6 @@ import { Textarea } from '@/components/ui/textarea';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase, useStorage } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import { Pencil, Upload } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -23,6 +22,7 @@ import { Cropper, CropperCropArea } from "@/components/ui/cropper"
 import { Slider } from '@/components/ui/slider';
 import type { Area } from 'react-easy-crop';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Spinner } from '@/components/ui/spinner';
 
 
 // Function to create a cropped image
@@ -261,7 +261,7 @@ export default function EditProfilePage() {
   if (isUserLoading || isProfileLoading) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -313,7 +313,7 @@ export default function EditProfilePage() {
           </CardContent>
           <CardFooter className="flex justify-end">
               <Button type="submit" disabled={isSaving}>
-              {isSaving && <Loader />}
+              {isSaving && <Spinner />}
               Save Changes
               </Button>
           </CardFooter>
@@ -360,7 +360,7 @@ export default function EditProfilePage() {
         </CardContent>
         <CardFooter className="flex justify-end">
             <Button onClick={handleSave} disabled={isSaving}>
-            {isSaving && <Loader />}
+            {isSaving && <Spinner />}
             Save Editor Settings
             </Button>
         </CardFooter>
@@ -436,7 +436,7 @@ export default function EditProfilePage() {
                 setSelectedFile(null);
             }} disabled={isUploading}>Cancel</Button>
             <Button type="button" onClick={handleUploadAvatar} disabled={isUploading || !selectedFile}>
-              {isUploading ? <Loader /> : null}
+              {isUploading ? <Spinner /> : null}
               {isUploading ? 'Uploading...' : 'Save'}
             </Button>
           </DialogFooter>
@@ -445,3 +445,5 @@ export default function EditProfilePage() {
     </>
   );
 }
+
+    

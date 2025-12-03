@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, Plus, MoreHorizontal, Trash2 } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
 import { useCollection, useFirestore, useMemoFirebase } from '@/firebase';
 import type { Question } from '@/lib/types';
 import { collection, doc, writeBatch } from 'firebase/firestore';
@@ -36,6 +35,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { useToast } from '@/hooks/use-toast';
 import { seedData } from '@/lib/seed-data';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function ManageProblemsPage() {
   const { toast } = useToast();
@@ -117,7 +117,7 @@ export default function ManageProblemsPage() {
             Add Problem
           </Button>
            <Button variant="outline" onClick={handleSeedData} disabled={isSeeding}>
-            {isSeeding ? <Loader /> : <Download className="mr-2 h-4 w-4" />}
+            {isSeeding ? <Spinner /> : <Download className="mr-2 h-4 w-4" />}
             Seed Problems
           </Button>
         </div>
@@ -131,7 +131,7 @@ export default function ManageProblemsPage() {
         <CardContent>
           {isLoading ? (
             <div className="flex items-center justify-center p-8">
-              <Loader />
+              <Spinner />
             </div>
           ) : (
             <Table>
@@ -214,3 +214,5 @@ export default function ManageProblemsPage() {
     </div>
   );
 }
+
+    

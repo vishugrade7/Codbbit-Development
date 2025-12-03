@@ -7,13 +7,13 @@ import { useDoc, useFirestore, useMemoFirebase, useCollection } from '@/firebase
 import { doc, collection } from 'firebase/firestore';
 import type { Course, Question } from '@/lib/types';
 import { ArrowLeft } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function CourseDetailPage() {
   const params = useParams();
@@ -61,7 +61,7 @@ export default function CourseDetailPage() {
   if (isLoadingCourse || isLoadingProblems) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -119,3 +119,5 @@ export default function CourseDetailPage() {
     </div>
   );
 }
+
+    

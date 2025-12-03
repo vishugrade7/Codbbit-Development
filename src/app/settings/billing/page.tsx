@@ -6,9 +6,9 @@ import { Button } from '@/components/ui/button';
 import { useDoc, useFirestore, useUser, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile, PriceConfig } from '@/lib/types';
-import { Loader } from '@/components';
 import { CreditCard } from 'lucide-react';
 import Link from 'next/link';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function BillingPage() {
   const firestore = useFirestore();
@@ -33,7 +33,7 @@ export default function BillingPage() {
   if (isProfileLoading || isPriceLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -65,3 +65,5 @@ export default function BillingPage() {
     </Card>
   );
 }
+
+    

@@ -4,7 +4,7 @@
 import { useUser } from '@/firebase';
 import { usePathname, useRouter } from 'next/navigation';
 import { useEffect } from 'react';
-import { Loader } from '@/components/ui/loader';
+import { Spinner } from '@/components/ui/spinner';
 
 const publicPaths = ['/login', '/signup', '/privacy', '/terms'];
 
@@ -27,7 +27,7 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
   if (isUserLoading) {
     return (
       <div className="flex h-screen w-full flex-col items-center justify-center gap-4">
-        <Loader />
+        <Spinner size="lg" />
         <p className="text-muted-foreground">Loading...</p>
       </div>
     );
@@ -35,3 +35,5 @@ export function AuthGuard({ children }: { children: React.ReactNode }) {
 
   return <>{children}</>;
 }
+
+    

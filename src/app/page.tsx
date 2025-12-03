@@ -9,7 +9,7 @@ import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
 import { Award, BarChart, Flame, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight, Tag, Folder, ChevronRight } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
+import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
@@ -140,7 +140,7 @@ export default function HomePage() {
   if (isUserLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -152,7 +152,7 @@ export default function HomePage() {
   if (isLoading) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -160,7 +160,7 @@ export default function HomePage() {
   if (userProfile?.isAdmin) {
     return (
       <div className="flex min-h-screen flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
         <p className="mt-4 text-muted-foreground">Redirecting to Admin Portal...</p>
       </div>
     );

@@ -6,7 +6,6 @@ import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
 import { Play, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
-import { Loader } from "./ui/loader";
 import { ScrollArea } from "./ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -16,6 +15,7 @@ import { executeSalesforceCode, initiateSalesforceOAuth } from "@/lib/actions";
 import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resizable";
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
+import { Spinner } from "./ui/spinner";
 
 const LOCAL_STORAGE_KEY = 'anonymous-apex-code';
 const DEFAULT_CODE = "System.debug('Hello from Anonymous Apex!');";
@@ -134,7 +134,7 @@ export function AnonymousCodeRunner() {
                                 <div className="p-4 h-full font-code text-sm">
                                     {isExecuting ? (
                                         <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
-                                            <Loader />
+                                            <Spinner />
                                             <span>{status}...</span>
                                         </div>
                                     ) : sessionExpired ? (
@@ -187,10 +187,12 @@ export function AnonymousCodeRunner() {
             </div>
              <DialogFooter className="flex-shrink-0 p-2 border-t">
                 <Button onClick={handleRun} disabled={isExecuting}>
-                    {isExecuting ? <Loader /> : <Play className="mr-2 h-4 w-4" />}
+                    {isExecuting ? <Spinner /> : <Play className="mr-2 h-4 w-4" />}
                     Run
                 </Button>
             </DialogFooter>
         </>
     )
 }
+
+    

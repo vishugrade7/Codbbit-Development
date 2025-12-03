@@ -42,4 +42,6 @@ export * from './CodeBlock';
 export * from './InteractiveSoqlQuery';
 export * from './ui/BlurText';
 export * from './CreateLwcForm';
-export * from './ui/loader';
+export * from './ui/spinner';
+
+    

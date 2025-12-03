@@ -8,13 +8,13 @@ import { useToast } from '@/hooks/use-toast';
 import { useDoc, useFirestore, useUser, setDocumentNonBlocking, useMemoFirebase } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { UserProfile } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import { Copy, Linkedin, CheckCircle, Share2, Twitter, Facebook } from 'lucide-react';
 import { v4 as uuidv4 } from 'uuid';
 import { Input } from '@/components/ui/input';
 import { Progress } from '@/components/ui/progress';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { initiateLinkedInOAuth } from '@/lib/actions';
+import { Spinner } from '@/components/ui/spinner';
 
 export default function VerificationPage() {
   const { toast } = useToast();
@@ -92,7 +92,7 @@ export default function VerificationPage() {
   if (isProfileLoading) {
     return (
       <div className="flex min-h-[400px] flex-col items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -129,7 +129,7 @@ export default function VerificationPage() {
           </CardHeader>
           <CardContent>
             <Button onClick={handleVerifyWithLinkedIn} disabled={isVerifyingLinkedIn}>
-              {isVerifyingLinkedIn ? <Loader /> : <Linkedin className="mr-2 h-4 w-4" />}
+              {isVerifyingLinkedIn ? <Spinner /> : <Linkedin className="mr-2 h-4 w-4" />}
               Verify with LinkedIn
             </Button>
           </CardContent>
@@ -174,3 +174,5 @@ export default function VerificationPage() {
     </>
   );
 }
+
+    

@@ -6,7 +6,6 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
 import { Check, Star, ShieldCheck, Clock, Award, Sparkles, X, Tag } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
 import { cn } from '@/lib/utils';
@@ -14,6 +13,7 @@ import { useDoc, useFirestore, useMemoFirebase } from '@/firebase';
 import { doc, collection, query, where, getDocs, Timestamp } from 'firebase/firestore';
 import type { PriceConfig, Voucher } from '@/lib/types';
 import { useToast } from '@/hooks/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 
 declare global {
   interface Window {
@@ -199,7 +199,7 @@ export default function PricingPage() {
           </header>
           {isLoadingPrice ? (
             <div className="flex justify-center items-center h-64">
-                <Loader />
+                <Spinner />
             </div>
            ) : paymentsEnabled ? (
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
@@ -269,7 +269,7 @@ export default function PricingPage() {
                                   disabled={isApplyingVoucher}
                                 />
                                 <Button variant="secondary" onClick={handleApplyVoucher} disabled={isApplyingVoucher}>
-                                    {isApplyingVoucher && <Loader />}
+                                    {isApplyingVoucher && <Spinner />}
                                     Apply
                                 </Button>
                             </div>
@@ -308,3 +308,5 @@ export default function PricingPage() {
     </SidebarProvider>
   );
 }
+
+    

@@ -10,7 +10,6 @@ import { AddCourseForm } from '@/components/AddCourseForm';
 import { useCollection, useFirestore, useMemoFirebase, deleteDocumentNonBlocking } from '@/firebase';
 import { collection, doc } from 'firebase/firestore';
 import type { Course } from '@/lib/types';
-import { Loader } from '@/components/ui/loader';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -19,6 +18,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
+import { Spinner } from '@/components/ui/spinner';
 
 function AdminCoursesPage() {
   const [isSheetOpen, setIsSheetOpen] = useState(false);
@@ -86,7 +86,7 @@ function AdminCoursesPage() {
         <CardContent>
           {isLoading ? (
              <div className="flex flex-col items-center justify-center h-64 text-center text-muted-foreground">
-                <Loader />
+                <Spinner />
              </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -152,3 +152,5 @@ function AdminCoursesPage() {
 }
 
 export default AdminCoursesPage;
+
+    

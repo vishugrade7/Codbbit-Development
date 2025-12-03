@@ -4,7 +4,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Download, Upload, Plus, Pencil, Trash2, MoreHorizontal, Tag } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
 import {
   Dialog,
   DialogContent,
@@ -48,6 +47,7 @@ import { ProblemFilter } from '@/components/ProblemFilter';
 import type { FilterState } from '@/components/ProblemFilter';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
+import { Spinner } from '@/components/ui/spinner';
 
 
 interface Category {
@@ -393,7 +393,7 @@ export default function CodingQuestionsPage() {
                 className="w-64"
               />
               <Button onClick={handleSaveManagedPackage} disabled={isSavingPackage}>
-                {isSavingPackage && <Loader />}
+                {isSavingPackage && <Spinner />}
                 Save
               </Button>
               <Button variant="ghost" onClick={() => setShowManagedPackageInput(false)}>Cancel</Button>
@@ -452,7 +452,7 @@ export default function CodingQuestionsPage() {
                    <DialogFooter>
                       <Button variant="outline" onClick={() => setIsEditingCategory(false)}>Cancel</Button>
                       <Button onClick={handleSaveCategory} disabled={isSavingCategory}>
-                        {isSavingCategory && <Loader />}
+                        {isSavingCategory && <Spinner />}
                         Save
                       </Button>
                     </DialogFooter>
@@ -463,7 +463,7 @@ export default function CodingQuestionsPage() {
                 <div className="space-y-2 pr-6">
                 {isLoadingCategories ? (
                   <div className="flex items-center justify-center p-8">
-                    <Loader />
+                    <Spinner />
                   </div>
                 ) : (
                   categories?.map((category) => (
@@ -518,7 +518,7 @@ export default function CodingQuestionsPage() {
                         <SelectContent>
                           {isLoadingCategories ? (
                             <div className="flex items-center justify-center p-2">
-                              <Loader />
+                              <Spinner />
                             </div>
                           ) : (
                             categories?.map(cat => (
@@ -542,7 +542,7 @@ export default function CodingQuestionsPage() {
                 </div>
                 <DialogFooter>
                     <Button onClick={handleAddProblemFromJson} disabled={isSavingSample}>
-                        {isSavingSample && <Loader />}
+                        {isSavingSample && <Spinner />}
                         Add Problem
                     </Button>
                 </DialogFooter>
@@ -572,7 +572,7 @@ export default function CodingQuestionsPage() {
         <CardContent>
           {isLoadingCategories ? (
             <div className="flex items-center justify-center p-8">
-              <Loader />
+              <Spinner />
             </div>
           ) : (
             <Table>
@@ -642,3 +642,5 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
+
+    

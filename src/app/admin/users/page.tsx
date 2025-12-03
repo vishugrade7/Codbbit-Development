@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Button } from '@/components/ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Download, ListFilter, Upload, Settings } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, errorEmitter, FirestorePermissionError } from '@/firebase';
 import type { UserProfile, NavigationSettings } from '@/lib/types';
 import { collection, doc, updateDoc, deleteField, setDoc } from 'firebase/firestore';
@@ -17,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { useToast } from '@/hooks/use-toast';
+import { Spinner } from '@/components/ui/spinner';
 
 const allFields: (keyof UserProfile)[] = [
     'name', 'username', 'email', 'company', 'country', 'points', 'isAdmin', 'isPremium', 'currentStreak', 'maxStreak', 'lastSolvedDate'
@@ -214,7 +214,7 @@ export default function ManageUsersPage() {
 
               <Button onClick={handleExportToExcel} disabled={isLoading || isExporting}>
                 {isExporting ? (
-                  <Loader />
+                  <Spinner />
                 ) : (
                   <Download className="mr-2 h-4 w-4" />
                 )}
@@ -222,7 +222,7 @@ export default function ManageUsersPage() {
               </Button>
                <Button onClick={handleBackup} disabled={isLoading || isBackingUp}>
                   {isBackingUp ? (
-                      <Loader />
+                      <Spinner />
                   ) : (
                       <Upload className="mr-2 h-4 w-4" />
                   )}
@@ -239,7 +239,7 @@ export default function ManageUsersPage() {
           <CardContent>
             {isLoading ? (
               <div className="flex items-center justify-center p-8">
-                <Loader />
+                <Spinner />
               </div>
             ) : (
               <Table>
@@ -321,3 +321,5 @@ export default function ManageUsersPage() {
     </>
   );
 }
+
+    

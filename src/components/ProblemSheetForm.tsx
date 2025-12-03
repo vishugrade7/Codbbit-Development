@@ -30,8 +30,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Checkbox } from '@/components/ui/checkbox';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeft, FilePlus2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2, Eye, EyeOff } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
+import { ArrowLeft, FilePlus2, Search, X, Check, Filter, BarChartHorizontal, CheckCircle, Trash2, Eye, EyeOff, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { cn } from '@/lib/utils';
 import { v4 as uuidv4 } from 'uuid';
@@ -40,6 +39,7 @@ import { Popover, PopoverContent, PopoverTrigger } from './ui/popover';
 import { Separator } from './ui/separator';
 import { Switch } from './ui/switch';
 import { Label } from './ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 type Category = {
   id: string;
@@ -327,7 +327,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                     {isLoading ? (
                       <TableRow>
                         <TableCell colSpan={4} className="h-24 text-center">
-                          <Loader />
+                          <Spinner />
                         </TableCell>
                       </TableRow>
                     ) : (
@@ -407,7 +407,7 @@ export function ProblemSheetForm({ sheetId }: ProblemSheetFormProps) {
                   onClick={handleSaveSheet} 
                   disabled={saveState !== 'idle'}
                 >
-                  {saveState === 'saving' && <Loader />}
+                  {saveState === 'saving' && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                   {saveState === 'saved' && <Check className="mr-2 h-4 w-4"/>}
                   {saveState === 'idle' && (isEditMode ? 'Update Sheet' : 'Save Sheet')}
                   {saveState === 'saving' && 'Saving...'}
