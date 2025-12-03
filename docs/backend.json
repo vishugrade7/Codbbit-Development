@@ -101,6 +101,7 @@
         "testcases": { "type": "string" },
         "category": { "type": "string" },
         "tags": { "type": "array", "items": { "type": "string" } },
+        "youtubeSolutionUrl": { "type": "string", "format": "uri" },
         "examples": {
           "type": "array",
           "items": {

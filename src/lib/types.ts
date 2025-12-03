@@ -24,6 +24,7 @@ export type Question = {
   isPremium?: boolean;
   metadataType?: string;
   object?: string; // Add object field for Triggers
+  youtubeSolutionUrl?: string;
 };
 
 export type ProblemSheet = {

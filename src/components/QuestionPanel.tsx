@@ -6,7 +6,7 @@ import type { Question, QuestionHint } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { Lightbulb, CheckCircle, Bot, Tag } from 'lucide-react';
+import { Lightbulb, CheckCircle, Bot, Tag, Youtube } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
 
@@ -47,6 +47,15 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
   const isSolved = false; // Mock data
   const hasHints = question.hints && question.hints.length > 0;
   const allHintsRevealed = hasHints && nextHintIndex >= question.hints!.length;
+  
+  const getYouTubeVideoId = (url: string) => {
+    const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
+    const match = url.match(regex);
+    return match ? match[1] : null;
+  };
+  
+  const videoId = question.youtubeSolutionUrl ? getYouTubeVideoId(question.youtubeSolutionUrl) : null;
+
 
   return (
     <ScrollArea className="h-full">
@@ -85,6 +94,23 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
                 </div>
             )}
             
+             {videoId && (
+              <div>
+                <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
+                  <Youtube className="h-5 w-5 text-red-500" /> Video Solution
+                </h3>
+                <div className="aspect-video">
+                  <iframe
+                    className="w-full h-full rounded-lg"
+                    src={`https://www.youtube.com/embed/${videoId}`}
+                    title="YouTube video player"
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                    allowFullScreen
+                  ></iframe>
+                </div>
+              </div>
+            )}
+
             {hasHints && (
               <div className="space-y-4">
                 {revealedHints.map((hint, index) => (

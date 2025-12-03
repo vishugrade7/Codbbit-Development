@@ -34,6 +34,7 @@ const problemSchema = z.object({
   isPremium: z.boolean().optional(),
   metadataType: z.string().optional(),
   object: z.string().optional(),
+  youtubeSolutionUrl: z.string().url().or(z.literal('')).optional(),
   examples: z.string().optional().transform((val, ctx) => {
     if (!val) return [];
     try {
@@ -99,6 +100,7 @@ export function AddProblemForm({ problem, onFormSubmit, categories }: AddProblem
       isPremium: false,
       metadataType: 'Class',
       object: '',
+      youtubeSolutionUrl: '',
       examples: '[]',
       hints: '[]',
     }
@@ -120,6 +122,7 @@ export function AddProblemForm({ problem, onFormSubmit, categories }: AddProblem
         isPremium: problem.isPremium || false,
         metadataType: problem.metadataType || 'Class',
         object: problem.object || '',
+        youtubeSolutionUrl: problem.youtubeSolutionUrl || '',
         examples: problem.examples ? JSON.stringify(problem.examples, null, 2) : '[]',
         hints: problem.hints ? JSON.stringify(problem.hints, null, 2) : '[]',
       });
@@ -136,6 +139,7 @@ export function AddProblemForm({ problem, onFormSubmit, categories }: AddProblem
             isPremium: false,
             metadataType: 'Class',
             object: '',
+            youtubeSolutionUrl: '',
             examples: '[]',
             hints: '[]',
         });
@@ -407,6 +411,11 @@ export function AddProblemForm({ problem, onFormSubmit, categories }: AddProblem
                           )}
                           />
                     </div>
+                </div>
+                <div className="space-y-2">
+                    <Label htmlFor="youtubeSolutionUrl">YouTube Solution URL</Label>
+                    <Input id="youtubeSolutionUrl" {...register('youtubeSolutionUrl')} placeholder="https://www.youtube.com/watch?v=..." />
+                    {errors.youtubeSolutionUrl && <p className="text-sm text-red-500">{errors.youtubeSolutionUrl.message}</p>}
                 </div>
                  <div className="space-y-2">
                   <Label htmlFor="examples">Examples (JSON format)</Label>
