@@ -7,8 +7,7 @@ import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
-import { Loader } from '@/components/ui/loader';
+import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List, Loader2 } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -51,6 +50,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import { Spinner } from '@/components/ui/spinner';
 
 const DEFAULT_FONT_SIZE = 14;
 
@@ -211,7 +211,7 @@ export default function ProblemSolvingPage() {
   if (isLoading || !problem || isLoadingProblems) {
     return (
       <div className="flex h-screen items-center justify-center">
-        <Loader />
+        <Spinner />
       </div>
     );
   }
@@ -288,7 +288,7 @@ export default function ProblemSolvingPage() {
             ))}
             {isSyncing && (
                 <div className="flex items-center gap-2 text-muted-foreground">
-                    <Loader />
+                    <Spinner />
                     <span>Processing...</span>
                 </div>
             )}
@@ -323,13 +323,9 @@ export default function ProblemSolvingPage() {
                                 <List className="h-4 w-4"/>
                               </Button>
                           </SheetTrigger>
-                           <SheetContent side="left" className="p-0 sm:max-w-md">
-                             <SheetHeader className="sr-only">
-                                <SheetTitle>Problem List</SheetTitle>
-                                <SheetDescription>Navigate to other problems.</SheetDescription>
-                              </SheetHeader>
-                             <div className="p-4 border-b space-y-4">
-                                  <div className="flex items-center justify-between">
+                           <SheetContent side="left" className="p-0 sm:max-w-xl">
+                              <SheetHeader className="p-4 border-b">
+                                  <div className="flex items-center justify-between mb-4">
                                     <h3 className="font-semibold text-lg flex items-center">
                                       Problem List <ChevronRight className="h-5 w-5 text-muted-foreground" />
                                     </h3>
@@ -364,22 +360,26 @@ export default function ProblemSolvingPage() {
                                         </PopoverContent>
                                     </Popover>
                                   </div>
-                              </div>
+                              </SheetHeader>
                               <ScrollArea className="h-[calc(100vh-80px)]">
                                 <div className="p-2">
                                    {categoryProblems.map(p => (
                                        <Link key={p.id} href={`/problems/${p.category}/${p.id || p.title}`}>
                                           <div className={cn(
-                                                "flex items-start justify-between p-3 rounded-md hover:bg-muted text-sm",
-                                                isProblemActive(p) && "bg-muted"
+                                                "flex items-center p-3 rounded-lg text-sm",
+                                                isProblemActive(p) ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-muted'
                                             )}>
-                                                <div className="flex items-start gap-3 overflow-hidden">
-                                                    {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500 flex-shrink-0 mt-0.5" /> : <div className="w-4 h-4 flex-shrink-0" />}
-                                                     <span className="font-medium whitespace-nowrap overflow-hidden text-ellipsis">
-                                                        {p.number}. {p.title.length > 35 ? `${p.title.substring(0, 35)}...` : p.title}
+                                                <div className="flex items-center gap-3 overflow-hidden flex-grow">
+                                                    <div className="flex-shrink-0">
+                                                        {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500" /> : <div className="w-4 h-4" />}
+                                                    </div>
+                                                     <div className="h-8 w-8 flex-shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">{p.number}</div>
+                                                     <span className="font-medium truncate flex-grow">
+                                                        {p.title}
                                                     </span>
                                                 </div>
-                                                <Badge variant="outline" className={cn("text-xs w-20 justify-center flex-shrink-0", getDifficultyClass(p.difficulty))}>
+                                                <Badge variant="outline" className="gap-1.5 w-20 justify-center flex-shrink-0">
+                                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyClass(p.difficulty))} aria-hidden="true" />
                                                     {p.difficulty}
                                                 </Badge>
                                             </div>
@@ -453,3 +453,4 @@ export default function ProblemSolvingPage() {
 
 
     
+
