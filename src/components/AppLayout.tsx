@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useTheme } from '@/components/ThemeProvider';
@@ -20,8 +19,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
   }, []);
   
   const noFooterPaths = ['/login', '/signup'];
+  const noBottomBarPaths = ['/admin', '/jsonformatter'];
+
   const showFooter = !noFooterPaths.includes(pathname) && !user;
-  const showBottomBar = user && !pathname.startsWith('/admin');
+  const showBottomBar = user && !noBottomBarPaths.some(path => pathname.startsWith(path));
 
   return (
     <>
