@@ -80,7 +80,7 @@ export function AppSidebar() {
     if (pathname.startsWith('/feedback')) return 'feedback';
     if (pathname.startsWith('/courses')) return 'courses';
     if (pathname.startsWith('/lwc-playground')) return 'lwc-playground';
-    if (pathname.startsWith('/formatter')) return 'formatter';
+    if (pathname.startsWith('/jsonformatter')) return 'jsonformatter';
     if (pathname === '/') return 'dashboard';
     if (userProfile && pathname.startsWith(`/${userProfile.username}`)) return 'profile';
     return '';
@@ -93,7 +93,7 @@ export function AppSidebar() {
     { value: 'lwc-playground', href: '/lwc-playground', icon: Zap, label: 'LWC Playground' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
-    { value: 'formatter', href: '/formatter', icon: Wand2, label: 'JSON Formatter' },
+    { value: 'jsonformatter', href: '/jsonformatter', icon: Wand2, label: 'JSON Formatter' },
   ];
 
   const navItems = React.useMemo(() => {

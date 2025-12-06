@@ -224,14 +224,14 @@ export default function FormatterPage() {
     <div className="h-screen w-screen flex flex-col bg-gray-100 dark:bg-gray-900 formatter-page">
       <header className="flex-shrink-0 bg-[#2C3E50] text-white">
         <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link href="/formatter">
+          <Link href="/jsonformatter">
             <h1 className="text-xl font-bold font-sans">JSON Formatter</h1>
           </Link>
           <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <Link href="/formatter" className="hover:text-teal-300">JSON Beautifier</Link>
-            <Link href="/formatter" className="hover:text-teal-300">JSON Parser</Link>
-            <Link href="/formatter" className="hover:text-teal-300">XML Formatter</Link>
-            <Link href="/formatter" className="hover:text-teal-300">JS Beautifier</Link>
+            <Link href="/jsonformatter" className="hover:text-teal-300">JSON Beautifier</Link>
+            <Link href="/jsonformatter" className="hover:text-teal-300">JSON Parser</Link>
+            <Link href="/jsonformatter" className="hover:text-teal-300">XML Formatter</Link>
+            <Link href="/jsonformatter" className="hover:text-teal-300">JS Beautifier</Link>
           </nav>
         </div>
       </header>
