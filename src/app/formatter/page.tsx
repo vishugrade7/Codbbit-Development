@@ -15,6 +15,7 @@ import { Upload, Trash2, CheckCircle, XCircle, FileDown, Wand2, ArrowRight } fro
 import { Card, CardContent } from '@/components/ui/card';
 import { useTheme } from '@/components';
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function FormatterPage() {
   const [inputCode, setInputCode] = useState('');
