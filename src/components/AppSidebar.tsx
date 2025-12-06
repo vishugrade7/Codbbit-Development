@@ -93,7 +93,7 @@ export function AppSidebar() {
     { value: 'lwc-playground', href: '/lwc-playground', icon: Zap, label: 'LWC Playground' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
-    { value: 'formatter', href: '/formatter', icon: Wand2, label: 'Formatter' },
+    { value: 'formatter', href: '/formatter', icon: Wand2, label: 'JSON Formatter' },
   ];
 
   const navItems = React.useMemo(() => {
