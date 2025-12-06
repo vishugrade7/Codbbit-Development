@@ -156,8 +156,49 @@ export default function FormatterPage() {
       setValidationStatus('idle');
   }
 
+  const jsonToXml = (jsonObj: any): string => {
+    const toXml = (obj: any, rootName: string, indent: string): string => {
+      let xml = '';
+      if (Array.isArray(obj)) {
+        obj.forEach(item => {
+          xml += toXml(item, rootName, indent);
+        });
+      } else if (typeof obj === 'object' && obj !== null) {
+        let hasChildElements = false;
+        let innerXml = '';
+        for (const key in obj) {
+          if (obj.hasOwnProperty(key)) {
+            hasChildElements = true;
+            innerXml += toXml(obj[key], key, indent + '  ');
+          }
+        }
+        if (hasChildElements) {
+          xml += `${indent}<${rootName}>\n${innerXml}${indent}</${rootName}>\n`;
+        } else {
+          xml += `${indent}<${rootName}/>\n`;
+        }
+      } else {
+        const value = obj === null ? '' : String(obj).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+        xml += `${indent}<${rootName}>${value}</${rootName}>\n`;
+      }
+      return xml;
+    };
+    return `<?xml version="1.0" encoding="UTF-8" ?>\n${toXml(jsonObj, 'root', '')}`;
+  };
+
   const handleConvert = () => {
-    toast({ title: 'Coming Soon!', description: 'More conversion options will be available in the future.' });
+    if (!inputCode.trim()) {
+      toast({ title: "Input is empty", description: "Please enter some JSON to convert.", variant: 'destructive' });
+      return;
+    }
+    try {
+      const jsonObj = JSON.parse(inputCode);
+      const xml = jsonToXml(jsonObj);
+      setOutputCode(formatXml(xml, false, parseInt(indentation)));
+      toast({ title: 'Success', description: 'JSON has been converted to XML.' });
+    } catch (e) {
+      toast({ title: 'Invalid JSON', description: 'Could not parse JSON input.', variant: 'destructive' });
+    }
   }
 
   return (
@@ -216,7 +257,7 @@ export default function FormatterPage() {
                 Minify / Compact
              </Button>
              <Button onClick={handleConvert} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
-                Convert JSON to <ArrowRight className="ml-2 h-4 w-4"/>
+                Convert JSON to XML
              </Button>
              <Button onClick={handleDownload} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
                 <FileDown className="mr-2 h-4 w-4"/> Download
