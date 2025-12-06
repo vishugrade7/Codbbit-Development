@@ -39,7 +39,7 @@ const isUsernameUniqueFlow = ai.defineFlow(
     }
 
     try {
-      const usersRef = firestore.collection('users');
+      const usersRef = firestore().collection('users');
       // Query for an exact, case-insensitive match.
       const lowerCaseQuerySnapshot = await usersRef.where('username_lowercase', '==', username.toLowerCase()).get();
 

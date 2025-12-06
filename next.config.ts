@@ -49,7 +49,7 @@ const nextConfig: NextConfig = {
       },
     ],
   },
-  serverExternalPackages: ['ogl', 'gsap'],
+  serverExternalPackages: ['ogl', 'gsap', 'firebase-admin'],
 };
 
 export default nextConfig;

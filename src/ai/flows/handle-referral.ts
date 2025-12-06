@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -41,7 +42,7 @@ const handleReferralFlow = ai.defineFlow(
     }
 
     try {
-      const usersRef = firestore.collection('users');
+      const usersRef = firestore().collection('users');
       const q = usersRef.where('referralCode', '==', referralCode).limit(1);
       const querySnapshot = await q.get();
 
