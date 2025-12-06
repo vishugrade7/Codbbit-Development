@@ -11,7 +11,7 @@ import {
   SidebarMenuItem,
   SidebarMenuButton,
 } from '@/components/ui/sidebar';
-import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2, Search, BookOpen, Zap } from 'lucide-react';
+import { Code, Trophy, Sheet, Settings, LogOut, LayoutGrid, User as UserIcon, LogIn, Star, MessageSquare, Settings2, Search, BookOpen, Zap, Wand2 } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAuth, useUser, useFirestore, useDoc, useMemoFirebase } from '@/firebase';
 import Link from 'next/link';
@@ -80,6 +80,7 @@ export function AppSidebar() {
     if (pathname.startsWith('/feedback')) return 'feedback';
     if (pathname.startsWith('/courses')) return 'courses';
     if (pathname.startsWith('/lwc-playground')) return 'lwc-playground';
+    if (pathname.startsWith('/formatter')) return 'formatter';
     if (pathname === '/') return 'dashboard';
     if (userProfile && pathname.startsWith(`/${userProfile.username}`)) return 'profile';
     return '';
@@ -92,6 +93,7 @@ export function AppSidebar() {
     { value: 'lwc-playground', href: '/lwc-playground', icon: Zap, label: 'LWC Playground' },
     { value: 'leaderboard', href: '/leaderboard', icon: Trophy, label: 'Leaderboard' },
     { value: 'sheets', href: '/sheets', icon: Sheet, label: 'Sheets' },
+    { value: 'formatter', href: '/formatter', icon: Wand2, label: 'Formatter' },
   ];
 
   const navItems = React.useMemo(() => {
