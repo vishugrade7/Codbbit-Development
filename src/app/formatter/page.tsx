@@ -53,7 +53,6 @@ export default function FormatterPage() {
     setIsProcessing(true);
     setValidationStatus('idle');
     try {
-      // It's a bit of a guess, but this is a common way to differentiate.
       const isJson = inputCode.trim().startsWith('{') || inputCode.trim().startsWith('[');
 
       if (isJson) {
@@ -62,7 +61,6 @@ export default function FormatterPage() {
         setOutputCode(formatted);
         setValidationStatus('valid');
       } else {
-         // Basic XML formatting
          setOutputCode(formatXml(inputCode, minify, parseInt(indentation)));
          setValidationStatus('valid');
       }
@@ -116,9 +114,23 @@ export default function FormatterPage() {
           JSON.parse(inputCode);
           setValidationStatus('valid');
           toast({ title: 'Valid JSON', description: 'The input is a well-formed JSON object.', variant: 'success' });
+          return;
+      } catch (e) {
+          // Not JSON, try XML
+      }
+
+      try {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(inputCode, "application/xml");
+        const parsererror = doc.getElementsByTagName("parsererror");
+        if (parsererror.length > 0) {
+            throw new Error("Invalid XML structure.");
+        }
+        setValidationStatus('valid');
+        toast({ title: 'Valid XML', description: 'The input is a well-formed XML document.', variant: 'success' });
       } catch (e) {
           setValidationStatus('invalid');
-          toast({ title: 'Invalid JSON', description: 'The input is not a valid JSON object.', variant: 'destructive' });
+          toast({ title: 'Invalid Format', description: 'The input is not valid JSON or XML.', variant: 'destructive' });
       }
   }
   
@@ -142,6 +154,10 @@ export default function FormatterPage() {
       setInputCode('');
       setOutputCode('');
       setValidationStatus('idle');
+  }
+
+  const handleConvert = () => {
+    toast({ title: 'Coming Soon!', description: 'More conversion options will be available in the future.' });
   }
 
   return (
@@ -199,7 +215,7 @@ export default function FormatterPage() {
              <Button onClick={() => handleFormat(true)} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
                 Minify / Compact
              </Button>
-             <Button className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
+             <Button onClick={handleConvert} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
                 Convert JSON to <ArrowRight className="ml-2 h-4 w-4"/>
              </Button>
              <Button onClick={handleDownload} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
