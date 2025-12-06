@@ -16,6 +16,14 @@ import { Card, CardContent } from '@/components/ui/card';
 import { useTheme } from '@/components';
 import Link from 'next/link';
 import Image from 'next/image';
+import * as XLSX from 'xlsx';
+import * as YAML from 'js-yaml';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function FormatterPage() {
   const [inputCode, setInputCode] = useState('');
@@ -186,16 +194,27 @@ export default function FormatterPage() {
     return `<?xml version="1.0" encoding="UTF-8" ?>\n${toXml(jsonObj, 'root', '')}`;
   };
 
-  const handleConvert = () => {
+  const handleConvert = (format: 'xml' | 'csv' | 'yaml') => {
     if (!inputCode.trim()) {
       toast({ title: "Input is empty", description: "Please enter some JSON to convert.", variant: 'destructive' });
       return;
     }
     try {
       const jsonObj = JSON.parse(inputCode);
-      const xml = jsonToXml(jsonObj);
-      setOutputCode(formatXml(xml, false, parseInt(indentation)));
-      toast({ title: 'Success', description: 'JSON has been converted to XML.' });
+      let result = '';
+      
+      if (format === 'xml') {
+        result = formatXml(jsonToXml(jsonObj), false, parseInt(indentation));
+      } else if (format === 'csv') {
+        const data = Array.isArray(jsonObj) ? jsonObj : [jsonObj];
+        const worksheet = XLSX.utils.json_to_sheet(data);
+        result = XLSX.utils.sheet_to_csv(worksheet);
+      } else if (format === 'yaml') {
+        result = YAML.dump(jsonObj, { indent: parseInt(indentation) });
+      }
+
+      setOutputCode(result);
+      toast({ title: 'Success', description: `JSON has been converted to ${format.toUpperCase()}.` });
     } catch (e) {
       toast({ title: 'Invalid JSON', description: 'Could not parse JSON input.', variant: 'destructive' });
     }
@@ -256,9 +275,24 @@ export default function FormatterPage() {
              <Button onClick={() => handleFormat(true)} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
                 Minify / Compact
              </Button>
-             <Button onClick={handleConvert} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
-                Convert JSON to XML
-             </Button>
+             <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                    <Button className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
+                        Convert JSON to...
+                    </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56">
+                    <DropdownMenuItem onClick={() => handleConvert('xml')}>
+                        JSON to XML
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleConvert('csv')}>
+                        JSON to CSV
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleConvert('yaml')}>
+                        JSON to YAML
+                    </DropdownMenuItem>
+                </DropdownMenuContent>
+            </DropdownMenu>
              <Button onClick={handleDownload} className="w-full justify-center bg-white/20 hover:bg-white/30 text-white">
                 <FileDown className="mr-2 h-4 w-4"/> Download
              </Button>
