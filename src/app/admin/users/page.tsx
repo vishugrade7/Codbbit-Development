@@ -8,7 +8,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Download, ListFilter, Upload, Settings } from 'lucide-react';
 import { useCollection, useFirestore, useMemoFirebase, setDocumentNonBlocking, errorEmitter, FirestorePermissionError } from '@/firebase';
 import type { UserProfile, NavigationSettings } from '@/lib/types';
-import { collection, doc, updateDoc, deleteField, setDoc } from 'firebase/firestore';
+import { collection, doc, updateDoc, deleteField } from 'firebase/firestore';
 import * as XLSX from 'xlsx';
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuCheckboxItem, DropdownMenuLabel, DropdownMenuSeparator } from '@/components/ui/dropdown-menu';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
@@ -97,38 +97,31 @@ export default function ManageUsersPage() {
     if (!selectedUser || !firestore) return;
 
     const userDocRef = doc(firestore, 'users', selectedUser.uid);
-    const overrides: Record<string, boolean | ReturnType<typeof deleteField>> = {};
+    const overridesToUpdate: Record<string, boolean | ReturnType<typeof deleteField>> = {};
 
     Object.entries(userNavOverrides).forEach(([key, value]) => {
       if (value === 'on') {
-        overrides[key] = true;
+        overridesToUpdate[`navigationOverrides.${key}`] = true;
       } else if (value === 'off') {
-        overrides[key] = false;
+        overridesToUpdate[`navigationOverrides.${key}`] = false;
       } else {
-        // For 'default', we need to remove the field.
-        overrides[key] = deleteField();
+        overridesToUpdate[`navigationOverrides.${key}`] = deleteField();
       }
     });
-    
-    const payload = { navigationOverrides: overrides };
 
-    // Use setDoc with merge to handle both creating and updating nested fields.
-    setDoc(userDocRef, payload, { merge: true })
+    updateDoc(userDocRef, overridesToUpdate)
       .then(() => {
         toast({ title: 'Permissions Updated', description: `Navigation settings for ${selectedUser.name} have been saved.` });
         setIsPermissionsDialogOpen(false);
         setSelectedUser(null);
-        refetch(); // Refetch user data to reflect changes
+        refetch();
       })
       .catch(async (serverError) => {
-        // Create the rich, contextual error asynchronously.
         const permissionError = new FirestorePermissionError({
           path: userDocRef.path,
           operation: 'update',
-          requestResourceData: payload,
+          requestResourceData: { navigationOverrides: userNavOverrides },
         });
-        
-        // Emit the error with the global error emitter
         errorEmitter.emit('permission-error', permissionError);
       });
   };
@@ -321,5 +314,3 @@ export default function ManageUsersPage() {
     </>
   );
 }
-
-    

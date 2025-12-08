@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useFirestore, useCollection, useMemoFirebase, setDocumentNonBlocking, deleteDocumentNonBlocking } from '@/firebase';
-import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc, writeBatch, getDocs, query, where } from 'firebase/firestore';
+import { collection, doc, updateDoc, arrayUnion, arrayRemove, getDoc, deleteDoc, setDoc, writeBatch, getDocs, query, where, collectionGroup } from 'firebase/firestore';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Textarea } from '@/components/ui/textarea';
 import type { Question } from '@/lib/types';
@@ -147,20 +147,18 @@ export default function CodingQuestionsPage() {
     if (!firestore) return;
     const categoryDocRef = doc(firestore, 'problems', categoryId);
 
-    // Also delete the Questions subcollection if it exists
-    const questionsCollectionRef = collection(firestore, 'problems', categoryId, 'Questions');
-    const questionsSnapshot = await getDocs(questionsCollectionRef);
-    const batch = firestore ? writeBatch(firestore) : null;
-    if (batch) {
-        questionsSnapshot.forEach(doc => {
-            batch.delete(doc.ref);
-        });
-        await batch.commit();
+    try {
+        // Firestore doesn't support deleting subcollections directly from the client-side.
+        // The secure and scalable way to do this is with a Cloud Function that triggers on document delete.
+        // For this client-side admin panel, we'll delete the document. The subcollection will remain,
+        // but will be inaccessible through the primary UI. A maintenance script would be needed for cleanup.
+        await deleteDoc(categoryDocRef);
+        toast({ title: 'Category Deleted', description: `Category "${categoryId}" has been deleted.`});
+        refetchCategories();
+    } catch(e) {
+        console.error("Error deleting category", e);
+        toast({ title: 'Error', description: 'Could not delete the category.', variant: 'destructive'});
     }
-    
-    await deleteDoc(categoryDocRef);
-    toast({ title: 'Category Deleted', description: `Category "${categoryId}" and all its questions have been deleted.`});
-    refetchCategories();
   }
 
   const handleSaveCategory = async () => {
@@ -240,12 +238,13 @@ export default function CodingQuestionsPage() {
         throw new Error("JSON must contain a 'title' field.");
       }
       
-      const questionDocRef = doc(firestore, 'problems', selectedCategoryForJson, 'Questions', problemId);
-      
-      await setDoc(questionDocRef, {
-        ...problemData,
-        id: problemId,
-        createdAt: new Date().toISOString(),
+      const categoryRef = doc(firestore, 'problems', selectedCategoryForJson);
+      await updateDoc(categoryRef, {
+          Questions: arrayUnion({
+            ...problemData,
+            id: problemId,
+            createdAt: new Date().toISOString(),
+          })
       });
 
 
@@ -284,15 +283,30 @@ export default function CodingQuestionsPage() {
 
   const handleDeleteProblem = async (problem: Partial<Question>) => {
     if (!firestore || !problem.category || !problem.id) return;
-
+  
     try {
-        const questionDocRef = doc(firestore, "problems", problem.category, "Questions", problem.id);
-        deleteDocumentNonBlocking(questionDocRef);
-        toast({ title: "Problem Deleted", description: `"${problem.title}" has been removed.` });
-        refetchCategories(); // Assuming refetch is available from your collection hook
+      const categoryRef = doc(firestore, "problems", problem.category);
+      const categoryDoc = await getDoc(categoryRef);
+  
+      if (categoryDoc.exists()) {
+        const categoryData = categoryDoc.data();
+        const problemToRemove = categoryData.Questions.find((q: Partial<Question>) => q.id === problem.id);
+  
+        if (problemToRemove) {
+          await updateDoc(categoryRef, {
+            Questions: arrayRemove(problemToRemove)
+          });
+          toast({ title: "Problem Deleted", description: `"${problem.title}" has been removed.` });
+          refetchCategories();
+        } else {
+          toast({ title: "Error", description: "Could not find the problem to delete within the category.", variant: "destructive" });
+        }
+      } else {
+        toast({ title: "Error", description: "Category not found.", variant: "destructive" });
+      }
     } catch (error) {
-        console.error(error);
-        toast({ title: "Error", description: "Could not delete problem.", variant: "destructive" });
+      console.error(error);
+      toast({ title: "Error", description: "Could not delete problem.", variant: "destructive" });
     }
   };
 
@@ -301,7 +315,6 @@ export default function CodingQuestionsPage() {
       title: "Your Problem Title",
       description: "A clear and detailed description of what the user needs to do.",
       difficulty: "Easy", // Can be "Easy", "Medium", or "Hard"
-      category: "The category this problem belongs to (e.g., SOQL, Apex Basics)",
       starterCode: "public class Solution {\n    // Your starter code here\n}",
       testcases: "@isTest\nprivate class SolutionTest {\n    // Your test cases here\n}",
       examples: [
@@ -561,7 +574,7 @@ export default function CodingQuestionsPage() {
       </div>
       
       <div className="mb-8">
-        <ProblemFilter onFilterChange={setFilters} categories={categories?.map(c => c.id) || []} />
+        <ProblemFilter onFilterChange={setFilters} />
       </div>
 
       <Card>
@@ -642,5 +655,3 @@ export default function CodingQuestionsPage() {
     </div>
   );
 }
-
-    

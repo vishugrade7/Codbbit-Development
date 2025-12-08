@@ -152,6 +152,7 @@ export default function LwcPlaygroundPage() {
     if (userProfile?.sfdcAuth?.connected) {
       handleFetchComponents();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userProfile]);
 
 
@@ -199,7 +200,6 @@ export default function LwcPlaygroundPage() {
   }
   
   const handleFormSubmit = (data: any) => {
-    console.log("New component data:", data);
     setHtmlCode(initialHtml.replace('My LWC Component', data.masterLabel || data.componentName));
     setJsCode(initialJs.replace('MyComponent', data.componentName));
     setCssCode(initialCss);
@@ -317,6 +317,7 @@ export default function LwcPlaygroundPage() {
       if (res.success) {
         toast({ title: 'Deployed', description: `Component ${lwcData.componentName} deployed successfully.` });
         await handleFetchComponents();
+        setIsCreateDrawerOpen(false);
       } else {
         toast({ title: 'Deploy Error', description: res.error || 'Failed to deploy', variant: 'destructive' });
       }

@@ -46,6 +46,7 @@ export default function ConnectedAppsPage() {
   
 
   const handleAuthWithSalesforce = async () => {
+    if (!user) return;
     setIsConnecting(true);
     try {
       const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
@@ -59,7 +60,7 @@ export default function ConnectedAppsPage() {
         .replace(/\//g, '_')
         .replace(/=/g, '');
       
-      const result = await initiateSalesforceOAuth(challenge);
+      const result = await initiateSalesforceOAuth(user.uid, challenge);
       if (result.success && result.url) {
         window.location.href = result.url;
       } else {
@@ -243,5 +244,3 @@ export default function ConnectedAppsPage() {
     </Card>
   );
 }
-
-    

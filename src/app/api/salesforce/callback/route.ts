@@ -18,21 +18,29 @@ type SalesforceTokenResponse = {
   error_description?: string;
 };
 
-export async function POST(request: NextRequest) {
+export async function GET(request: NextRequest) {
+  const { searchParams } = new URL(request.url);
+  const code = searchParams.get('code');
+  const state = searchParams.get('state'); // Should contain userId
+
+  if (!code || !state) {
+      return NextResponse.redirect(new URL('/settings?error=salesforce_missing_params', request.url));
+  }
+  
+  const [userId, codeVerifier] = state.split('|');
+
+  if (!userId || !codeVerifier) {
+    return NextResponse.redirect(new URL('/settings?error=salesforce_invalid_state', request.url));
+  }
+
   try {
-    const { code, codeVerifier, userId } = await request.json();
-
-    if (!code || !codeVerifier || !userId) {
-      return NextResponse.json({ success: false, error: "Missing required parameters: code, codeVerifier, or userId." }, { status: 400 });
-    }
-
     const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
     const clientSecret = process.env.SALESFORCE_CLIENT_SECRET;
     const callbackUrl = process.env.NEXT_PUBLIC_SALESFORCE_CALLBACK_URL;
 
     if (!consumerKey || !clientSecret || !callbackUrl) {
       console.error("Salesforce server environment variables are not configured.");
-      return NextResponse.json({ success: false, error: "Server configuration error." }, { status: 500 });
+      throw new Error("Server configuration error.");
     }
 
     const params = new URLSearchParams();
@@ -52,7 +60,7 @@ export async function POST(request: NextRequest) {
 
     if (!tokenResponse.ok || data.error) {
       console.error("Salesforce token exchange failed:", data.error_description);
-      return NextResponse.json({ success: false, error: data.error_description || 'Failed to exchange authorization code for token.' }, { status: 400 });
+      throw new Error(data.error_description || 'Failed to exchange authorization code for token.');
     }
 
     const newAuth: SfdcAuth = {
@@ -68,11 +76,13 @@ export async function POST(request: NextRequest) {
     
     revalidatePath('/settings');
     
-    return NextResponse.json({ success: true });
+    return NextResponse.redirect(new URL('/settings/connected-apps?success=salesforce_connected', request.url));
 
   } catch (error) {
     console.error("[Salesforce Callback API] Error:", error);
     const errorMessage = error instanceof Error ? error.message : "An unknown server error occurred";
-    return NextResponse.json({ success: false, error: errorMessage }, { status: 500 });
+    const redirectUrl = new URL('/settings/connected-apps?error=salesforce_error', request.url);
+    redirectUrl.searchParams.set('error_description', errorMessage);
+    return NextResponse.redirect(redirectUrl);
   }
 }

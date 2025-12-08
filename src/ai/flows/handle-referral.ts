@@ -42,7 +42,8 @@ const handleReferralFlow = ai.defineFlow(
     }
 
     try {
-      const usersRef = firestore().collection('users');
+      const db = firestore();
+      const usersRef = db.collection('users');
       const q = usersRef.where('referralCode', '==', referralCode).limit(1);
       const querySnapshot = await q.get();
 

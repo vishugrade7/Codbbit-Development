@@ -72,7 +72,7 @@ function sanitizeApexCode(code: string): string {
 }
 
 
-export async function initiateSalesforceOAuth(challenge: string) {
+export async function initiateSalesforceOAuth(userId: string, challenge: string) {
   const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
   const callbackUrl = process.env.NEXT_PUBLIC_SALESFORCE_CALLBACK_URL;
 
@@ -90,6 +90,8 @@ export async function initiateSalesforceOAuth(challenge: string) {
   oauthUrl.searchParams.append('code_challenge', challenge);
   oauthUrl.searchParams.append('code_challenge_method', 'S256');
   oauthUrl.searchParams.append('prompt', 'login');
+  oauthUrl.searchParams.append('state', `${userId}|${challenge}`); // Pass userId and verifier in state
+
 
   return { success: true, url: oauthUrl.toString() };
 }
@@ -817,5 +819,3 @@ export async function deployLwc(userId: string, lwcData: {
         return { success: false, error: e.message };
     }
 }
-
-    

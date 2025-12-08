@@ -44,7 +44,8 @@ const getUserProfileByUsernameFlow = ai.defineFlow(
     }
 
     try {
-      const usersRef = firestore().collection('users');
+      const db = firestore();
+      const usersRef = db.collection('users');
       
       // Create two queries: one for the exact match and one for the lowercase match.
       const exactMatchQuery = usersRef.where('username', '==', username).limit(1);

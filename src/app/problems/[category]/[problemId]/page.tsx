@@ -51,6 +51,7 @@ import { Separator } from '@/components/ui/separator';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
+import { initiateSalesforceOAuth } from '@/lib/actions';
 
 const DEFAULT_FONT_SIZE = 14;
 
@@ -170,7 +171,7 @@ export default function ProblemSolvingPage() {
 
           const localStorageKey = `codbbit-code-${foundProblem.id || foundProblem.title}`;
           const savedCode = localStorage.getItem(localStorageKey);
-          const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id] || userProfile.solvedProblems[foundProblem.title]);
+          const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id || ''] || userProfile.solvedProblems[foundProblem.title || '']);
           
           if (savedCode && !isSolved) {
             setCode(savedCode);
@@ -452,10 +453,3 @@ export default function ProblemSolvingPage() {
     </SidebarProvider>
   );
 }
-
-
-
-    
-
-
-
