@@ -316,9 +316,11 @@ export default function HomePage() {
                           <Fragment key={problem.id || problem.title}>
                             <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
                               <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                                <p className="font-semibold">{problem.title}</p>
-                                <div className="flex items-center gap-4">
-                                   <Badge variant="secondary" className="hidden sm:flex">
+                                <div className="flex-1 min-w-0">
+                                  <p className="font-semibold truncate">{problem.title}</p>
+                                </div>
+                                <div className="flex items-center gap-4 ml-4 flex-shrink-0">
+                                  <Badge variant="secondary" className="hidden sm:flex">
                                     {problem.category}
                                   </Badge>
                                   <Badge variant="outline" className="gap-1.5 w-20 justify-center">
