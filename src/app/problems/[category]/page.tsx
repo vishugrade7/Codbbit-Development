@@ -23,15 +23,20 @@ interface CategoryDoc {
 
 export default function CategoryPage() {
   const router = useRouter();
-  const params = useParams() as any;
+  const paramsPromise = useParams() as any;
+  const [params, setParams] = useState<any>(null);
   const firestore = useFirestore();
   const { user } = useUser();
 
+  useEffect(() => {
+    paramsPromise.then(setParams);
+  }, [paramsPromise]);
+
   const categoryDocRef = useMemoFirebase(() => {
-    if (!firestore || !params.category) return null;
+    if (!firestore || !params?.category) return null;
     const categoryName = decodeURIComponent(params.category);
     return doc(firestore, 'problems', categoryName);
-  }, [firestore, params.category]);
+  }, [firestore, params?.category]);
 
   const { data: categoryDoc, isLoading } = useDoc<CategoryDoc>(categoryDocRef);
   
@@ -80,7 +85,7 @@ export default function CategoryPage() {
     }
   };
 
-  if (isLoading) {
+  if (isLoading || !params) {
     return (
       <div className="flex h-screen items-center justify-center">
         <Spinner />

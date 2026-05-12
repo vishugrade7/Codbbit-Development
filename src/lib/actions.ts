@@ -99,6 +99,7 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
     } catch (error: any) {
         const msg = error.message || '';
         if (msg.includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
+            // Attempt to recover the ID from the error message or a fresh query
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
             let recoveredId = idMatch ? idMatch[0] : null;
             
@@ -123,14 +124,28 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
 export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 'anonymous' | 'test class', testCode?: string, userId?: string, problem?: Partial<Question>) {
     try {
         if (type === 'anonymous') {
+            // Standard execution
             const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`, {
                 headers: {
                     'Sforce-Debug-Level': 'SFDC_DevConsole'
                 }
             });
+            
+            let logs = res.debugLog || "";
+            
+            // If debug logs are missing, attempt to fetch the latest log for the user
+            if (!logs && res.success) {
+                await sleep(1000);
+                const logQuery = `SELECT Id FROM ApexLog WHERE LogUserId = '${userId || ''}' ORDER BY StartTime DESC LIMIT 1`;
+                const logList = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(logQuery)}`);
+                if (logList.records?.[0]) {
+                    logs = await (await fetch(`${auth.instanceUrl}/services/data/v60.0/tooling/sobjects/ApexLog/${logList.records[0].Id}/Body`, { headers: { 'Authorization': `Bearer ${auth.accessToken}` } })).text();
+                }
+            }
+
             return { 
                 success: res.compiled && res.success, 
-                logs: res.debugLog || "", 
+                logs: logs, 
                 error: res.compileProblem || res.exceptionMessage || "" 
             };
         }

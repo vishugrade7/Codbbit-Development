@@ -147,16 +147,8 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     if (!user) return;
     const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
     sessionStorage.setItem('salesforce_code_verifier', verifier);
-
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const digest = await window.crypto.subtle.digest('SHA-256', data);
-    const challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
     
-    const result = await initiateSalesforceOAuth(user.uid, challenge);
+    const result = await initiateSalesforceOAuth(user.uid, verifier);
     if (result.success && result.url) {
       window.location.href = result.url;
     } else {
@@ -263,7 +255,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   ];
 
   return (
-    <div className="h-full w-full flex flex-col min-h-0 bg-background overflow-hidden">
+    <div className="h-full w-full flex flex-col min-h-0 bg-background overflow-hidden relative">
        <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
             <DialogContent>
               <DialogHeader>
@@ -348,7 +340,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 </div>
             </ResizablePanel>
         </ResizablePanelGroup>
-        <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2 bg-background z-20 sticky bottom-0 w-full shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
+        <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2 bg-background z-20 w-full shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
             {userProfile?.isPremium && priceConfig?.isPaymentsEnabled !== false ? (
                  <Sheet open={isAiSheetOpen} onOpenChange={setIsAiSheetOpen}>
                     <SheetTrigger asChild>

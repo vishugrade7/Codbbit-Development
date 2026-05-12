@@ -66,15 +66,7 @@ export function HeaderBar({
     const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
     sessionStorage.setItem('salesforce_code_verifier', verifier);
 
-    const encoder = new TextEncoder();
-    const data = encoder.encode(verifier);
-    const digest = await window.crypto.subtle.digest('SHA-256', data);
-    const challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
-      .replace(/\+/g, '-')
-      .replace(/\//g, '_')
-      .replace(/=/g, '');
-    
-    const result = await initiateSalesforceOAuth(user.uid, challenge);
+    const result = await initiateSalesforceOAuth(user.uid, verifier);
     if (result.success && result.url) window.location.href = result.url;
     else toast({ title: "Error", description: result.error || "OAuth failed.", variant: "destructive" });
   };

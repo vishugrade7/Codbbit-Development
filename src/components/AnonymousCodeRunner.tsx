@@ -4,7 +4,7 @@ import { useState, useTransition, useEffect } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
-import { Play, CheckCircle, XCircle, AlertTriangle, Terminal } from "lucide-react";
+import { Play, CheckCircle, XCircle, AlertTriangle, Terminal, Filter } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -15,6 +15,8 @@ import { ResizableHandle, ResizablePanel, ResizablePanelGroup } from "./ui/resiz
 import { Badge } from "./ui/badge";
 import { Alert, AlertDescription, AlertTitle } from "./ui/alert";
 import { Spinner } from "./ui/spinner";
+import { Switch } from "./ui/switch";
+import { Label } from "./ui/label";
 
 const LOCAL_STORAGE_KEY = 'anonymous-apex-code';
 const DEFAULT_CODE = "System.debug('Hello from Anonymous Apex!');";
@@ -24,6 +26,7 @@ export function AnonymousCodeRunner() {
     const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; } | null>(null);
     const [status, setStatus] = useState<string>('Ready');
     const [isPending, startTransition] = useTransition();
+    const [filterLogs, setFilterLogs] = useState(true);
     const { toast } = useToast();
     const { user } = useUser();
     const firestore = useFirestore();
@@ -50,16 +53,8 @@ export function AnonymousCodeRunner() {
         if (!user) return;
         const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
         sessionStorage.setItem('salesforce_code_verifier', verifier);
-
-        const encoder = new TextEncoder();
-        const data = encoder.encode(verifier);
-        const digest = await window.crypto.subtle.digest('SHA-256', data);
-        const challenge = btoa(String.fromCharCode(...new Uint8Array(digest)))
-        .replace(/\+/g, '-')
-        .replace(/\//g, '_')
-        .replace(/=/g, '');
         
-        const result = await initiateSalesforceOAuth(user.uid, challenge);
+        const result = await initiateSalesforceOAuth(user.uid, verifier);
         if (result.success && result.url) {
             window.location.href = result.url;
         } else {
@@ -89,7 +84,7 @@ export function AnonymousCodeRunner() {
             const authCreds = userProfile.sfdcAuth;
             
             setStatus('Executing...');
-            const result = await executeSalesforceCode(authCreds, code, "anonymous");
+            const result = await executeSalesforceCode(authCreds, code, "anonymous", undefined, user.uid);
             setStatus('Ready');
             
             if (!result.success && result.error && !result.error.includes("Bad_OAuth_Token") && !result.error.includes("Session expired")) {
@@ -107,14 +102,27 @@ export function AnonymousCodeRunner() {
     
     const sessionExpired = !output?.success && (output?.error?.includes("Bad_OAuth_Token") || output?.error?.includes("Session expired"));
 
+    const displayedLogs = output?.logs ? (
+        filterLogs 
+            ? output.logs.split('\n').filter(line => line.includes('|USER_DEBUG|')).join('\n')
+            : output.logs
+    ) : "";
 
     return (
         <>
-            <DialogHeader className="p-4 border-b">
-                <DialogTitle className="flex items-center gap-2"><Terminal className="h-5 w-5" /> Anonymous Apex Runner</DialogTitle>
-                <DialogDescription>
-                    Quickly execute a block of Apex code without saving it to your org.
-                </DialogDescription>
+            <DialogHeader className="p-4 border-b flex flex-row items-center justify-between">
+                <div>
+                    <DialogTitle className="flex items-center gap-2"><Terminal className="h-5 w-5" /> Anonymous Apex Runner</DialogTitle>
+                    <DialogDescription>
+                        Quickly execute a block of Apex code without saving it to your org.
+                    </DialogDescription>
+                </div>
+                <div className="flex items-center gap-2 mr-8">
+                    <Switch id="filter-logs" checked={filterLogs} onCheckedChange={setFilterLogs} />
+                    <Label htmlFor="filter-logs" className="text-xs cursor-pointer flex items-center gap-1">
+                        <Filter className="h-3 w-3" /> Filter Debug
+                    </Label>
+                </div>
             </DialogHeader>
             <div className="flex-grow flex flex-col overflow-hidden">
                 <ResizablePanelGroup direction="horizontal" className="h-full">
@@ -162,7 +170,7 @@ export function AnonymousCodeRunner() {
                                             <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Debug Logs</h3>
                                             <div className="bg-background/80 border rounded-md p-3 min-h-[100px]">
                                                 <pre className="whitespace-pre-wrap text-foreground font-code text-xs leading-relaxed">
-                                                    {output.logs || "Executed successfully, but no debug logs were returned. Tip: Ensure you have a TraceFlag enabled for your user in Salesforce to see System.debug output."}
+                                                    {displayedLogs || (output.logs ? "No matching debug lines found with current filter." : "Executed successfully, but no debug logs were returned.")}
                                                 </pre>
                                             </div>
                                         </div>
