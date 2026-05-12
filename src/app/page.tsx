@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
-import { doc, collection, query, limit } from 'firebase/firestore';
+import { doc, collection, query, limit, where, orderBy } from 'firebase/firestore';
 import { Award, BarChart, Flame, BookOpen, List, Calendar, Star, AlertTriangle, TrendingUp, ArrowDown, Folder, ChevronRight } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
@@ -30,7 +30,6 @@ export default function HomePage() {
   const { toast } = useToast();
 
   const [showReconnectDialog, setShowReconnectDialog] = useState(false);
-  const plugin = useRef(Autoplay({ delay: 2000, stopOnInteraction: true }));
   const [userRank, setUserRank] = useState<number | null>(null);
 
   const userDocRef = useMemoFirebase(() => {
@@ -40,11 +39,13 @@ export default function HomePage() {
 
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
 
-  const allUsersCollectionRef = useMemoFirebase(() => {
-    if (!firestore || !user) return null; // Guard: Don't query users if not logged in
-    return collection(firestore, 'users');
+  // Guard: Only query all users for rank calculation if the current user is authenticated
+  const rankQueryRef = useMemoFirebase(() => {
+    if (!firestore || !user) return null;
+    return query(collection(firestore, 'users'), where('isAdmin', '==', false), orderBy('points', 'desc'));
   }, [firestore, user]);
-  const { data: allUsers, isLoading: isLoadingAllUsers } = useCollection<UserProfile>(allUsersCollectionRef);
+  
+  const { data: allUsers } = useCollection<UserProfile>(rankQueryRef);
 
   useEffect(() => {
     if (userProfile?.points != null && allUsers) {
@@ -57,13 +58,13 @@ export default function HomePage() {
     if (!firestore || !user) return null;
     return query(collection(firestore, 'sheets'), limit(3));
   }, [firestore, user]);
-  const { data: sheets, isLoading: isLoadingSheets } = useCollection<ProblemSheet>(sheetsCollectionRef);
+  const { data: sheets } = useCollection<ProblemSheet>(sheetsCollectionRef);
   
   const problemsCollectionRef = useMemoFirebase(() => {
     if (!firestore || !user) return null;
     return collection(firestore, 'problems');
   }, [firestore, user]);
-  const { data: categoriesData, isLoading: isLoadingProblems } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
+  const { data: categoriesData } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
 
   const unsolvedProblems = useMemo(() => {
     if (!categoriesData || !userProfile) return [];
@@ -139,7 +140,7 @@ export default function HomePage() {
     return <LandingPage />;
   }
 
-  const isLoading = isProfileLoading || isLoadingSheets || isLoadingProblems || isLoadingAllUsers;
+  const isLoading = isProfileLoading || !userProfile;
 
   if (isLoading) {
     return (

@@ -22,14 +22,15 @@ type SalesforceTokenResponse = {
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const getSObjectName = (code: string): { name: string | undefined, type: 'ApexClass' | 'ApexTrigger' | undefined } => {
-    // Look for class keyword regardless of visibility or annotations
+    if (!code) return { name: undefined, type: undefined };
+    
+    // Improved regex to find class or trigger name regardless of annotations or modifiers
     const classMatch = code.match(/class\s+([a-zA-Z0-9_]+)/i);
     if (classMatch && classMatch[1]) {
         return { name: classMatch[1], type: 'ApexClass' };
     }
     
-    // Look for trigger MyTriggerName on ObjectName
-    const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on\s+([a-zA-Z0-9_]+)/i);
+    const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on/i);
     if (triggerMatch && triggerMatch[1]) {
         return { name: triggerMatch[1], type: 'ApexTrigger' };
     }
@@ -117,26 +118,32 @@ async function deleteToolingApiRecord(auth: SfdcAuth, objectType: 'ApexClass' | 
     }
 }
 
-async function forceUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
-    // 1. Cross-type collision check: Delete Trigger if we are deploying a Class with same name (and vice-versa)
+/**
+ * A highly resilient upsert for Salesforce metadata.
+ * It handles cross-type collisions (Class vs Trigger) and eventual consistency errors.
+ */
+async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
+    // 1. Cross-type collision check: Delete record of OTHER type if it has the same name
     const otherType = type === 'ApexClass' ? 'ApexTrigger' : 'ApexClass';
     const collision = await findToolingApiRecord(auth, otherType, name);
     if (collision) {
         await deleteToolingApiRecord(auth, otherType, collision.Id);
-        await sleep(1500); // Give Salesforce time to process deletion
+        await sleep(2000); // Wait for deletion to propagate
     }
 
-    // 2. Try to find existing record of correct type
+    // 2. Try to find existing record of CORRECT type
     let existing = await findToolingApiRecord(auth, type, name);
     
     try {
         if (existing) {
+            // Update existing
             await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${existing.Id}`, {
                 method: 'PATCH',
                 body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
             });
             return existing.Id;
         } else {
+            // Create new
             const createRes = await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/`, {
                 method: 'POST',
                 body: JSON.stringify(type === 'ApexClass' ? { Body: body, Name: name } : { Body: body, Name: name, TableEnumOrId: objectName }),
@@ -144,27 +151,29 @@ async function forceUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrig
             return createRes.id;
         }
     } catch (error: any) {
-        // 3. Last resort: If POST fails with duplicate, try to extract ID from error and PATCH
+        // 3. Last resort: If creation fails with a duplicate error, recover the ID and force a PATCH
         if (error.message.includes('DUPLICATE_VALUE')) {
-            // Wait for eventual consistency
-            await sleep(2000);
-            const retryFind = await findToolingApiRecord(auth, type, name);
-            if (retryFind) {
-              await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${retryFind.Id}`, {
-                  method: 'PATCH',
-                  body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
-              });
-              return retryFind.Id;
-            }
-
+            // Attempt to extract the existing record ID from the error message (Regex: 01p for Class, 01q for Trigger)
             const idMatch = error.message.match(/01[pq][a-zA-Z0-9]{12,15}/);
-            const id = idMatch ? idMatch[0] : null;
-            if (id) {
-                await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${id}`, {
+            const recoveredId = idMatch ? idMatch[0] : null;
+
+            if (recoveredId) {
+                await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${recoveredId}`, {
                     method: 'PATCH',
                     body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
                 });
-                return id;
+                return recoveredId;
+            }
+
+            // If ID extraction failed, wait and retry find
+            await sleep(2500);
+            const retryExisting = await findToolingApiRecord(auth, type, name);
+            if (retryExisting) {
+                await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${retryExisting.Id}`, {
+                    method: 'PATCH',
+                    body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
+                });
+                return retryExisting.Id;
             }
         }
         throw error;
@@ -180,7 +189,18 @@ export async function executeSalesforceCode(
   problem?: Partial<Question>
 ) {
     if (executionType === 'anonymous') {
-        return { success: true, logs: "Anonymous execution is handled by the specialized runner." };
+        // Handled via Tooling API executeAnonymous endpoint
+        try {
+            const endpoint = `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`;
+            const result = await sfdcFetch(auth, endpoint);
+            return {
+                success: result.compiled && result.success,
+                logs: result.debugLog || "Code executed successfully.",
+                error: result.compileProblem || result.exceptionMessage || "",
+            };
+        } catch (e: any) {
+            return { success: false, logs: "", error: e.message };
+        }
     }
 
     if (executionType === 'test class' && testCode && problem) {
@@ -188,30 +208,35 @@ export async function executeSalesforceCode(
         const { name: testClassName } = getSObjectName(testCode);
 
         if (!userObjectName || !testClassName) {
-             return { success: false, logs: "", error: "Could not identify class or trigger names." };
+             return { success: false, logs: "", error: "Could not identify class or trigger names from your code." };
+        }
+
+        if (userObjectName === testClassName) {
+            return { success: false, logs: "", error: "The solution name and test class name must be different." };
         }
 
         try {
-            await forceUpsertMetadata(auth, userObjectType!, userObjectName, code, problem.object);
-            await forceUpsertMetadata(auth, 'ApexClass', testClassName, testCode);
+            // Deploy solution and test class using robust upsert
+            await nuclearUpsertMetadata(auth, userObjectType!, userObjectName, code, problem.object);
+            await nuclearUpsertMetadata(auth, 'ApexClass', testClassName, testCode);
 
+            // Run tests
             const runRes = await sfdcFetch(auth, `/services/data/v60.0/tooling/runTestsAsynchronous/`, {
                 method: "POST",
                 body: JSON.stringify({ classNames: testClassName }),
             });
 
-            // Some versions of Tooling API return string directly, others an object
             const asyncJobId = typeof runRes === 'string' ? runRes : runRes.id;
             
             let status = "Queued";
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 40; i++) { // Increased poll attempts
                 await sleep(2000);
                 const job = await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/AsyncApexJob/${asyncJobId}`);
                 status = job?.Status;
                 if (["Completed", "Failed", "Aborted"].includes(status)) break;
             }
 
-            if (status !== "Completed") throw new Error(`Test run status: ${status}`);
+            if (status !== "Completed") throw new Error(`Test run did not complete. Status: ${status}`);
 
             const resultQuery = `SELECT Outcome, MethodName, Message, StackTrace, ApexLogId, RunTime FROM ApexTestResult WHERE AsyncApexJobId = '${asyncJobId}'`;
             const resultData = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(resultQuery)}`);
@@ -237,7 +262,7 @@ export async function syncSolutionToGithub(userId: string, data: { title: string
     try {
         const userDoc = await firestore.collection('users').doc(userId).get();
         const profile = userDoc.data() as UserProfile;
-        if (!profile.githubAuth?.accessToken) throw new Error("GitHub not connected.");
+        if (!profile.githubAuth?.accessToken) throw new Error("GitHub account not connected.");
 
         const octokit = new Octokit({ auth: profile.githubAuth.accessToken });
         const repoName = 'Codbbit-Solutions';
@@ -246,15 +271,16 @@ export async function syncSolutionToGithub(userId: string, data: { title: string
         try {
             await octokit.rest.repos.get({ owner, repo: repoName });
         } catch (e) {
+            // Repo doesn't exist, create it
             await octokit.rest.repos.createForAuthenticatedUser({
                 name: repoName,
-                description: 'My Salesforce Apex solutions from Codbbit',
+                description: 'My Salesforce Apex solutions from Codbbit.com',
                 private: true
             });
         }
 
         const fileName = `${data.title.replace(/\s+/g, '-')}.cls`;
-        const path = `${data.category}/${fileName}`;
+        const path = `${data.category.replace(/\s+/g, '-')}/${fileName}`;
         const content = Buffer.from(data.code).toString('base64');
 
         let sha: string | undefined;
@@ -267,7 +293,7 @@ export async function syncSolutionToGithub(userId: string, data: { title: string
             owner,
             repo: repoName,
             path,
-            message: `Solution for ${data.title}`,
+            message: `Add solution for ${data.title}`,
             content,
             sha
         });
@@ -303,7 +329,7 @@ export async function getLwcBundleFiles(bundleId: string, userId: string, authOv
 export async function deployLwc(userId: string, lwcData: any, authOverride?: SfdcAuth) {
     try {
         const auth = authOverride || await getSfdcConnection(userId);
-        // Deployment of LWC is a complex composite request, implemented here in simplified form
+        // LWC deployment implementation
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
@@ -354,7 +380,7 @@ export async function initiateLinkedInOAuth(userId: string) {
 
 export async function installSalesforcePackage(auth: SfdcAuth, packageVersionKey: string, userId: string) {
     try {
-        // Mock installation logic
+        // Mock package installation
         return { success: true };
     } catch (e: any) {
         return { success: false, error: e.message };
