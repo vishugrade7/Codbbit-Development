@@ -1,5 +1,3 @@
-
-
 'use client';
 
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset, StatCard } from '@/components';
@@ -8,22 +6,19 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit } from 'firebase/firestore';
-import { Award, BarChart, Flame, BookOpen, FileText, List, Calendar, Star, AlertTriangle, Menu, TrendingUp, TrendingDown, ArrowDown, ArrowRight, Tag, Folder, ChevronRight } from 'lucide-react';
+import { Award, BarChart, Flame, BookOpen, List, Calendar, Star, AlertTriangle, TrendingUp, ArrowDown, Folder, ChevronRight } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState, useRef } from 'react';
 import { Badge } from '@/components/ui/badge';
-import { ProblemSheetCard } from '@/components/ProblemSheetCard';
 import { cn, getCategoryColorClasses } from '@/lib/utils';
 import { LandingPage } from '@/components/LandingPage';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
-import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Carousel, CarouselContent, CarouselItem } from '@/components/ui/carousel';
 import Autoplay from 'embla-carousel-autoplay';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 
@@ -46,9 +41,9 @@ export default function HomePage() {
   const { data: userProfile, isLoading: isProfileLoading } = useDoc<UserProfile>(userDocRef);
 
   const allUsersCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null; // Guard: Don't query users if not logged in
     return collection(firestore, 'users');
-  }, [firestore]);
+  }, [firestore, user]);
   const { data: allUsers, isLoading: isLoadingAllUsers } = useCollection<UserProfile>(allUsersCollectionRef);
 
   useEffect(() => {
@@ -59,15 +54,15 @@ export default function HomePage() {
   }, [userProfile, allUsers]);
 
   const sheetsCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null;
     return query(collection(firestore, 'sheets'), limit(3));
-  }, [firestore]);
+  }, [firestore, user]);
   const { data: sheets, isLoading: isLoadingSheets } = useCollection<ProblemSheet>(sheetsCollectionRef);
   
   const problemsCollectionRef = useMemoFirebase(() => {
-    if (!firestore) return null;
+    if (!firestore || !user) return null;
     return collection(firestore, 'problems');
-  }, [firestore]);
+  }, [firestore, user]);
   const { data: categoriesData, isLoading: isLoadingProblems } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
 
   const unsolvedProblems = useMemo(() => {
@@ -109,11 +104,9 @@ export default function HomePage() {
   
 
   const handleAuthWithSalesforce = async () => {
-    // 1. Generate code verifier
     const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
     sessionStorage.setItem('salesforce_code_verifier', verifier);
 
-    // 2. Generate code challenge
     const encoder = new TextEncoder();
     const data = encoder.encode(verifier);
     const digest = await window.crypto.subtle.digest('SHA-256', data);
@@ -122,8 +115,7 @@ export default function HomePage() {
       .replace(/\//g, '_')
       .replace(/=/g, '');
     
-    // 3. Call server action with the challenge
-    const result = await initiateSalesforceOAuth(challenge);
+    const result = await initiateSalesforceOAuth(user!.uid, challenge);
     if (result.success && result.url) {
       window.location.href = result.url;
     } else {
@@ -134,8 +126,6 @@ export default function HomePage() {
       });
     }
   };
-
-  const isLoading = isUserLoading || isProfileLoading || isLoadingSheets || isLoadingProblems || isLoadingAllUsers;
 
   if (isUserLoading) {
     return (
@@ -148,6 +138,8 @@ export default function HomePage() {
   if (!user) {
     return <LandingPage />;
   }
+
+  const isLoading = isProfileLoading || isLoadingSheets || isLoadingProblems || isLoadingAllUsers;
 
   if (isLoading) {
     return (
@@ -234,7 +226,7 @@ export default function HomePage() {
                 value={`${userProfile?.currentStreak || 0} days`}
                 icon={Flame}
                 changeText="vs last month"
-                changeValue={userProfile?.currentStreak || 0 > (userProfile?.maxStreak || 0) ? 5 : -2}
+                changeValue={(userProfile?.currentStreak || 0) > (userProfile?.maxStreak || 0) ? 5 : -2}
                 changeType={(userProfile?.currentStreak || 0) > 0 ? "positive" : "negative"}
               />
               <StatCard
