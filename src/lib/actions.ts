@@ -125,7 +125,9 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
     try {
         if (type === 'anonymous') {
             const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`);
-            return { success: res.compiled && res.success, logs: res.debugLog || "Executed", error: res.compileProblem || res.exceptionMessage || "" };
+            // The tooling API returns debugLog in the response if Sforce-Debug-Level header or active TraceFlag exists.
+            // If empty, we indicate success but no logs.
+            return { success: res.compiled && res.success, logs: res.debugLog || "", error: res.compileProblem || res.exceptionMessage || "" };
         }
         if (type === 'test class' && testCode && problem) {
             const { name: solName, type: solType } = getSObjectName(code);

@@ -119,16 +119,16 @@ export default function CategoryPage() {
             </div>
           </header>
 
-          <div className="px-4 pb-8 sm:px-6 lg:px-8">
-            <Card>
+          <div className="pb-8">
+            <Card className="rounded-none border-x-0">
                 <CardContent className="p-0">
-                <ScrollArea className="h-[calc(100vh-250px)]">
+                <ScrollArea className="h-[calc(100vh-200px)]">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[50px]">Status</TableHead>
+                                <TableHead className="w-[80px] text-center">Status</TableHead>
                                 <TableHead>Title</TableHead>
-                                <TableHead>Difficulty</TableHead>
+                                <TableHead className="w-[150px]">Difficulty</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>
@@ -136,19 +136,19 @@ export default function CategoryPage() {
                                 const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
                                 return (
                                     <TableRow key={question.id || question.title}>
-                                        <TableCell className="text-center py-2">
+                                        <TableCell className="text-center py-4">
                                             {isSolved ? (
                                                 <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
                                             ) : (
                                                 <Circle className="h-5 w-5 text-muted-foreground/20 mx-auto" />
                                             )}
                                         </TableCell>
-                                        <TableCell className="py-2">
+                                        <TableCell className="py-4">
                                             <Link href={`/problems/${params.category}/${question.id || question.title}`} className="font-medium hover:underline">
                                                 {question.title}
                                             </Link>
                                         </TableCell>
-                                        <TableCell className="py-2">
+                                        <TableCell className="py-4">
                                             <Badge variant="outline" className="gap-1.5 w-20 justify-center">
                                             <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
                                             {question.difficulty}

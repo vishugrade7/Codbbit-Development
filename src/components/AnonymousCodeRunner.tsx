@@ -1,11 +1,10 @@
-
 'use client';
 
 import { useState, useTransition, useEffect } from "react";
 import { CodeEditor } from "./CodeEditor";
 import { Button } from "./ui/button";
 import { DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "./ui/dialog";
-import { Play, CheckCircle, XCircle, AlertTriangle } from "lucide-react";
+import { Play, CheckCircle, XCircle, AlertTriangle, Terminal } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import { useToast } from "@/hooks/use-toast";
 import { useUser, useFirestore, useDoc, useMemoFirebase } from "@/firebase";
@@ -49,11 +48,9 @@ export function AnonymousCodeRunner() {
     
     const handleAuthWithSalesforce = async () => {
         if (!user) return;
-        // 1. Generate code verifier
         const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
         sessionStorage.setItem('salesforce_code_verifier', verifier);
 
-        // 2. Generate code challenge
         const encoder = new TextEncoder();
         const data = encoder.encode(verifier);
         const digest = await window.crypto.subtle.digest('SHA-256', data);
@@ -62,7 +59,6 @@ export function AnonymousCodeRunner() {
         .replace(/\//g, '_')
         .replace(/=/g, '');
         
-        // 3. Call server action with the challenge
         const result = await initiateSalesforceOAuth(user.uid, challenge);
         if (result.success && result.url) {
             window.location.href = result.url;
@@ -115,7 +111,7 @@ export function AnonymousCodeRunner() {
     return (
         <>
             <DialogHeader className="p-4 border-b">
-                <DialogTitle>Anonymous Apex Runner</DialogTitle>
+                <DialogTitle className="flex items-center gap-2"><Terminal className="h-5 w-5" /> Anonymous Apex Runner</DialogTitle>
                 <DialogDescription>
                     Quickly execute a block of Apex code without saving it to your org.
                 </DialogDescription>
@@ -128,8 +124,13 @@ export function AnonymousCodeRunner() {
                     <ResizableHandle withHandle />
                     <ResizablePanel defaultSize={40}>
                         <div className="h-full bg-muted/30 flex flex-col">
-                            <div className="p-2 border-b">
+                            <div className="p-2 border-b flex items-center justify-between">
                                 <h3 className="font-semibold text-sm">Output</h3>
+                                {output && (
+                                    <Badge variant={output.success ? "secondary" : "destructive"} className="text-[10px] h-5">
+                                        {output.success ? "Success" : "Error"}
+                                    </Badge>
+                                )}
                             </div>
                             <ScrollArea className="flex-grow">
                                 <div className="p-4 h-full font-code text-sm">
@@ -149,35 +150,27 @@ export function AnonymousCodeRunner() {
                                         </Alert>
                                     ) : output ? (
                                         <div className="flex flex-col gap-2">
-                                            {output.success ? (
-                                                <Badge variant="secondary" className="bg-green-100 border-green-200 text-green-800 dark:bg-green-900/40 dark:text-green-300 w-fit">
-                                                    <CheckCircle className="mr-1 h-3.5 w-3.5" />
-                                                    Success
-                                                </Badge>
-                                            ) : (
-                                                <Badge variant="destructive" className="w-fit">
-                                                    <XCircle className="mr-1 h-3.5 w-3.5" />
-                                                    Error
-                                                </Badge>
-                                            )}
-                                            
                                             {!output.success && output.error && (
-                                                <div className="bg-destructive/10 border border-destructive/20 text-destructive p-2 rounded-md mt-1">
+                                                <div className="bg-destructive/10 border border-destructive/20 text-destructive p-3 rounded-md mb-2">
+                                                    <p className="font-bold mb-1">Execution Error:</p>
                                                     <pre className="whitespace-pre-wrap font-code text-xs">
                                                         {output.error}
                                                     </pre>
                                                 </div>
                                             )}
                                             
-                                            <h3 className="font-semibold text-xs text-muted-foreground mt-2">Logs</h3>
-                                            <pre className="whitespace-pre-wrap text-muted-foreground text-xs p-2 bg-background/50 rounded-md">
-                                                {output.logs || "No logs available."}
-                                            </pre>
+                                            <h3 className="font-semibold text-xs text-muted-foreground uppercase tracking-wider">Debug Logs</h3>
+                                            <div className="bg-background/80 border rounded-md p-3 min-h-[100px]">
+                                                <pre className="whitespace-pre-wrap text-foreground font-code text-xs leading-relaxed">
+                                                    {output.logs || "Executed successfully, but no debug logs were returned. Tip: Ensure you have a TraceFlag enabled for your user in Salesforce to see System.debug output."}
+                                                </pre>
+                                            </div>
                                         </div>
                                     ) : (
-                                        <div className="flex h-full flex-col items-center justify-center text-muted-foreground">
+                                        <div className="flex h-full flex-col items-center justify-center text-muted-foreground text-center">
+                                            <Play className="h-10 w-10 mb-2 opacity-20" />
                                             <div className="text-lg">Run Results</div>
-                                            <p className="text-sm">Output and logs will appear here.</p>
+                                            <p className="text-sm">Output and logs will appear here after you click "Run".</p>
                                         </div>
                                     )}
                                 </div>
