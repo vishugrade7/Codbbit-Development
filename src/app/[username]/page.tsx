@@ -23,7 +23,9 @@ export default async function ProfilePage({
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
-        <ProfilePageClient profile={userProfile} />
+        <main className="flex-1">
+          <ProfilePageClient profile={userProfile} />
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );

@@ -123,7 +123,7 @@ export default function CategoryPage({
             </div>
           </header>
 
-          <div className="pb-8">
+          <div className="px-4 pb-8">
             <Card className="rounded-none border-x-0 shadow-none bg-transparent">
                 <CardContent className="p-0">
                 <ScrollArea className="h-[calc(100vh-200px)]">

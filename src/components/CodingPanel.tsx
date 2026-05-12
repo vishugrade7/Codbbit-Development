@@ -48,15 +48,17 @@ interface ChatMessage {
 }
 
 const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; logs: string; error?: string; runtime?: number; }, onAuth: () => void }) => {
-    if (output.error?.includes('Bad_OAuth_Token') || output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token') || output.error?.includes('Session expired')) {
+    if (output.error?.includes('Bad_OAuth_Token') || output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token') || output.error?.includes('Session expired') || output.error?.includes('insufficient access rights')) {
         return (
             <Alert variant="destructive" className="h-full flex flex-col items-center justify-center text-center">
                  <AlertTriangle className="h-8 w-8 mb-4" />
-                <AlertTitle className="text-lg font-bold">Session Expired</AlertTitle>
+                <AlertTitle className="text-lg font-bold">Connection or Permission Issue</AlertTitle>
                 <AlertDescription className="mb-6">
-                    Your Salesforce session has expired. Please authenticate again to continue.
+                    {output.error?.includes('insufficient access rights') 
+                      ? "The Tooling API encountered a permission error. This often happens if the record is locked or if the connection needs to be refreshed."
+                      : "Your Salesforce session has expired or is invalid."}
                 </AlertDescription>
-                <Button onClick={onAuth}>Authenticate with Salesforce</Button>
+                <Button onClick={onAuth}>Reconnect with Salesforce</Button>
             </Alert>
         )
     }
@@ -134,7 +136,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
 
   useEffect(() => {
       if (output && !output.success) {
-          if (output.error?.includes('Session expired') || output.error?.includes('Bad_OAuth_Token')) {
+          if (output.error?.includes('Session expired') || output.error?.includes('Bad_OAuth_Token') || output.error?.includes('insufficient access rights')) {
             setSessionExpired(true);
           } else {
             if (resultsPanelSize < 10) toggleResultsPanel(true);
@@ -145,8 +147,8 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
 
   const handleAuthWithSalesforce = async () => {
     if (!user) return;
-    const verifier = btoa(String.fromCharCode(...window.crypto.subtle.digest('SHA-256', new TextEncoder().encode('challenge')))); // Mock verifier logic for UI stability
-    const result = await initiateSalesforceOAuth(user.uid, verifier);
+    const challenge = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
+    const result = await initiateSalesforceOAuth(user.uid, challenge);
     if (result.success && result.url) {
       window.location.href = result.url;
     } else {
@@ -173,9 +175,9 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
-            if (result.error?.includes('Session expired') || result.error?.includes('Bad_OAuth_Token')) {
+            if (result.error?.includes('Session expired') || result.error?.includes('Bad_OAuth_Token') || result.error?.includes('insufficient access rights')) {
                 setSessionExpired(true);
-                setOutput({ success: false, logs: "", error: "Your Salesforce session has expired. Please reconnect." });
+                setOutput({ success: false, logs: "", error: result.error || "A connection or permission issue occurred. Please reconnect." });
                 return;
             }
 
@@ -282,8 +284,8 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                     {sessionExpired && (
                       <div className="absolute inset-0 z-10 bg-background/80 backdrop-blur-sm flex flex-col items-center justify-center gap-4">
                         <Lock className="h-12 w-12 text-muted-foreground" />
-                        <h3 className="text-xl font-semibold">Session Expired</h3>
-                        <p className="text-muted-foreground">Your Salesforce connection has expired.</p>
+                        <h3 className="text-xl font-semibold">Connection Issue</h3>
+                        <p className="text-muted-foreground text-center max-w-xs">Your Salesforce session has expired or permissions need refreshing.</p>
                         <Button onClick={handleAuthWithSalesforce}>Reconnect with Salesforce</Button>
                       </div>
                     )}

@@ -3,7 +3,7 @@ import {googleAI} from '@genkit-ai/google-genai';
 
 /**
  * Genkit instance initialized with the Google AI plugin.
- * Simplified for build stability in Next.js 15.
+ * Telemetry removed for deployment stability in Next.js 15.
  */
 export const ai = genkit({
   plugins: [googleAI()],

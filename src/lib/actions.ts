@@ -71,49 +71,53 @@ async function deleteMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTri
 
 /**
  * Resiliently upserts Apex metadata, handling cross-type collisions and eventual consistency lag.
+ * Proactively cleans up "insufficient access rights" caused by cross-reference mismatches.
  */
 async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
     const otherType = type === 'ApexClass' ? 'ApexTrigger' : 'ApexClass';
+    
+    // 1. Check for collision in the OTHER type (SF requires unique names across Class/Trigger)
     const collision = await findMetadataRecord(auth, otherType, name);
     if (collision) { 
         await deleteMetadataRecord(auth, otherType, collision.Id); 
-        await sleep(1500);
+        await sleep(2000); 
     }
 
+    // 2. Try to find existing record of the TARGET type
     let existing = await findMetadataRecord(auth, type, name);
+    
+    const payload: any = { Body: body };
+    if (type === 'ApexTrigger' && objectName) {
+        payload.TableEnumOrId = objectName;
+    }
     
     try {
         if (existing) {
             await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${existing.Id}`, {
                 method: 'PATCH',
-                body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
+                body: JSON.stringify(payload),
             });
             return existing.Id;
         } else {
+            const createPayload = { ...payload, Name: name };
             const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/`, {
                 method: 'POST',
-                body: JSON.stringify(type === 'ApexClass' ? { Body: body, Name: name } : { Body: body, Name: name, TableEnumOrId: objectName }),
+                body: JSON.stringify(createPayload),
             });
             return res.id;
         }
     } catch (error: any) {
         const msg = error.message || '';
+        // 3. Robust recovery: if "duplicate value found", extract the ID from the error message or re-query
         if (msg.includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
-            const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
-            let recoveredId = idMatch ? idMatch[0] : null;
-            
-            if (!recoveredId) {
-                await sleep(2000);
-                const secondTry = await findMetadataRecord(auth, type, name);
-                recoveredId = secondTry?.Id;
-            }
-
-            if (recoveredId) {
-                await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${recoveredId}`, {
+            await sleep(2000);
+            const secondTry = await findMetadataRecord(auth, type, name);
+            if (secondTry) {
+                await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${secondTry.Id}`, {
                     method: 'PATCH',
-                    body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
+                    body: JSON.stringify(payload),
                 });
-                return recoveredId;
+                return secondTry.Id;
             }
         }
         throw error;
@@ -131,13 +135,15 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
             
             let logs = res.debugLog || "";
             
+            // Fallback: If logs are missing, query the latest log for the current org
             if (!logs && res.success) {
-                await sleep(1500);
-                // Search for the latest log globally without restricted user filters to ensure capture
+                await sleep(2000);
                 const logQuery = `SELECT Id FROM ApexLog ORDER BY StartTime DESC LIMIT 1`;
                 const logList = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(logQuery)}`);
                 if (logList.records?.[0]) {
-                    logs = await (await fetch(`${auth.instanceUrl}/services/data/v60.0/tooling/sobjects/ApexLog/${logList.records[0].Id}/Body`, { headers: { 'Authorization': `Bearer ${auth.accessToken}` } })).text();
+                    logs = await (await fetch(`${auth.instanceUrl}/services/data/v60.0/tooling/sobjects/ApexLog/${logList.records[0].Id}/Body`, { 
+                        headers: { 'Authorization': `Bearer ${auth.accessToken}` } 
+                    })).text();
                 }
             }
 
