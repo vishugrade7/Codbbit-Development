@@ -1,7 +1,6 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
   typescript: {
     ignoreBuildErrors: true,
   },
@@ -46,17 +45,23 @@ const nextConfig: NextConfig = {
         port: '',
         pathname: '/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'i.pravatar.cc',
+        port: '',
+        pathname: '/**',
+      },
     ],
   },
   experimental: {
     serverActions: {
       allowedOrigins: [
-        "6000-firebase-studio-1759564885025.cluster-aic6jbiihrhmyrqafasatvzbwe.cloudworkstations.dev",
-        "*.cloudworkstations.dev"
+        "*.cloudworkstations.dev",
+        "localhost:3000"
       ]
     }
   },
-  serverExternalPackages: ['ogl', 'gsap', 'firebase-admin'],
+  serverExternalPackages: ['ogl', 'gsap', 'firebase-admin', 'prettier', 'prettier-plugin-apex'],
 };
 
 export default nextConfig;

@@ -114,7 +114,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
               {question.hints && question.hints.length > 0 && (
                 <div className="space-y-4 pt-4 border-t">
                   {revealedHints.map((hint, index) => (
-                    <div key={index} className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1">
+                    <div key={index} className="flex items-start gap-3 animate-in fade-in">
                       <Avatar className="h-8 w-8 border">
                         <AvatarFallback className="bg-primary/10"><Bot className="h-5 w-5 text-primary" /></AvatarFallback>
                       </Avatar>
@@ -138,12 +138,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
                 <div className="space-y-4">
                   <h3 className="font-semibold flex items-center gap-2"><Youtube className="text-red-500" /> Video Explanation</h3>
                   <div className="aspect-video rounded-lg overflow-hidden border shadow-sm">
-                    <iframe
-                      className="w-full h-full"
-                      src={`https://www.youtube.com/embed/${videoId}`}
-                      title="Solution"
-                      allowFullScreen
-                    />
+                    <iframe className="w-full h-full" src={`https://www.youtube.com/embed/${videoId}`} title="Solution" allowFullScreen />
                   </div>
                 </div>
               ) : (
@@ -156,12 +151,7 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
 
           <TabsContent value="scratchpad" className="p-6 m-0 outline-none h-full">
             <h3 className="font-semibold mb-4 flex items-center gap-2"><Edit3 className="h-4 w-4" /> Personal Notes</h3>
-            <Textarea 
-                placeholder="Write your notes here... (Saved automatically)"
-                value={notes}
-                onChange={(e) => handleNotesChange(e.target.value)}
-                className="min-h-[400px] font-mono text-sm leading-relaxed"
-            />
+            <Textarea placeholder="Write your notes here..." value={notes} onChange={(e) => handleNotesChange(e.target.value)} className="min-h-[400px] font-mono text-sm" />
           </TabsContent>
         </ScrollArea>
       </Tabs>
