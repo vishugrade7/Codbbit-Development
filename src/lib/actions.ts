@@ -11,7 +11,9 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
  */
 const getSObjectName = (code: string): { name: string | undefined, type: 'ApexClass' | 'ApexTrigger' | undefined } => {
     if (!code) return { name: undefined, type: undefined };
-    const classMatch = code.match(/(?:class|interface)\s+([a-zA-Z0-9_]+)/i);
+    
+    // Improved regex to handle complex declarations and annotations
+    const classMatch = code.match(/(?:@isTest\s+)?(?:public|private|global)?\s*(?:virtual|abstract|with sharing|without sharing|inherited sharing)?\s*(?:class|interface)\s+([a-zA-Z0-9_]+)/i);
     if (classMatch && classMatch[1]) return { name: classMatch[1], type: 'ApexClass' };
     
     const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on/i);
@@ -76,7 +78,7 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
     const collision = await findMetadataRecord(auth, otherType, name);
     if (collision) { 
         await deleteMetadataRecord(auth, otherType, collision.Id); 
-        await sleep(1500);
+        await sleep(1500); // Wait for deletion to propagate
     }
 
     let existing = await findMetadataRecord(auth, type, name);
@@ -97,12 +99,13 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
         }
     } catch (error: any) {
         const msg = error.message || '';
+        // If "duplicate value found" is in message, we force update by parsing the existing ID from the error
         if (msg.toLowerCase().includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
             let recoveredId = idMatch ? idMatch[0] : null;
             
             if (!recoveredId) {
-                await sleep(2000);
+                await sleep(2000); // Aggressive cool-down for consistency lag
                 const secondTry = await findMetadataRecord(auth, type, name);
                 recoveredId = secondTry?.Id;
             }
@@ -244,6 +247,7 @@ export async function deployLwc(userId: string, lwcData: any, authOverride?: Sfd
         const userDoc = await firestore().collection('users').doc(userId).get();
         const auth = authOverride || userDoc.data()?.sfdcAuth;
         if (!auth) throw new Error('Salesforce not connected.');
+        // Simplified LWC deployment stub
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
