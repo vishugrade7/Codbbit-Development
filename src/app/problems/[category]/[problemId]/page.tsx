@@ -1,13 +1,11 @@
-
-
 'use client';
 
-import { useEffect, useMemo, useState, useRef, useCallback } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { useParams, notFound, useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
 import { doc, getDoc, collection } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { ArrowLeft, PanelLeftClose, Menu, Search, Filter, CheckCircle, Circle, XCircle, Sparkles, ChevronRight, BarChartHorizontal, List } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, ChevronRight, List, Search, Filter } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -39,7 +37,6 @@ import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
 import { Input } from '@/components/ui/input';
-import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import { cn } from '@/lib/utils';
 import { HeaderBar } from '@/components/HeaderBar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
@@ -47,11 +44,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { useTheme } from '@/components';
 import { Badge } from '@/components/ui/badge';
-import { Separator } from '@/components/ui/separator';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Label } from '@/components/ui/label';
 import { Spinner } from '@/components/ui/spinner';
-import { initiateSalesforceOAuth } from '@/lib/actions';
+import { syncSolutionToGithub } from '@/lib/actions';
 
 const DEFAULT_FONT_SIZE = 14;
 
@@ -68,16 +62,12 @@ export default function ProblemSolvingPage() {
   const [problem, setProblem] = useState<Question | null>(null);
   
   const [isLoading, setIsLoading] = useState(true);
-
   const [code, setCode] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [isQuestionPanelVisible, setIsQuestionPanelVisible] = useState(true);
 
   const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
   const [editorTheme, setEditorTheme] = useState(theme === 'dark' ? 'vs-dark' : 'light');
-  const [searchTerm, setSearchTerm] = useState('');
-  const [difficultyFilter, setDifficultyFilter] = useState<'All' | 'Easy' | 'Medium' | 'Hard'>('All');
-  const [statusFilter, setStatusFilter] = useState<'All' | 'Solved' | 'Unsolved'>('All');
   
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string[]>([]);
@@ -86,67 +76,12 @@ export default function ProblemSolvingPage() {
   
   const [output, setOutput] = useState<{ success: boolean; logs: string; error?: string; runtime?: number; } | null>(null);
 
-
   const userDocRef = useMemoFirebase(() => {
     if (!firestore || !user?.uid) return null;
     return doc(firestore, 'users', user.uid);
   }, [firestore, user?.uid]);
   
   const { data: userProfile } = useDoc<UserProfile>(userDocRef);
-
-  const problemsCollectionRef = useMemoFirebase(() => {
-      if (!firestore) return null;
-      return collection(firestore, 'problems');
-  }, [firestore]);
-
-  const { data: categoriesData, isLoading: isLoadingProblems } = useCollection<{id: string; Questions: Partial<Question>[]}>(problemsCollectionRef);
-
-
-  const categoryProblems = useMemo(() => {
-    if (!categoriesData) return [];
-    
-    const solvedProblemIds = new Set(userProfile?.solvedProblems ? Object.keys(userProfile.solvedProblems) : []);
-    const category = categoriesData.find(cat => cat.id === categoryUrlParam);
-
-    if (!category) return [];
-
-    return (category.Questions || [])
-      .map((q, index) => ({
-        ...q,
-        id: q.id || q.title,
-        category: category.id,
-        isSolved: solvedProblemIds.has(q.id!) || solvedProblemIds.has(q.title!),
-        number: index + 1
-      }))
-      .filter(q => {
-        const matchesSearch = !searchTerm || q.title?.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesDifficulty = difficultyFilter === 'All' || q.difficulty === difficultyFilter;
-        return matchesSearch && matchesDifficulty;
-      })
-
-  }, [categoriesData, searchTerm, difficultyFilter, userProfile, categoryUrlParam]);
-  
-  const solvedInCategory = useMemo(() => categoryProblems.filter(p => p.isSolved).length, [categoryProblems]);
-  
-  // Effect to load editor settings from localStorage
-  useEffect(() => {
-    try {
-      const storedFontSize = localStorage.getItem('editor_font_size');
-      if (storedFontSize) setFontSize(Number(storedFontSize));
-
-      const storedTheme = localStorage.getItem('editor_theme');
-      if (storedTheme) {
-        setEditorTheme(storedTheme)
-      } else {
-        setEditorTheme(theme === 'dark' ? 'vs-dark' : 'light')
-      }
-      
-    } catch (error) {
-      console.warn("Could not access localStorage for editor settings.");
-      setEditorTheme(theme === 'dark' ? 'vs-dark' : 'light');
-    }
-  }, [theme]);
-
 
   useEffect(() => {
     if (!firestore || !categoryUrlParam || !problemId) return;
@@ -157,33 +92,19 @@ export default function ProblemSolvingPage() {
         const categoryDocRef = doc(firestore, 'problems', categoryUrlParam);
         const categorySnap = await getDoc(categoryDocRef);
 
-        if (!categorySnap.exists()) {
-          setProblem(null);
-          return;
-        }
+        if (categorySnap.exists()) {
+          const categoryData = categorySnap.data();
+          const foundProblem = (categoryData.Questions || []).find((q: any) => (q.id || q.title) === problemId);
 
-        const categoryData = categorySnap.data();
-        const questions = categoryData.Questions || [];
-        const foundProblem: Question | undefined = questions.find((q: any) => (q.id || q.title) === problemId);
-
-        if (foundProblem) {
-          setProblem(foundProblem);
-
-          const localStorageKey = `codbbit-code-${foundProblem.id || foundProblem.title}`;
-          const savedCode = localStorage.getItem(localStorageKey);
-          const isSolved = userProfile?.solvedProblems && (userProfile.solvedProblems[foundProblem.id || ''] || userProfile.solvedProblems[foundProblem.title || '']);
-          
-          if (savedCode && !isSolved) {
-            setCode(savedCode);
+          if (foundProblem) {
+            setProblem(foundProblem);
+            const savedCode = localStorage.getItem(`codbbit-code-${foundProblem.id || foundProblem.title}`);
+            setCode(savedCode || foundProblem.starterCode || '');
           } else {
-            setCode(foundProblem.starterCode || '');
+            setProblem(null);
           }
-
-        } else {
-          setProblem(null);
         }
       } catch (error) {
-        console.error("Error fetching problem:", error);
         setProblem(null);
       } finally {
         setIsLoading(false);
@@ -191,263 +112,131 @@ export default function ProblemSolvingPage() {
     };
 
     fetchProblem();
-  }, [firestore, categoryUrlParam, problemId, userProfile, user?.uid, toast]);
+  }, [firestore, categoryUrlParam, problemId]);
 
-  
-  // Effect to save code to localStorage
   useEffect(() => {
     if (problem && code) {
-      const localStorageKey = `codbbit-code-${problem.id || problem.title}`;
-      localStorage.setItem(localStorageKey, code);
+      localStorage.setItem(`codbbit-code-${problem.id || problem.title}`, code);
     }
   }, [code, problem]);
 
-  
-  useEffect(() => {
-    if (!isLoading && !problem) {
-      notFound();
-    }
-  }, [isLoading, problem]);
-
-  
-  if (isLoading || !problem || isLoadingProblems) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <Spinner />
-      </div>
-    );
-  }
-  
   const handleTestPass = () => {
     setShowConfetti(true);
-    if (problem) {
-      const localStorageKey = `codbbit-code-${problem.id || problem.title}`;
-      localStorage.removeItem(localStorageKey);
-    }
-    setTimeout(() => {
-      setShowConfetti(false);
-    }, 5000); // Hide confetti after 5 seconds
+    if (problem) localStorage.removeItem(`codbbit-code-${problem.id || problem.title}`);
+    setTimeout(() => setShowConfetti(false), 5000);
   };
-  
 
   const handleResetCode = () => {
     if (problem?.starterCode) {
       setCode(problem.starterCode);
-      toast({
-        title: "Code Reset",
-        description: "The code has been reset to the original starter template.",
+      toast({ title: "Code Reset", description: "Starter template restored." });
+    }
+  };
+
+  const handleSyncGithub = async () => {
+    if (!user || !userProfile?.githubAuth?.connected) {
+      toast({ title: 'GitHub not connected', description: 'Connect your GitHub account in settings.', variant: 'destructive' });
+      return;
+    }
+    if (!problem) return;
+
+    setIsSyncing(true);
+    setIsSyncDialogOpen(true);
+    setSyncStatus(['Verifying repository...']);
+    setSyncError(null);
+
+    try {
+      const res = await syncSolutionToGithub(user.uid, {
+        title: problem.title,
+        category: problem.category,
+        code: code
       });
+      if (res.success) {
+        setSyncStatus(prev => [...prev, 'Repository ready.', 'Pushing solution...', 'Success!']);
+        toast({ title: 'Synced!', description: 'Pushed to Codbbit-Solutions repo.' });
+      } else {
+        throw new Error(res.error);
+      }
+    } catch (e: any) {
+      setSyncError(e.message);
+    } finally {
+      setIsSyncing(false);
     }
   };
-  
-  const isProblemActive = (p: Partial<Question>) => problemId === (p.id || p.title);
 
-  const getDifficultyClass = (difficulty?: 'Easy' | 'Medium' | 'Hard') => {
-    switch (difficulty) {
-        case 'Easy': return 'text-green-500';
-        case 'Medium': return 'text-yellow-500';
-        case 'Hard': return 'text-red-500';
-        default: return 'text-muted-foreground';
-    }
-  };
-
-  const FilterRadioGroup = ({ title, icon, options, value, onValueChange }: { title: string, icon: React.ReactNode, options: string[], value: string, onValueChange: (value: any) => void }) => (
-    <div className="grid gap-2">
-      <p className="font-medium text-sm flex items-center gap-2 text-muted-foreground">
-          {icon}
-          {title}
-      </p>
-      {options.map(option => (
-        <button key={option} onClick={() => onValueChange(option)} className="flex items-center text-sm text-foreground hover:text-primary">
-          <div className="w-5 h-5 mr-2 flex items-center justify-center">
-            {value === option && <div className="w-2 h-2 rounded-full bg-blue-500" />}
-          </div>
-          {option}
-        </button>
-      ))}
-    </div>
-  );
+  if (isLoading || !problem) {
+    return <div className="flex h-screen items-center justify-center"><Spinner /></div>;
+  }
 
   return (
     <SidebarProvider>
       {showConfetti && <Confetti />}
-       <Dialog open={isSyncDialogOpen} onOpenChange={setIsSyncDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-                Syncing to GitHub
-            </DialogTitle>
-            <DialogDescription>
-              Your code is being pushed to your repository.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="py-4 font-mono text-sm space-y-2">
-            {syncStatus.map((status, index) => (
-              <div key={index} className="flex items-center gap-2">
-                <CheckCircle className="h-4 w-4 text-green-500" />
-                <span>{status}</span>
-              </div>
-            ))}
-            {isSyncing && (
-                <div className="flex items-center gap-2 text-muted-foreground">
-                    <Spinner />
-                    <span>Processing...</span>
-                </div>
-            )}
-            {syncError && (
-                 <div className="flex items-center gap-2 text-red-500">
-                    <XCircle className="h-4 w-4" />
-                    <span>Error: {syncError}</span>
-                </div>
-            )}
-          </div>
-          <DialogFooter>
-            <Button onClick={() => setIsSyncDialogOpen(false)} disabled={isSyncing}>Close</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
-      <Sidebar>
-        <AppSidebar />
-      </Sidebar>
+      <Sidebar><AppSidebar /></Sidebar>
       <SidebarInset>
-        <div className="flex flex-col h-screen bg-background text-foreground">
-             <HeaderBar
-                onReset={handleResetCode}
-                fontSize={fontSize}
-                setFontSize={setFontSize}
-                editorTheme={editorTheme}
-                setEditorTheme={setEditorTheme}
-                leftControls={
-                    <>
-                        <Sheet>
-                          <SheetTrigger asChild>
-                             <Button variant="ghost" size="icon" className="h-8 w-8">
-                                <List className="h-4 w-4"/>
-                              </Button>
-                          </SheetTrigger>
-                           <SheetContent side="left" className="p-0 sm:max-w-xl">
-                              <SheetHeader className="p-4 border-b">
-                                  <SheetTitle>Problem List</SheetTitle>
-                                  <SheetDescription>Navigate to other problems.</SheetDescription>
-                                  <div className="flex items-center justify-between mb-4">
-                                    <h3 className="font-semibold text-lg flex items-center">
-                                      {categoryUrlParam} <ChevronRight className="h-5 w-5 text-muted-foreground" />
-                                    </h3>
-                                    <Badge variant="outline">{solvedInCategory}/{categoryProblems.length} Solved</Badge>
-                                  </div>
-                                  <div className="flex items-center gap-2">
-                                    <div className="relative flex-grow">
-                                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                                      <Input
-                                          placeholder="Search questions"
-                                          value={searchTerm}
-                                          onChange={(e) => setSearchTerm(e.target.value)}
-                                          className="pl-9 h-9"
-                                      />
-                                    </div>
-                                    <Popover>
-                                        <PopoverTrigger asChild>
-                                          <Button variant="outline" size="icon" className="w-9 h-9">
-                                              <Filter className="h-4 w-4" />
-                                          </Button>
-                                        </PopoverTrigger>
-                                        <PopoverContent className="w-60 p-4" align="start">
-                                            <div className="grid gap-4">
-                                                <FilterRadioGroup 
-                                                    title="Status"
-                                                    icon={<CheckCircle className="h-4 w-4" />}
-                                                    options={['All', 'Solved', 'Unsolved']}
-                                                    value={statusFilter}
-                                                    onValueChange={setStatusFilter}
-                                                />
-                                            </div>
-                                        </PopoverContent>
-                                    </Popover>
-                                  </div>
-                              </SheetHeader>
-                              <ScrollArea className="h-[calc(100vh-80px)]">
-                                <div className="p-2">
-                                   {categoryProblems.map(p => (
-                                       <Link key={p.id} href={`/problems/${p.category}/${p.id || p.title}`}>
-                                          <div className={cn(
-                                                "flex items-center p-3 rounded-lg text-sm",
-                                                isProblemActive(p) ? 'bg-primary/10 text-primary font-semibold' : 'hover:bg-muted'
-                                            )}>
-                                                <div className="flex items-center gap-3 overflow-hidden flex-grow">
-                                                    <div className="flex-shrink-0">
-                                                        {p.isSolved ? <CheckCircle className="h-4 w-4 text-green-500" /> : <div className="w-4 h-4" />}
-                                                    </div>
-                                                     <div className="h-8 w-8 flex-shrink-0 rounded-full bg-muted flex items-center justify-center text-xs font-bold text-muted-foreground">{p.number}</div>
-                                                     <span className="font-medium truncate flex-grow">
-                                                        {p.title}
-                                                    </span>
-                                                </div>
-                                                <Badge variant="outline" className="gap-1.5 w-20 justify-center flex-shrink-0">
-                                                    <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyClass(p.difficulty))} aria-hidden="true" />
-                                                    {p.difficulty}
-                                                </Badge>
-                                            </div>
-                                       </Link>
-                                   ))}
-                                </div>
-                              </ScrollArea>
-                           </SheetContent>
-                        </Sheet>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8">
-                              <ArrowLeft className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Are you sure you want to leave?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Your current code will not be saved. Please submit your solution if you want to save it.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancel</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => router.back()}>Leave</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                        <div className='hidden md:flex items-center gap-2 text-sm'>
-                          <Link href={`/problems/${problem.category}`} className="text-muted-foreground hover:text-foreground">{problem.category}</Link>
-                          <ChevronRight className='h-4 w-4 text-muted-foreground' />
-                          <span className="font-semibold">{problem.title}</span>
-                        </div>
-                    </>
-                }
-             >
-                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsQuestionPanelVisible(!isQuestionPanelVisible)}>
-                    <PanelLeftClose className="h-4 w-4" />
-                </Button>
-             </HeaderBar>
-            <main className="flex-grow overflow-hidden">
-                <ResizablePanelGroup direction="horizontal" className="h-full">
-                    {isQuestionPanelVisible && (
-                        <>
-                            <ResizablePanel defaultSize={40} minSize={30}>
-                                <QuestionPanel question={problem} />
-                            </ResizablePanel>
-                            <ResizableHandle withHandle />
-                        </>
-                    )}
-                    <ResizablePanel defaultSize={isQuestionPanelVisible ? 60: 100} minSize={40}>
-                        <CodingPanel 
-                            question={problem} 
-                            code={code}
-                            setCode={setCode}
-                            onTestPass={handleTestPass}
-                            fontSize={fontSize}
-                            editorTheme={editorTheme}
-                            output={output}
-                            setOutput={setOutput}
-                        />
-                    </ResizablePanel>
-                </ResizablePanelGroup>
-            </main>
+        <div className="flex flex-col h-screen bg-background text-foreground overflow-hidden">
+          <HeaderBar
+            onReset={handleResetCode}
+            onSyncGithub={handleSyncGithub}
+            isSyncing={isSyncing}
+            fontSize={fontSize}
+            setFontSize={setFontSize}
+            editorTheme={editorTheme}
+            setEditorTheme={setEditorTheme}
+            leftControls={
+              <div className="flex items-center gap-2 text-sm">
+                <Button variant="ghost" size="icon" onClick={() => router.back()}><ArrowLeft className="h-4 w-4" /></Button>
+                <Link href={`/problems/${problem.category}`} className="text-muted-foreground hover:text-foreground">{problem.category}</Link>
+                <ChevronRight className="h-4 w-4 text-muted-foreground" />
+                <span className="font-semibold">{problem.title}</span>
+              </div>
+            }
+          >
+            <Button variant="ghost" size="icon" onClick={() => setIsQuestionPanelVisible(!isQuestionPanelVisible)}>
+              <List className="h-4 w-4" />
+            </Button>
+          </HeaderBar>
+          
+          <main className="flex-grow">
+            <ResizablePanelGroup direction="horizontal">
+              {isQuestionPanelVisible && (
+                <>
+                  <ResizablePanel defaultSize={40} minSize={25}>
+                    <QuestionPanel question={problem} />
+                  </ResizablePanel>
+                  <ResizableHandle withHandle />
+                </>
+              )}
+              <ResizablePanel defaultSize={isQuestionPanelVisible ? 60 : 100}>
+                <CodingPanel
+                  question={problem}
+                  code={code}
+                  setCode={setCode}
+                  onTestPass={handleTestPass}
+                  fontSize={fontSize}
+                  editorTheme={editorTheme}
+                  output={output}
+                  setOutput={setOutput}
+                />
+              </ResizablePanel>
+            </ResizablePanelGroup>
+          </main>
+
+          <Dialog open={isSyncDialogOpen} onOpenChange={setIsSyncDialogOpen}>
+            <DialogContent>
+              <DialogHeader>
+                <DialogTitle>Sync to GitHub</DialogTitle>
+                <DialogDescription>Pushing solution to Codbbit-Solutions repository.</DialogDescription>
+              </DialogHeader>
+              <div className="py-4 space-y-2">
+                {syncStatus.map((s, i) => (
+                  <div key={i} className="flex items-center gap-2 text-sm"><CheckCircle className="h-4 w-4 text-green-500" />{s}</div>
+                ))}
+                {isSyncing && <div className="flex items-center gap-2 text-sm"><Spinner size="sm" /><span>Processing...</span></div>}
+                {syncError && <div className="flex items-center gap-2 text-sm text-red-500"><XCircle className="h-4 w-4" />{syncError}</div>}
+              </div>
+              <DialogFooter><Button onClick={() => setIsSyncDialogOpen(false)} disabled={isSyncing}>Close</Button></DialogFooter>
+            </DialogContent>
+          </Dialog>
         </div>
       </SidebarInset>
     </SidebarProvider>

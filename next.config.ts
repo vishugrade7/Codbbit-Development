@@ -1,4 +1,3 @@
-
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
@@ -48,6 +47,14 @@ const nextConfig: NextConfig = {
         pathname: '/**',
       },
     ],
+  },
+  experimental: {
+    serverActions: {
+      allowedOrigins: [
+        "6000-firebase-studio-1759564885025.cluster-aic6jbiihrhmyrqafasatvzbwe.cloudworkstations.dev",
+        "*.cloudworkstations.dev"
+      ]
+    }
   },
   serverExternalPackages: ['ogl', 'gsap', 'firebase-admin'],
 };

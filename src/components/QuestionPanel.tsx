@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -6,11 +5,11 @@ import type { Question, QuestionHint } from '@/lib/types';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from './ui/scroll-area';
-import { Lightbulb, CheckCircle, Bot, Tag, Youtube } from 'lucide-react';
+import { Lightbulb, Bot, Tag, Youtube, FileText, Code2, Edit3 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Avatar, AvatarFallback, AvatarImage } from './ui/avatar';
+import { Avatar, AvatarFallback } from './ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from './ui/tabs';
-import { Card, CardContent } from './ui/card';
+import { Textarea } from './ui/textarea';
 
 interface QuestionPanelProps {
   question: Question;
@@ -19,11 +18,13 @@ interface QuestionPanelProps {
 export function QuestionPanel({ question }: QuestionPanelProps) {
   const [revealedHints, setRevealedHints] = useState<QuestionHint[]>([]);
   const [nextHintIndex, setNextHintIndex] = useState(0);
+  const [notes, setNotes] = useState('');
 
-  // Reset hints when the question changes
   useEffect(() => {
     setRevealedHints([]);
     setNextHintIndex(0);
+    const savedNotes = localStorage.getItem(`notes-${question.id}`);
+    setNotes(savedNotes || '');
   }, [question.id]);
 
   const handleShowHint = () => {
@@ -33,23 +34,20 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
     }
   };
 
+  const handleNotesChange = (val: string) => {
+      setNotes(val);
+      localStorage.setItem(`notes-${question.id}`, val);
+  }
+
   const getDifficultyDotClass = (difficulty: 'Easy' | 'Medium' | 'Hard' | undefined) => {
     switch (difficulty) {
-      case 'Easy':
-        return 'bg-green-500';
-      case 'Medium':
-        return 'bg-yellow-500';
-      case 'Hard':
-        return 'bg-red-500';
-      default:
-        return 'bg-gray-400';
+      case 'Easy': return 'bg-green-500';
+      case 'Medium': return 'bg-yellow-500';
+      case 'Hard': return 'bg-red-500';
+      default: return 'bg-gray-400';
     }
   }
 
-  const isSolved = false; // Mock data
-  const hasHints = question.hints && question.hints.length > 0;
-  const allHintsRevealed = hasHints && nextHintIndex >= question.hints!.length;
-  
   const getYouTubeVideoId = (url: string) => {
     const regex = /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|\S*?[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/;
     const match = url.match(regex);
@@ -58,101 +56,115 @@ export function QuestionPanel({ question }: QuestionPanelProps) {
   
   const videoId = question.youtubeSolutionUrl ? getYouTubeVideoId(question.youtubeSolutionUrl) : null;
 
-
   return (
-    <div className='h-full flex flex-col'>
-      <div className="flex-shrink-0 border-b p-4">
-          <div className="flex items-center gap-2 flex-wrap mb-4">
-            <h4 className="text-xl font-semibold flex items-center gap-2">
-                {question.title}
-            </h4>
-          </div>
-          <div className="flex items-center gap-2 flex-wrap mb-4">
-              <Badge variant="outline" className="gap-1.5 w-24 justify-center">
-                  <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
-                  {question.difficulty}
-              </Badge>
-              <Badge variant="secondary" className="w-24 justify-center">
-                  <Tag />
-                  {question.category}
-              </Badge>
-          </div>
-      </div>
+    <div className='h-full flex flex-col bg-background'>
+      <Tabs defaultValue="description" className="flex-grow flex flex-col">
+        <div className="flex-shrink-0 border-b px-4 py-2">
+            <TabsList className="bg-transparent gap-4">
+                <TabsTrigger value="description" className="data-[state=active]:bg-muted"><FileText className="h-4 w-4 mr-2" />Description</TabsTrigger>
+                <TabsTrigger value="solutions" className="data-[state=active]:bg-muted"><Code2 className="h-4 w-4 mr-2" />Solutions</TabsTrigger>
+                <TabsTrigger value="scratchpad" className="data-[state=active]:bg-muted"><Edit3 className="h-4 w-4 mr-2" />Scratchpad</TabsTrigger>
+            </TabsList>
+        </div>
 
-      <ScrollArea className="flex-grow">
-        <div className="p-6">
-          <div className="text-sm text-foreground/90 space-y-6 prose prose-sm dark:prose-invert max-w-none">
-              <p>{question.description}</p>
-              
+        <ScrollArea className="flex-grow">
+          <TabsContent value="description" className="p-6 m-0 outline-none">
+              <div className="mb-6">
+                <h1 className="text-2xl font-bold mb-4">{question.title}</h1>
+                <div className="flex items-center gap-2 mb-6">
+                    <Badge variant="outline" className="gap-1.5 h-7">
+                        <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} />
+                        {question.difficulty}
+                    </Badge>
+                    <Badge variant="secondary" className="h-7"><Tag className="h-3 w-3 mr-1" />{question.category}</Badge>
+                </div>
+                <div className="prose prose-sm dark:prose-invert max-w-none">
+                    <p className="text-foreground/90 leading-relaxed whitespace-pre-wrap">{question.description}</p>
+                </div>
+              </div>
+
               {question.examples && question.examples.length > 0 && (
-                  <div className="space-y-4">
+                  <div className="space-y-6 mb-8">
                       {question.examples.map((ex, index) => (
-                          <div key={index}>
-                              <h3 className="font-semibold text-base">Example {index + 1}:</h3>
-                              <div className="bg-muted p-4 rounded-lg mt-2 space-y-4">
-                                <div>
-                                    <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-2">Input</p>
-                                    <pre className="font-code text-xs whitespace-pre-wrap leading-relaxed text-foreground">
-                                        {typeof ex.input === 'string' ? ex.input : JSON.stringify(ex.input)}
-                                    </pre>
-                                </div>
-                                 <div>
-                                    <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-2">Output</p>
-                                    <pre className="font-code text-xs whitespace-pre-wrap leading-relaxed text-foreground">
-                                       {typeof ex.output === 'string' ? ex.output : JSON.stringify(ex.output)}
-                                    </pre>
-                                </div>
-                                {ex.explanation && (
+                          <div key={index} className="space-y-2">
+                              <h3 className="font-semibold text-sm">Example {index + 1}:</h3>
+                              <div className="bg-muted/50 p-4 rounded-lg border border-border/50">
+                                <div className="space-y-3">
                                     <div>
-                                        <p className="font-semibold text-xs uppercase tracking-wider text-muted-foreground mb-2">Explanation</p>
-                                        <p className="text-xs">{ex.explanation}</p>
+                                        <span className="text-xs font-bold text-muted-foreground uppercase">Input:</span>
+                                        <code className="block mt-1 text-xs">{typeof ex.input === 'string' ? ex.input : JSON.stringify(ex.input)}</code>
                                     </div>
-                                )}
+                                    <div>
+                                        <span className="text-xs font-bold text-muted-foreground uppercase">Output:</span>
+                                        <code className="block mt-1 text-xs">{typeof ex.output === 'string' ? ex.output : JSON.stringify(ex.output)}</code>
+                                    </div>
+                                    {ex.explanation && (
+                                        <div>
+                                            <span className="text-xs font-bold text-muted-foreground uppercase">Explanation:</span>
+                                            <p className="text-xs mt-1 text-muted-foreground">{ex.explanation}</p>
+                                        </div>
+                                    )}
+                                </div>
                               </div>
                           </div>
                       ))}
                   </div>
               )}
-              
-               {videoId && (
-                <div>
-                  <h3 className="font-semibold text-base mb-2 flex items-center gap-2">
-                    <Youtube className="h-5 w-5 text-red-500" /> Video Solution
-                  </h3>
-                  <div className="aspect-video">
-                    <iframe
-                      className="w-full h-full rounded-lg"
-                      src={`https://www.youtube.com/embed/${videoId}`}
-                      title="YouTube video player"
-                      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                      allowFullScreen
-                    ></iframe>
-                  </div>
-                </div>
-              )}
 
-              {hasHints && (
-                <div className="space-y-4">
+              {question.hints && question.hints.length > 0 && (
+                <div className="space-y-4 pt-4 border-t">
                   {revealedHints.map((hint, index) => (
-                    <div key={index} className="flex items-start gap-3">
+                    <div key={index} className="flex items-start gap-3 animate-in fade-in slide-in-from-top-1">
                       <Avatar className="h-8 w-8 border">
-                        <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
+                        <AvatarFallback className="bg-primary/10"><Bot className="h-5 w-5 text-primary" /></AvatarFallback>
                       </Avatar>
-                      <div className="bg-muted/50 p-3 rounded-lg rounded-tl-none">
-                        <p className="font-semibold text-xs text-foreground mb-1">Codbbit Assistant</p>
-                        <p className="text-sm">{hint.value}</p>
+                      <div className="bg-muted/40 p-3 rounded-lg rounded-tl-none border">
+                        <p className="text-sm leading-relaxed">{hint.value}</p>
                       </div>
                     </div>
                   ))}
-                  <Button variant="outline" onClick={handleShowHint} disabled={allHintsRevealed}>
-                    <Lightbulb className="mr-2 h-4 w-4 text-yellow-400" /> 
-                    {allHintsRevealed ? "All Hints Shown" : "Get a Hint"}
-                  </Button>
+                  {nextHintIndex < question.hints.length && (
+                    <Button variant="outline" size="sm" onClick={handleShowHint} className="w-full sm:w-auto">
+                        <Lightbulb className="mr-2 h-4 w-4 text-yellow-500" />
+                        Get a Hint ({nextHintIndex + 1}/{question.hints.length})
+                    </Button>
+                  )}
                 </div>
               )}
-          </div>
-        </div>
-      </ScrollArea>
+          </TabsContent>
+
+          <TabsContent value="solutions" className="p-6 m-0 outline-none">
+             {videoId ? (
+                <div className="space-y-4">
+                  <h3 className="font-semibold flex items-center gap-2"><Youtube className="text-red-500" /> Video Explanation</h3>
+                  <div className="aspect-video rounded-lg overflow-hidden border shadow-sm">
+                    <iframe
+                      className="w-full h-full"
+                      src={`https://www.youtube.com/embed/${videoId}`}
+                      title="Solution"
+                      allowFullScreen
+                    />
+                  </div>
+                </div>
+              ) : (
+                <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
+                    <Code2 className="h-12 w-12 mb-4 opacity-20" />
+                    <p>No video solution available yet.</p>
+                </div>
+              )}
+          </TabsContent>
+
+          <TabsContent value="scratchpad" className="p-6 m-0 outline-none h-full">
+            <h3 className="font-semibold mb-4 flex items-center gap-2"><Edit3 className="h-4 w-4" /> Personal Notes</h3>
+            <Textarea 
+                placeholder="Write your notes here... (Saved automatically)"
+                value={notes}
+                onChange={(e) => handleNotesChange(e.target.value)}
+                className="min-h-[400px] font-mono text-sm leading-relaxed"
+            />
+          </TabsContent>
+        </ScrollArea>
+      </Tabs>
     </div>
   );
 }
