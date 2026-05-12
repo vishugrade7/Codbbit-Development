@@ -159,8 +159,8 @@ export default function ProblemSolvingPage() {
             </Button>
           </HeaderBar>
           
-          <main className="flex-grow">
-            <ResizablePanelGroup direction="horizontal">
+          <main className="flex-grow min-h-0 relative">
+            <ResizablePanelGroup direction="horizontal" className="h-full">
               {isQuestionPanelVisible && (
                 <>
                   <ResizablePanel defaultSize={40} minSize={25}>

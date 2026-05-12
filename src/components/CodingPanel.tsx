@@ -4,7 +4,7 @@ import { useState, useEffect, useTransition, useRef } from "react";
 import type { Question, UserProfile, SfdcAuth, PriceConfig } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import { executeSalesforceCode, deleteSalesforceMetadata, initiateSalesforceOAuth } from "@/lib/actions";
+import { executeSalesforceCode, initiateSalesforceOAuth } from "@/lib/actions";
 import { useDoc, useFirestore, useUser, useMemoFirebase, setDocumentNonBlocking } from "@/firebase";
 import { doc } from 'firebase/firestore';
 import { CodeEditor } from "./CodeEditor";
@@ -14,7 +14,7 @@ import {
   ResizableHandle,
   type PanelGroup,
 } from "@/components/ui/resizable";
-import { Play, Loader2, Bot, User as UserIcon, ChevronDown, ChevronUp, CheckCircle, Circle, Trash2, ShieldQuestion, Award, XCircle, FileText, AlertTriangle, Lock } from "lucide-react";
+import { Play, Loader2, Bot, ChevronDown, ChevronUp, FileText, AlertTriangle, Lock } from "lucide-react";
 import { ScrollArea } from "./ui/scroll-area";
 import {
   Sheet,
@@ -24,16 +24,6 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/components/ui/sheet";
-import {
-    AlertDialog,
-    AlertDialogAction,
-    AlertDialogCancel,
-    AlertDialogContent,
-    AlertDialogDescription,
-    AlertDialogFooter,
-    AlertDialogHeader,
-    AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { askQuestion } from "@/ai/flows/ask-question";
 import { Avatar, AvatarFallback } from "./ui/avatar";
@@ -106,7 +96,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   const { user } = useUser();
   const panelGroupRef = useRef<PanelGroup>(null);
   const [resultsPanelSize, setResultsPanelSize] = useState(5);
-  const [isDeleting, setIsDeleting] = useState(false);
   const [showAuthDialog, setShowAuthDialog] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
 
@@ -274,7 +263,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   ];
 
   return (
-    <div className="h-full w-full flex flex-col min-h-0">
+    <div className="h-full w-full flex flex-col min-h-0 bg-background overflow-hidden">
        <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
             <DialogContent>
               <DialogHeader>
@@ -359,7 +348,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 </div>
             </ResizablePanel>
         </ResizablePanelGroup>
-        <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2 bg-background z-10">
+        <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2 bg-background z-20 sticky bottom-0 w-full shadow-[0_-1px_3px_rgba(0,0,0,0.1)]">
             {userProfile?.isPremium && priceConfig?.isPaymentsEnabled !== false ? (
                  <Sheet open={isAiSheetOpen} onOpenChange={setIsAiSheetOpen}>
                     <SheetTrigger asChild>
@@ -403,14 +392,14 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                             />
                         </div>
                     </SheetContent>
-                </Sheet>
+                 </Sheet>
             ) : priceConfig?.isPaymentsEnabled !== false ? (
                 <Button variant="outline" size="sm" className="rounded-md mr-auto" disabled>
                     <Bot className="-ms-1 opacity-60" size={16} aria-hidden="true" />
                     Upgrade for AI
                 </Button>
             ): null}
-            <Button onClick={handleSubmitCode} size="sm" disabled={isPending} className="bg-green-500 hover:bg-green-600 text-white rounded-md">
+            <Button onClick={handleSubmitCode} size="sm" disabled={isPending} className="bg-green-500 hover:bg-green-600 text-white rounded-md font-bold px-4">
                 {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="-ms-1 opacity-60" size={16} aria-hidden="true" />}
                 Submit
             </Button>
