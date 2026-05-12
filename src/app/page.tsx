@@ -5,8 +5,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useDoc, useFirestore, useUser, useMemoFirebase, useCollection } from '@/firebase';
 import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
-import { doc, collection, query, limit, where, orderBy } from 'firebase/firestore';
-import { Award, BarChart, Flame, BookOpen, List, Calendar, Star, AlertTriangle, TrendingUp, ArrowDown, Folder, ChevronRight } from 'lucide-react';
+import { doc, collection, query, limit } from 'firebase/firestore';
+import { Award, BarChart, Flame, BookOpen, List, Calendar, Star, AlertTriangle, TrendingUp, Folder, ChevronRight } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState } from 'react';
@@ -108,7 +108,7 @@ export default function HomePage() {
             </DialogContent>
           </Dialog>
 
-          <header className="px-4 py-8 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4">
+          <header className="px-4 py-8 flex flex-wrap items-center justify-between gap-4">
             <div className="animate-fade-in-up">
               <h1 className="text-3xl font-bold font-handwritten tracking-tight">{`Welcome back, ${userProfile?.name || 'Coder'}!`}</h1>
               <p className="text-muted-foreground mt-1">Ready to tackle your next challenge? Let's get started.</p>
@@ -121,26 +121,26 @@ export default function HomePage() {
             </div>
           </header>
 
-          <div className="px-4 pb-8 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
-             <Card className="animate-fade-in-up flex-grow flex flex-col" style={{ animationDelay: '0.7s' }}>
+          <div className="px-4 pb-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
+             <Card className="animate-fade-in-up flex-grow flex flex-col border-none bg-background/50 shadow-sm" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-lg"><List className="h-5 w-5"/> Featured Sheets</CardTitle>
                   <CardDescription>Curated lists to sharpen your skills.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     {sheets && sheets.map((sheet, index) => {
                         const colorClasses = getCategoryColorClasses(index);
                         return (
                           <Link href={`/sheets/${sheet.id}`} key={sheet.id} className="block group">
-                             <div className={cn('relative p-4 rounded-lg transition-all transform group-hover:shadow-lg bg-muted/30 border border-border')}>
-                              <div className={cn("absolute top-0 left-4 h-1 w-16 rounded-b-md", colorClasses.progress)} />
+                             <div className={cn('relative p-4 rounded-xl transition-all transform group-hover:shadow-md bg-muted/40 border border-border/50')}>
+                              <div className={cn("absolute top-0 left-4 h-1 w-12 rounded-b-md", colorClasses.progress)} />
                               <div className="flex items-center justify-between">
                                 <div className="flex items-center gap-3">
-                                  <div className={cn("p-1.5 rounded-md", colorClasses.button)}><Folder className="h-5 w-5" /></div>
-                                  <div><p className="font-semibold">{sheet.name}</p><p className="text-xs opacity-70">{sheet.questionIds.length} problems</p></div>
+                                  <div className={cn("p-2 rounded-lg", colorClasses.button)}><Folder className="h-5 w-5" /></div>
+                                  <div><p className="font-semibold text-sm">{sheet.name}</p><p className="text-xs opacity-70">{sheet.questionIds.length} problems</p></div>
                                 </div>
-                                <ChevronRight className="h-5 w-5 text-muted-foreground" />
+                                <ChevronRight className="h-4 w-4 text-muted-foreground" />
                               </div>
                             </div>
                           </Link>
@@ -149,28 +149,28 @@ export default function HomePage() {
                   </div>
                 </CardContent>
               </Card>
-              <Card className="animate-fade-in-up flex flex-col" style={{ animationDelay: '0.6s' }}>
+              <Card className="animate-fade-in-up flex flex-col border-none bg-background/50 shadow-sm" style={{ animationDelay: '0.6s' }}>
                 <CardHeader>
-                  <CardTitle className="flex items-center gap-2 text-primary"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
+                  <CardTitle className="flex items-center gap-2 text-lg text-primary"><BookOpen className="h-5 w-5"/> Continue Solving</CardTitle>
                   <CardDescription>Pick up where you left off with these unsolved problems.</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-grow">
                   <ScrollArea className="h-auto">
-                    <div className="pr-4">
+                    <div className="space-y-1">
                       {unsolvedProblems.map((problem, index) => (
                         <Fragment key={problem.id || problem.title}>
                           <Link href={`/problems/${problem.category}/${problem.id || problem.title}`}>
-                            <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted">
-                              <p className="font-semibold truncate flex-1">{problem.title}</p>
+                            <div className="flex items-center justify-between p-3 rounded-xl hover:bg-muted/50 transition-colors">
+                              <p className="font-medium text-sm truncate flex-1">{problem.title}</p>
                               <div className="flex items-center gap-4 ml-4">
-                                <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                <Badge variant="outline" className="gap-1.5 w-20 justify-center h-7 text-[10px]">
                                   <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(problem.difficulty))} />
                                   {problem.difficulty}
                                 </Badge>
                               </div>
                             </div>
                           </Link>
-                          {index < unsolvedProblems.length - 1 && <Separator />}
+                          {index < unsolvedProblems.length - 1 && <Separator className="my-1 opacity-50" />}
                         </Fragment>
                       ))}
                     </div>

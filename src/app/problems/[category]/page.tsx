@@ -1,7 +1,7 @@
 'use client';
 
-import { useMemo, useState, useEffect } from 'react';
-import { useRouter, useParams, notFound } from 'next/navigation';
+import { useMemo, useState, useEffect, use } from 'react';
+import { useRouter, notFound } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
@@ -21,16 +21,15 @@ interface CategoryDoc {
     Questions: Partial<Question>[];
 }
 
-export default function CategoryPage() {
+export default function CategoryPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ category: string }>;
+}) {
+  const params = use(paramsPromise);
   const router = useRouter();
-  const paramsPromise = useParams() as any;
-  const [params, setParams] = useState<any>(null);
   const firestore = useFirestore();
   const { user } = useUser();
-
-  useEffect(() => {
-    paramsPromise.then(setParams);
-  }, [paramsPromise]);
 
   const categoryDocRef = useMemoFirebase(() => {
     if (!firestore || !params?.category) return null;
@@ -105,7 +104,7 @@ export default function CategoryPage() {
       </Sidebar>
       <SidebarInset>
         <main className="flex-1 bg-background min-h-screen">
-          <header className="px-4 py-8 sm:px-6 lg:px-8 flex items-start justify-between gap-4">
+          <header className="px-4 py-8 flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
               <Button variant="outline" size="icon" onClick={() => router.push('/problems')}>
                   <ArrowLeft className="h-4 w-4" />
@@ -125,15 +124,15 @@ export default function CategoryPage() {
           </header>
 
           <div className="pb-8">
-            <Card className="rounded-none border-x-0">
+            <Card className="rounded-none border-x-0 shadow-none bg-transparent">
                 <CardContent className="p-0">
                 <ScrollArea className="h-[calc(100vh-200px)]">
                     <Table>
                         <TableHeader>
                             <TableRow>
-                                <TableHead className="w-[80px] text-center">Status</TableHead>
-                                <TableHead>Title</TableHead>
-                                <TableHead className="w-[150px]">Difficulty</TableHead>
+                                <TableHead className="w-[80px] text-center border-b">Status</TableHead>
+                                <TableHead className="border-b">Title</TableHead>
+                                <TableHead className="w-[150px] border-b">Difficulty</TableHead>
                             </TableRow>
                         </TableHeader>
                         <TableBody>

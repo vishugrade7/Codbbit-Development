@@ -99,7 +99,6 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
     } catch (error: any) {
         const msg = error.message || '';
         if (msg.includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
-            // Attempt to recover the ID from the error message or a fresh query
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
             let recoveredId = idMatch ? idMatch[0] : null;
             
@@ -124,7 +123,6 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
 export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 'anonymous' | 'test class', testCode?: string, userId?: string, problem?: Partial<Question>) {
     try {
         if (type === 'anonymous') {
-            // Standard execution
             const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`, {
                 headers: {
                     'Sforce-Debug-Level': 'SFDC_DevConsole'
@@ -133,10 +131,10 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
             
             let logs = res.debugLog || "";
             
-            // If debug logs are missing, attempt to fetch the latest log for the user
             if (!logs && res.success) {
-                await sleep(1000);
-                const logQuery = `SELECT Id FROM ApexLog WHERE LogUserId = '${userId || ''}' ORDER BY StartTime DESC LIMIT 1`;
+                await sleep(1500);
+                // Search for the latest log globally without restricted user filters to ensure capture
+                const logQuery = `SELECT Id FROM ApexLog ORDER BY StartTime DESC LIMIT 1`;
                 const logList = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(logQuery)}`);
                 if (logList.records?.[0]) {
                     logs = await (await fetch(`${auth.instanceUrl}/services/data/v60.0/tooling/sobjects/ApexLog/${logList.records[0].Id}/Body`, { headers: { 'Authorization': `Bearer ${auth.accessToken}` } })).text();
@@ -247,7 +245,7 @@ export async function getLwcBundles(userId: string, authOverride?: SfdcAuth) {
         const auth = authOverride || userDoc.data()?.sfdcAuth;
         if (!auth) throw new Error('Salesforce not connected.');
         const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
-        const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
+        const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query/?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
@@ -258,7 +256,7 @@ export async function getLwcBundleFiles(bundleId: string, userId: string, authOv
         const auth = authOverride || userDoc.data()?.sfdcAuth;
         if (!auth) throw new Error('Salesforce not connected.');
         const query = `SELECT Id, FilePath, Source FROM LightningComponentResource WHERE LightningComponentBundleId='${bundleId}'`;
-        const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
+        const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query/?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
     } catch (e: any) { return { success: false, error: e.message }; }
 }

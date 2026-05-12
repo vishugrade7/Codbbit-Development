@@ -1,7 +1,7 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useEffect, useState, use } from 'react';
+import { useRouter } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc, getDoc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
@@ -24,8 +24,12 @@ import { syncSolutionToGithub } from '@/lib/actions';
 
 const DEFAULT_FONT_SIZE = 14;
 
-export default function ProblemSolvingPage() {
-  const params = useParams() as any;
+export default function ProblemSolvingPage({
+  params: paramsPromise,
+}: {
+  params: Promise<{ category: string; problemId: string }>;
+}) {
+  const params = use(paramsPromise);
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
