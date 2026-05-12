@@ -1,4 +1,3 @@
-
 export * from './AppSidebar';
 export * from './AuthForm';
 export * from './CodingPanel';
@@ -43,5 +42,4 @@ export * from './InteractiveSoqlQuery';
 export * from './ui/BlurText';
 export * from './CreateLwcForm';
 export * from './ui/spinner';
-
-    
+export * from './ui/loader';

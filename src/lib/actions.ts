@@ -6,12 +6,17 @@ import { Octokit } from 'octokit';
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
+/**
+ * Extracts the SObject name and type (Class or Trigger) from Apex code.
+ */
 const getSObjectName = (code: string): { name: string | undefined, type: 'ApexClass' | 'ApexTrigger' | undefined } => {
     if (!code) return { name: undefined, type: undefined };
-    const classMatch = code.match(/(?:class|interface|@isTest\s+class)\s+([a-zA-Z0-9_]+)/i);
+    const classMatch = code.match(/(?:class|interface)\s+([a-zA-Z0-9_]+)/i);
     if (classMatch && classMatch[1]) return { name: classMatch[1], type: 'ApexClass' };
+    
     const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on/i);
     if (triggerMatch && triggerMatch[1]) return { name: triggerMatch[1], type: 'ApexTrigger' };
+    
     return { name: undefined, type: undefined };
 }
 
@@ -35,11 +40,15 @@ export async function initiateSalesforceOAuth(userId: string, challenge: string)
 async function sfdcFetch(auth: SfdcAuth, path: string, options: RequestInit = {}) {
     const response = await fetch(`${auth.instanceUrl}${path}`, {
         ...options,
-        headers: { 'Authorization': `Bearer ${auth.accessToken}`, 'Content-Type': 'application/json', ...options.headers },
+        headers: { 
+            'Authorization': `Bearer ${auth.accessToken}`, 
+            'Content-Type': 'application/json', 
+            ...options.headers 
+        },
     });
     if (!response.ok) {
         const errorBody = await response.json().catch(() => ({ message: 'API Error' }));
-        const errorMessage = Array.isArray(errorBody) ? errorBody[0]?.message : errorBody.message;
+        const errorMessage = Array.isArray(errorBody) ? errorBody[0]?.message : (errorBody.message || errorBody.errorCode);
         throw new Error(errorMessage || 'Unknown Salesforce error');
     }
     return response.status === 204 ? null : response.json();
@@ -52,16 +61,26 @@ async function findMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigg
 }
 
 async function deleteMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', id: string) {
-    try { await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${id}`, { method: 'DELETE' }); } catch (e) {}
+    try { 
+        await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${id}`, { method: 'DELETE' }); 
+    } catch (e) {
+        console.warn(`Failed to delete existing ${type} ${id}:`, e);
+    }
 }
 
+/**
+ * Resiliently upserts Apex metadata, handling cross-type collisions and eventual consistency lag.
+ */
 async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
-    // Cross-type collision check
     const otherType = type === 'ApexClass' ? 'ApexTrigger' : 'ApexClass';
     const collision = await findMetadataRecord(auth, otherType, name);
-    if (collision) { await deleteMetadataRecord(auth, otherType, collision.Id); await sleep(1000); }
+    if (collision) { 
+        await deleteMetadataRecord(auth, otherType, collision.Id); 
+        await sleep(1500);
+    }
 
     let existing = await findMetadataRecord(auth, type, name);
+    
     try {
         if (existing) {
             await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${existing.Id}`, {
@@ -78,9 +97,16 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
         }
     } catch (error: any) {
         const msg = error.message || '';
-        if (msg.toLowerCase().includes('duplicate value found')) {
+        if (msg.toLowerCase().includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
-            const recoveredId = idMatch ? idMatch[0] : (await findMetadataRecord(auth, type, name))?.Id;
+            let recoveredId = idMatch ? idMatch[0] : null;
+            
+            if (!recoveredId) {
+                await sleep(2000);
+                const secondTry = await findMetadataRecord(auth, type, name);
+                recoveredId = secondTry?.Id;
+            }
+
             if (recoveredId) {
                 await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${recoveredId}`, {
                     method: 'PATCH',
@@ -102,7 +128,7 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
         if (type === 'test class' && testCode && problem) {
             const { name: solName, type: solType } = getSObjectName(code);
             const { name: testName } = getSObjectName(testCode);
-            if (!solName || !testName) throw new Error("Could not parse class names.");
+            if (!solName || !testName) throw new Error("Could not parse Apex names.");
             
             await nuclearUpsertMetadata(auth, solType!, solName, code, problem.object);
             await nuclearUpsertMetadata(auth, 'ApexClass', testName, testCode);
@@ -114,13 +140,13 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
             const asyncJobId = typeof runRes === 'string' ? runRes : runRes.id;
             
             let status = "Queued";
-            for (let i = 0; i < 30; i++) {
+            for (let i = 0; i < 45; i++) {
                 await sleep(2000);
                 const job = await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/AsyncApexJob/${asyncJobId}`);
                 status = job.Status;
                 if (["Completed", "Failed", "Aborted"].includes(status)) break;
             }
-            if (status !== "Completed") throw new Error(`Test timeout: ${status}`);
+            if (status !== "Completed") throw new Error(`Test run timed out. Status: ${status}`);
 
             const resultQuery = `SELECT Outcome, MethodName, Message, ApexLogId, RunTime FROM ApexTestResult WHERE AsyncApexJobId = '${asyncJobId}'`;
             const resultData = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(resultQuery)}`);
@@ -131,13 +157,15 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
             if (failedTest) return { success: false, logs, error: `❌ ${failedTest.MethodName}: ${failedTest.Message}` };
             return { success: true, logs, runtime: resultData.records.reduce((acc: number, r: any) => acc + (r.RunTime || 0), 0) };
         }
-    } catch (e: any) { return { success: false, logs: "", error: e.message }; }
-    return { success: false, logs: "", error: "Invalid request" };
+    } catch (e: any) { 
+        return { success: false, logs: "", error: e.message || "An unknown Salesforce API error occurred." }; 
+    }
+    return { success: false, logs: "", error: "Invalid execution request" };
 }
 
 export async function initiateGitHubOAuth(userId: string) {
     const clientId = process.env.GITHUB_CLIENT_ID;
-    if (!clientId) return { success: false, error: "GitHub Client ID not configured." };
+    if (!clientId) return { success: false, error: "GitHub Client ID not configured on server." };
     const url = new URL('https://github.com/login/oauth/authorize');
     url.searchParams.append('client_id', clientId);
     url.searchParams.append('redirect_uri', `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`);
@@ -150,19 +178,43 @@ export async function syncSolutionToGithub(userId: string, data: { title: string
     try {
         const userDoc = await firestore().collection('users').doc(userId).get();
         const profile = userDoc.data() as UserProfile;
-        if (!profile?.githubAuth?.accessToken) throw new Error("GitHub not connected.");
+        if (!profile?.githubAuth?.accessToken) throw new Error("GitHub account not connected.");
+        
         const octokit = new Octokit({ auth: profile.githubAuth.accessToken });
         const repo = 'Codbbit-Solutions';
         const owner = profile.githubAuth.username;
-        try { await octokit.rest.repos.get({ owner, repo }); }
-        catch (e) { await octokit.rest.repos.createForAuthenticatedUser({ name: repo, description: 'Apex solutions from Codbbit.com', private: true }); }
+        
+        try { 
+            await octokit.rest.repos.get({ owner, repo }); 
+        } catch (e) { 
+            await octokit.rest.repos.createForAuthenticatedUser({ 
+                name: repo, 
+                description: 'Apex coding solutions from Codbbit.com', 
+                private: true 
+            }); 
+        }
+        
         const path = `${data.category.replace(/\s+/g, '-')}/${data.title.replace(/\s+/g, '-')}.cls`;
         const content = Buffer.from(data.code).toString('base64');
         let sha: string | undefined;
-        try { const { data: file } = await octokit.rest.repos.getContent({ owner, repo, path }); if (!Array.isArray(file)) sha = file.sha; } catch (e) {}
-        await octokit.rest.repos.createOrUpdateFileContents({ owner, repo, path, message: `Solution for ${data.title}`, content, sha });
+        
+        try { 
+            const { data: file } = await octokit.rest.repos.getContent({ owner, repo, path }); 
+            if (!Array.isArray(file)) sha = file.sha; 
+        } catch (e) {}
+        
+        await octokit.rest.repos.createOrUpdateFileContents({ 
+            owner, 
+            repo, 
+            path, 
+            message: `Save solution for ${data.title}`, 
+            content, 
+            sha 
+        });
         return { success: true };
-    } catch (e: any) { return { success: false, error: e.message }; }
+    } catch (e: any) { 
+        return { success: false, error: e.message || "Failed to sync solution to GitHub." }; 
+    }
 }
 
 export async function getLwcBundles(userId: string, authOverride?: SfdcAuth) {
