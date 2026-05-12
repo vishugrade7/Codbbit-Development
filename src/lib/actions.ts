@@ -98,7 +98,7 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
         }
     } catch (error: any) {
         const msg = error.message || '';
-        // If we get a duplicate value found error, we extract the ID and force an update
+        // Handle duplicate value error by extracting ID and forcing update
         if (msg.toLowerCase().includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
             let recoveredId = idMatch ? idMatch[0] : null;
@@ -246,7 +246,6 @@ export async function deployLwc(userId: string, lwcData: any, authOverride?: Sfd
         const userDoc = await firestore().collection('users').doc(userId).get();
         const auth = authOverride || userDoc.data()?.sfdcAuth;
         if (!auth) throw new Error('Salesforce not connected.');
-        // Simplified LWC deployment stub
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
 }

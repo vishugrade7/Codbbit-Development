@@ -9,7 +9,7 @@ if (!getApps().length) {
 
 /**
  * Genkit instance initialized with the Google AI plugin.
- * Telemetry and other complex plugins are omitted to ensure build stability in Next.js.
+ * Removed googleCloud() plugin to avoid OpenTelemetry build errors in Next.js 15.
  */
 export const ai = genkit({
   plugins: [googleAI()],
