@@ -1,11 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
-import { useParams, notFound, useRouter } from 'next/navigation';
-import { useDoc, useFirestore, useMemoFirebase, useUser, useCollection } from '@/firebase';
-import { doc, getDoc, collection } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
+import { useParams, useRouter } from 'next/navigation';
+import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
-import { ArrowLeft, CheckCircle, XCircle, ChevronRight, List, Search, Filter } from 'lucide-react';
+import { ArrowLeft, CheckCircle, XCircle, ChevronRight, List, Github, Loader2 } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, Confetti, SidebarInset } from '@/components';
 import { QuestionPanel } from '@/components/QuestionPanel';
 import { CodingPanel } from '@/components/CodingPanel';
@@ -14,60 +14,31 @@ import {
   ResizablePanel,
   ResizableHandle,
 } from "@/components/ui/resizable";
-import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetDescription,
-  SheetTrigger,
-} from "@/components/ui/sheet";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
 import { Button } from '@/components/ui/button';
 import { useToast } from '@/hooks/use-toast';
 import Link from 'next/link';
-import { Input } from '@/components/ui/input';
-import { cn } from '@/lib/utils';
 import { HeaderBar } from '@/components/HeaderBar';
-import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { ScrollArea } from '@/components/ui/scroll-area';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { useTheme } from '@/components';
-import { Badge } from '@/components/ui/badge';
 import { Spinner } from '@/components/ui/spinner';
 import { syncSolutionToGithub } from '@/lib/actions';
 
 const DEFAULT_FONT_SIZE = 14;
 
 export default function ProblemSolvingPage() {
-  const params = useParams();
+  const params = useParams() as any;
   const router = useRouter();
   const firestore = useFirestore();
   const { user } = useUser();
   const { toast } = useToast();
-  const { theme } = useTheme();
   
-  const categoryUrlParam = params.category as string;
-  const problemId = params.problemId as string;
   const [problem, setProblem] = useState<Question | null>(null);
-  
   const [isLoading, setIsLoading] = useState(true);
   const [code, setCode] = useState('');
   const [showConfetti, setShowConfetti] = useState(false);
   const [isQuestionPanelVisible, setIsQuestionPanelVisible] = useState(true);
 
   const [fontSize, setFontSize] = useState(DEFAULT_FONT_SIZE);
-  const [editorTheme, setEditorTheme] = useState(theme === 'dark' ? 'vs-dark' : 'light');
+  const [editorTheme, setEditorTheme] = useState('vs-dark');
   
   const [isSyncing, setIsSyncing] = useState(false);
   const [syncStatus, setSyncStatus] = useState<string[]>([]);
@@ -84,41 +55,33 @@ export default function ProblemSolvingPage() {
   const { data: userProfile } = useDoc<UserProfile>(userDocRef);
 
   useEffect(() => {
-    if (!firestore || !categoryUrlParam || !problemId) return;
+    if (!firestore || !params.category || !params.problemId) return;
 
     const fetchProblem = async () => {
       setIsLoading(true);
       try {
-        const categoryDocRef = doc(firestore, 'problems', categoryUrlParam);
+        const categoryDocRef = doc(firestore, 'problems', decodeURIComponent(params.category));
         const categorySnap = await getDoc(categoryDocRef);
 
         if (categorySnap.exists()) {
           const categoryData = categorySnap.data();
-          const foundProblem = (categoryData.Questions || []).find((q: any) => (q.id || q.title) === problemId);
+          const foundProblem = (categoryData.Questions || []).find((q: any) => (q.id || q.title) === params.problemId);
 
           if (foundProblem) {
             setProblem(foundProblem);
             const savedCode = localStorage.getItem(`codbbit-code-${foundProblem.id || foundProblem.title}`);
             setCode(savedCode || foundProblem.starterCode || '');
-          } else {
-            setProblem(null);
           }
         }
       } catch (error) {
-        setProblem(null);
+        console.error(error);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchProblem();
-  }, [firestore, categoryUrlParam, problemId]);
-
-  useEffect(() => {
-    if (problem && code) {
-      localStorage.setItem(`codbbit-code-${problem.id || problem.title}`, code);
-    }
-  }, [code, problem]);
+  }, [firestore, params.category, params.problemId]);
 
   const handleTestPass = () => {
     setShowConfetti(true);

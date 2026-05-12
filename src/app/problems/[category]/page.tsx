@@ -1,14 +1,13 @@
-
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useMemo, useState, useEffect } from 'react';
 import { useRouter, useParams, notFound } from 'next/navigation';
 import { useDoc, useFirestore, useMemoFirebase, useUser } from '@/firebase';
 import { doc } from 'firebase/firestore';
 import type { Question, UserProfile } from '@/lib/types';
 import { ArrowLeft, CheckCircle, Circle } from 'lucide-react';
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset, Spinner } from '@/components';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import Link from 'next/link';
@@ -24,16 +23,15 @@ interface CategoryDoc {
 
 export default function CategoryPage() {
   const router = useRouter();
-  const params = useParams();
+  const params = useParams() as any;
   const firestore = useFirestore();
   const { user } = useUser();
-  const categoryUrlParam = params.category as string;
 
   const categoryDocRef = useMemoFirebase(() => {
-    if (!firestore || !categoryUrlParam) return null;
-    const categoryName = decodeURIComponent(categoryUrlParam);
+    if (!firestore || !params.category) return null;
+    const categoryName = decodeURIComponent(params.category);
     return doc(firestore, 'problems', categoryName);
-  }, [firestore, categoryUrlParam]);
+  }, [firestore, params.category]);
 
   const { data: categoryDoc, isLoading } = useDoc<CategoryDoc>(categoryDocRef);
   
@@ -109,15 +107,15 @@ export default function CategoryPage() {
                 </Button>
               <div>
                 <h1 className="text-3xl font-bold font-headline tracking-tight">
-                  {decodeURIComponent(categoryUrlParam)}
+                  {decodeURIComponent(params.category)}
                 </h1>
                 <p className="text-muted-foreground mt-1">
-                  A list of problems in the {decodeURIComponent(categoryUrlParam)} category.
+                  A list of problems in the {decodeURIComponent(params.category)} category.
                 </p>
               </div>
             </div>
             <div className="w-full max-w-sm">
-              <ProblemFilter onFilterChange={setFilters} categories={[]} />
+              <ProblemFilter onFilterChange={setFilters} />
             </div>
           </header>
 
@@ -145,7 +143,7 @@ export default function CategoryPage() {
                                         )}
                                     </TableCell>
                                     <TableCell className="py-2">
-                                        <Link href={`/problems/${categoryUrlParam}/${question.id || question.title}`} className="font-medium hover:underline">
+                                        <Link href={`/problems/${params.category}/${question.id || question.title}`} className="font-medium hover:underline">
                                             {question.title}
                                         </Link>
                                     </TableCell>

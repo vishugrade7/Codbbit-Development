@@ -6,11 +6,6 @@ import { CodeBlock } from '@/components/CodeBlock';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Alert, AlertTitle, AlertDescription } from '@/components/ui/alert';
 
-const accountData = [
-  { Name: 'Acme Corp', Contacts: 5 },
-  { Name: 'Global Media', Contacts: 8 },
-];
-
 export default function HavingPage() {
   return (
     <>
@@ -41,7 +36,7 @@ export default function HavingPage() {
             <CardContent>
                 <CodeBlock 
                   language="sql" 
-                  code={`SELECT AccountId, COUNT(Id) FROM Contact GROUP BY AccountId <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1">HAVING</span> COUNT(Id) > 3`}
+                  code={`SELECT AccountId, COUNT(Id) FROM Contact GROUP BY AccountId <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">HAVING</span> COUNT(Id) > 3`}
                   tooltipContent="The HAVING clause filters the results of aggregate functions."
                 />
                 <h4 className="font-semibold my-4">How it works:</h4>
@@ -61,7 +56,7 @@ export default function HavingPage() {
             <CardContent>
                 <CodeBlock 
                   language="sql" 
-                  code={`SELECT StageName, SUM(Amount) FROM Opportunity GROUP BY StageName <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-2 py-1">HAVING</span> SUM(Amount) > 1000000`}
+                  code={`SELECT StageName, SUM(Amount) FROM Opportunity GROUP BY StageName <span class="bg-blue-500/20 text-blue-800 dark:text-blue-300 rounded px-1">HAVING</span> SUM(Amount) > 1000000`}
                   tooltipContent="HAVING is used to filter on the result of an aggregate function like SUM(), COUNT(), etc."
                 />
             </CardContent>

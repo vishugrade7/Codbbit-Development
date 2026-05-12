@@ -1,14 +1,12 @@
-
 'use client';
 
 import { AppSidebar, Sidebar, SidebarProvider, SheetDisplayPage, SidebarInset } from '@/components';
 import React from 'react';
 import { useParams } from 'next/navigation';
 
-
 export default function SheetDetailPage() {
-  const params = useParams();
-  const sheetId = params.sheetId as string;
+  const params = useParams() as any;
+  const sheetId = params.sheetId;
 
   return (
     <SidebarProvider>
