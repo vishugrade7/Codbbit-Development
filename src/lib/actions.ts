@@ -98,8 +98,8 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
         }
     } catch (error: any) {
         const msg = error.message || '';
-        // Handle duplicate value error by extracting ID and forcing update
-        if (msg.toLowerCase().includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
+        // If it's a duplicate but we didn't find it originally, try one more time to recover the ID
+        if (msg.includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
             let recoveredId = idMatch ? idMatch[0] : null;
             

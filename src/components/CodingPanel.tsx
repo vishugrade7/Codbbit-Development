@@ -274,7 +274,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   ];
 
   return (
-    <div className="h-full w-full flex flex-col">
+    <div className="h-full w-full flex flex-col min-h-0">
        <Dialog open={showAuthDialog} onOpenChange={setShowAuthDialog}>
             <DialogContent>
               <DialogHeader>
@@ -294,7 +294,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
           </Dialog>
         <ResizablePanelGroup 
             direction="vertical" 
-            className="flex-grow"
+            className="flex-grow min-h-0"
             ref={panelGroupRef}
             onLayout={(sizes) => setResultsPanelSize(sizes[1])}
         >
@@ -359,7 +359,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 </div>
             </ResizablePanel>
         </ResizablePanelGroup>
-        <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2">
+        <div className="flex-shrink-0 flex items-center justify-end p-2 border-t gap-2 bg-background z-10">
             {userProfile?.isPremium && priceConfig?.isPaymentsEnabled !== false ? (
                  <Sheet open={isAiSheetOpen} onOpenChange={setIsAiSheetOpen}>
                     <SheetTrigger asChild>

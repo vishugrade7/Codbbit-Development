@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useDoc, useFirestore, useMemoFirebase, useUser } from "@/firebase";
@@ -6,8 +5,8 @@ import { cn } from "@/lib/utils";
 import { doc } from "firebase/firestore";
 import { Check, Cloud, Code, GitBranch, Sparkles, X, Package, Bug } from "lucide-react";
 import { AnonymousCodeRunner } from "./AnonymousCodeRunner";
-import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "./ui/dialog";
-import { Tooltip, TooltipProvider, TooltipTrigger } from "./ui/tooltip";
+import { Dialog, DialogContent, DialogTrigger, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Tooltip, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { TooltipContent } from "@radix-ui/react-tooltip";
 import type { UserProfile } from "@/lib/types";
 import { useState, useEffect } from "react";
@@ -129,5 +128,3 @@ export function BottomBar() {
     </footer>
   );
 }
-
-    
