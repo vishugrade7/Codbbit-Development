@@ -74,7 +74,6 @@ export function HeaderBar({
       .replace(/\//g, '_')
       .replace(/=/g, '');
     
-    // Fixed initiateSalesforceOAuth call to include the challenge as the second argument
     const result = await initiateSalesforceOAuth(user.uid, challenge);
     if (result.success && result.url) window.location.href = result.url;
     else toast({ title: "Error", description: result.error || "OAuth failed.", variant: "destructive" });

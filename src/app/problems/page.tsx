@@ -77,7 +77,7 @@ export default function PracticeProblemsPage() {
       </Sidebar>
       <SidebarInset>
         <main className="flex-1 bg-background min-h-screen">
-          <header className="px-4 py-8 sm:px-6 lg:px-8 text-center mb-8">
+          <header className="py-8 text-center mb-8">
             <h1 className="text-4xl font-bold font-headline tracking-tight text-foreground">
               Practice Problems
             </h1>
@@ -86,7 +86,7 @@ export default function PracticeProblemsPage() {
             </p>
           </header>
 
-          <div className="px-4 pb-8 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="pb-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {categories.map((category, index) => (
               <CategoryCard key={category.name} category={category} index={index} />
             ))}

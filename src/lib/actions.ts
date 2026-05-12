@@ -98,7 +98,6 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
         }
     } catch (error: any) {
         const msg = error.message || '';
-        // If it's a duplicate but we didn't find it originally, try one more time to recover the ID
         if (msg.includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
             const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
             let recoveredId = idMatch ? idMatch[0] : null;
@@ -124,10 +123,16 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
 export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 'anonymous' | 'test class', testCode?: string, userId?: string, problem?: Partial<Question>) {
     try {
         if (type === 'anonymous') {
-            const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`);
-            // The tooling API returns debugLog in the response if Sforce-Debug-Level header or active TraceFlag exists.
-            // If empty, we indicate success but no logs.
-            return { success: res.compiled && res.success, logs: res.debugLog || "", error: res.compileProblem || res.exceptionMessage || "" };
+            const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`, {
+                headers: {
+                    'Sforce-Debug-Level': 'SFDC_DevConsole'
+                }
+            });
+            return { 
+                success: res.compiled && res.success, 
+                logs: res.debugLog || "", 
+                error: res.compileProblem || res.exceptionMessage || "" 
+            };
         }
         if (type === 'test class' && testCode && problem) {
             const { name: solName, type: solType } = getSObjectName(code);
