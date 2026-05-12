@@ -1,3 +1,4 @@
+
 'use client';
 
 import { BarChart, Lightbulb } from 'lucide-react';
@@ -48,7 +49,7 @@ export default function HavingPage() {
                 <ol className="list-decimal list-inside space-y-2 text-muted-foreground">
                     <li><code>GROUP BY AccountId</code> first groups all contacts by their parent account.</li>
                     <li><code>COUNT(Id)</code> then counts how many contacts are in each group.</li>
-                    <li><code>HAVING COUNT(Id) > 3</code> filters these groups, returning only those with a count greater than 3.</li>
+                    <li><code>HAVING COUNT(Id) {'>'} 3</code> filters these groups, returning only those with a count greater than 3.</li>
                 </ol>
             </CardContent>
         </Card>

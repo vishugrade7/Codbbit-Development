@@ -48,6 +48,7 @@ export function AnonymousCodeRunner() {
     const { data: userProfile } = useDoc<UserProfile>(userDocRef);
     
     const handleAuthWithSalesforce = async () => {
+        if (!user) return;
         // 1. Generate code verifier
         const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
         sessionStorage.setItem('salesforce_code_verifier', verifier);
@@ -62,7 +63,7 @@ export function AnonymousCodeRunner() {
         .replace(/=/g, '');
         
         // 3. Call server action with the challenge
-        const result = await initiateSalesforceOAuth(challenge);
+        const result = await initiateSalesforceOAuth(user.uid, challenge);
         if (result.success && result.url) {
             window.location.href = result.url;
         } else {
@@ -102,7 +103,7 @@ export function AnonymousCodeRunner() {
                     variant: "destructive",
                 });
             }
-            setOutput(result);
+            setOutput(result as any);
         });
     }
     
@@ -194,5 +195,3 @@ export function AnonymousCodeRunner() {
         </>
     )
 }
-
-    

@@ -12,7 +12,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import { Settings, User, KeyRound, Share2, Briefcase, Mail, CreditCard, Trash2, Link as LinkIcon, Star, Github, ShieldCheck } from 'lucide-react';
-import { Spinner } from '../ui/spinner';
+import { Loader } from '../ui/loader';
 
 const getInitials = (name: string | null | undefined) => {
   if (!name) return 'U';
@@ -138,9 +138,7 @@ export function SettingsLayout({ children }: { children: ReactNode }) {
         <main className="md:col-span-3">
             <div className="space-y-8">
              {isLoading ? (
-                <div className="flex min-h-[400px] flex-col items-center justify-center">
-                  <Spinner />
-                </div>
+                <Loader />
              ) : children }
             </div>
         </main>

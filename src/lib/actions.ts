@@ -1,3 +1,4 @@
+
 'use server';
 
 import { firestore } from '@/firebase/server-init';
@@ -76,7 +77,6 @@ async function deleteMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTri
 }
 
 async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
-    // Cross-type collision cleanup
     const otherType = type === 'ApexClass' ? 'ApexTrigger' : 'ApexClass';
     const collision = await findMetadataRecord(auth, otherType, name);
     if (collision) {
@@ -101,8 +101,9 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
             return res.id;
         }
     } catch (error: any) {
-        if (error.message.includes('DUPLICATE_VALUE')) {
-            const idMatch = error.message.match(/01[pq][a-zA-Z0-9]{12,15}/);
+        const errorMessage = error.message || '';
+        if (errorMessage.includes('duplicate value found') || errorMessage.includes('DUPLICATE_VALUE')) {
+            const idMatch = errorMessage.match(/01[pq][a-zA-Z0-9]{12,15}/);
             const recoveredId = idMatch ? idMatch[0] : null;
             if (recoveredId) {
                 await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${recoveredId}`, {
@@ -148,6 +149,8 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
             });
 
             const asyncJobId = typeof runRes === 'string' ? runRes : runRes.id;
+            if (!asyncJobId) throw new Error("Failed to start test job.");
+
             let status = "Queued";
             for (let i = 0; i < 30; i++) {
                 await sleep(2000);
@@ -177,9 +180,9 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
 
 export async function syncSolutionToGithub(userId: string, data: { title: string, category: string, code: string }) {
     try {
-        const userDoc = await firestore.collection('users').doc(userId).get();
+        const userDoc = await firestore().collection('users').doc(userId).get();
         const profile = userDoc.data() as UserProfile;
-        if (!profile.githubAuth?.accessToken) throw new Error("GitHub not connected.");
+        if (!profile?.githubAuth?.accessToken) throw new Error("GitHub not connected.");
 
         const octokit = new Octokit({ auth: profile.githubAuth.accessToken });
         const repo = 'Codbbit-Solutions';
@@ -198,6 +201,19 @@ export async function syncSolutionToGithub(userId: string, data: { title: string
         await octokit.rest.repos.createOrUpdateFileContents({ owner, repo, path, message: `Solution for ${data.title}`, content, sha });
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
+}
+
+export async function initiateGitHubOAuth(userId: string) {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    if (!clientId) return { success: false, error: "GitHub Client ID not configured." };
+    
+    const url = new URL('https://github.com/login/oauth/authorize');
+    url.searchParams.append('client_id', clientId);
+    url.searchParams.append('redirect_uri', `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`);
+    url.searchParams.append('scope', 'repo user');
+    url.searchParams.append('state', userId);
+    
+    return { success: true, url: url.toString() };
 }
 
 export async function getLwcBundles(userId: string, authOverride?: SfdcAuth) {
@@ -221,17 +237,19 @@ export async function getLwcBundleFiles(bundleId: string, userId: string, authOv
 export async function deployLwc(userId: string, lwcData: any, authOverride?: SfdcAuth) {
     try {
         const auth = authOverride || await getSfdcConnection(userId);
-        // Implementation for LWC deployment via Tooling API Metadata objects
+        // Placeholder for real LWC deployment logic
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
-async function getSfdcConnection(userId: string): Promise<SfdcAuth> {
-    const doc = await firestore.collection('users').doc(userId).get();
-    const data = doc.data() as UserProfile;
+async function getSConnection(userId: string): Promise<SfdcAuth> {
+    const userDoc = await firestore().collection('users').doc(userId).get();
+    const data = userDoc.data() as UserProfile;
     if (!data?.sfdcAuth) throw new Error('Salesforce credentials missing.');
     return data.sfdcAuth;
 }
+// Alias for internal use
+const getSfdcConnection = getSConnection;
 
 export async function deleteSalesforceMetadata(auth: SfdcAuth, solCode: string, testCode: string) {
     const { name: solName, type: solType } = getSObjectName(solCode);
