@@ -1,4 +1,3 @@
-
 'use server';
 
 import { firestore } from '@/firebase/server-init';
@@ -9,27 +8,17 @@ const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 const getSObjectName = (code: string): { name: string | undefined, type: 'ApexClass' | 'ApexTrigger' | undefined } => {
     if (!code) return { name: undefined, type: undefined };
-    
-    const classMatch = code.match(/(?:class|interface)\s+([a-zA-Z0-9_]+)/i);
-    if (classMatch && classMatch[1]) {
-        return { name: classMatch[1], type: 'ApexClass' };
-    }
-    
+    const classMatch = code.match(/(?:class|interface|@isTest\s+class)\s+([a-zA-Z0-9_]+)/i);
+    if (classMatch && classMatch[1]) return { name: classMatch[1], type: 'ApexClass' };
     const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on/i);
-    if (triggerMatch && triggerMatch[1]) {
-        return { name: triggerMatch[1], type: 'ApexTrigger' };
-    }
-    
+    if (triggerMatch && triggerMatch[1]) return { name: triggerMatch[1], type: 'ApexTrigger' };
     return { name: undefined, type: undefined };
 }
 
 export async function initiateSalesforceOAuth(userId: string, challenge: string) {
   const consumerKey = process.env.SALESFORCE_CONSUMER_KEY;
   const callbackUrl = process.env.NEXT_PUBLIC_SALESFORCE_CALLBACK_URL;
-
-  if (!consumerKey || !callbackUrl) {
-    return { success: false, error: "Salesforce environment variables are not set up." };
-  }
+  if (!consumerKey || !callbackUrl) return { success: false, error: "Salesforce environment variables missing." };
   
   const oauthUrl = new URL('https://login.salesforce.com/services/oauth2/authorize');
   oauthUrl.searchParams.append('response_type', 'code');
@@ -40,28 +29,20 @@ export async function initiateSalesforceOAuth(userId: string, challenge: string)
   oauthUrl.searchParams.append('code_challenge_method', 'S256');
   oauthUrl.searchParams.append('prompt', 'login');
   oauthUrl.searchParams.append('state', `${userId}|${challenge}`);
-
   return { success: true, url: oauthUrl.toString() };
 }
 
 async function sfdcFetch(auth: SfdcAuth, path: string, options: RequestInit = {}) {
-    const endpoint = `${auth.instanceUrl}${path}`;
-    const response = await fetch(endpoint, {
+    const response = await fetch(`${auth.instanceUrl}${path}`, {
         ...options,
-        headers: {
-            'Authorization': `Bearer ${auth.accessToken}`,
-            'Content-Type': 'application/json',
-            ...options.headers,
-        },
+        headers: { 'Authorization': `Bearer ${auth.accessToken}`, 'Content-Type': 'application/json', ...options.headers },
     });
     if (!response.ok) {
         const errorBody = await response.json().catch(() => ({ message: 'API Error' }));
         const errorMessage = Array.isArray(errorBody) ? errorBody[0]?.message : errorBody.message;
         throw new Error(errorMessage || 'Unknown Salesforce error');
     }
-    if (response.status === 204) return null;
-    const contentType = response.headers.get('content-type');
-    return contentType?.includes('application/json') ? response.json() : response.text();
+    return response.status === 204 ? null : response.json();
 }
 
 async function findMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string) {
@@ -71,21 +52,16 @@ async function findMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigg
 }
 
 async function deleteMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', id: string) {
-    try {
-        await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${id}`, { method: 'DELETE' });
-    } catch (e) {}
+    try { await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${id}`, { method: 'DELETE' }); } catch (e) {}
 }
 
 async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
+    // Cross-type collision check
     const otherType = type === 'ApexClass' ? 'ApexTrigger' : 'ApexClass';
     const collision = await findMetadataRecord(auth, otherType, name);
-    if (collision) {
-        await deleteMetadataRecord(auth, otherType, collision.Id);
-        await sleep(1500);
-    }
+    if (collision) { await deleteMetadataRecord(auth, otherType, collision.Id); await sleep(1000); }
 
     let existing = await findMetadataRecord(auth, type, name);
-    
     try {
         if (existing) {
             await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${existing.Id}`, {
@@ -101,25 +77,16 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
             return res.id;
         }
     } catch (error: any) {
-        const errorMessage = error.message || '';
-        if (errorMessage.includes('duplicate value found') || errorMessage.includes('DUPLICATE_VALUE')) {
-            const idMatch = errorMessage.match(/01[pq][a-zA-Z0-9]{12,15}/);
-            const recoveredId = idMatch ? idMatch[0] : null;
+        const msg = error.message || '';
+        if (msg.toLowerCase().includes('duplicate value found')) {
+            const idMatch = msg.match(/01[pq][a-zA-Z0-9]{12,15}/);
+            const recoveredId = idMatch ? idMatch[0] : (await findMetadataRecord(auth, type, name))?.Id;
             if (recoveredId) {
                 await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${recoveredId}`, {
                     method: 'PATCH',
                     body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
                 });
                 return recoveredId;
-            }
-            await sleep(2000);
-            const retry = await findMetadataRecord(auth, type, name);
-            if (retry) {
-                await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${retry.Id}`, {
-                    method: 'PATCH',
-                    body: JSON.stringify(type === 'ApexClass' ? { Body: body } : { Body: body, TableEnumOrId: objectName }),
-                });
-                return retry.Id;
             }
         }
         throw error;
@@ -132,14 +99,11 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
             const res = await sfdcFetch(auth, `/services/data/v60.0/tooling/executeAnonymous/?anonymousBody=${encodeURIComponent(code)}`);
             return { success: res.compiled && res.success, logs: res.debugLog || "Executed", error: res.compileProblem || res.exceptionMessage || "" };
         }
-
         if (type === 'test class' && testCode && problem) {
             const { name: solName, type: solType } = getSObjectName(code);
             const { name: testName } = getSObjectName(testCode);
-
-            if (!solName || !testName) throw new Error("Could not parse class/trigger names.");
-            if (solName === testName) throw new Error("Solution and Test names must be unique.");
-
+            if (!solName || !testName) throw new Error("Could not parse class names.");
+            
             await nuclearUpsertMetadata(auth, solType!, solName, code, problem.object);
             await nuclearUpsertMetadata(auth, 'ApexClass', testName, testCode);
 
@@ -147,10 +111,8 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
                 method: "POST",
                 body: JSON.stringify({ classNames: testName }),
             });
-
             const asyncJobId = typeof runRes === 'string' ? runRes : runRes.id;
-            if (!asyncJobId) throw new Error("Failed to start test job.");
-
+            
             let status = "Queued";
             for (let i = 0; i < 30; i++) {
                 await sleep(2000);
@@ -158,24 +120,30 @@ export async function executeSalesforceCode(auth: SfdcAuth, code: string, type: 
                 status = job.Status;
                 if (["Completed", "Failed", "Aborted"].includes(status)) break;
             }
-
             if (status !== "Completed") throw new Error(`Test timeout: ${status}`);
 
             const resultQuery = `SELECT Outcome, MethodName, Message, ApexLogId, RunTime FROM ApexTestResult WHERE AsyncApexJobId = '${asyncJobId}'`;
             const resultData = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(resultQuery)}`);
-
             const failedTest = resultData.records.find((r: any) => r.Outcome !== "Pass");
             const logId = resultData.records[0]?.ApexLogId;
-            const runtime = resultData.records.reduce((acc: number, r: any) => acc + (r.RunTime || 0), 0);
-            const logs = logId ? await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/ApexLog/${logId}/Body`) : "Logs not found.";
+            const logs = logId ? (await (await fetch(`${auth.instanceUrl}/services/data/v60.0/tooling/sobjects/ApexLog/${logId}/Body`, { headers: { 'Authorization': `Bearer ${auth.accessToken}` } })).text()) : "";
 
             if (failedTest) return { success: false, logs, error: `❌ ${failedTest.MethodName}: ${failedTest.Message}` };
-            return { success: true, logs, runtime };
+            return { success: true, logs, runtime: resultData.records.reduce((acc: number, r: any) => acc + (r.RunTime || 0), 0) };
         }
-    } catch (e: any) {
-        return { success: false, logs: "", error: e.message };
-    }
+    } catch (e: any) { return { success: false, logs: "", error: e.message }; }
     return { success: false, logs: "", error: "Invalid request" };
+}
+
+export async function initiateGitHubOAuth(userId: string) {
+    const clientId = process.env.GITHUB_CLIENT_ID;
+    if (!clientId) return { success: false, error: "GitHub Client ID not configured." };
+    const url = new URL('https://github.com/login/oauth/authorize');
+    url.searchParams.append('client_id', clientId);
+    url.searchParams.append('redirect_uri', `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`);
+    url.searchParams.append('scope', 'repo user');
+    url.searchParams.append('state', userId);
+    return { success: true, url: url.toString() };
 }
 
 export async function syncSolutionToGithub(userId: string, data: { title: string, category: string, code: string }) {
@@ -183,42 +151,25 @@ export async function syncSolutionToGithub(userId: string, data: { title: string
         const userDoc = await firestore().collection('users').doc(userId).get();
         const profile = userDoc.data() as UserProfile;
         if (!profile?.githubAuth?.accessToken) throw new Error("GitHub not connected.");
-
         const octokit = new Octokit({ auth: profile.githubAuth.accessToken });
         const repo = 'Codbbit-Solutions';
         const owner = profile.githubAuth.username;
-
         try { await octokit.rest.repos.get({ owner, repo }); }
         catch (e) { await octokit.rest.repos.createForAuthenticatedUser({ name: repo, description: 'Apex solutions from Codbbit.com', private: true }); }
-
         const path = `${data.category.replace(/\s+/g, '-')}/${data.title.replace(/\s+/g, '-')}.cls`;
         const content = Buffer.from(data.code).toString('base64');
-
         let sha: string | undefined;
-        try { const { data: file } = await octokit.rest.repos.getContent({ owner, repo, path }); if (!Array.isArray(file)) sha = file.sha; }
-        catch (e) {}
-
+        try { const { data: file } = await octokit.rest.repos.getContent({ owner, repo, path }); if (!Array.isArray(file)) sha = file.sha; } catch (e) {}
         await octokit.rest.repos.createOrUpdateFileContents({ owner, repo, path, message: `Solution for ${data.title}`, content, sha });
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
 
-export async function initiateGitHubOAuth(userId: string) {
-    const clientId = process.env.GITHUB_CLIENT_ID;
-    if (!clientId) return { success: false, error: "GitHub Client ID not configured." };
-    
-    const url = new URL('https://github.com/login/oauth/authorize');
-    url.searchParams.append('client_id', clientId);
-    url.searchParams.append('redirect_uri', `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/github/callback`);
-    url.searchParams.append('scope', 'repo user');
-    url.searchParams.append('state', userId);
-    
-    return { success: true, url: url.toString() };
-}
-
 export async function getLwcBundles(userId: string, authOverride?: SfdcAuth) {
     try {
-        const auth = authOverride || await getSfdcConnection(userId);
+        const userDoc = await firestore().collection('users').doc(userId).get();
+        const auth = authOverride || userDoc.data()?.sfdcAuth;
+        if (!auth) throw new Error('Salesforce not connected.');
         const query = "SELECT Id, DeveloperName, LastModifiedDate FROM LightningComponentBundle ORDER BY LastModifiedDate DESC";
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
@@ -227,7 +178,9 @@ export async function getLwcBundles(userId: string, authOverride?: SfdcAuth) {
 
 export async function getLwcBundleFiles(bundleId: string, userId: string, authOverride?: SfdcAuth) {
     try {
-        const auth = authOverride || await getSfdcConnection(userId);
+        const userDoc = await firestore().collection('users').doc(userId).get();
+        const auth = authOverride || userDoc.data()?.sfdcAuth;
+        if (!auth) throw new Error('Salesforce not connected.');
         const query = `SELECT Id, FilePath, Source FROM LightningComponentResource WHERE LightningComponentBundleId='${bundleId}'`;
         const result = await sfdcFetch(auth, `/services/data/v60.0/tooling/query?q=${encodeURIComponent(query)}`);
         return { success: true, data: result.records };
@@ -236,20 +189,12 @@ export async function getLwcBundleFiles(bundleId: string, userId: string, authOv
 
 export async function deployLwc(userId: string, lwcData: any, authOverride?: SfdcAuth) {
     try {
-        const auth = authOverride || await getSfdcConnection(userId);
-        // Placeholder for real LWC deployment logic
+        const userDoc = await firestore().collection('users').doc(userId).get();
+        const auth = authOverride || userDoc.data()?.sfdcAuth;
+        if (!auth) throw new Error('Salesforce not connected.');
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
-
-async function getSConnection(userId: string): Promise<SfdcAuth> {
-    const userDoc = await firestore().collection('users').doc(userId).get();
-    const data = userDoc.data() as UserProfile;
-    if (!data?.sfdcAuth) throw new Error('Salesforce credentials missing.');
-    return data.sfdcAuth;
-}
-// Alias for internal use
-const getSfdcConnection = getSConnection;
 
 export async function deleteSalesforceMetadata(auth: SfdcAuth, solCode: string, testCode: string) {
     const { name: solName, type: solType } = getSObjectName(solCode);

@@ -1,5 +1,3 @@
-
-
 "use client";
 
 import { useState, useEffect, useTransition, useRef } from "react";
@@ -24,6 +22,7 @@ import {
   SheetDescription,
   SheetHeader,
   SheetTitle,
+  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
     AlertDialog,
@@ -34,17 +33,13 @@ import {
     AlertDialogFooter,
     AlertDialogHeader,
     AlertDialogTitle,
-    AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
-import { Input } from "./ui/input";
 import { askQuestion } from "@/ai/flows/ask-question";
 import { Avatar, AvatarFallback } from "./ui/avatar";
 import { PlaceholdersAndVanishInput } from "./ui/placeholders-and-vanish-input";
 import { Badge } from "./ui/badge";
 import { Alert, AlertTitle, AlertDescription } from "./ui/alert";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "./ui/accordion";
-
 
 interface CodingPanelProps {
   question: Question;
@@ -63,7 +58,7 @@ interface ChatMessage {
 }
 
 const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; logs: string; error?: string; runtime?: number; }, onAuth: () => void }) => {
-    if (output.error?.includes('Bad_OAuth_Token') || output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
+    if (output.error?.includes('Bad_OAuth_Token') || output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token') || output.error?.includes('Session expired')) {
         return (
             <Alert variant="destructive" className="h-full flex flex-col items-center justify-center text-center">
                  <AlertTriangle className="h-8 w-8 mb-4" />
@@ -91,16 +86,6 @@ const TestResultDisplay = ({ output, onAuth }: { output: { success: boolean; log
     }
 
     let errorMessage = output.error || 'An unknown error occurred.';
-    const assertionMatch = errorMessage.match(/Assertion Failed: Expected: (.*), Actual: (.*)/);
-
-    if (assertionMatch) {
-      errorMessage = `Expected: ${assertionMatch[1]}, Actual: ${assertionMatch[2]}`;
-    } else {
-        const testFailedMatch = errorMessage.match(/❌ Test Failed: (\w+)/);
-        if (testFailedMatch && testFailedMatch[1]) {
-            errorMessage = `Test method ${testFailedMatch[1]} failed.`;
-        }
-    }
     
     return (
         <div className="h-full flex flex-col items-center justify-center text-center">
@@ -143,21 +128,13 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
   const [aiQuestion, setAiQuestion] = useState('');
   const [chatHistory, setChatHistory] = useState<ChatMessage[]>([]);
 
-
   useEffect(() => {
-    // Reset output when question changes
     setOutput(null);
   }, [question.id, setOutput]);
 
   const toggleResultsPanel = (expand?: boolean) => {
     const isMinimized = resultsPanelSize < 10;
-    
-    let shouldExpand;
-    if (typeof expand === 'boolean') {
-        shouldExpand = expand;
-    } else {
-        shouldExpand = isMinimized;
-    }
+    let shouldExpand = typeof expand === 'boolean' ? expand : isMinimized;
 
     if (shouldExpand) {
         panelGroupRef.current?.setLayout([65, 35]);
@@ -166,29 +143,22 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     }
   }
 
-  // Effect to auto-expand panel on new error
   useEffect(() => {
       if (output && !output.success) {
-          if (output.error === 'Session expired or invalid' || output.error?.includes('Failed to refresh Salesforce token')) {
+          if (output.error?.includes('Session expired') || output.error?.includes('Bad_OAuth_Token')) {
             setSessionExpired(true);
           } else {
-            const isMinimized = resultsPanelSize < 10;
-            if (isMinimized) {
-                toggleResultsPanel(true);
-            }
+            if (resultsPanelSize < 10) toggleResultsPanel(true);
           }
       }
-      if (output && output.success) {
-        setSessionExpired(false);
-      }
+      if (output && output.success) setSessionExpired(false);
   }, [output, resultsPanelSize]);
 
   const handleAuthWithSalesforce = async () => {
-    // 1. Generate code verifier
+    if (!user) return;
     const verifier = btoa(String.fromCharCode(...window.crypto.getRandomValues(new Uint8Array(32))));
     sessionStorage.setItem('salesforce_code_verifier', verifier);
 
-    // 2. Generate code challenge
     const encoder = new TextEncoder();
     const data = encoder.encode(verifier);
     const digest = await window.crypto.subtle.digest('SHA-256', data);
@@ -197,8 +167,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
       .replace(/\//g, '_')
       .replace(/=/g, '');
     
-    // 3. Call server action with the challenge
-    const result = await initiateSalesforceOAuth(challenge);
+    const result = await initiateSalesforceOAuth(user.uid, challenge);
     if (result.success && result.url) {
       window.location.href = result.url;
     } else {
@@ -218,17 +187,14 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
         }
 
         toggleResultsPanel(true);
-        
         setOutput(null);
         
         try {
-            if (!question.testcases) {
-                throw new Error("There are no test cases defined for this problem.");
-            }
+            if (!question.testcases) throw new Error("No test cases defined.");
             
             const result = await executeSalesforceCode(userProfile.sfdcAuth, code, "test class", question.testcases, user.uid, question);
             
-            if (result.error?.includes('Failed to refresh Salesforce token')) {
+            if (result.error?.includes('Session expired') || result.error?.includes('Bad_OAuth_Token')) {
                 setSessionExpired(true);
                 setOutput({ success: false, logs: "", error: "Your Salesforce session has expired. Please reconnect." });
                 return;
@@ -238,7 +204,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             
             if (result.success) {
                 onTestPass();
-                // --- User Progress Update Logic ---
                 if (userDocRef && userProfile) {
                     const problemId = question.id;
                     const solvedProblems = userProfile.solvedProblems || {};
@@ -246,37 +211,15 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                     if (!solvedProblems[problemId]) {
                         const pointsMap = { 'Easy': 10, 'Medium': 20, 'Hard': 50 };
                         const pointsGained = pointsMap[question.difficulty] || 0;
-                        
-                        const today = new Date();
-                        const todayStr = today.toISOString().split('T')[0];
-                        const yesterday = new Date();
-                        yesterday.setDate(today.getDate() - 1);
-                        const yesterdayStr = yesterday.toISOString().split('T')[0];
-                        
-                        const lastSolvedDate = userProfile.lastSolvedDate;
-                        let newCurrentStreak = userProfile.currentStreak || 0;
-
-                        if (lastSolvedDate === yesterdayStr) {
-                            newCurrentStreak++;
-                        } else if (lastSolvedDate !== todayStr) {
-                            newCurrentStreak = 1;
-                        }
-                        
-                        const newSubmissionHeatmap = {
-                            ...userProfile.submissionHeatmap,
-                            [todayStr]: (userProfile.submissionHeatmap[todayStr] || 0) + 1,
-                        };
+                        const todayStr = new Date().toISOString().split('T')[0];
                         
                         const newDsaStats = { ...userProfile.dsaStats };
                         newDsaStats[question.difficulty] = (newDsaStats[question.difficulty] || 0) + 1;
                         
-                        const updatedProfile = {
+                        setDocumentNonBlocking(userDocRef, {
                             points: (userProfile.points || 0) + pointsGained,
                             dsaStats: newDsaStats,
                             lastSolvedDate: todayStr,
-                            currentStreak: newCurrentStreak,
-                            maxStreak: Math.max(userProfile.maxStreak || 0, newCurrentStreak),
-                            submissionHeatmap: newSubmissionHeatmap,
                             solvedProblems: {
                                 ...userProfile.solvedProblems,
                                 [problemId]: {
@@ -287,73 +230,15 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                                     category: question.category,
                                 }
                             }
-                        };
-
-                        setDocumentNonBlocking(userDocRef, updatedProfile, { merge: true });
+                        }, { merge: true });
                     }
                 }
-            } else {
-                 // No need to throw an error here, just let the UI display the failure.
             }
-
         } catch (e: any) {
-            const errorMessage = e.message || "An unknown error occurred.";
-            setOutput({ success: false, logs: "", error: errorMessage });
+            setOutput({ success: false, logs: "", error: e.message || "An unknown error occurred." });
         }
     });
   };
-
-  const getSObjectName = (code: string): { name: string | undefined, type: 'Class' | 'Trigger' | undefined } => {
-    // Look for 'class MyClassName'
-    const classMatch = code.match(/(?:public|global)\s+(?:virtual\s+|abstract\s+|with\s+sharing\s+|without\s+sharing\s+)*class\s+([a-zA-Z0-9_]+)/);
-    if (classMatch && classMatch[1]) {
-        return { name: classMatch[1], type: 'Class' };
-    }
-
-    // Look for '@isTest class MyTestClassName'
-    const testClassMatch = code.match(/@isTest\s+(?:private|public|global)?\s+class\s+([a-zA-Z0-9_]+)/);
-    if (testClassMatch && testClassMatch[1]) {
-        return { name: testClassMatch[1], type: 'Class' };
-    }
-    
-    // Look for 'trigger MyTriggerName on ObjectName'
-    const triggerMatch = code.match(/trigger\s+([a-zA-Z0-9_]+)\s+on\s+([a-zA-Z0-9_]+)/);
-    if (triggerMatch && triggerMatch[1]) {
-        return { name: triggerMatch[1], type: 'Trigger' };
-    }
-    
-    return { name: undefined, type: undefined };
-  }
-
-  const handleDeleteMetadata = () => {
-    startTransition(async () => {
-      setIsDeleting(true);
-       if (!user || !userProfile?.sfdcAuth?.connected) {
-        // toast({ title: "Not Connected", description: "Please connect to Salesforce first.", variant: "destructive"});
-        setIsDeleting(false);
-        return;
-      }
-
-      if (!question.testcases) {
-        // toast({ title: "No Metadata", description: "No test cases are defined, so no metadata to delete.", variant: "destructive"});
-        setIsDeleting(false);
-        return;
-      }
-      
-      try {
-        const result = await deleteSalesforceMetadata(userProfile.sfdcAuth, code, question.testcases);
-        if (result.success) {
-        //   toast({ title: "Success", description: "Apex metadata has been deleted from your org."});
-        } else {
-          throw new Error(result.error);
-        }
-      } catch (e: any) {
-        // toast({ title: "Deletion Failed", description: e.message, variant: "destructive"});
-      } finally {
-        setIsDeleting(false);
-      }
-    });
-  }
 
   const handleAskAi = async (e?: React.FormEvent<HTMLFormElement>) => {
     if (e) e.preventDefault();
@@ -374,17 +259,9 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 userCode: code,
             }
         });
-        const aiMessage: ChatMessage = { sender: 'ai', text: result.answer };
-        setChatHistory(prev => [...prev, aiMessage]);
+        setChatHistory(prev => [...prev, { sender: 'ai', text: result.answer }]);
     } catch (error) {
-        console.error("AI question failed:", error);
-        const errorMessage: ChatMessage = { sender: 'ai', text: 'Sorry, I encountered an error. Please try again.' };
-        setChatHistory(prev => [...prev, errorMessage]);
-        // toast({
-        //     title: "AI Assistant Error",
-        //     description: "Could not get a response from the AI assistant.",
-        //     variant: "destructive",
-        // });
+        setChatHistory(prev => [...prev, { sender: 'ai', text: 'Sorry, I encountered an error. Please try again.' }]);
     } finally {
         setIsAiThinking(false);
     }
@@ -394,12 +271,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
     "How do I access related records?",
     "Explain SOQL to me like I'm five.",
     "What is the difference between a class and a trigger?",
-    "How can I write a test class for this?",
-    "Why am I getting a NullPointerException?",
   ];
-
-  const isExecuting = isPending;
-  const isMinimized = resultsPanelSize < 10;
 
   return (
     <div className="h-full w-full flex flex-col">
@@ -424,9 +296,7 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             direction="vertical" 
             className="flex-grow"
             ref={panelGroupRef}
-            onLayout={(sizes: number[]) => {
-                setResultsPanelSize(sizes[1]);
-            }}
+            onLayout={(sizes) => setResultsPanelSize(sizes[1])}
         >
             <ResizablePanel defaultSize={95} minSize={20}>
                 <div className="h-full w-full relative">
@@ -453,8 +323,6 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                 minSize={5}
                 collapsible={true}
                 collapsedSize={5}
-                onCollapse={() => setResultsPanelSize(0)}
-                onExpand={() => setResultsPanelSize(35)}
             >
                 <div className="h-full flex flex-col">
                     <div className="flex-shrink-0 flex items-center justify-between px-4 py-1 border-b">
@@ -463,13 +331,13 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                             <h3 className="font-semibold text-sm">Test Results</h3>
                         </div>
                          <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => toggleResultsPanel()}>
-                            {isMinimized ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
+                            {resultsPanelSize < 10 ? <ChevronUp className="h-4 w-4" /> : <ChevronDown className="h-4 w-4" />}
                          </Button>
                     </div>
-                    {!isMinimized && (
+                    {resultsPanelSize >= 10 && (
                       <ScrollArea className="flex-grow bg-muted/30">
                           <div className="p-4 h-full">
-                           {isExecuting ? (
+                           {isPending ? (
                               <div className="flex h-full flex-col items-center justify-center gap-2 text-muted-foreground">
                                   <Loader2 className="animate-spin h-8 w-8" />
                                   <span>Executing code...</span>
@@ -503,37 +371,24 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
                     <SheetContent className="sm:max-w-lg w-full flex flex-col p-0 rounded-l-lg">
                         <SheetHeader className="p-6 border-b">
                             <SheetTitle>Codbee AI</SheetTitle>
-                            <SheetDescription>
-                                Ask a question about the problem. The AI will guide you without giving the solution.
-                            </SheetDescription>
+                            <SheetDescription>Ask for hints without spoiling the solution.</SheetDescription>
                         </SheetHeader>
                         <ScrollArea className="flex-grow">
                             <div className="space-y-4 p-6">
                                 {chatHistory.map((msg, index) => (
                                     <div key={index} className={`flex items-start gap-3 ${msg.sender === 'user' ? 'justify-end' : ''}`}>
                                         {msg.sender === 'ai' && (
-                                            <Avatar className="h-8 w-8 border">
-                                                <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
-                                            </Avatar>
+                                            <Avatar className="h-8 w-8 border"><AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback></Avatar>
                                         )}
                                         <div className={`rounded-lg p-3 max-w-md ${msg.sender === 'user' ? 'bg-primary text-primary-foreground rounded-br-none' : 'bg-muted rounded-bl-none'}`}>
                                             <p className="text-sm">{msg.text}</p>
                                         </div>
-                                        {msg.sender === 'user' && (
-                                            <Avatar className="h-8 w-8 border">
-                                            <AvatarFallback><UserIcon className="h-5 w-5"/></AvatarFallback>
-                                            </Avatar>
-                                        )}
                                     </div>
                                 ))}
                                 {isAiThinking && (
                                     <div className="flex items-start gap-3">
-                                        <Avatar className="h-8 w-8 border">
-                                            <AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback>
-                                        </Avatar>
-                                        <div className="rounded-lg p-3 max-w-lg bg-muted rounded-bl-none flex items-center">
-                                            <Loader2 className="h-5 w-5 animate-spin"/>
-                                        </div>
+                                        <Avatar className="h-8 w-8 border"><AvatarFallback><Bot className="h-5 w-5" /></AvatarFallback></Avatar>
+                                        <div className="rounded-lg p-3 max-w-lg bg-muted rounded-bl-none flex items-center"><Loader2 className="h-5 w-5 animate-spin"/></div>
                                     </div>
                                 )}
                             </div>
@@ -552,35 +407,11 @@ export function CodingPanel({ question, code, setCode, onTestPass, fontSize, edi
             ) : priceConfig?.isPaymentsEnabled !== false ? (
                 <Button variant="outline" size="sm" className="rounded-md mr-auto" disabled>
                     <Bot className="-ms-1 opacity-60" size={16} aria-hidden="true" />
-                    Upgrade to Pro for AI
+                    Upgrade for AI
                 </Button>
             ): null}
-
-            <AlertDialog>
-                <AlertDialogTrigger asChild>
-                    <Button variant="destructive" size="sm" className="rounded-md hidden" disabled={isDeleting}>
-                        <Trash2 className="mr-2 h-4 w-4" />
-                        Delete Metadata
-                    </Button>
-                </AlertDialogTrigger>
-                <AlertDialogContent>
-                    <AlertDialogHeader>
-                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
-                    <AlertDialogDescription>
-                        This will delete the Apex class/trigger and the test class for this problem from your connected Salesforce org. This action cannot be undone.
-                    </AlertDialogDescription>
-                    </AlertDialogHeader>
-                    <AlertDialogFooter>
-                    <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogAction onClick={handleDeleteMetadata} disabled={isDeleting}>
-                        {isDeleting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
-                        Delete
-                    </AlertDialogAction>
-                    </AlertDialogFooter>
-                </AlertDialogContent>
-            </AlertDialog>
-            <Button onClick={handleSubmitCode} size="sm" disabled={isExecuting} className="bg-green-500 hover:bg-green-600 text-white rounded-md">
-                {isExecuting ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="-ms-1 opacity-60" size={16} aria-hidden="true" />}
+            <Button onClick={handleSubmitCode} size="sm" disabled={isPending} className="bg-green-500 hover:bg-green-600 text-white rounded-md">
+                {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Play className="-ms-1 opacity-60" size={16} aria-hidden="true" />}
                 Submit
             </Button>
         </div>
