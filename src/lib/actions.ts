@@ -71,12 +71,11 @@ async function deleteMetadataRecord(auth: SfdcAuth, type: 'ApexClass' | 'ApexTri
 
 /**
  * Resiliently upserts Apex metadata, handling cross-type collisions and eventual consistency lag.
- * Proactively cleans up "insufficient access rights" caused by cross-reference mismatches.
  */
 async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTrigger', name: string, body: string, objectName?: string): Promise<string> {
     const otherType = type === 'ApexClass' ? 'ApexTrigger' : 'ApexClass';
     
-    // 1. Check for collision in the OTHER type (SF requires unique names across Class/Trigger)
+    // 1. Proactively clean up collision in the OTHER type (SF requires unique names across types)
     const collision = await findMetadataRecord(auth, otherType, name);
     if (collision) { 
         await deleteMetadataRecord(auth, otherType, collision.Id); 
@@ -93,6 +92,7 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
     
     try {
         if (existing) {
+            // Force update on existing ID
             await sfdcFetch(auth, `/services/data/v60.0/tooling/sobjects/${type}/${existing.Id}`, {
                 method: 'PATCH',
                 body: JSON.stringify(payload),
@@ -108,7 +108,7 @@ async function nuclearUpsertMetadata(auth: SfdcAuth, type: 'ApexClass' | 'ApexTr
         }
     } catch (error: any) {
         const msg = error.message || '';
-        // 3. Robust recovery: if "duplicate value found", extract the ID from the error message or re-query
+        // 3. Fallback recovery: if "duplicate value found", extract the ID from the error message or re-query
         if (msg.includes('duplicate value found') || msg.includes('DUPLICATE_VALUE')) {
             await sleep(2000);
             const secondTry = await findMetadataRecord(auth, type, name);
@@ -272,6 +272,7 @@ export async function deployLwc(userId: string, lwcData: any, authOverride?: Sfd
         const userDoc = await firestore().collection('users').doc(userId).get();
         const auth = authOverride || userDoc.data()?.sfdcAuth;
         if (!auth) throw new Error('Salesforce not connected.');
+        // Implementation for LWC deployment via Tooling API Metadata would go here
         return { success: true };
     } catch (e: any) { return { success: false, error: e.message }; }
 }
@@ -295,5 +296,6 @@ export async function initiateLinkedInOAuth(userId: string) {
 }
 
 export async function installSalesforcePackage(auth: SfdcAuth, key: string, userId: string) {
+    // This is a placeholder for actual package installation logic via the Tooling or Metadata API
     return { success: true };
 }

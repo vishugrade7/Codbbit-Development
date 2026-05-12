@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useEffect, Suspense } from 'react';
@@ -14,12 +13,17 @@ function SalesforceCallback() {
   const { toast } = useToast();
 
   useEffect(() => {
-    // The logic is now handled server-side in the API route.
-    // This page just shows a loading indicator.
-    // The API route will redirect back to settings.
     const error = searchParams.get('error');
     const errorDescription = searchParams.get('error_description');
     const success = searchParams.get('success');
+    const code = searchParams.get('code');
+    const state = searchParams.get('state');
+
+    // If we land here with a code/state from Salesforce, forward to the API route for processing
+    if (code && state) {
+       router.replace(`/api/salesforce/callback?code=${code}&state=${encodeURIComponent(state)}`);
+       return;
+    }
 
     if (error) {
       toast({
