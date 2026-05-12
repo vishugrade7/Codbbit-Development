@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -77,8 +76,8 @@ export default function PracticeProblemsPage() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
-        <main className="p-4 sm:p-6 lg:p-8 bg-background min-h-screen">
-          <header className="text-center mb-12">
+        <main className="flex-1 bg-background min-h-screen">
+          <header className="px-4 py-8 sm:px-6 lg:px-8 text-center mb-8">
             <h1 className="text-4xl font-bold font-headline tracking-tight text-foreground">
               Practice Problems
             </h1>
@@ -87,7 +86,7 @@ export default function PracticeProblemsPage() {
             </p>
           </header>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          <div className="px-4 pb-8 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {categories.map((category, index) => (
               <CategoryCard key={category.name} category={category} index={index} />
             ))}

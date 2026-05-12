@@ -99,8 +99,8 @@ export default function CategoryPage() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
-        <main className="p-4 sm:p-6 lg:p-8">
-          <header className="mb-8 flex items-start justify-between gap-4">
+        <main className="flex-1 bg-background min-h-screen">
+          <header className="px-4 py-8 sm:px-6 lg:px-8 flex items-start justify-between gap-4">
             <div className="flex items-center gap-4">
               <Button variant="outline" size="icon" onClick={() => router.push('/problems')}>
                   <ArrowLeft className="h-4 w-4" />
@@ -119,49 +119,50 @@ export default function CategoryPage() {
             </div>
           </header>
 
-          <Card>
-            <CardContent className="p-0">
-              <ScrollArea className="h-[calc(100vh-250px)]">
-                <Table>
-                    <TableHeader>
-                        <TableRow>
-                            <TableHead className="w-[50px]">Status</TableHead>
-                            <TableHead>Title</TableHead>
-                            <TableHead>Difficulty</TableHead>
-                        </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                        {filteredQuestions?.map((question) => {
-                            const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
-                            return (
-                                <TableRow key={question.id || question.title}>
-                                    <TableCell className="text-center py-2">
-                                        {isSolved ? (
-                                            <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
-                                        ) : (
-                                            <Circle className="h-5 w-5 text-muted-foreground/20 mx-auto" />
-                                        )}
-                                    </TableCell>
-                                    <TableCell className="py-2">
-                                        <Link href={`/problems/${params.category}/${question.id || question.title}`} className="font-medium hover:underline">
-                                            {question.title}
-                                        </Link>
-                                    </TableCell>
-                                    <TableCell className="py-2">
-                                        <Badge variant="outline" className="gap-1.5 w-20 justify-center">
-                                        <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
-                                        {question.difficulty}
-                                        </Badge>
-                                    </TableCell>
-                                </TableRow>
-                            )
-                        })}
-                    </TableBody>
-                </Table>
-              </ScrollArea>
-            </CardContent>
-          </Card>
-
+          <div className="px-4 pb-8 sm:px-6 lg:px-8">
+            <Card>
+                <CardContent className="p-0">
+                <ScrollArea className="h-[calc(100vh-250px)]">
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="w-[50px]">Status</TableHead>
+                                <TableHead>Title</TableHead>
+                                <TableHead>Difficulty</TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {filteredQuestions?.map((question) => {
+                                const isSolved = solvedProblemIds.has(question.id!) || solvedProblemIds.has(question.title!);
+                                return (
+                                    <TableRow key={question.id || question.title}>
+                                        <TableCell className="text-center py-2">
+                                            {isSolved ? (
+                                                <CheckCircle className="h-5 w-5 text-green-500 mx-auto" />
+                                            ) : (
+                                                <Circle className="h-5 w-5 text-muted-foreground/20 mx-auto" />
+                                            )}
+                                        </TableCell>
+                                        <TableCell className="py-2">
+                                            <Link href={`/problems/${params.category}/${question.id || question.title}`} className="font-medium hover:underline">
+                                                {question.title}
+                                            </Link>
+                                        </TableCell>
+                                        <TableCell className="py-2">
+                                            <Badge variant="outline" className="gap-1.5 w-20 justify-center">
+                                            <span className={cn("h-1.5 w-1.5 rounded-full", getDifficultyDotClass(question.difficulty))} aria-hidden="true"></span>
+                                            {question.difficulty}
+                                            </Badge>
+                                        </TableCell>
+                                    </TableRow>
+                                )
+                            })}
+                        </TableBody>
+                    </Table>
+                </ScrollArea>
+                </CardContent>
+            </Card>
+          </div>
         </main>
       </SidebarInset>
     </SidebarProvider>

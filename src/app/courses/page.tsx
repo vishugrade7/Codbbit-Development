@@ -1,4 +1,3 @@
-
 'use client';
 
 import { useMemo } from 'react';
@@ -44,14 +43,14 @@ export default function CoursesPage() {
                 <AppSidebar />
             </Sidebar>
             <SidebarInset>
-                 <main className="p-4 sm:p-6 lg:p-8 bg-muted/20 min-h-screen">
-                    <header className="mb-8">
+                 <main className="flex-1 bg-muted/20 min-h-screen">
+                    <header className="px-4 py-8 sm:px-6 lg:px-8">
                         <h1 className="text-3xl font-bold font-headline tracking-tight">Courses</h1>
                         <p className="text-muted-foreground mt-1">
                             Browse courses to improve your Apex skills.
                         </p>
                     </header>
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div className="px-4 pb-8 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                         {allCourses.map(course => (
                             <Link key={course.id} href={`/courses/${course.id}`} className="block hover:shadow-lg transition-shadow rounded-lg">
                                 <Card className="h-full transition-colors duration-300 ease-in-out hover:bg-gradient-to-br hover:from-blue-100 hover:to-indigo-200 dark:hover:from-blue-900/50 dark:hover:to-indigo-900/50">
@@ -70,5 +69,3 @@ export default function CoursesPage() {
         </SidebarProvider>
     )
 }
-
-    

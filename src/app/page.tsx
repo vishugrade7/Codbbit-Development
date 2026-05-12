@@ -8,7 +8,6 @@ import type { UserProfile, Question, ProblemSheet } from '@/lib/types';
 import { doc, collection, query, limit, where, orderBy } from 'firebase/firestore';
 import { Award, BarChart, Flame, BookOpen, List, Calendar, Star, AlertTriangle, TrendingUp, ArrowDown, Folder, ChevronRight } from 'lucide-react';
 import { Spinner } from '@/components/ui/spinner';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Fragment, useEffect, useMemo, useState } from 'react';
 import { Badge } from '@/components/ui/badge';
@@ -19,7 +18,7 @@ import { initiateSalesforceOAuth } from '@/lib/actions';
 import { useToast } from '@/hooks/use-toast';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
+import Link from 'next/link';
 
 export default function HomePage() {
   const { user, isUserLoading } = useUser();
@@ -56,18 +55,6 @@ export default function HomePage() {
     const solvedProblemIds = new Set(Object.keys(userProfile.solvedProblems || {}));
     return allProblems.filter(problem => !solvedProblemIds.has(problem.id!)).slice(0, 5);
   }, [categoriesData, userProfile]);
-
-  const problemOfTheDay = useMemo(() => {
-    if (!categoriesData) return null;
-    const apexBasics = categoriesData.find(c => c.id === 'Apex Basics');
-    return apexBasics?.Questions?.[3] || null;
-  }, [categoriesData]);
-
-  const problemOfTheWeek = useMemo(() => {
-    if (!categoriesData) return null;
-    const apexBasics = categoriesData.find(c => c.id === 'Apex Basics');
-    return apexBasics?.Questions?.[4] || null;
-  }, [categoriesData]);
 
   useEffect(() => {
     if (!isProfileLoading && userProfile?.isAdmin) {
@@ -107,7 +94,7 @@ export default function HomePage() {
     <SidebarProvider>
       <Sidebar collapsible="icon" className="hidden md:block"><AppSidebar /></Sidebar>
       <SidebarInset>
-        <main className="p-2 sm:p-6 lg:p-8 bg-gradient-to-br from-background to-muted/30 pt-4 md:pt-8">
+        <main className="flex-1 min-h-screen bg-gradient-to-br from-background to-muted/30">
           <Dialog open={showReconnectDialog} onOpenChange={setShowReconnectDialog}>
             <DialogContent>
               <DialogHeader>
@@ -121,7 +108,7 @@ export default function HomePage() {
             </DialogContent>
           </Dialog>
 
-          <header className="mb-8 flex flex-wrap items-center justify-between gap-4">
+          <header className="px-4 py-8 sm:px-6 lg:px-8 flex flex-wrap items-center justify-between gap-4">
             <div className="animate-fade-in-up">
               <h1 className="text-3xl font-bold font-handwritten tracking-tight">{`Welcome back, ${userProfile?.name || 'Coder'}!`}</h1>
               <p className="text-muted-foreground mt-1">Ready to tackle your next challenge? Let's get started.</p>
@@ -134,7 +121,7 @@ export default function HomePage() {
             </div>
           </header>
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="px-4 pb-8 sm:px-6 lg:px-8 grid grid-cols-1 lg:grid-cols-2 gap-6">
              <Card className="animate-fade-in-up flex-grow flex flex-col" style={{ animationDelay: '0.7s' }}>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2"><List className="h-5 w-5"/> Featured Sheets</CardTitle>

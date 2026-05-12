@@ -1,4 +1,3 @@
-
 'use client';
 
 import { AppSidebar, Sidebar, SidebarProvider, SidebarInset } from '@/components';
@@ -11,7 +10,9 @@ export default function LeaderboardPage() {
         <AppSidebar />
       </Sidebar>
       <SidebarInset>
-        <LeaderboardClient />
+        <main className="flex-1 bg-background min-h-screen">
+          <LeaderboardClient />
+        </main>
       </SidebarInset>
     </SidebarProvider>
   );
